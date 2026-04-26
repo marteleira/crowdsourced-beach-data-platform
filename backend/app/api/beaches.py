@@ -1,0 +1,260 @@
+from datetime import datetime, timedelta, timezone
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select, func, and_
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database import get_db
+from app.core.deps import get_current_user
+from app.models.beach import Beach
+from app.models.beach_status import BeachStatus, OccupancyHeartbeat
+from app.models.report import Report
+from app.models.user import User
+from app.schemas.beach import BeachSummary, BeachDetail, BeachFullResponse, BeachStatusResponse, OccupancyData
+from app.services.activity import get_activity_level, get_params
+from app.services.snapshot import fetch_with_fallback
+from app.services import ipma, hidrografico, apa, carris
+
+router = APIRouter(prefix="/beaches", tags=["beaches"])
+
+
+async def _get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
+    result = await db.execute(select(Beach).where(Beach.slug == slug))
+    beach = result.scalar_one_or_none()
+    if not beach:
+        raise HTTPException(404, f"Praia '{slug}' não encontrada")
+    return beach
+
+
+async def _compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=20)
+    stmt = (
+        select(func.count(func.distinct(OccupancyHeartbeat.user_id)))
+        .where(
+            OccupancyHeartbeat.beach_id == beach.id,
+            OccupancyHeartbeat.created_at > cutoff,
+        )
+    )
+    result = await db.execute(stmt)
+    count = result.scalar_one() or 0
+
+    if beach.max_capacity:
+        ratio = count / beach.max_capacity
+        level = "low" if ratio < 0.4 else "medium" if ratio < 0.75 else "high"
+    else:
+        level = "low" if count < 10 else "medium" if count < 40 else "high"
+
+    if count == 0 and not beach.has_capacity_data:
+        level = "unknown"
+
+    return OccupancyData(
+        level=level,
+        user_count=count,
+        is_estimate=True,
+        last_updated=datetime.now(timezone.utc),
+    )
+
+
+async def _get_active_alerts(db: AsyncSession, beach_id: int, activity_level: str):
+    now = datetime.now(timezone.utc)
+    stmt = (
+        select(Report)
+        .where(
+            Report.beach_id == beach_id,
+            Report.is_expired == False,
+            Report.expires_at > now,
+        )
+        .order_by(Report.created_at.desc())
+    )
+    result = await db.execute(stmt)
+    reports = result.scalars().all()
+
+    label = get_params(activity_level)["label"]
+    alerts = []
+    for r in reports:
+        alerts.append({
+            "id": r.id,
+            "type": r.type,
+            "severity": r.severity,
+            "upvotes": r.upvotes,
+            "downvotes": r.downvotes,
+            "created_at": r.created_at,
+            "expires_at": r.expires_at,
+            "note": r.note,
+            "verified": (r.upvotes - r.downvotes) >= 3,
+            "activity_label": label,
+        })
+    return alerts
+
+
+@router.get("", response_model=List[BeachSummary])
+async def list_beaches(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Beach).order_by(Beach.name))
+    beaches = result.scalars().all()
+
+    summaries = []
+    for beach in beaches:
+        activity_level = await get_activity_level(db, beach.id)
+
+        # Beach status
+        status_result = await db.execute(
+            select(BeachStatus).where(BeachStatus.beach_id == beach.id)
+        )
+        status = status_result.scalar_one_or_none()
+        flag_color = status.flag_color if status else "unknown"
+        flag_confidence = status.flag_confidence if status else 0.0
+
+        # Active alerts count
+        now = datetime.now(timezone.utc)
+        count_result = await db.execute(
+            select(func.count(Report.id)).where(
+                Report.beach_id == beach.id,
+                Report.is_expired == False,
+                Report.expires_at > now,
+            )
+        )
+        alerts_count = count_result.scalar_one() or 0
+
+        occupancy = await _compute_occupancy(db, beach)
+        params = get_params(activity_level)
+
+        summaries.append(
+            BeachSummary(
+                id=beach.id,
+                slug=beach.slug,
+                name=beach.name,
+                lat=beach.lat,
+                lon=beach.lon,
+                flag_color=flag_color,
+                flag_confidence=flag_confidence,
+                occupancy_level=occupancy.level,
+                active_alerts_count=alerts_count,
+                activity_level=activity_level,
+                activity_label=params["label"],
+            )
+        )
+    return summaries
+
+
+@router.get("/{slug}", response_model=BeachFullResponse)
+async def get_beach(
+    slug: str,
+    db: AsyncSession = Depends(get_db),
+    _user: Optional[User] = Depends(get_current_user),
+):
+    beach = await _get_beach_or_404(slug, db)
+    activity_level = await get_activity_level(db, beach.id)
+    params = get_params(activity_level)
+
+    # Status
+    status_result = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach.id))
+    status = status_result.scalar_one_or_none()
+    flag_color = status.flag_color if status else "unknown"
+    flag_confidence = status.flag_confidence if status else 0.0
+
+    occupancy = await _compute_occupancy(db, beach)
+    alerts = await _get_active_alerts(db, beach.id, activity_level)
+
+    # External data — weather
+    weather = sea = tides = water_quality = transport = None
+
+    if beach.ipma_global_id:
+        try:
+            raw, source, snap_at = await fetch_with_fallback(
+                db, "ipma_weather",
+                lambda: ipma.fetch_weather_forecast(beach.ipma_global_id),
+                beach_id=beach.id,
+            )
+            weather = [
+                {**f, "data_source": source, "snapshot_at": snap_at}
+                for f in raw.get("forecasts", [])
+            ]
+        except Exception:
+            pass
+
+    if beach.ipma_sea_global_id:
+        try:
+            raw, source, snap_at = await fetch_with_fallback(
+                db, "ipma_sea",
+                lambda: ipma.fetch_sea_forecast(beach.ipma_sea_global_id),
+                beach_id=beach.id,
+            )
+            sea = [
+                {**f, "data_source": source, "snapshot_at": snap_at}
+                for f in raw.get("forecasts", [])
+            ]
+        except Exception:
+            pass
+
+    if beach.tide_station_id:
+        try:
+            raw, source, snap_at = await fetch_with_fallback(
+                db, "tides",
+                lambda: hidrografico.fetch_tides_for_station(beach.tide_station_id),
+                beach_id=beach.id,
+            )
+            tides = {**raw, "data_source": source, "snapshot_at": snap_at}
+        except Exception:
+            pass
+
+    if beach.apa_station_id:
+        try:
+            raw, source, snap_at = await fetch_with_fallback(
+                db, "water_quality",
+                lambda: apa.fetch_water_quality(beach.apa_station_id),
+                beach_id=beach.id,
+            )
+            water_quality = {**raw, "data_source": source, "snapshot_at": snap_at}
+        except Exception:
+            pass
+
+    if beach.nearby_stop_ids:
+        try:
+            raw, source, snap_at = await fetch_with_fallback(
+                db, "carris_stops",
+                lambda: carris.fetch_multiple_stops_departures(beach.nearby_stop_ids),
+                beach_id=beach.id,
+            )
+            stops_info = []
+            for sid in beach.nearby_stop_ids:
+                info = await carris.fetch_stop(sid)
+                if info:
+                    stops_info.append(info)
+            transport = {
+                "stops": stops_info,
+                "next_departures": raw if isinstance(raw, list) else [],
+                "data_source": source,
+                "snapshot_at": snap_at,
+            }
+        except Exception:
+            pass
+
+    beach_detail = {
+        "id": beach.id,
+        "slug": beach.slug,
+        "name": beach.name,
+        "lat": beach.lat,
+        "lon": beach.lon,
+        "has_capacity_data": beach.has_capacity_data,
+        "max_capacity": beach.max_capacity,
+        "flags_available": beach.flags_available,
+        "nearby_stop_ids": beach.nearby_stop_ids or [],
+    }
+
+    return BeachFullResponse(
+        beach=beach_detail,
+        status=BeachStatusResponse(
+            flag_color=flag_color,
+            flag_confidence=flag_confidence,
+            activity_level=activity_level,
+            activity_label=params["label"],
+            occupancy=occupancy,
+        ),
+        active_alerts=alerts,
+        weather=weather,
+        sea=sea,
+        tides=tides,
+        water_quality=water_quality,
+        transport=transport,
+    )
