@@ -29,6 +29,38 @@ class TestBeachList:
         assert r.status_code == 200
         assert r.json() == []
 
+    async def test_list_with_location_returns_distance_and_score(self, client: AsyncClient, beach: Beach):
+        r = await client.get("/api/v1/beaches?lat=38.484&lon=-8.982")
+        assert r.status_code == 200
+        item = r.json()[0]
+        assert item["distance_km"] is not None
+        assert item["recommendation_score"] is not None
+        assert item["distance_km"] < 1.0  # very close to the beach coordinates
+
+    async def test_list_without_location_has_no_score(self, client: AsyncClient, beach: Beach):
+        r = await client.get("/api/v1/beaches")
+        assert r.status_code == 200
+        item = r.json()[0]
+        assert item["distance_km"] is None
+        assert item["recommendation_score"] is None
+
+    async def test_list_sorted_by_proximity_when_location_given(
+        self, client: AsyncClient, db, beach: Beach
+    ):
+        # Add a second beach far away
+        far = Beach(
+            slug="praia-far", name="Praia Far", lat=41.0, lon=-8.0,
+            geom="SRID=4326;POINT(-8.0 41.0)", flags_available=True,
+        )
+        db.add(far)
+        await db.commit()
+
+        # Query from a point near portinho-da-arrabida
+        r = await client.get("/api/v1/beaches?lat=38.484&lon=-8.982")
+        assert r.status_code == 200
+        slugs = [b["slug"] for b in r.json()]
+        assert slugs[0] == "portinho-da-arrabida"  # nearest comes first
+
 
 class TestBeachDetail:
     async def test_get_existing_beach(self, client: AsyncClient, beach: Beach):
