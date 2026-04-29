@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta, timezone
+from math import radians, cos, sin, asin, sqrt
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,6 +18,48 @@ from app.services.snapshot import fetch_with_fallback
 from app.services import ipma, hidrografico, apa, carris
 
 router = APIRouter(prefix="/beaches", tags=["beaches"])
+
+# ── Recommendation scoring ─────────────────────────────────────────────────────
+
+FLAG_SCORE = {"green": 1.0, "yellow": 0.6, "unknown": 0.4, "red": 0.1, "purple": 0.1}
+OCCUPANCY_SCORE = {"low": 1.0, "medium": 0.6, "high": 0.2, "unknown": 0.5}
+
+
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle distance in km between two (lat, lon) points."""
+    R = 6371.0
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
+    return 2 * R * asin(sqrt(a))
+
+
+def _recommendation_score(
+    distance_km: float,
+    flag_color: str,
+    occupancy_level: str,
+    alerts_count: int,
+) -> float:
+    """
+    Score in [0, 1]. Higher = better recommendation.
+
+    Weights:
+      40% proximity  (closer is better, saturates at 0 km, drops to 0 at ~50 km)
+      30% flag color (green > yellow > unknown > red/purple)
+      20% occupancy  (low > medium > high)
+      10% alerts     (fewer active alerts = better)
+    """
+    proximity = max(0.0, 1.0 - distance_km / 50.0)
+    flag = FLAG_SCORE.get(flag_color, 0.4)
+    occupancy = OCCUPANCY_SCORE.get(occupancy_level, 0.5)
+    alert_penalty = min(1.0, alerts_count / 5.0)  # 5+ alerts → full penalty
+
+    return (
+        0.40 * proximity
+        + 0.30 * flag
+        + 0.20 * occupancy
+        + 0.10 * (1.0 - alert_penalty)
+    )
 
 
 async def _get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
@@ -89,7 +132,11 @@ async def _get_active_alerts(db: AsyncSession, beach_id: int, activity_level: st
 
 
 @router.get("", response_model=List[BeachSummary])
-async def list_beaches(db: AsyncSession = Depends(get_db)):
+async def list_beaches(
+    lat: Optional[float] = Query(None, description="User latitude for proximity ranking"),
+    lon: Optional[float] = Query(None, description="User longitude for proximity ranking"),
+    db: AsyncSession = Depends(get_db),
+):
     result = await db.execute(select(Beach).order_by(Beach.name))
     beaches = result.scalars().all()
 
@@ -97,7 +144,6 @@ async def list_beaches(db: AsyncSession = Depends(get_db)):
     for beach in beaches:
         activity_level = await get_activity_level(db, beach.id)
 
-        # Beach status
         status_result = await db.execute(
             select(BeachStatus).where(BeachStatus.beach_id == beach.id)
         )
@@ -105,7 +151,6 @@ async def list_beaches(db: AsyncSession = Depends(get_db)):
         flag_color = status.flag_color if status else "unknown"
         flag_confidence = status.flag_confidence if status else 0.0
 
-        # Active alerts count
         now = datetime.now(timezone.utc)
         count_result = await db.execute(
             select(func.count(Report.id)).where(
@@ -118,6 +163,17 @@ async def list_beaches(db: AsyncSession = Depends(get_db)):
 
         occupancy = await _compute_occupancy(db, beach)
         params = get_params(activity_level)
+
+        distance_km = (
+            _haversine_km(lat, lon, beach.lat, beach.lon)
+            if lat is not None and lon is not None
+            else None
+        )
+        score = (
+            _recommendation_score(distance_km, flag_color, occupancy.level, alerts_count)
+            if distance_km is not None
+            else None
+        )
 
         summaries.append(
             BeachSummary(
@@ -132,8 +188,15 @@ async def list_beaches(db: AsyncSession = Depends(get_db)):
                 active_alerts_count=alerts_count,
                 activity_level=activity_level,
                 activity_label=params["label"],
+                distance_km=round(distance_km, 1) if distance_km is not None else None,
+                recommendation_score=round(score, 3) if score is not None else None,
             )
         )
+
+    # Sort by recommendation score when location is provided, otherwise alphabetical
+    if lat is not None and lon is not None:
+        summaries.sort(key=lambda s: s.recommendation_score or 0, reverse=True)
+
     return summaries
 
 

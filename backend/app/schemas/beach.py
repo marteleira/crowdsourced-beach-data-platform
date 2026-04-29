@@ -11,10 +11,12 @@ class BeachSummary(BaseModel):
     lon: float
     flag_color: str
     flag_confidence: float
-    occupancy_level: str          # low | medium | high | unknown
+    occupancy_level: str              # low | medium | high | unknown
     active_alerts_count: int
-    activity_level: str           # low | normal | high
+    activity_level: str               # low | normal | high
     activity_label: Optional[str] = None
+    distance_km: Optional[float] = None         # only when lat/lon provided
+    recommendation_score: Optional[float] = None
 
     model_config = {"from_attributes": True}
 

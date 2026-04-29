@@ -17,7 +17,7 @@ from app.services.activity import get_activity_level, get_params, report_ttl_min
 router = APIRouter(prefix="/beaches/{slug}/reports", tags=["reports"])
 
 # Safety-critical types where presence is required for downvotes
-SAFETY_TYPES = {"strong_current", "red_flag", "jellyfish"}
+SAFETY_TYPES = {"strong_current", "red_flag", "jellyfish"}  # kept for legacy reference
 
 
 async def _get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
@@ -102,6 +102,12 @@ async def create_report(
     user: User = Depends(require_user),
 ):
     beach = await _get_beach_or_404(slug, db)
+
+    # Only users physically at the beach can submit reports
+    present = await _was_recently_present(db, user.id, beach.id, hours=1)
+    if not present:
+        raise HTTPException(403, "Tens de estar na praia para submeter um aviso")
+
     activity_level = await get_activity_level(db, beach.id)
     label = get_params(activity_level)["label"]
 
@@ -151,12 +157,11 @@ async def vote_report(
     if not report or report.is_expired:
         raise HTTPException(404, "Report não encontrado ou expirado")
 
-    # Presence check for safety-critical downvotes
+    # Presence required for all votes:
     vote_value = 1 if body.vote == "up" else -1
-    if vote_value == -1 and report.type in SAFETY_TYPES:
-        present = await _was_recently_present(db, user.id, beach.id, hours=2)
-        if not present:
-            raise HTTPException(403, "Tens de estar na praia para invalidar este aviso de segurança")
+    present = await _was_recently_present(db, user.id, beach.id, hours=2)
+    if not present:
+        raise HTTPException(403, "Tens de estar na praia para votar neste aviso")
 
     # Upsert vote
     existing = await db.execute(
