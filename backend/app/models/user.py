@@ -1,8 +1,8 @@
 from sqlalchemy import (
-    Column, Text, Boolean, Integer, TIMESTAMP, Index,
+    Column, Text, Boolean, Integer, TIMESTAMP, Index, Date,
     CheckConstraint, SmallInteger,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 import uuid
 from app.core.database import Base
@@ -29,6 +29,12 @@ class User(Base):
     total_reports = Column(Integer, default=0)
     confirmed_reports = Column(Integer, default=0)
     false_reports = Column(Integer, default=0)
+    streak = Column(Integer, default=0)
+    last_contribution_date = Column(Date)
+
+    # Settings stored as JSONB (defaults applied at read time if NULL)
+    notification_settings = Column(JSONB)
+    privacy_settings = Column(JSONB)
 
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 

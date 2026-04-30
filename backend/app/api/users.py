@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.deps import require_user
 from app.models.user import User, ReputationEvent
+from app.models.user_extended import UserAchievement
 from app.schemas.user import UserProfile, ReputationEventOut
 from app.services.reputation import reputation_level
+from app.services.achievements import ALL_ACHIEVEMENTS, get_all_achievements_status
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -24,6 +26,11 @@ async def get_profile(
     )
     recent_events = result.scalars().all()
 
+    ach_r = await db.execute(
+        select(UserAchievement.achievement_id).where(UserAchievement.user_id == user.id)
+    )
+    earned_ids = {row[0] for row in ach_r.all()}
+
     total = user.total_reports
     confirmed = user.confirmed_reports
     accuracy = round(confirmed / total, 2) if total > 0 else 0.0
@@ -34,6 +41,8 @@ async def get_profile(
         reputation=user.reputation,
         level=reputation_level(user.reputation),
         is_anonymous=user.is_anonymous,
+        streak=user.streak or 0,
+        achievements=get_all_achievements_status(user, earned_ids),
         stats={
             "total_reports": total,
             "confirmed_reports": confirmed,

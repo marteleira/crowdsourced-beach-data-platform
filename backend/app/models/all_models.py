@@ -6,3 +6,4 @@ from app.models.beach_status import (  # noqa: F401
     BeachStatus, FlagProposal, FlagConfirmation, OccupancyHeartbeat,
 )
 from app.models.snapshot import ApiSnapshot  # noqa: F401
+from app.models.user_extended import UserFavourite, PushToken, UserAchievement  # noqa: F401

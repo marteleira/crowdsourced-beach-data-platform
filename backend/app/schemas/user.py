@@ -16,6 +16,8 @@ class UserProfile(BaseModel):
     reputation: int
     level: str         # novo | regular | contribuidor | veterano
     is_anonymous: bool
+    streak: int = 0
+    achievements: List[dict] = []
     stats: dict        # total_reports, confirmed_reports, false_reports, accuracy_rate
     recent_events: List[ReputationEventOut] = []
 

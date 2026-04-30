@@ -54,6 +54,7 @@ TRUNCATE_ORDER = [
     "occupancy_heartbeats",
     "reputation_events", "refresh_tokens",
     "api_snapshots",
+    "user_achievements", "user_favourites", "push_tokens",
     "users", "beaches",
 ]
 
