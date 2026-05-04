@@ -34,6 +34,22 @@ class AuthRepository {
     return TokenResponse.fromJson(res.data as Map<String, dynamic>);
   }
 
+  Future<TokenResponse> registerWithEmail(
+    String email,
+    String password,
+    String displayName,
+  ) async {
+    final res = await _dio.post(
+      '/auth/register',
+      data: {
+        'email': email,
+        'password': password,
+        'display_name': displayName,
+      },
+    );
+    return TokenResponse.fromJson(res.data as Map<String, dynamic>);
+  }
+
   Future<TokenResponse> loginWithEmail(String email, String password) async {
     final res = await _dio.post(
       '/auth/login',
