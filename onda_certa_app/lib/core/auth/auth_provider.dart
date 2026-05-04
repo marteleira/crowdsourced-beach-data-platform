@@ -83,6 +83,46 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     });
   }
 
+  Future<void> registerWithEmail(
+    String email,
+    String password,
+    String displayName,
+  ) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(authRepositoryProvider);
+      final storage = ref.read(secureStorageProvider);
+      final tokens = await repo.registerWithEmail(email, password, displayName);
+      await storage.saveTokens(
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        isAnonymous: false,
+      );
+      return AuthAuthenticated(
+        accessToken: tokens.accessToken,
+        isAnonymous: false,
+      );
+    });
+  }
+
+  Future<void> loginWithEmail(String email, String password) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final repo = ref.read(authRepositoryProvider);
+      final storage = ref.read(secureStorageProvider);
+      final tokens = await repo.loginWithEmail(email, password);
+      await storage.saveTokens(
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        isAnonymous: false,
+      );
+      return AuthAuthenticated(
+        accessToken: tokens.accessToken,
+        isAnonymous: false,
+      );
+    });
+  }
+
   Future<void> logout() async {
     final storage = ref.read(secureStorageProvider);
     final refreshToken = await storage.getRefreshToken();

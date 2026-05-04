@@ -88,7 +88,9 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
     try:
         payload = await verify_google_id_token(body.id_token)
-    except Exception:
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error("Google token error: %s: %s", type(e).__name__, e)
         raise HTTPException(401, "Token Google inválido")
 
     google_sub = payload["sub"]

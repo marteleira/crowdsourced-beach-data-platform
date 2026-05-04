@@ -90,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Text(
-                          'Continue as Guest',
+                          'Continuar como visitante',
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: AppColors.textSecondary,
@@ -116,7 +116,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (idToken == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not get Google ID token')),
+            const SnackBar(content: Text('Não foi possível obter o token Google')),
           );
         }
         return;
@@ -125,7 +125,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on GoogleSignInException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.description ?? 'Google sign-in failed')),
+          SnackBar(content: Text(e.description ?? 'Falha ao entrar com Google')),
         );
       }
     } finally {
@@ -218,7 +218,7 @@ class _GoogleButton extends StatelessWidget {
                   _GoogleGLogo(),
                   const SizedBox(width: 12),
                   const Text(
-                    'Sign in with Google',
+                    'Entrar com Google',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -255,7 +255,7 @@ class _EmailButton extends StatelessWidget {
           shape: const StadiumBorder(),
         ),
         child: const Text(
-          'Sign in with email',
+          'Entrar com email',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w500,
@@ -281,17 +281,17 @@ class _Footer extends StatelessWidget {
 
     return Text.rich(
       TextSpan(
-        text: 'By continuing, you agree to our ',
+        text: 'Ao continuar, aceitas os nossos ',
         style: style,
         children: [
           TextSpan(
-            text: 'Terms of Service',
+            text: 'Termos de Serviço',
             style: linkStyle,
             recognizer: TapGestureRecognizer()..onTap = () {},
           ),
-          const TextSpan(text: ' and\n'),
+          const TextSpan(text: ' e\n'),
           TextSpan(
-            text: 'Privacy Policy',
+            text: 'Política de Privacidade',
             style: linkStyle,
             recognizer: TapGestureRecognizer()..onTap = () {},
           ),
