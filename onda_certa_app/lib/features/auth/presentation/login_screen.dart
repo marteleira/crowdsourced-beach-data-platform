@@ -287,13 +287,15 @@ class _Footer extends StatelessWidget {
           TextSpan(
             text: 'Termos de Serviço',
             style: linkStyle,
-            recognizer: TapGestureRecognizer()..onTap = () {},
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => context.push('/terms'),
           ),
           const TextSpan(text: ' e\n'),
           TextSpan(
             text: 'Política de Privacidade',
             style: linkStyle,
-            recognizer: TapGestureRecognizer()..onTap = () {},
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => context.push('/privacy'),
           ),
         ],
       ),
