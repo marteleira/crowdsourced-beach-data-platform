@@ -32,13 +32,11 @@ class BeachRepository {
     } catch (_) { return null; }
   }
 
-  Future<List<TideEntry>> getBeachTides(String slug) async {
+  Future<TidesData> getBeachTides(String slug) async {
     try {
       final res = await _dio.get('/beaches/$slug/tides');
-      final data = res.data as Map<String, dynamic>;
-      final entries = data['entries'] as List? ?? [];
-      return entries.map((e) => TideEntry.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (_) { return []; }
+      return TidesData.fromJson(res.data as Map<String, dynamic>);
+    } catch (_) { return TidesData.empty; }
   }
 
   Future<List<BeachReport>> getBeachReports(String slug) async {
@@ -56,6 +54,13 @@ class BeachRepository {
       final list = res.data as List;
       return list.map((e) => MapBeachPresence.fromJson(e as Map<String, dynamic>)).toList();
     } catch (_) { return []; }
+  }
+
+  Future<void> sendHeartbeat(String slug, {required double lat, required double lon}) async {
+    await _dio.post(
+      '/beaches/$slug/occupancy/heartbeat',
+      data: {'lat': lat, 'lon': lon},
+    );
   }
 
   Future<UserProfile?> getUserProfile() async {
