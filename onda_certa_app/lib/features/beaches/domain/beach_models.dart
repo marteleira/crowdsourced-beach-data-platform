@@ -94,6 +94,32 @@ class TideEntry {
   );
 }
 
+class TidesData {
+  const TidesData({
+    required this.entries,
+    this.currentHeight,
+    this.direction,
+    this.observedAt,
+  });
+
+  final List<TideEntry> entries;
+  final double? currentHeight;   // live observed height in metres
+  final String? direction;       // "rising" | "falling" | "steady"
+  final String? observedAt;
+
+  static const empty = TidesData(entries: []);
+
+  factory TidesData.fromJson(Map<String, dynamic> j) {
+    final raw = j['entries'] as List? ?? [];
+    return TidesData(
+      entries: raw.map((e) => TideEntry.fromJson(e as Map<String, dynamic>)).toList(),
+      currentHeight: (j['current_height'] as num?)?.toDouble(),
+      direction: j['direction'] as String?,
+      observedAt: j['observed_at'] as String?,
+    );
+  }
+}
+
 class BeachReport {
   const BeachReport({
     required this.id, required this.type, this.severity,

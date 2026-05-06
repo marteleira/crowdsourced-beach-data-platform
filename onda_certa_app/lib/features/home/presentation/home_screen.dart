@@ -2,9 +2,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import '../../../core/presence/heartbeat_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/animated_waves.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -18,11 +21,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<bool>(locationPermissionDeniedProvider, (_, denied) {
+      final messenger = ScaffoldMessenger.of(context);
+      if (denied) {
+        messenger.showMaterialBanner(
+          MaterialBanner(
+            backgroundColor: AppColors.primary,
+            content: const Text(
+              'Sem acesso à localização não podes reportar condições nem votar.',
+              style: TextStyle(color: Colors.white),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  messenger.clearMaterialBanners();
+                  Geolocator.openAppSettings();
+                },
+                child: const Text('Definições', style: TextStyle(color: AppColors.teal)),
+              ),
+              TextButton(
+                onPressed: messenger.clearMaterialBanners,
+                child: const Text('Fechar', style: TextStyle(color: Colors.white54)),
+              ),
+            ],
+          ),
+        );
+      } else {
+        messenger.clearMaterialBanners();
+      }
+    });
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: _tab == 0 ? const _HomeDashboard() : _PlaceholderTab(tab: _tab),
+        body: _tab == 0 ? _HomeDashboard(onTabChange: (i) => setState(() => _tab = i)) : _PlaceholderTab(tab: _tab),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _tab,
           onDestinationSelected: (i) => setState(() => _tab = i),
@@ -56,7 +89,8 @@ class _PlaceholderTab extends StatelessWidget {
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 class _HomeDashboard extends ConsumerWidget {
-  const _HomeDashboard();
+  const _HomeDashboard({required this.onTabChange});
+  final void Function(int) onTabChange;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,6 +105,10 @@ class _HomeDashboard extends ConsumerWidget {
 
     final totalActiveUsers = mapUsers.value?.fold<int>(0, (s, b) => s + b.userCount) ?? 0;
     final totalAlerts = beaches.value?.fold<int>(0, (s, b) => s + b.activeAlertsCount) ?? 0;
+
+    if (beaches.isLoading || bestBeach.isLoading) {
+      return const _HomeLoadingView();
+    }
 
     return CustomScrollView(
       slivers: [
@@ -98,9 +136,9 @@ class _HomeDashboard extends ConsumerWidget {
               const SizedBox(height: 24),
               _AlertsSection(reports: reports.value ?? []),
               const SizedBox(height: 24),
-              _TidesSection(beach: bestBeach.value, tides: tides.value ?? []),
+              _TidesSection(beach: bestBeach.value, tidesData: tides.value ?? TidesData.empty),
               const SizedBox(height: 24),
-              _ExploreGrid(beachCount: beaches.value?.length ?? 0),
+              _ExploreGrid(beachCount: beaches.value?.length ?? 0, onTabChange: onTabChange),
               const SizedBox(height: 24),
               _CommunitySection(
                 totalReports: totalAlerts,
@@ -111,6 +149,32 @@ class _HomeDashboard extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _HomeLoadingView extends StatelessWidget {
+  const _HomeLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          const AnimatedWaves(heightFraction: 0.4),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5),
+                const SizedBox(height: 20),
+                Text('A carregar dados...', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -176,14 +240,21 @@ class _Header extends StatelessWidget {
                   const Spacer(),
                   Stack(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-                        onPressed: () {},
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 18),
+                          onPressed: () {},
+                          padding: EdgeInsets.zero,
+                        ),
                       ),
                       Positioned(
-                        top: 0, right: 0,
+                        top: 2, right: 2,
                         child: Container(
                           width: 8, height: 8,
                           decoration: const BoxDecoration(color: AppColors.coral, shape: BoxShape.circle),
@@ -645,32 +716,44 @@ class _AlertItem extends StatelessWidget {
 // Tides section
 
 class _TidesSection extends StatelessWidget {
-  const _TidesSection({required this.beach, required this.tides});
+  const _TidesSection({required this.beach, required this.tidesData});
   final BeachSummary? beach;
-  final List<TideEntry> tides;
+  final TidesData tidesData;
 
   @override
   Widget build(BuildContext context) {
     if (beach == null) return const SizedBox.shrink();
 
+    final tides = tidesData.entries;
     final beachShort = beach!.name.split(' ').last;
-    // Find next tide
+
+    // Determine direction label and next extremum from the API direction field
+    final apiDirection = tidesData.direction ?? 'steady';
+    final directionLabel = apiDirection == 'rising' ? 'Subindo' : apiDirection == 'falling' ? 'Descendo' : 'Estável';
+    final isRising = apiDirection == 'rising';
+
+    // Next upcoming extremum (first entry with time > now)
     TideEntry? nextTide;
-    String direction = 'Subindo';
-    final now = DateTime.now();
-    final nowMins = now.hour * 60 + now.minute;
-    for (int i = 0; i < tides.length; i++) {
-      final parts = tides[i].time.split(':');
+    final nowMins = DateTime.now().hour * 60 + DateTime.now().minute;
+    for (final t in tides) {
+      final parts = t.time.split(':');
       if (parts.length == 2) {
-        final tMins = int.tryParse(parts[0])! * 60 + int.tryParse(parts[1])!;
-        if (tMins > nowMins) {
-          nextTide = tides[i];
-          direction = nextTide.type == 'alta' ? 'Subindo' : 'Descendo';
-          break;
-        }
+        final tMins = (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
+        if (tMins > nowMins) { nextTide = t; break; }
       }
     }
     nextTide ??= tides.isNotEmpty ? tides.last : null;
+
+    // Current height: prefer live observation, fall back to next extremum height
+    final currentH = tidesData.currentHeight;
+    final displayHeight = currentH != null
+        ? '${currentH.toStringAsFixed(2)}m'
+        : (nextTide != null ? '${nextTide.height.toStringAsFixed(1)}m' : '--');
+
+    // Tide is considered "high" when above mean sea level (~1.95m)
+    const msl = 1.95;
+    final isHighTide = (currentH ?? 0) > msl;
+    final accentColor = isHighTide ? AppColors.teal : const Color(0xFFE8C98A);
 
     return Column(
       children: [
@@ -695,39 +778,48 @@ class _TidesSection extends StatelessWidget {
             border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Info row: height/direction on left, chart on right (wider than before)
               Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              direction == 'Subindo' ? Icons.arrow_upward : Icons.arrow_downward,
-                              color: AppColors.teal, size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(direction, style: const TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
+                  // Left: current height + direction + next tide
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(isRising ? Icons.arrow_upward : Icons.arrow_downward,
+                              color: accentColor, size: 14),
+                          const SizedBox(width: 3),
+                          Text(directionLabel,
+                              style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(displayHeight,
+                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                      if (nextTide != null)
                         Text(
-                          nextTide != null ? '${nextTide.height.toStringAsFixed(1)}m' : '--',
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.primary),
+                          '${nextTide.type == 'alta' ? 'Alta' : 'Baixa'} às ${nextTide.time}',
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                         ),
-                        if (nextTide != null)
-                          Text(
-                            '${nextTide.type == 'alta' ? 'Alta' : 'Baixa'} às ${nextTide.time}',
-                            style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                          ),
-                      ],
-                    ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 140, height: 60,
-                    child: CustomPaint(painter: _TideChartPainter(tides)),
+                  const SizedBox(width: 12),
+                  // Right: chart — Expanded so it fills remaining width
+                  Expanded(
+                    child: SizedBox(
+                      height: 70,
+                      child: CustomPaint(
+                        painter: _TideChartPainter(
+                          tides: tides,
+                          currentHeight: currentH,
+                          accentColor: accentColor,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -773,56 +865,109 @@ class _TideTimeCell extends StatelessWidget {
 }
 
 class _TideChartPainter extends CustomPainter {
-  const _TideChartPainter(this.tides);
+  const _TideChartPainter({
+    required this.tides,
+    this.currentHeight,
+    this.accentColor = AppColors.teal,
+  });
+
   final List<TideEntry> tides;
+  final double? currentHeight;
+  final Color accentColor;
+
+  // Convert "HH:MM" string to minutes since midnight
+  static int _toMins(String time) {
+    final p = time.split(':');
+    if (p.length != 2) return 0;
+    return (int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
     if (tides.isEmpty) return;
-    final paint = Paint()
-      ..color = AppColors.teal
+
+    final now = DateTime.now();
+    final nowMins = now.hour * 60.0 + now.minute + now.second / 60.0;
+
+    // Fixed 24-hour window (midnight → midnight).
+    // Extrema are always within this range so all 4 are visible,
+    // and the dot sits at its natural position in the day (e.g. 20:50 → 87%).
+    const windowStart = 0.0;
+    const windowEnd   = 1440.0;
+
+    // Unwrap times that cross midnight: if an extremum's minutes-of-day
+    // is less than the previous one by more than 200 min, it's tomorrow → +1440.
+    final rawMins = tides.map((t) => _toMins(t.time).toDouble()).toList();
+    final extremaMins = <double>[];
+    for (int i = 0; i < rawMins.length; i++) {
+      double m = rawMins[i];
+      if (i > 0 && m < extremaMins.last - 200) m += 1440;
+      extremaMins.add(m);
+    }
+
+    // Build point list: all extrema + current observation
+    final pts = <(double mins, double height)>[];
+    for (int i = 0; i < tides.length; i++) {
+      pts.add((extremaMins[i], tides[i].height));
+    }
+    final h0 = currentHeight ?? pts.first.$2;
+    pts.add((nowMins, h0));
+    pts.sort((a, b) => a.$1.compareTo(b.$1));
+
+    final allH = pts.map((p) => p.$2).toList();
+    final minH = allH.reduce(min);
+    final maxH = allH.reduce(max);
+    final range = (maxH - minH).clamp(0.5, double.infinity);
+
+    const vPad = 0.10; // 10% vertical padding top & bottom
+    double toX(double m) => (m - windowStart) / (windowEnd - windowStart) * size.width;
+    double toY(double h) =>
+        size.height * vPad + (1 - (h - minH) / range) * size.height * (1 - vPad * 2);
+
+    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final linePaint = Paint()
+      ..color = accentColor
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final heights = tides.map((t) => t.height).toList();
-    final minH = heights.reduce(min);
-    final maxH = heights.reduce(max);
-    final range = (maxH - minH).clamp(0.1, double.infinity);
+    // Only draw points within (or near) the visible window
+    final visible = pts.where((p) => p.$1 >= -60 && p.$1 <= windowEnd + 60).toList();
+    if (visible.isEmpty) return;
 
     final path = Path();
-    final n = tides.length.clamp(2, 8);
-    for (int i = 0; i < n; i++) {
-      final x = i / (n - 1) * size.width;
-      final y = size.height - ((heights[i] - minH) / range) * size.height;
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        final prevX = (i - 1) / (n - 1) * size.width;
-        final prevY = size.height - ((heights[i - 1] - minH) / range) * size.height;
-        final cpX = (prevX + x) / 2;
-        path.cubicTo(cpX, prevY, cpX, y, x, y);
-      }
+    path.moveTo(toX(visible.first.$1), toY(visible.first.$2));
+    for (int i = 1; i < visible.length; i++) {
+      final prev = visible[i - 1];
+      final curr = visible[i];
+      final cpX = (toX(prev.$1) + toX(curr.$1)) / 2;
+      path.cubicTo(cpX, toY(prev.$2), cpX, toY(curr.$2), toX(curr.$1), toY(curr.$2));
     }
-    canvas.drawPath(path, paint);
+    canvas.drawPath(path, linePaint);
 
-    // Dot at highest point (approximate current)
-    final midIdx = n ~/ 2;
-    final dotX = midIdx / (n - 1) * size.width;
-    final dotY = size.height - ((heights[midIdx] - minH) / range) * size.height;
-    canvas.drawCircle(Offset(dotX, dotY), 4, Paint()..color = AppColors.teal);
-    canvas.drawCircle(Offset(dotX, dotY), 3, Paint()..color = Colors.white);
+    // Dot at current time — clamped to stay fully inside canvas
+    const dotR = 5.0;
+    final dotX = toX(nowMins).clamp(dotR + 1, size.width - dotR - 1);
+    final dotY = toY(h0).clamp(dotR + 1, size.height - dotR - 1);
+    canvas.drawCircle(Offset(dotX, dotY), dotR + 1, Paint()..color = AppColors.primary);
+    canvas.drawCircle(Offset(dotX, dotY), dotR - 0.5, Paint()..color = Colors.white);
+    canvas.drawCircle(Offset(dotX, dotY), dotR - 2.5, Paint()..color = accentColor);
   }
 
   @override
-  bool shouldRepaint(_TideChartPainter old) => old.tides != tides;
+  bool shouldRepaint(_TideChartPainter old) =>
+      old.tides != tides ||
+      old.currentHeight != currentHeight ||
+      old.accentColor != accentColor;
 }
 
 // Explore grid
 
 class _ExploreGrid extends StatelessWidget {
-  const _ExploreGrid({required this.beachCount});
+  const _ExploreGrid({required this.beachCount, required this.onTabChange});
   final int beachCount;
+  final void Function(int tab) onTabChange;
 
   @override
   Widget build(BuildContext context) {
@@ -839,10 +984,10 @@ class _ExploreGrid extends StatelessWidget {
           crossAxisSpacing: 10,
           childAspectRatio: 1.3,
           children: [
-            _ExploreCard(emoji: '🗺️', title: 'Mapa de praias', subtitle: 'Ver todas no mapa', onTap: () {}),
-            _ExploreCard(emoji: '🚌', title: 'Transportes', subtitle: 'Carris Metropolitana', onTap: () {}),
-            _ExploreCard(emoji: '🌊', title: 'Praias', subtitle: '$beachCount praias da Arrábida', onTap: () {}),
-            _ExploreCard(emoji: '📋', title: 'Submeter reporte', subtitle: 'Ajuda a comunidade', onTap: () {}),
+            _ExploreCard(emoji: '🗺️', title: 'Mapa de praias', subtitle: 'Ver todas no mapa', onTap: () => onTabChange(1)),
+            _ExploreCard(emoji: '🚌', title: 'Transportes', subtitle: 'Carris Metropolitana', onTap: () => onTabChange(1)),
+            _ExploreCard(emoji: '🌊', title: 'Praias', subtitle: '$beachCount praias da Arrábida', onTap: () => onTabChange(1)),
+            _ExploreCard(emoji: '📋', title: 'Submeter reporte', subtitle: 'Ajuda a comunidade', onTap: () => onTabChange(1)),
           ],
         ),
       ],
@@ -893,9 +1038,6 @@ class _CommunitySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const avatarColors = [Color(0xFF3ECFCF), Color(0xFF3B82F6), AppColors.coral, Color(0xFF10B981), Color(0xFFF59E0B)];
-    const initials = ['A', 'B', 'C', 'D', 'E'];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -924,35 +1066,6 @@ class _CommunitySection extends StatelessWidget {
                       Text('$totalReports reportes activos', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.primary)),
                       Text('em $beachCount praias · $activeUsers utilizadores online', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                     ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  SizedBox(
-                    height: 32,
-                    width: 32 + 4 * 24.0,
-                    child: Stack(
-                      children: List.generate(5, (i) => Positioned(
-                        left: i * 24.0,
-                        top: 0,
-                        child: Container(
-                          width: 32, height: 32,
-                          decoration: BoxDecoration(
-                            color: avatarColors[i],
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: Center(child: Text(initials[i], style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700))),
-                        ),
-                      )),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    activeUsers > 5 ? '+${activeUsers - 5} contribuidores activos' : 'contribuidores activos',
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                   ),
                 ],
               ),

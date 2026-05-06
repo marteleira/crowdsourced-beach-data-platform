@@ -34,7 +34,7 @@ class TestMapUsers:
         assert data[0]["beach_slug"] == beach.slug
         assert data[0]["user_count"] == 1
 
-    async def test_user_with_share_presence_false_hidden(
+    async def test_user_with_share_presence_false_excluded_from_list_but_counted(
         self, client: AsyncClient, beach: Beach, db: AsyncSession, user: User
     ):
         user.privacy_settings = {"share_presence": False, "location_accuracy": "approximate",
@@ -45,7 +45,11 @@ class TestMapUsers:
 
         r = await client.get("/api/v1/map/users")
         assert r.status_code == 200
-        assert r.json() == []
+        data = r.json()
+        # Beach appears with correct count, but no visible user entries
+        assert len(data) == 1
+        assert data[0]["user_count"] == 1
+        assert data[0]["users"] == []
 
     async def test_anonymous_user_has_no_name(
         self, client: AsyncClient, beach: Beach, db: AsyncSession, user: User

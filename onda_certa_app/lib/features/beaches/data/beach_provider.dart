@@ -8,26 +8,28 @@ final beachRepositoryProvider = Provider<BeachRepository>((ref) {
   return BeachRepository(ref.read(dioProvider));
 });
 
-// GPS location (best-effort, null if denied/unavailable)
+// GPS location — tries getCurrentPosition first, falls back to lastKnownPosition
 
 final locationProvider = FutureProvider<Position?>((ref) async {
+  var permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+  if (permission == LocationPermission.denied ||
+      permission == LocationPermission.deniedForever) {
+    return null;
+  }
+
   try {
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      return null;
-    }
     return await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.low,
-        timeLimit: Duration(seconds: 8),
+        timeLimit: Duration(seconds: 10),
       ),
     );
   } catch (_) {
-    return null;
+    // GPS fix failed (emulator, indoors, timeout) — try cached position
+    return Geolocator.getLastKnownPosition();
   }
 });
 
@@ -64,9 +66,9 @@ final seaProvider = FutureProvider<SeaPoint?>((ref) async {
   return ref.read(beachRepositoryProvider).getBeachSea(best.slug);
 });
 
-final tidesProvider = FutureProvider<List<TideEntry>>((ref) async {
+final tidesProvider = FutureProvider<TidesData>((ref) async {
   final best = await ref.watch(bestBeachProvider.future);
-  if (best == null) return [];
+  if (best == null) return TidesData.empty;
   return ref.read(beachRepositoryProvider).getBeachTides(best.slug);
 });
 

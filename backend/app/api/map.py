@@ -91,13 +91,18 @@ async def get_map_users(
             seen.add(key)
             unique_hbs.append(hb)
 
-    # Group by beach
+    # Total count per beach — includes ALL users regardless of privacy settings
+    total_count: dict[int, int] = {}
+    for hb in unique_hbs:
+        if hb.beach_id in beaches:
+            total_count[hb.beach_id] = total_count.get(hb.beach_id, 0) + 1
+
+    # Visible users per beach — filtered by individual privacy settings
     beach_map: dict[int, list[MapUser]] = {}
     for hb in unique_hbs:
         if hb.beach_id not in beaches:
             continue
 
-        # Load user privacy settings
         if hb.user_id:
             user_r = await db.execute(select(User).where(User.id == hb.user_id))
             user = user_r.scalar_one_or_none()
@@ -107,7 +112,7 @@ async def get_map_users(
         if user:
             priv = _privacy(user)
             if not priv["share_presence"] or priv["location_accuracy"] == "none":
-                continue
+                continue  # excluded from the visible list, but still counted above
             name = user.display_name if priv["name_public"] else None
             accuracy = priv["location_accuracy"]
         else:
@@ -128,8 +133,9 @@ async def get_map_users(
             beach_map[hb.beach_id] = []
         beach_map[hb.beach_id].append(MapUser(display_name=name, lat=lat, lon=lon, beach_id=hb.beach_id))
 
+    # Include beaches that have active users even if all chose maximum privacy
     result = []
-    for beach_id, users in beach_map.items():
+    for beach_id, count in total_count.items():
         beach = beaches[beach_id]
         result.append(MapBeachPresence(
             beach_id=beach_id,
@@ -137,8 +143,8 @@ async def get_map_users(
             beach_name=beach.name,
             lat=beach.lat,
             lon=beach.lon,
-            user_count=len(users),
-            users=users,
+            user_count=count,           # total including private users
+            users=beach_map.get(beach_id, []),  # only those who opted in
         ))
 
     return result

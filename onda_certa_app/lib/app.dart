@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'core/auth/auth_provider.dart';
+import 'core/presence/heartbeat_provider.dart';
 import 'features/auth/presentation/email_login_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/home/presentation/home_screen.dart';
@@ -40,6 +41,7 @@ class OndaCertaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(heartbeatProvider);
     final router = ref.watch(_routerProvider);
     return MaterialApp.router(
       title: 'OndaCerta',

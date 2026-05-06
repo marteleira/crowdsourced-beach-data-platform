@@ -19,7 +19,7 @@ from app.services import ipma, hidrografico, apa, carris
 
 router = APIRouter(prefix="/beaches", tags=["beaches"])
 
-# ── Recommendation scoring ─────────────────────────────────────────────────────
+# Recommendation scoring
 
 FLAG_SCORE = {"green": 1.0, "yellow": 0.6, "unknown": 0.4, "red": 0.1, "purple": 0.1}
 OCCUPANCY_SCORE = {"low": 1.0, "medium": 0.6, "high": 0.2, "unknown": 0.5}
