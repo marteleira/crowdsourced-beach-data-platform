@@ -27,7 +27,7 @@ async def get_tides(slug: str, db: AsyncSession = Depends(get_db)):
 
     raw, source, snap_at = await fetch_with_fallback(
         db, "tides",
-        lambda: hidrografico.fetch_tides_for_station(beach.tide_station_id),
+        lambda: hidrografico.fetch_current_tide(beach.tide_station_id),
         beach_id=beach.id,
     )
     return TidesResponse(**raw, data_source=source, snapshot_at=snap_at)
