@@ -30,12 +30,13 @@ FAKE_SEA = {
 }
 
 FAKE_TIDES = {
-    "station_id": "setubal",
-    "date": "2026-04-27",
-    "entries": [
-        {"time": "2026-04-27T06:12:00Z", "height": 3.1, "type": "high"},
-        {"time": "2026-04-27T12:34:00Z", "height": 0.4, "type": "low"},
-    ],
+    "station_id": "PT_150505_2",
+    "station_name": "Setúbal - Tróia",
+    "current_height": 1.47,
+    "direction": "rising",
+    "observed_at": "2026-04-27T14:23:00+00:00",
+    "entries": [],
+    "note": "Real-time observation — tide table not available",
 }
 
 FAKE_WATER = {
@@ -105,19 +106,20 @@ class TestSeaEndpoint:
 
 class TestTidesEndpoint:
     async def test_returns_live_tides(self, client: AsyncClient, beach: Beach):
-        with patch("app.api.tides.hidrografico.fetch_tides_for_station", return_value=FAKE_TIDES):
+        with patch("app.api.tides.hidrografico.fetch_current_tide", return_value=FAKE_TIDES):
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/tides")
         assert r.status_code == 200
         body = r.json()
-        assert body["station_id"] == "setubal"
-        assert len(body["entries"]) == 2
+        assert body["station_id"] == "PT_150505_2"
+        assert body["current_height"] == 1.47
+        assert body["direction"] == "rising"
         assert body["data_source"] == "live"
 
     async def test_falls_back_to_snapshot(self, client: AsyncClient, beach: Beach, db: AsyncSession):
         db.add(ApiSnapshot(source="tides", beach_id=beach.id, data=FAKE_TIDES))
         await db.commit()
 
-        with patch("app.api.tides.hidrografico.fetch_tides_for_station", side_effect=Exception("down")):
+        with patch("app.api.tides.hidrografico.fetch_current_tide", side_effect=Exception("down")):
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/tides")
         assert r.status_code == 200
         assert r.json()["data_source"] == "snapshot"

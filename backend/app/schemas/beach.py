@@ -66,8 +66,12 @@ class TideEntry(BaseModel):
 
 class TidesResponse(BaseModel):
     station_id: Optional[str] = None
-    date: str
-    entries: List[TideEntry] = []
+    station_name: Optional[str] = None
+    current_height: Optional[float] = None    # metres, current observation
+    direction: Optional[str] = None           # rising | falling | steady
+    observed_at: Optional[str] = None         # ISO timestamp of observation
+    entries: List[TideEntry] = []             # empty — no prediction data from IH API
+    note: Optional[str] = None
     data_source: str = "live"
     snapshot_at: Optional[datetime] = None
 
