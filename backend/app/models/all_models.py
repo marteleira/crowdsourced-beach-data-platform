@@ -7,3 +7,4 @@ from app.models.beach_status import (  # noqa: F401
 )
 from app.models.snapshot import ApiSnapshot  # noqa: F401
 from app.models.user_extended import UserFavourite, PushToken, UserAchievement  # noqa: F401
+from app.models.tide_model import TideObservation, TideModelCoef  # noqa: F401

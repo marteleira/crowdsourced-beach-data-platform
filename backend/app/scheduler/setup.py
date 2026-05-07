@@ -14,6 +14,10 @@ def create_scheduler() -> AsyncIOScheduler:
     scheduler.add_job(jobs.fetch_water_quality,   IntervalTrigger(hours=24),    id="water_quality",   replace_existing=True)
     scheduler.add_job(jobs.fetch_carris_stops,    IntervalTrigger(minutes=10),  id="carris_stops",    replace_existing=True)
 
+    # Tide observation collection + model fitting (self-improving)
+    scheduler.add_job(jobs.collect_tide_observations, IntervalTrigger(hours=1),   id="tide_obs",        replace_existing=True)
+    scheduler.add_job(jobs.fit_tide_models,           IntervalTrigger(days=7),    id="tide_model_fit",  replace_existing=True)
+
     # Lifecycle
     scheduler.add_job(jobs.expire_stale_reports,          IntervalTrigger(minutes=5),  id="expire_reports",       replace_existing=True)
     scheduler.add_job(jobs.process_reputation,            IntervalTrigger(minutes=2),  id="reputation",           replace_existing=True)
