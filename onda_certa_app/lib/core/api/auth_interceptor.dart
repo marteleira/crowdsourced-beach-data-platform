@@ -24,6 +24,13 @@ class AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
+    // Break the refresh loop: if this 401 came from the refresh call itself,
+    // clear tokens and let the error propagate — no retry.
+    if (err.requestOptions.extra['skipAuthInterceptor'] == true) {
+      await _storage.clearTokens();
+      return handler.next(err);
+    }
+
     if (err.response?.statusCode != 401) {
       return handler.next(err);
     }

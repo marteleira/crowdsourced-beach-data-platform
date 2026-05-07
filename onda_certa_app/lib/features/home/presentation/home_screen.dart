@@ -105,16 +105,39 @@ class _HomeDashboard extends ConsumerWidget {
 
     final totalActiveUsers = mapUsers.value?.fold<int>(0, (s, b) => s + b.userCount) ?? 0;
     final totalAlerts = beaches.value?.fold<int>(0, (s, b) => s + b.activeAlertsCount) ?? 0;
+    final lastUpdated = ref.watch(lastUpdatedProvider);
 
-    if (beaches.isLoading || bestBeach.isLoading) {
+    // Set timestamp when data finishes loading
+    ref.listen(beachListProvider, (_, next) {
+      if (next.hasValue) ref.read(lastUpdatedProvider.notifier).setNow();
+    });
+
+    // Show loading only on initial load (value == null), not during refresh
+    if (beaches.isLoading && beaches.value == null) {
       return const _HomeLoadingView();
     }
 
-    return CustomScrollView(
+    Future<void> onRefresh() async {
+      ref.invalidate(beachListProvider);
+      ref.invalidate(weatherProvider);
+      ref.invalidate(seaProvider);
+      ref.invalidate(tidesProvider);
+      ref.invalidate(reportsProvider);
+      ref.invalidate(mapUsersProvider);
+      await ref.read(beachListProvider.future);
+    }
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      color: AppColors.teal,
+      backgroundColor: Colors.white,
+      child: CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
           child: _Header(
             beaches: beaches.value ?? [],
+            bestBeach: bestBeach.value,
             weather: weather.value,
             sea: sea.value,
             profile: profile.value,
@@ -124,7 +147,7 @@ class _HomeDashboard extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _sectionLabel('Melhor Praia Agora'),
+              _SectionLabelWithTime(label: 'Melhor Praia Agora', updatedAt: lastUpdated),
               const SizedBox(height: 10),
               _BestBeachCard(beach: bestBeach.value, sea: sea.value),
               const SizedBox(height: 12),
@@ -149,6 +172,42 @@ class _HomeDashboard extends ConsumerWidget {
           ),
         ),
       ],
+    ),
+    );
+  }
+}
+
+class _SectionLabelWithTime extends StatelessWidget {
+  const _SectionLabelWithTime({required this.label, required this.updatedAt});
+  final String label;
+  final DateTime? updatedAt;
+
+  @override
+  Widget build(BuildContext context) {
+    final timeStr = updatedAt != null
+        ? '${updatedAt!.hour.toString().padLeft(2, '0')}:${updatedAt!.minute.toString().padLeft(2, '0')}'
+        : null;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const Spacer(),
+          if (timeStr != null)
+            Text(
+              'Actualizado às $timeStr',
+              style: const TextStyle(fontSize: 10, color: AppColors.textHint),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -195,8 +254,9 @@ Widget _sectionLabel(String text) => Padding(
 // Header
 
 class _Header extends StatelessWidget {
-  const _Header({required this.beaches, required this.weather, required this.sea, required this.profile});
+  const _Header({required this.beaches, this.bestBeach, required this.weather, required this.sea, required this.profile});
   final List<BeachSummary> beaches;
+  final BeachSummary? bestBeach;
   final WeatherPoint? weather;
   final SeaPoint? sea;
   final UserProfile? profile;
@@ -266,7 +326,7 @@ class _Header extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '$dateStr · Parque Natural da Arrábida',
+                bestBeach != null ? '$dateStr · ${bestBeach!.name}' : dateStr,
                 style: const TextStyle(color: Colors.white54, fontSize: 12),
               ),
               const SizedBox(height: 12),
@@ -277,12 +337,11 @@ class _Header extends StatelessWidget {
               const SizedBox(height: 16),
               // Weather strip
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.maxTemp != null ? '${weather!.maxTemp!.round()}°' : '--', label: 'Ar'),
                   _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDir ?? 'Vento'),
                   _WeatherCell(icon: Icons.waves, value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--', label: 'Ondas'),
-                  _WeatherCell(icon: Icons.water, value: sea?.seaTemp != null ? '${sea!.seaTemp!.round()}°' : '--', label: 'Mar'),
                   _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: 'Chuva'),
                 ],
               ),
@@ -886,45 +945,48 @@ class _TideChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (tides.isEmpty) return;
 
-    final now = DateTime.now();
-    final nowMins = now.hour * 60.0 + now.minute + now.second / 60.0;
-
-    // Fixed 24-hour window (midnight → midnight).
-    // Extrema are always within this range so all 4 are visible,
-    // and the dot sits at its natural position in the day (e.g. 20:50 → 87%).
-    const windowStart = 0.0;
-    const windowEnd   = 1440.0;
-
-    // Unwrap times that cross midnight: if an extremum's minutes-of-day
-    // is less than the previous one by more than 200 min, it's tomorrow → +1440.
-    final rawMins = tides.map((t) => _toMins(t.time).toDouble()).toList();
+    // 1. Unwrap tide extremes across midnight
     final extremaMins = <double>[];
-    for (int i = 0; i < rawMins.length; i++) {
-      double m = rawMins[i];
+    for (int i = 0; i < tides.length; i++) {
+      double m = _toMins(tides[i].time).toDouble();
       if (i > 0 && m < extremaMins.last - 200) m += 1440;
       extremaMins.add(m);
     }
+    final heights = tides.map((t) => t.height).toList();
 
-    // Build point list: all extrema + current observation
-    final pts = <(double mins, double height)>[];
-    for (int i = 0; i < tides.length; i++) {
-      pts.add((extremaMins[i], tides[i].height));
-    }
-    final h0 = currentHeight ?? pts.first.$2;
-    pts.add((nowMins, h0));
-    pts.sort((a, b) => a.$1.compareTo(b.$1));
+    // 2. Normalise nowMins into the same day-space as the first extreme
+    //    (keep it within ±12 h of the first extreme)
+    final now = DateTime.now();
+    double nowMins = now.hour * 60.0 + now.minute + now.second / 60.0;
+    while (nowMins < extremaMins.first - 720) { nowMins += 1440; }
+    while (nowMins > extremaMins.first + 720) { nowMins -= 1440; }
 
-    final allH = pts.map((p) => p.$2).toList();
+    // 3. Window: starts 30 min before whichever is earlier (now or first extreme)
+    //           ends 30 min after the last extreme
+    final windowStart = min(nowMins, extremaMins.first) - 30.0;
+    final windowEnd   = extremaMins.last + 30.0;
+
+    // 4. Cosine-interpolate current height so the dot sits exactly on the curve
+    final h0 = currentHeight ?? _cosineInterp(extremaMins, heights, nowMins);
+
+    // 5. Scale helpers
+    final allH = [...heights, h0];
     final minH = allH.reduce(min);
     final maxH = allH.reduce(max);
     final range = (maxH - minH).clamp(0.5, double.infinity);
-
-    const vPad = 0.10; // 10% vertical padding top & bottom
+    const vPad = 0.10;
     double toX(double m) => (m - windowStart) / (windowEnd - windowStart) * size.width;
     double toY(double h) =>
         size.height * vPad + (1 - (h - minH) / range) * size.height * (1 - vPad * 2);
 
     canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    // 6. Draw curve through extremes + current position (h0 anchors the curve at nowMins)
+    final curvePoints = <(double mins, double height)>[
+      for (int i = 0; i < extremaMins.length; i++) (extremaMins[i], heights[i]),
+    ];
+    curvePoints.add((nowMins, h0));
+    curvePoints.sort((a, b) => a.$1.compareTo(b.$1));
 
     final linePaint = Paint()
       ..color = accentColor
@@ -932,27 +994,39 @@ class _TideChartPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    // Only draw points within (or near) the visible window
-    final visible = pts.where((p) => p.$1 >= -60 && p.$1 <= windowEnd + 60).toList();
-    if (visible.isEmpty) return;
-
     final path = Path();
-    path.moveTo(toX(visible.first.$1), toY(visible.first.$2));
-    for (int i = 1; i < visible.length; i++) {
-      final prev = visible[i - 1];
-      final curr = visible[i];
-      final cpX = (toX(prev.$1) + toX(curr.$1)) / 2;
-      path.cubicTo(cpX, toY(prev.$2), cpX, toY(curr.$2), toX(curr.$1), toY(curr.$2));
+    path.moveTo(toX(curvePoints.first.$1), toY(curvePoints.first.$2));
+    for (int i = 1; i < curvePoints.length; i++) {
+      final cpX = (toX(curvePoints[i - 1].$1) + toX(curvePoints[i].$1)) / 2;
+      path.cubicTo(
+        cpX, toY(curvePoints[i - 1].$2),
+        cpX, toY(curvePoints[i].$2),
+        toX(curvePoints[i].$1), toY(curvePoints[i].$2),
+      );
     }
     canvas.drawPath(path, linePaint);
 
-    // Dot at current time — clamped to stay fully inside canvas
+    // 7. Dot at the interpolated position — always on the curve
     const dotR = 5.0;
     final dotX = toX(nowMins).clamp(dotR + 1, size.width - dotR - 1);
     final dotY = toY(h0).clamp(dotR + 1, size.height - dotR - 1);
     canvas.drawCircle(Offset(dotX, dotY), dotR + 1, Paint()..color = AppColors.primary);
     canvas.drawCircle(Offset(dotX, dotY), dotR - 0.5, Paint()..color = Colors.white);
     canvas.drawCircle(Offset(dotX, dotY), dotR - 2.5, Paint()..color = accentColor);
+  }
+
+  // Cosine interpolation between tide extremes (physically accurate for tides)
+  double _cosineInterp(List<double> times, List<double> hs, double t) {
+    if (t <= times.first) return hs.first;
+    if (t >= times.last) return hs.last;
+    for (int i = 1; i < times.length; i++) {
+      if (t <= times[i]) {
+        final p = (t - times[i - 1]) / (times[i] - times[i - 1]);
+        final cosT = (1 - cos(p * pi)) / 2;
+        return hs[i - 1] + (hs[i] - hs[i - 1]) * cosT;
+      }
+    }
+    return hs.last;
   }
 
   @override
