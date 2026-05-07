@@ -62,6 +62,44 @@ async def fetch_ipma_sea() -> None:
         logger.info("IPMA sea snapshots updated")
 
 
+async def collect_tide_observations() -> None:
+    """Store the current IH observation for all unique tide stations."""
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Beach.tide_station_id)
+            .where(Beach.tide_station_id != None)
+            .distinct()
+        )
+        station_ids = [row[0] for row in result.all()]
+
+    for station_id in station_ids:
+        try:
+            inserted = await hidrografico.store_observation(station_id)
+            if inserted:
+                logger.debug("Stored tide observation for %s", station_id)
+        except Exception as e:
+            logger.warning("Failed to store tide observation for %s: %s", station_id, e)
+
+
+async def fit_tide_models() -> None:
+    """Re-fit harmonic tide models from accumulated observations (runs weekly)."""
+    async with AsyncSessionLocal() as db:
+        result = await db.execute(
+            select(Beach.tide_station_id)
+            .where(Beach.tide_station_id != None)
+            .distinct()
+        )
+        station_ids = [row[0] for row in result.all()]
+
+    for station_id in station_ids:
+        try:
+            n = await hidrografico.fit_model_from_observations(station_id)
+            if n:
+                logger.info("Tide model fitted for %s using %d obs", station_id, n)
+        except Exception as e:
+            logger.warning("Tide model fit failed for %s: %s", station_id, e)
+
+
 async def fetch_tides() -> None:
     async with AsyncSessionLocal() as db:
         beaches = await _all_beaches(db)
@@ -69,7 +107,7 @@ async def fetch_tides() -> None:
             if not beach.tide_station_id:
                 continue
             try:
-                data = await hidrografico.fetch_tides_for_station(beach.tide_station_id)
+                data = await hidrografico.fetch_current_tide(beach.tide_station_id)
                 if data:
                     snap = ApiSnapshot(source="tides", beach_id=beach.id, data=data)
                     db.add(snap)
