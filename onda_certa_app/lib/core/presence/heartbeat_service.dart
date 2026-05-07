@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../features/beaches/data/beach_provider.dart';
@@ -77,9 +76,7 @@ class HeartbeatService {
         lat: pos.latitude,
         lon: pos.longitude,
       );
-    } catch (e) {
-
-    }
+    } catch (_) {}
   }
 
   BeachSummary? _nearest(List<BeachSummary> beaches, Position pos) {

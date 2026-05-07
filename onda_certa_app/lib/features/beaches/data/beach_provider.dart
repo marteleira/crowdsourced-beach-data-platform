@@ -8,8 +8,19 @@ final beachRepositoryProvider = Provider<BeachRepository>((ref) {
   return BeachRepository(ref.read(dioProvider));
 });
 
-// GPS location — tries getCurrentPosition first, falls back to lastKnownPosition
+// Timestamp of the last successful data refresh
+final lastUpdatedProvider =
+    NotifierProvider<_LastUpdatedNotifier, DateTime?>(_LastUpdatedNotifier.new);
 
+class _LastUpdatedNotifier extends Notifier<DateTime?> {
+  @override
+  DateTime? build() => null;
+  void setNow() => state = DateTime.now();
+}
+
+// GPS location:
+// 1. lastKnownPosition — instant, available after first real use
+// 2. getCurrentPosition — only if no cached position (first ever launch)
 final locationProvider = FutureProvider<Position?>((ref) async {
   var permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
@@ -20,6 +31,11 @@ final locationProvider = FutureProvider<Position?>((ref) async {
     return null;
   }
 
+  // Fast path: cached position is accurate enough for beach ranking
+  final lastKnown = await Geolocator.getLastKnownPosition();
+  if (lastKnown != null) return lastKnown;
+
+  // Slow path: first ever launch — wait for a fresh fix
   try {
     return await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
@@ -28,8 +44,7 @@ final locationProvider = FutureProvider<Position?>((ref) async {
       ),
     );
   } catch (_) {
-    // GPS fix failed (emulator, indoors, timeout) — try cached position
-    return Geolocator.getLastKnownPosition();
+    return null;
   }
 });
 
