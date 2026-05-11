@@ -17,7 +17,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late final AnimationController _entryCtrl;
   late final Animation<double> _logoScale;
   late final Animation<double> _logoOpacity;
-  late final Animation<double> _textOpacity;
 
   bool _animDone = false;
   bool _authReady = false;
@@ -35,9 +34,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     );
     _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _entryCtrl, curve: const Interval(0.0, 0.45, curve: Curves.easeIn)),
-    );
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _entryCtrl, curve: const Interval(0.45, 0.9, curve: Curves.easeIn)),
     );
     _entryCtrl.forward().then((_) {
       _animDone = true;
@@ -80,49 +76,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       body: Stack(
         children: [
           const AnimatedWaves(heightFraction: 0.38),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+          Center( child:
                 AnimatedBuilder(
                   animation: _entryCtrl,
                   builder: (_, _) => Opacity(
                     opacity: _logoOpacity.value,
                     child: Transform.scale(
                       scale: _logoScale.value,
-                      child: Image.asset('assets/icon/icon.png', width: 104, height: 104),
+                        child: Image.asset('assets/icon/icon_fullogo.png', width: MediaQuery.of(context).size.width * 0.5),
                     ),
                   ),
                 ),
-                const SizedBox(height: 22),
-                AnimatedBuilder(
-                  animation: _entryCtrl,
-                  builder: (_, _) => Opacity(
-                    opacity: _textOpacity.value,
-                    child: Column(
-                      children: [
-                        Text(
-                          'OndaCerta',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 36,
-                                letterSpacing: -0.5,
-                              ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Real beaches. Real conditions.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

@@ -12,10 +12,9 @@ class HeartbeatService {
   Timer? _timer;
 
   void start(Ref ref) {
-    if (_timer != null) {
-      return;
-    }
-    _tick(ref);
+    if (_timer != null) return;
+    // Delay first tick so providers initialise after login/app start
+    Future.delayed(const Duration(seconds: 5), () => _tick(ref));
     _timer = Timer.periodic(_kInterval, (_) => _tick(ref));
   }
 

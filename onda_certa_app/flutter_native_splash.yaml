@@ -1,0 +1,15 @@
+flutter_native_splash:
+  color: "#F7F4EF"
+  image: assets/icon/icon_spl.png
+
+  android: true
+  ios: true
+
+  android_gravity: center
+  ios_content_mode: center
+
+  # Android 12+ uses its own Splash Screen API — needs explicit config
+  android_12:
+    image: assets/icon/icon_spl.png
+    color: "#F7F4EF"
+    icon_background_color: "#F7F4EF"
