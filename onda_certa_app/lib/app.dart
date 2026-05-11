@@ -5,6 +5,8 @@ import 'core/auth/auth_provider.dart';
 import 'core/presence/heartbeat_provider.dart';
 import 'features/auth/presentation/email_login_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
+import 'features/beaches/domain/beach_models.dart';
+import 'features/beaches/presentation/beach_detail_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 import 'features/legal/presentation/privacy_screen.dart';
 import 'features/legal/presentation/terms_screen.dart';
@@ -32,6 +34,10 @@ final _routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
       GoRoute(path: '/terms', builder: (_, _) => const TermsScreen()),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),
+      GoRoute(
+        path: '/beach/:slug',
+        builder: (_, state) => BeachDetailScreen(beach: state.extra as BeachSummary),
+      ),
     ],
   );
 });

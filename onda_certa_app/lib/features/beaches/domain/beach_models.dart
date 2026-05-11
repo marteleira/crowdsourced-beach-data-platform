@@ -64,14 +64,16 @@ class WeatherPoint {
 // Backend: SeaForecast { date, wave_height_max, wave_height_min,
 //                        wave_period_max, sea_surface_temp }
 class SeaPoint {
-  const SeaPoint({this.waveHeightMax, this.waveHeightMin, this.seaTemp});
+  const SeaPoint({this.waveHeightMax, this.waveHeightMin, this.wavePeriodMax, this.seaTemp});
   final double? waveHeightMax;
   final double? waveHeightMin;
+  final double? wavePeriodMax;
   final double? seaTemp;
 
   factory SeaPoint.fromJson(Map<String, dynamic> j) => SeaPoint(
     waveHeightMax: (j['wave_height_max'] as num?)?.toDouble(),
     waveHeightMin: (j['wave_height_min'] as num?)?.toDouble(),
+    wavePeriodMax: (j['wave_period_max'] as num?)?.toDouble(),
     seaTemp: (j['sea_surface_temp'] as num?)?.toDouble(),
   );
 }
@@ -171,6 +173,75 @@ class MapBeachPresence {
     beachName: j['beach_name'] as String,
     userCount: j['user_count'] as int? ?? 0,
   );
+}
+
+// Backend: WaterQualityResponse { classification, sampled_at, data_source, snapshot_at }
+class WaterQuality {
+  const WaterQuality({this.classification, this.sampledAt, this.snapshotAt, this.dataSource = 'live'});
+  final String? classification; // "Excelente" | "Boa" | "Suficiente" | "Má"
+  final String? sampledAt;
+  final String? snapshotAt;
+  final String dataSource;
+
+  factory WaterQuality.fromJson(Map<String, dynamic> j) => WaterQuality(
+    classification: j['classification'] as String?,
+    sampledAt: j['sampled_at'] as String?,
+    snapshotAt: j['snapshot_at'] as String?,
+    dataSource: j['data_source'] as String? ?? 'live',
+  );
+}
+
+// Backend: TransportResponse { stops: [{ stop_id, stop_name }],
+//                              next_departures: [{ route_id, route_short_name, trip_headsign, departure_time }] }
+class TransportStop {
+  const TransportStop({required this.stopId, required this.stopName});
+  final String stopId;
+  final String stopName;
+
+  factory TransportStop.fromJson(Map<String, dynamic> j) => TransportStop(
+    stopId: j['stop_id'] as String,
+    stopName: j['stop_name'] as String,
+  );
+}
+
+class TransportTrip {
+  const TransportTrip({
+    required this.routeId, required this.routeShortName,
+    this.tripHeadsign, required this.departureTime,
+  });
+  final String routeId;
+  final String routeShortName;
+  final String? tripHeadsign;
+  final String departureTime;
+
+  factory TransportTrip.fromJson(Map<String, dynamic> j) => TransportTrip(
+    routeId: j['route_id'] as String,
+    routeShortName: j['route_short_name'] as String,
+    tripHeadsign: j['trip_headsign'] as String?,
+    departureTime: j['departure_time'] as String,
+  );
+}
+
+class BeachTransportInfo {
+  const BeachTransportInfo({required this.stops, required this.nextDepartures});
+  final List<TransportStop> stops;
+  final List<TransportTrip> nextDepartures;
+
+  static const empty = BeachTransportInfo(stops: [], nextDepartures: []);
+
+  factory BeachTransportInfo.fromJson(Map<String, dynamic> j) => BeachTransportInfo(
+    stops: (j['stops'] as List? ?? []).map((e) => TransportStop.fromJson(e as Map<String, dynamic>)).toList(),
+    nextDepartures: (j['next_departures'] as List? ?? []).map((e) => TransportTrip.fromJson(e as Map<String, dynamic>)).toList(),
+  );
+
+  /// Group trips by route for display purposes.
+  Map<String, List<TransportTrip>> get byRoute {
+    final map = <String, List<TransportTrip>>{};
+    for (final t in nextDepartures) {
+      map.putIfAbsent(t.routeShortName, () => []).add(t);
+    }
+    return map;
+  }
 }
 
 class UserProfile {
