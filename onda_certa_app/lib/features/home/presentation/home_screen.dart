@@ -141,6 +141,7 @@ class _HomeDashboard extends ConsumerWidget {
             weather: weather.value,
             sea: sea.value,
             profile: profile.value,
+            hasNotifications: false, // wire up notification provider when ready
           ),
         ),
         SliverPadding(
@@ -254,12 +255,13 @@ Widget _sectionLabel(String text) => Padding(
 // Header
 
 class _Header extends StatelessWidget {
-  const _Header({required this.beaches, this.bestBeach, required this.weather, required this.sea, required this.profile});
+  const _Header({required this.beaches, this.bestBeach, required this.weather, required this.sea, required this.profile, this.hasNotifications = false});
   final List<BeachSummary> beaches;
   final BeachSummary? bestBeach;
   final WeatherPoint? weather;
   final SeaPoint? sea;
   final UserProfile? profile;
+  final bool hasNotifications;
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +296,7 @@ class _Header extends StatelessWidget {
               // Top row
               Row(
                 children: [
-                  const Icon(Icons.waves, color: AppColors.teal, size: 22),
+                  Image.asset("assets/icon/icon.png", width: 24,),
                   const SizedBox(width: 8),
                   const Text('OndaCerta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
                   const Spacer(),
@@ -313,13 +315,7 @@ class _Header extends StatelessWidget {
                           padding: EdgeInsets.zero,
                         ),
                       ),
-                      Positioned(
-                        top: 2, right: 2,
-                        child: Container(
-                          width: 8, height: 8,
-                          decoration: const BoxDecoration(color: AppColors.coral, shape: BoxShape.circle),
-                        ),
-                      ),
+                      if (hasNotifications) Positioned(top: 2, right: 2, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.coral, shape: BoxShape.circle))),
                     ],
                   ),
                 ],
@@ -342,6 +338,7 @@ class _Header extends StatelessWidget {
                   _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.maxTemp != null ? '${weather!.maxTemp!.round()}°' : '--', label: 'Ar'),
                   _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDir ?? 'Vento'),
                   _WeatherCell(icon: Icons.waves, value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--', label: 'Ondas'),
+                  _WeatherCell(icon: Icons.water, value: sea?.seaTemp != null ? '${sea!.seaTemp!.round()}°' : '--', label: 'Mar'),
                   _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: 'Chuva'),
                 ],
               ),
