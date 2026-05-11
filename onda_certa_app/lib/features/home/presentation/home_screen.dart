@@ -1,13 +1,15 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/presence/heartbeat_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/animated_waves.dart';
+import '../../../shared/widgets/tide_chart.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -338,7 +340,6 @@ class _Header extends StatelessWidget {
                   _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.maxTemp != null ? '${weather!.maxTemp!.round()}°' : '--', label: 'Ar'),
                   _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDir ?? 'Vento'),
                   _WeatherCell(icon: Icons.waves, value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--', label: 'Ondas'),
-                  _WeatherCell(icon: Icons.water, value: sea?.seaTemp != null ? '${sea!.seaTemp!.round()}°' : '--', label: 'Mar'),
                   _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: 'Chuva'),
                 ],
               ),
@@ -446,7 +447,9 @@ class _BestBeachCard extends StatelessWidget {
     final qualityColor = beach!.recommendationScore != null && beach!.recommendationScore! > 0.7
         ? AppColors.teal : AppColors.sand;
 
-    return Container(
+    return GestureDetector(
+      onTap: () => context.push('/beach/${beach!.slug}', extra: beach),
+      child: Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
@@ -539,7 +542,8 @@ class _BestBeachCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _cardShell({required Widget child}) => Container(
@@ -697,77 +701,13 @@ class _AlertsSection extends StatelessWidget {
         else
           ...visible.map((r) => Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: _AlertItem(report: r),
+            child: AlertItem(report: r),
           )),
       ],
     );
   }
 }
 
-class _AlertItem extends StatelessWidget {
-  const _AlertItem({required this.report});
-  final BeachReport report;
-
-  @override
-  Widget build(BuildContext context) {
-    final (icon, color, label) = _alertMeta(report.type);
-    final ago = _timeAgo(report.createdAt);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.primary)),
-                Text(
-                  '${report.beachName != null ? "de ${report.beachName}" : ""} · $ago',
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.more_horiz, color: AppColors.coral.withValues(alpha: 0.7)),
-        ],
-      ),
-    );
-  }
-
-  (IconData, Color, String) _alertMeta(String type) {
-    switch (type) {
-      case 'jellyfish': return (Icons.bubble_chart, const Color(0xFF3B82F6), 'Medusas');
-      case 'strong_current': return (Icons.electric_bolt, const Color(0xFFF59E0B), 'Corrente Forte');
-      case 'pollution': return (Icons.delete_outline, const Color(0xFF10B981), 'Poluição');
-      case 'rough_sea': return (Icons.waves, AppColors.teal, 'Mar Agitado');
-      default: return (Icons.warning_amber, AppColors.textSecondary, 'Alerta');
-    }
-  }
-
-  String _timeAgo(String createdAt) {
-    try {
-      final dt = DateTime.parse(createdAt);
-      final diff = DateTime.now().difference(dt);
-      if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-      if (diff.inHours < 24) return '${diff.inHours}h ago';
-      return '${diff.inDays}d ago';
-    } catch (_) {
-      return '';
-    }
-  }
-}
 
 // Tides section
 
@@ -869,7 +809,7 @@ class _TidesSection extends StatelessWidget {
                     child: SizedBox(
                       height: 70,
                       child: CustomPaint(
-                        painter: _TideChartPainter(
+                        painter: TideChartPainter(
                           tides: tides,
                           currentHeight: currentH,
                           accentColor: accentColor,
@@ -885,7 +825,7 @@ class _TidesSection extends StatelessWidget {
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: tides.take(4).map((t) => _TideTimeCell(entry: t)).toList(),
+                  children: tides.take(4).map((t) => TideTimeCell(entry: t)).toList(),
                 ),
               ],
             ],
@@ -894,143 +834,6 @@ class _TidesSection extends StatelessWidget {
       ],
     );
   }
-}
-
-class _TideTimeCell extends StatelessWidget {
-  const _TideTimeCell({required this.entry});
-  final TideEntry entry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 8, height: 8,
-          decoration: BoxDecoration(
-            color: entry.type == 'alta' ? AppColors.teal : const Color(0xFFE8C98A),
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(entry.time, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
-        Text('${entry.height.toStringAsFixed(1)}m', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-        Text(entry.type, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
-      ],
-    );
-  }
-}
-
-class _TideChartPainter extends CustomPainter {
-  const _TideChartPainter({
-    required this.tides,
-    this.currentHeight,
-    this.accentColor = AppColors.teal,
-  });
-
-  final List<TideEntry> tides;
-  final double? currentHeight;
-  final Color accentColor;
-
-  // Convert "HH:MM" string to minutes since midnight
-  static int _toMins(String time) {
-    final p = time.split(':');
-    if (p.length != 2) return 0;
-    return (int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0);
-  }
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (tides.isEmpty) return;
-
-    // 1. Unwrap tide extremes across midnight
-    final extremaMins = <double>[];
-    for (int i = 0; i < tides.length; i++) {
-      double m = _toMins(tides[i].time).toDouble();
-      if (i > 0 && m < extremaMins.last - 200) m += 1440;
-      extremaMins.add(m);
-    }
-    final heights = tides.map((t) => t.height).toList();
-
-    // 2. Normalise nowMins into the same day-space as the first extreme
-    //    (keep it within ±12 h of the first extreme)
-    final now = DateTime.now();
-    double nowMins = now.hour * 60.0 + now.minute + now.second / 60.0;
-    while (nowMins < extremaMins.first - 720) { nowMins += 1440; }
-    while (nowMins > extremaMins.first + 720) { nowMins -= 1440; }
-
-    // 3. Window: starts 30 min before whichever is earlier (now or first extreme)
-    //           ends 30 min after the last extreme
-    final windowStart = min(nowMins, extremaMins.first) - 30.0;
-    final windowEnd   = extremaMins.last + 30.0;
-
-    // 4. Cosine-interpolate current height so the dot sits exactly on the curve
-    final h0 = currentHeight ?? _cosineInterp(extremaMins, heights, nowMins);
-
-    // 5. Scale helpers
-    final allH = [...heights, h0];
-    final minH = allH.reduce(min);
-    final maxH = allH.reduce(max);
-    final range = (maxH - minH).clamp(0.5, double.infinity);
-    const vPad = 0.10;
-    double toX(double m) => (m - windowStart) / (windowEnd - windowStart) * size.width;
-    double toY(double h) =>
-        size.height * vPad + (1 - (h - minH) / range) * size.height * (1 - vPad * 2);
-
-    canvas.clipRect(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    // 6. Draw curve through extremes + current position (h0 anchors the curve at nowMins)
-    final curvePoints = <(double mins, double height)>[
-      for (int i = 0; i < extremaMins.length; i++) (extremaMins[i], heights[i]),
-    ];
-    curvePoints.add((nowMins, h0));
-    curvePoints.sort((a, b) => a.$1.compareTo(b.$1));
-
-    final linePaint = Paint()
-      ..color = accentColor
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    path.moveTo(toX(curvePoints.first.$1), toY(curvePoints.first.$2));
-    for (int i = 1; i < curvePoints.length; i++) {
-      final cpX = (toX(curvePoints[i - 1].$1) + toX(curvePoints[i].$1)) / 2;
-      path.cubicTo(
-        cpX, toY(curvePoints[i - 1].$2),
-        cpX, toY(curvePoints[i].$2),
-        toX(curvePoints[i].$1), toY(curvePoints[i].$2),
-      );
-    }
-    canvas.drawPath(path, linePaint);
-
-    // 7. Dot at the interpolated position — always on the curve
-    const dotR = 5.0;
-    final dotX = toX(nowMins).clamp(dotR + 1, size.width - dotR - 1);
-    final dotY = toY(h0).clamp(dotR + 1, size.height - dotR - 1);
-    canvas.drawCircle(Offset(dotX, dotY), dotR + 1, Paint()..color = AppColors.primary);
-    canvas.drawCircle(Offset(dotX, dotY), dotR - 0.5, Paint()..color = Colors.white);
-    canvas.drawCircle(Offset(dotX, dotY), dotR - 2.5, Paint()..color = accentColor);
-  }
-
-  // Cosine interpolation between tide extremes (physically accurate for tides)
-  double _cosineInterp(List<double> times, List<double> hs, double t) {
-    if (t <= times.first) return hs.first;
-    if (t >= times.last) return hs.last;
-    for (int i = 1; i < times.length; i++) {
-      if (t <= times[i]) {
-        final p = (t - times[i - 1]) / (times[i] - times[i - 1]);
-        final cosT = (1 - cos(p * pi)) / 2;
-        return hs[i - 1] + (hs[i] - hs[i - 1]) * cosT;
-      }
-    }
-    return hs.last;
-  }
-
-  @override
-  bool shouldRepaint(_TideChartPainter old) =>
-      old.tides != tides ||
-      old.currentHeight != currentHeight ||
-      old.accentColor != accentColor;
 }
 
 // Explore grid

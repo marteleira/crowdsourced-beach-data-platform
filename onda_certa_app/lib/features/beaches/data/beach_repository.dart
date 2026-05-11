@@ -56,6 +56,20 @@ class BeachRepository {
     } catch (_) { return []; }
   }
 
+  Future<WaterQuality?> getBeachWaterQuality(String slug) async {
+    try {
+      final res = await _dio.get('/beaches/$slug/water-quality');
+      return WaterQuality.fromJson(res.data as Map<String, dynamic>);
+    } catch (_) { return null; }
+  }
+
+  Future<BeachTransportInfo> getBeachTransport(String slug) async {
+    try {
+      final res = await _dio.get('/beaches/$slug/transport');
+      return BeachTransportInfo.fromJson(res.data as Map<String, dynamic>);
+    } catch (_) { return BeachTransportInfo.empty; }
+  }
+
   Future<void> sendHeartbeat(String slug, {required double lat, required double lon}) async {
     await _dio.post(
       '/beaches/$slug/occupancy/heartbeat',

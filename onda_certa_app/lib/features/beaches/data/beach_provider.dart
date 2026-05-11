@@ -110,3 +110,39 @@ final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
   if (auth.value is! AuthAuthenticated) return null;
   return ref.read(beachRepositoryProvider).getUserProfile();
 });
+
+// ── Beach-detail family providers (keyed by slug) ──────────────────────────
+
+final beachWeatherBySlugProvider = FutureProvider.family<WeatherPoint?, String>((ref, slug) async {
+  return ref.read(beachRepositoryProvider).getBeachWeather(slug);
+});
+
+final beachSeaBySlugProvider = FutureProvider.family<SeaPoint?, String>((ref, slug) async {
+  return ref.read(beachRepositoryProvider).getBeachSea(slug);
+});
+
+final beachTidesBySlugProvider = FutureProvider.family<TidesData, String>((ref, slug) async {
+  return ref.read(beachRepositoryProvider).getBeachTides(slug);
+});
+
+final beachReportsBySlugProvider = FutureProvider.family<List<BeachReport>, String>((ref, slug) async {
+  return ref.read(beachRepositoryProvider).getBeachReports(slug);
+});
+
+final beachWaterQualityProvider = FutureProvider.family<WaterQuality?, String>((ref, slug) async {
+  return ref.read(beachRepositoryProvider).getBeachWaterQuality(slug);
+});
+
+final beachTransportProvider = FutureProvider.family<BeachTransportInfo, String>((ref, slug) async {
+  return ref.read(beachRepositoryProvider).getBeachTransport(slug);
+});
+
+/// Filters the already-loaded map presence data for a single beach.
+final beachPresenceProvider = FutureProvider.family<MapBeachPresence?, String>((ref, slug) async {
+  final users = await ref.watch(mapUsersProvider.future);
+  try {
+    return users.firstWhere((u) => u.beachSlug == slug);
+  } catch (_) {
+    return null;
+  }
+});
