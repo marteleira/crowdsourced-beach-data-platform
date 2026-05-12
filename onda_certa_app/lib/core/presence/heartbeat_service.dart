@@ -5,7 +5,7 @@ import '../../features/beaches/data/beach_provider.dart';
 import '../../features/beaches/domain/beach_models.dart';
 import 'heartbeat_provider.dart';
 
-const _kRadius = 2000.0; // 2km (at this distance the user is on the beach)
+const _kRadius = 4000.0; // 4km radius
 const _kInterval = Duration(minutes: 19);
 
 class HeartbeatService {
@@ -13,8 +13,8 @@ class HeartbeatService {
 
   void start(Ref ref) {
     if (_timer != null) return;
-    // Delay first tick so providers initialise after login/app start
-    Future.delayed(const Duration(seconds: 5), () => _tick(ref));
+    // Delay first tick so locationProvider resolves before we need GPS
+    Future.delayed(const Duration(seconds: 12), () => _tick(ref));
     _timer = Timer.periodic(_kInterval, (_) => _tick(ref));
   }
 
