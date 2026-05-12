@@ -25,13 +25,11 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final slug = widget.beach.slug;
-    final weather = ref.watch(beachWeatherBySlugProvider(slug));
-    final sea = ref.watch(beachSeaBySlugProvider(slug));
-    final tides = ref.watch(beachTidesBySlugProvider(slug));
-    final reports = ref.watch(beachReportsBySlugProvider(slug));
-    final waterQuality = ref.watch(beachWaterQualityProvider(slug));
+    // Core data (status, occupancy, weather, sea, tides, alerts) — one combined call
+    final detail = ref.watch(beachFullDetailProvider(slug));
+    // Independent calls for sections that have dedicated endpoints
     final transport = ref.watch(beachTransportProvider(slug));
-    final presence = ref.watch(beachPresenceProvider(slug));
+    final waterQuality = ref.watch(beachWaterQualityProvider(slug));
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
@@ -44,42 +42,59 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
               isFavourite: _isFavourite,
               onFavourite: () => setState(() => _isFavourite = !_isFavourite),
             ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _FlagCard(beach: widget.beach),
-                  const SizedBox(height: 12),
-                  _OccupancyCard(
-                    beach: widget.beach,
-                    userCount: presence.value?.userCount ?? 0,
-                    onImHere: _sendHeartbeat,
-                    sending: _sendingHeartbeat,
+            if (detail.isLoading && detail.value == null)
+              const SliverFillRemaining(child: Center(child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5)))
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(
+                    _buildSections(detail.value, transport, waterQuality),
                   ),
-                  const SizedBox(height: 12),
-                  _WeatherCard(weather: weather.value),
-                  const SizedBox(height: 12),
-                  _SeaCard(sea: sea.value),
-                  const SizedBox(height: 12),
-                  _TidesCard(
-                    beach: widget.beach,
-                    tidesData: tides.value ?? TidesData.empty,
-                  ),
-                  const SizedBox(height: 12),
-                  _WaterQualityCard(quality: waterQuality.value),
-                  const SizedBox(height: 12),
-                  _TransportCard(transport: transport.value ?? BeachTransportInfo.empty),
-                  const SizedBox(height: 12),
-                  _PlanTripButton(),
-                  const SizedBox(height: 12),
-                  _CommunityAlertsCard(reports: reports.value ?? []),
-                ]),
+                ),
               ),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _buildSections(
+    BeachFullDetail? d,
+    AsyncValue<BeachTransportInfo> transport,
+    AsyncValue<WaterQuality?> waterQuality,
+  ) {
+    final flagColor = d?.status.flagColor ?? widget.beach.flagColor;
+    final flagConfidence = d?.status.flagConfidence ?? widget.beach.flagConfidence;
+
+    return [
+      _FlagCard(flagColor: flagColor, flagConfidence: flagConfidence),
+      const SizedBox(height: 12),
+      _OccupancyCard(
+        occupancy: d?.status.occupancy,
+        occupancyLevel: d?.status.occupancy.level ?? widget.beach.occupancyLevel,
+        maxCapacity: d?.detail.maxCapacity,
+        onImHere: _sendHeartbeat,
+        sending: _sendingHeartbeat,
+      ),
+      const SizedBox(height: 12),
+      _WeatherCard(weather: d?.weather),
+      const SizedBox(height: 12),
+      _SeaCard(sea: d?.sea),
+      const SizedBox(height: 12),
+      _TidesCard(tidesData: d?.tides ?? TidesData.empty),
+      const SizedBox(height: 12),
+      _WaterQualityCard(quality: waterQuality.value),
+      const SizedBox(height: 12),
+      _TransportCard(
+        transport: transport.value ?? BeachTransportInfo.empty,
+        isLoading: transport.isLoading,
+      ),
+      const SizedBox(height: 12),
+      _PlanTripButton(),
+      const SizedBox(height: 12),
+      _CommunityAlertsCard(reports: d?.activeAlerts ?? []),
+    ];
   }
 
   Future<void> _sendHeartbeat() async {
@@ -104,6 +119,8 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
             duration: Duration(seconds: 2),
             backgroundColor: AppColors.teal,
           ));
+          // Refresh detail to update occupancy count
+          ref.invalidate(beachFullDetailProvider(widget.beach.slug));
         }
       }
     } catch (_) {
@@ -186,7 +203,7 @@ class _HeroAppBar extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Container(decoration: BoxDecoration(gradient: _beachGradient(beach.flagColor))),
+            Container(decoration: BoxDecoration(gradient: _gradient(beach.flagColor))),
             Positioned(
               left: 0, right: 0, bottom: 0,
               child: Container(
@@ -205,7 +222,7 @@ class _HeroAppBar extends StatelessWidget {
     );
   }
 
-  LinearGradient _beachGradient(String flag) {
+  LinearGradient _gradient(String flag) {
     switch (flag) {
       case 'green':  return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A8A8A), Color(0xFF0D2137)]);
       case 'yellow': return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3ECFCF), Color(0xFF0D4A5A)]);
@@ -291,13 +308,14 @@ Widget _metricRow(List<Widget> cells) {
 // ─── Flag card ────────────────────────────────────────────────────────────────
 
 class _FlagCard extends StatelessWidget {
-  const _FlagCard({required this.beach});
-  final BeachSummary beach;
+  const _FlagCard({required this.flagColor, this.flagConfidence});
+  final String flagColor;
+  final double? flagConfidence;
 
   @override
   Widget build(BuildContext context) {
-    final (color, label) = _flagInfo(beach.flagColor);
-    final confidence = beach.flagConfidence ?? 0.7;
+    final (color, label) = _flagInfo(flagColor);
+    final confidence = flagConfidence ?? 0.7;
 
     return _SectionCard(
       child: Row(
@@ -347,10 +365,10 @@ class _FlagCard extends StatelessWidget {
 
   (Color, String) _flagInfo(String flag) {
     switch (flag) {
-      case 'green':  return (AppColors.flagGreen,  'Segura para nadar');
-      case 'yellow': return (AppColors.flagYellow, 'Cuidado ao nadar');
-      case 'red':    return (AppColors.flagRed,    'Condições perigosas');
-      case 'purple': return (AppColors.flagPurple, 'Praia fechada');
+      case 'green':  return (AppColors.flagGreen,    'Segura para nadar');
+      case 'yellow': return (AppColors.flagYellow,   'Cuidado ao nadar');
+      case 'red':    return (AppColors.flagRed,      'Condições perigosas');
+      case 'purple': return (AppColors.flagPurple,   'Praia fechada');
       default:       return (AppColors.textSecondary, 'Estado desconhecido');
     }
   }
@@ -360,17 +378,19 @@ class _FlagCard extends StatelessWidget {
 
 class _OccupancyCard extends StatelessWidget {
   const _OccupancyCard({
-    required this.beach, required this.userCount,
+    this.occupancy, required this.occupancyLevel, this.maxCapacity,
     required this.onImHere, required this.sending,
   });
-  final BeachSummary beach;
-  final int userCount;
+  final OccupancyData? occupancy;
+  final String occupancyLevel;
+  final int? maxCapacity;
   final VoidCallback onImHere;
   final bool sending;
 
   @override
   Widget build(BuildContext context) {
-    final (pct, levelLabel, color) = _occupancyInfo(beach.occupancyLevel);
+    final userCount = occupancy?.userCount ?? 0;
+    final (pct, levelLabel, color) = _occupancyInfo(occupancyLevel, userCount);
 
     return _SectionCard(
       child: Column(
@@ -424,11 +444,18 @@ class _OccupancyCard extends StatelessWidget {
     );
   }
 
-  (double, String, Color) _occupancyInfo(String level) {
+  (double, String, Color) _occupancyInfo(String level, int userCount) {
+    // Use real capacity data when available
+    if (maxCapacity != null && maxCapacity! > 0) {
+      final pct = (userCount / maxCapacity!).clamp(0.0, 1.0);
+      final label = pct < 0.35 ? 'Tranquila' : pct < 0.70 ? 'Animada' : 'Cheia';
+      final color = pct < 0.35 ? AppColors.flagGreen : pct < 0.70 ? AppColors.sand : AppColors.coral;
+      return (pct, label, color);
+    }
     switch (level) {
-      case 'low':    return (0.22, 'Tranquila',  AppColors.flagGreen);
-      case 'normal': return (0.55, 'Animada',    AppColors.sand);
-      case 'high':   return (0.85, 'Cheia',      AppColors.coral);
+      case 'low':    return (0.22, 'Tranquila', AppColors.flagGreen);
+      case 'normal': return (0.55, 'Animada',   AppColors.sand);
+      case 'high':   return (0.85, 'Cheia',     AppColors.coral);
       default:       return (0.0,  'Desconhecida', AppColors.textHint);
     }
   }
@@ -451,11 +478,11 @@ class _DonutChart extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                '${(percentage * 100).round()}%',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary),
-              ),
-              Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary), textAlign: TextAlign.center),
+              Text('${(percentage * 100).round()}%',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary)),
+              Text(label,
+                  style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                  textAlign: TextAlign.center),
             ],
           ),
         ],
@@ -474,18 +501,13 @@ class _DonutPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 8;
     const strokeW = 10.0;
+    final rect = Rect.fromCircle(center: center, radius: radius);
 
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      -pi / 2, 2 * pi, false,
-      Paint()..color = const Color(0xFFE5E7EB)..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round,
-    );
+    canvas.drawArc(rect, -pi / 2, 2 * pi, false,
+      Paint()..color = const Color(0xFFE5E7EB)..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round);
     if (percentage > 0) {
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -pi / 2, 2 * pi * percentage, false,
-        Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round,
-      );
+      canvas.drawArc(rect, -pi / 2, 2 * pi * percentage, false,
+        Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round);
     }
   }
 
@@ -511,22 +533,19 @@ class _WeatherCard extends StatelessWidget {
             _MetricCell(
               icon: Icons.thermostat_outlined,
               value: weather?.maxTemp != null ? '${weather!.maxTemp!.round()}°C' : '--',
-              label: 'Temperatura',
-              iconColor: AppColors.coral,
+              label: 'Temperatura', iconColor: AppColors.coral,
             ),
             _MetricCell(
               icon: Icons.air,
               value: weather?.windSpeed != null
                   ? '${weather!.windSpeed!.round()} km/h${weather!.windDir != null ? " ${weather!.windDir}" : ""}'
                   : '--',
-              label: 'Vento',
-              iconColor: AppColors.teal,
+              label: 'Vento', iconColor: AppColors.teal,
             ),
             _MetricCell(
               icon: Icons.umbrella_outlined,
               value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--',
-              label: 'Chuva',
-              iconColor: const Color(0xFF3B82F6),
+              label: 'Chuva', iconColor: const Color(0xFF3B82F6),
             ),
           ]),
         ],
@@ -553,20 +572,17 @@ class _SeaCard extends StatelessWidget {
             _MetricCell(
               icon: Icons.waves,
               value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--',
-              label: 'Ondas',
-              iconColor: AppColors.teal,
+              label: 'Ondas', iconColor: AppColors.teal,
             ),
             _MetricCell(
               icon: Icons.schedule,
               value: sea?.wavePeriodMax != null ? '${sea!.wavePeriodMax!.round()}s' : '--',
-              label: 'Período',
-              iconColor: AppColors.primary,
+              label: 'Período', iconColor: AppColors.primary,
             ),
             _MetricCell(
               icon: Icons.thermostat_outlined,
               value: sea?.seaTemp != null ? '${sea!.seaTemp!.round()}°C' : '--',
-              label: 'Temp. Mar',
-              iconColor: AppColors.coral,
+              label: 'Temp. Mar', iconColor: AppColors.coral,
             ),
           ]),
         ],
@@ -578,8 +594,7 @@ class _SeaCard extends StatelessWidget {
 // ─── Tides card ───────────────────────────────────────────────────────────────
 
 class _TidesCard extends StatelessWidget {
-  const _TidesCard({required this.beach, required this.tidesData});
-  final BeachSummary beach;
+  const _TidesCard({required this.tidesData});
   final TidesData tidesData;
 
   @override
@@ -629,13 +644,11 @@ class _TidesCard extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(isRising ? Icons.arrow_upward : Icons.arrow_downward, color: accentColor, size: 14),
-                      const SizedBox(width: 3),
-                      Text(directionLabel, style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.w600)),
-                    ],
-                  ),
+                  Row(children: [
+                    Icon(isRising ? Icons.arrow_upward : Icons.arrow_downward, color: accentColor, size: 14),
+                    const SizedBox(width: 3),
+                    Text(directionLabel, style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.w600)),
+                  ]),
                   const SizedBox(height: 2),
                   Text(displayH, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.primary)),
                   if (nextTide != null)
@@ -697,13 +710,11 @@ class _WaterQualityCard extends StatelessWidget {
               children: [
                 const Text('Qualidade da Água', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary)),
                 if (cacheStr != null)
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 11, color: AppColors.textHint),
-                      const SizedBox(width: 3),
-                      Text(cacheStr, style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
-                    ],
-                  ),
+                  Row(children: [
+                    const Icon(Icons.access_time, size: 11, color: AppColors.textHint),
+                    const SizedBox(width: 3),
+                    Text(cacheStr, style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
+                  ]),
               ],
             ),
           ),
@@ -730,11 +741,11 @@ class _WaterQualityCard extends StatelessWidget {
 
   (Color, String) _qualityInfo(String? raw) {
     switch ((raw ?? '').toLowerCase()) {
-      case 'excelente': case 'excellent': return (AppColors.flagGreen, 'Excelente');
-      case 'boa':       case 'good':      return (AppColors.teal,      'Boa');
+      case 'excelente': case 'excellent': return (AppColors.flagGreen,    'Excelente');
+      case 'boa':       case 'good':      return (AppColors.teal,         'Boa');
       case 'suficiente': case 'sufficient': return (AppColors.flagYellow, 'Suficiente');
-      case 'má':        case 'poor':      return (AppColors.flagRed,   'Má');
-      default:                            return (AppColors.textSecondary, 'Desconhecida');
+      case 'má':        case 'poor':      return (AppColors.flagRed,      'Má');
+      default:                             return (AppColors.textSecondary, 'Desconhecida');
     }
   }
 
@@ -747,17 +758,16 @@ class _WaterQualityCard extends StatelessWidget {
       if (diff.inHours < 1)  return 'cache ${diff.inMinutes} min atrás';
       if (diff.inHours < 48) return 'cache ${diff.inHours}h atrás';
       return 'cache ${diff.inDays}d atrás';
-    } catch (_) {
-      return 'dados em cache';
-    }
+    } catch (_) { return 'dados em cache'; }
   }
 }
 
 // ─── Transport card ───────────────────────────────────────────────────────────
 
 class _TransportCard extends StatelessWidget {
-  const _TransportCard({required this.transport});
+  const _TransportCard({required this.transport, this.isLoading = false});
   final BeachTransportInfo transport;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -767,20 +777,43 @@ class _TransportCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(title: 'Próximas Partidas', isLive: true),
-          if (routes.isEmpty) ...[
+          _CardHeader(title: 'Próximas Partidas', isLive: !isLoading),
+          if (isLoading) ...[
+            const SizedBox(height: 16),
+            const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2))),
+            const SizedBox(height: 16),
+          ] else if (transport.stops.isEmpty) ...[
             const SizedBox(height: 12),
-            const Center(child: Text('Sem informação de transportes', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+            const Center(child: Text('Sem informação de transportes para esta praia', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+          ] else if (routes.isEmpty) ...[
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.schedule, size: 14, color: AppColors.textHint),
+                const SizedBox(width: 6),
+                Text(
+                  'Sem partidas previstas',
+                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                '${transport.stops.length} paragem${transport.stops.length > 1 ? 's' : ''} próxima${transport.stops.length > 1 ? 's' : ''}',
+                style: const TextStyle(color: AppColors.textHint, fontSize: 11),
+              ),
+            ),
           ] else ...[
             const SizedBox(height: 12),
             ...routes.entries.map((e) {
-              final shortName = e.key;
               final trips = e.value;
               final headsign = trips.first.tripHeadsign;
-              final times = trips.take(3).map((t) => t.departureTime.substring(0, 5)).toList();
+              final times = trips.take(3).map((t) => t.departureTime.length >= 5 ? t.departureTime.substring(0, 5) : t.departureTime).toList();
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: _BusRouteRow(shortName: shortName, headsign: headsign, times: times),
+                child: _BusRouteRow(shortName: e.key, headsign: headsign, times: times),
               );
             }),
           ],
@@ -913,7 +946,6 @@ class _VoteDots extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = (upvotes + downvotes).clamp(1, 999);
     final filled = ((upvotes / total) * 3).round().clamp(0, 3);
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(3, (i) => Container(

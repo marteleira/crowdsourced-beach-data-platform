@@ -56,6 +56,13 @@ class BeachRepository {
     } catch (_) { return []; }
   }
 
+  Future<BeachFullDetail?> getBeachFullDetail(String slug) async {
+    try {
+      final res = await _dio.get('/beaches/$slug');
+      return BeachFullDetail.fromJson(res.data as Map<String, dynamic>);
+    } catch (_) { return null; }
+  }
+
   Future<WaterQuality?> getBeachWaterQuality(String slug) async {
     try {
       final res = await _dio.get('/beaches/$slug/water-quality');

@@ -175,6 +175,115 @@ class MapBeachPresence {
   );
 }
 
+// Backend: OccupancyData { level, user_count, is_estimate, last_updated }
+class OccupancyData {
+  const OccupancyData({required this.level, required this.userCount, this.isEstimate = true});
+  final String level; // low | medium | high | unknown
+  final int userCount;
+  final bool isEstimate;
+
+  factory OccupancyData.fromJson(Map<String, dynamic> j) => OccupancyData(
+    level: j['level'] as String? ?? 'unknown',
+    userCount: j['user_count'] as int? ?? 0,
+    isEstimate: j['is_estimate'] as bool? ?? true,
+  );
+}
+
+// Backend: BeachStatusResponse { flag_color, flag_confidence, activity_level, occupancy }
+class BeachStatus {
+  const BeachStatus({
+    required this.flagColor, required this.flagConfidence,
+    required this.activityLevel, this.activityLabel, required this.occupancy,
+  });
+  final String flagColor;
+  final double flagConfidence;
+  final String activityLevel;
+  final String? activityLabel;
+  final OccupancyData occupancy;
+
+  factory BeachStatus.fromJson(Map<String, dynamic> j) => BeachStatus(
+    flagColor: j['flag_color'] as String? ?? 'unknown',
+    flagConfidence: (j['flag_confidence'] as num?)?.toDouble() ?? 0.0,
+    activityLevel: j['activity_level'] as String? ?? 'normal',
+    activityLabel: j['activity_label'] as String?,
+    occupancy: OccupancyData.fromJson(j['occupancy'] as Map<String, dynamic>),
+  );
+}
+
+// Backend: BeachDetail { id, slug, name, lat, lon, max_capacity, flags_available }
+class BeachDetailInfo {
+  const BeachDetailInfo({
+    required this.id, required this.slug, required this.name,
+    required this.lat, required this.lon,
+    this.maxCapacity, required this.flagsAvailable,
+  });
+  final int id;
+  final String slug;
+  final String name;
+  final double lat;
+  final double lon;
+  final int? maxCapacity;
+  final bool flagsAvailable;
+
+  factory BeachDetailInfo.fromJson(Map<String, dynamic> j) => BeachDetailInfo(
+    id: j['id'] as int,
+    slug: j['slug'] as String,
+    name: j['name'] as String,
+    lat: (j['lat'] as num).toDouble(),
+    lon: (j['lon'] as num).toDouble(),
+    maxCapacity: j['max_capacity'] as int?,
+    flagsAvailable: j['flags_available'] as bool? ?? false,
+  );
+}
+
+// Backend: BeachFullResponse — returned by GET /beaches/{slug}
+class BeachFullDetail {
+  const BeachFullDetail({
+    required this.detail, required this.status, required this.activeAlerts,
+    this.weather, this.sea, required this.tides,
+    this.waterQuality, required this.transport,
+  });
+  final BeachDetailInfo detail;
+  final BeachStatus status;
+  final List<BeachReport> activeAlerts;
+  final WeatherPoint? weather;
+  final SeaPoint? sea;
+  final TidesData tides;
+  final WaterQuality? waterQuality;
+  final BeachTransportInfo transport;
+
+  factory BeachFullDetail.fromJson(Map<String, dynamic> j) {
+    final beachJson = j['beach'] as Map<String, dynamic>;
+    final alertsList = (j['active_alerts'] as List? ?? []);
+    final weatherList = j['weather'] as List?;
+    final seaList = j['sea'] as List?;
+    final tidesJson = j['tides'] as Map<String, dynamic>?;
+    final wqJson = j['water_quality'] as Map<String, dynamic>?;
+    final transportJson = j['transport'] as Map<String, dynamic>?;
+
+    return BeachFullDetail(
+      detail: BeachDetailInfo.fromJson(beachJson),
+      status: BeachStatus.fromJson(j['status'] as Map<String, dynamic>),
+      activeAlerts: alertsList
+          .map((e) => BeachReport.fromJson(
+                e as Map<String, dynamic>,
+                beachName: beachJson['name'] as String?,
+                beachSlug: beachJson['slug'] as String?,
+              ))
+          .toList(),
+      weather: weatherList != null && weatherList.isNotEmpty
+          ? WeatherPoint.fromJson(weatherList.first as Map<String, dynamic>)
+          : null,
+      sea: seaList != null && seaList.isNotEmpty
+          ? SeaPoint.fromJson(seaList.first as Map<String, dynamic>)
+          : null,
+      tides: tidesJson != null ? TidesData.fromJson(tidesJson) : TidesData.empty,
+      waterQuality: wqJson != null ? WaterQuality.fromJson(wqJson) : null,
+      transport: transportJson != null ? BeachTransportInfo.fromJson(transportJson) : BeachTransportInfo.empty,
+    );
+  }
+}
+
 // Backend: WaterQualityResponse { classification, sampled_at, data_source, snapshot_at }
 class WaterQuality {
   const WaterQuality({this.classification, this.sampledAt, this.snapshotAt, this.dataSource = 'live'});
