@@ -260,6 +260,7 @@ async def get_beach(
 
     if beach.nearby_stop_ids:
         try:
+            from app.api.transport import _group_by_direction
             raw, source, snap_at = await fetch_with_fallback(
                 db, "carris_stops",
                 lambda: carris.fetch_multiple_stops_departures(beach.nearby_stop_ids),
@@ -270,9 +271,10 @@ async def get_beach(
                 info = await carris.fetch_stop(sid)
                 if info:
                     stops_info.append(info)
+            trips = raw if isinstance(raw, list) else []
             transport = {
                 "stops": stops_info,
-                "next_departures": raw if isinstance(raw, list) else [],
+                "directions": [d.model_dump() for d in _group_by_direction(trips)],
                 "data_source": source,
                 "snapshot_at": snap_at,
             }

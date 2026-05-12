@@ -313,44 +313,59 @@ class TransportStop {
   );
 }
 
-class TransportTrip {
-  const TransportTrip({
-    required this.routeId, required this.routeShortName,
-    this.tripHeadsign, required this.departureTime,
+// Single departure within a direction group
+class TransportDeparture {
+  const TransportDeparture({
+    required this.departureTime, required this.routeShortName, this.isRealtime = false,
   });
-  final String routeId;
+  final String departureTime;  // "HH:MM:SS" from backend
   final String routeShortName;
-  final String? tripHeadsign;
-  final String departureTime;
+  final bool isRealtime;
 
-  factory TransportTrip.fromJson(Map<String, dynamic> j) => TransportTrip(
-    routeId: j['route_id'] as String,
-    routeShortName: j['route_short_name'] as String,
-    tripHeadsign: j['trip_headsign'] as String?,
+  String get displayTime {
+    // "18:50:00" → "18:50"
+    final parts = departureTime.split(':');
+    return parts.length >= 2 ? '${parts[0]}:${parts[1]}' : departureTime;
+  }
+
+  factory TransportDeparture.fromJson(Map<String, dynamic> j) => TransportDeparture(
     departureTime: j['departure_time'] as String,
+    routeShortName: j['route_short_name'] as String,
+    isRealtime: j['is_realtime'] as bool? ?? false,
+  );
+}
+
+// A destination group — all departures heading the same way
+class TransportDirection {
+  const TransportDirection({required this.headsign, required this.departures});
+  final String headsign;
+  final List<TransportDeparture> departures;
+
+  factory TransportDirection.fromJson(Map<String, dynamic> j) => TransportDirection(
+    headsign: j['headsign'] as String,
+    departures: (j['departures'] as List? ?? [])
+        .map((e) => TransportDeparture.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
 class BeachTransportInfo {
-  const BeachTransportInfo({required this.stops, required this.nextDepartures});
+  const BeachTransportInfo({required this.stops, required this.directions});
   final List<TransportStop> stops;
-  final List<TransportTrip> nextDepartures;
+  final List<TransportDirection> directions;
 
-  static const empty = BeachTransportInfo(stops: [], nextDepartures: []);
+  static const empty = BeachTransportInfo(stops: [], directions: []);
+
+  bool get hasDepartures => directions.any((d) => d.departures.isNotEmpty);
 
   factory BeachTransportInfo.fromJson(Map<String, dynamic> j) => BeachTransportInfo(
-    stops: (j['stops'] as List? ?? []).map((e) => TransportStop.fromJson(e as Map<String, dynamic>)).toList(),
-    nextDepartures: (j['next_departures'] as List? ?? []).map((e) => TransportTrip.fromJson(e as Map<String, dynamic>)).toList(),
+    stops: (j['stops'] as List? ?? [])
+        .map((e) => TransportStop.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    directions: (j['directions'] as List? ?? [])
+        .map((e) => TransportDirection.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
-
-  /// Group trips by route for display purposes.
-  Map<String, List<TransportTrip>> get byRoute {
-    final map = <String, List<TransportTrip>>{};
-    for (final t in nextDepartures) {
-      map.putIfAbsent(t.routeShortName, () => []).add(t);
-    }
-    return map;
-  }
 }
 
 class UserProfile {
