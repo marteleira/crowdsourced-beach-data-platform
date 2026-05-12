@@ -111,7 +111,13 @@ final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
   return ref.read(beachRepositoryProvider).getUserProfile();
 });
 
-// ── Beach-detail family providers (keyed by slug) ──────────────────────────
+// Single combined call for BeachDetailScreen
+
+final beachFullDetailProvider = FutureProvider.family<BeachFullDetail?, String>((ref, slug) async {
+  return ref.read(beachRepositoryProvider).getBeachFullDetail(slug);
+});
+
+// Per-section family providers (keyed by slug)
 
 final beachWeatherBySlugProvider = FutureProvider.family<WeatherPoint?, String>((ref, slug) async {
   return ref.read(beachRepositoryProvider).getBeachWeather(slug);
