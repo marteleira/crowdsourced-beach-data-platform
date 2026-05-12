@@ -98,11 +98,17 @@ class TransportTrip(BaseModel):
     trip_headsign: Optional[str] = None
     stop_id: str
     departure_time: str
+    is_realtime: bool = False
+
+
+class TransportDirection(BaseModel):
+    headsign: str                       # destination shown on the bus
+    departures: List[TransportTrip] = []
 
 
 class TransportResponse(BaseModel):
     stops: List[TransportStop] = []
-    next_departures: List[TransportTrip] = []
+    directions: List[TransportDirection] = []   # grouped by headsign/destination
     data_source: str = "live"
     snapshot_at: Optional[datetime] = None
 

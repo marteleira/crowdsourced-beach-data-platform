@@ -771,8 +771,6 @@ class _TransportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final routes = transport.byRoute;
-
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -785,19 +783,13 @@ class _TransportCard extends StatelessWidget {
           ] else if (transport.stops.isEmpty) ...[
             const SizedBox(height: 12),
             const Center(child: Text('Sem informação de transportes para esta praia', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
-          ] else if (routes.isEmpty) ...[
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.schedule, size: 14, color: AppColors.textHint),
-                const SizedBox(width: 6),
-                Text(
-                  'Sem partidas previstas',
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                ),
-              ],
-            ),
+          ] else if (!transport.hasDepartures) ...[
+            const SizedBox(height: 10),
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              const Icon(Icons.schedule, size: 14, color: AppColors.textHint),
+              const SizedBox(width: 6),
+              const Text('Sem partidas previstas', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            ]),
             const SizedBox(height: 4),
             Center(
               child: Text(
@@ -807,15 +799,12 @@ class _TransportCard extends StatelessWidget {
             ),
           ] else ...[
             const SizedBox(height: 12),
-            ...routes.entries.map((e) {
-              final trips = e.value;
-              final headsign = trips.first.tripHeadsign;
-              final times = trips.take(3).map((t) => t.departureTime.length >= 5 ? t.departureTime.substring(0, 5) : t.departureTime).toList();
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _BusRouteRow(shortName: e.key, headsign: headsign, times: times),
-              );
-            }),
+            ...transport.directions.where((d) => d.departures.isNotEmpty).map(
+              (d) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _DirectionGroup(direction: d),
+              ),
+            ),
           ],
         ],
       ),
@@ -823,39 +812,72 @@ class _TransportCard extends StatelessWidget {
   }
 }
 
-class _BusRouteRow extends StatelessWidget {
-  const _BusRouteRow({required this.shortName, this.headsign, required this.times});
-  final String shortName;
-  final String? headsign;
-  final List<String> times;
+class _DirectionGroup extends StatelessWidget {
+  const _DirectionGroup({required this.direction});
+  final TransportDirection direction;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final departures = direction.departures.take(3).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 46, height: 28,
-          decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(8)),
-          alignment: Alignment.center,
-          child: Text(shortName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            headsign ?? shortName,
-            style: const TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w500),
-            overflow: TextOverflow.ellipsis,
+        // Direction header
+        Row(children: [
+          const Icon(Icons.arrow_forward, size: 13, color: AppColors.teal),
+          const SizedBox(width: 5),
+          Expanded(
+            child: Text(
+              direction.headsign,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primary),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
+        ]),
+        const SizedBox(height: 6),
+        // Departure chips
+        Wrap(
+          spacing: 6,
+          runSpacing: 4,
+          children: departures.map((dep) => _DepartureChip(dep: dep)).toList(),
         ),
-        ...times.map((t) => Padding(
-          padding: const EdgeInsets.only(left: 6),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
-            decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(8)),
-            child: Text(t, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary)),
-          ),
-        )),
       ],
+    );
+  }
+}
+
+class _DepartureChip extends StatelessWidget {
+  const _DepartureChip({required this.dep});
+  final TransportDeparture dep;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: dep.isRealtime ? AppColors.teal.withValues(alpha: 0.10) : AppColors.background,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: dep.isRealtime ? AppColors.teal.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.06),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Route badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+            decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(4)),
+            child: Text(dep.routeShortName, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+          ),
+          const SizedBox(width: 5),
+          Text(dep.displayTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
+          if (dep.isRealtime) ...[
+            const SizedBox(width: 4),
+            Container(width: 5, height: 5, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -179,6 +179,7 @@ class TestTransportEndpoint:
 
         assert r.status_code == 200
         body = r.json()
-        assert len(body["next_departures"]) == 1
-        assert body["next_departures"][0]["route_short_name"] == "4601"
+        assert len(body["directions"]) == 1
+        assert body["directions"][0]["headsign"] == "Setúbal"
+        assert body["directions"][0]["departures"][0]["route_short_name"] == "4601"
         assert body["data_source"] == "live"
