@@ -120,6 +120,7 @@ class _HomeDashboard extends ConsumerWidget {
     }
 
     Future<void> onRefresh() async {
+      ref.invalidate(locationProvider);
       ref.invalidate(beachListProvider);
       ref.invalidate(weatherProvider);
       ref.invalidate(seaProvider);

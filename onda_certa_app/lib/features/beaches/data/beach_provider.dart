@@ -18,9 +18,7 @@ class _LastUpdatedNotifier extends Notifier<DateTime?> {
   void setNow() => state = DateTime.now();
 }
 
-// GPS location:
-// 1. lastKnownPosition — instant, available after first real use
-// 2. getCurrentPosition — only if no cached position (first ever launch)
+// GPS location — always tries a fresh fix; falls back to last known on timeout.
 final locationProvider = FutureProvider<Position?>((ref) async {
   var permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
@@ -31,11 +29,6 @@ final locationProvider = FutureProvider<Position?>((ref) async {
     return null;
   }
 
-  // Fast path: cached position is accurate enough for beach ranking
-  final lastKnown = await Geolocator.getLastKnownPosition();
-  if (lastKnown != null) return lastKnown;
-
-  // Slow path: first ever launch — wait for a fresh fix
   try {
     return await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(
@@ -44,7 +37,8 @@ final locationProvider = FutureProvider<Position?>((ref) async {
       ),
     );
   } catch (_) {
-    return null;
+    // GPS unavailable or timed out — use cached position as fallback
+    return Geolocator.getLastKnownPosition();
   }
 });
 

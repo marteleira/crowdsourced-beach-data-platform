@@ -139,8 +139,8 @@ BEACHES = [
     {
         "slug": "praia-da-california",
         "name": "Praia da Califórnia",
-        "lat": 38.4350,
-        "lon": -9.0847,
+        "lat": 38.441411,
+        "lon": -9.095100,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
         "apa_station_id": None,
@@ -212,12 +212,28 @@ BEACHES = [
 async def seed():
     async with AsyncSessionLocal() as db:
         for data in BEACHES:
-            existing = await db.execute(select(Beach).where(Beach.slug == data["slug"]))
-            if existing.scalar_one_or_none():
-                print(f"  skip (exists): {data['slug']}")
+            geom = f"SRID=4326;POINT({data['lon']} {data['lat']})"
+
+            result = await db.execute(select(Beach).where(Beach.slug == data["slug"]))
+            beach = result.scalar_one_or_none()
+
+            if beach:
+                # Update existing record with latest values from the seed file
+                beach.name = data["name"]
+                beach.lat = data["lat"]
+                beach.lon = data["lon"]
+                beach.geom = geom
+                beach.ipma_global_id = data.get("ipma_global_id")
+                beach.ipma_sea_global_id = data.get("ipma_sea_global_id")
+                beach.apa_station_id = data.get("apa_station_id")
+                beach.tide_station_id = data.get("tide_station_id")
+                beach.has_capacity_data = data.get("has_capacity_data", False)
+                beach.max_capacity = data.get("max_capacity")
+                beach.nearby_stop_ids = data.get("nearby_stop_ids", [])
+                beach.flags_available = data.get("flags_available", True)
+                print(f"  update: {data['slug']}")
                 continue
 
-            geom = f"SRID=4326;POINT({data['lon']} {data['lat']})"
             beach = Beach(
                 slug=data["slug"],
                 name=data["name"],
