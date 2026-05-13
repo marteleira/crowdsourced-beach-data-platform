@@ -279,8 +279,27 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final hour = now.hour;
-    final greeting = hour < 12 ? 'Bom dia' : hour < 19 ? 'Boa tarde' : 'Boa noite';
-    final emoji = hour < 12 ? '🌤' : hour < 17 ? '☀️' : hour < 20 ? '🌅' : '🌙';
+    final greeting = hour < 5 ? 'Boa noite' : hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+    final precip = weather?.precipitationProb ?? 0;
+    final wind = weather?.windSpeed ?? 0;
+    final String emoji;
+    if (precip >= 70 && wind >= 40) {
+      emoji = '⛈️';
+    } else if (precip >= 70) {
+      emoji = '🌧️';
+    } else if (precip >= 40) {
+      emoji = '🌦️';
+    } else if (hour < 5) {
+      emoji = '🌙';
+    } else if (hour < 7) {
+      emoji = '🌅';
+    } else if (hour < 19) {
+      emoji = '☀️';
+    } else if (hour < 21) {
+      emoji = '🌇';
+    } else {
+      emoji = '🌙';
+    }
     final name = profile?.displayName ?? 'explorador';
     final dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
     final monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
