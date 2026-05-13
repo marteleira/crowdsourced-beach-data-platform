@@ -538,7 +538,7 @@ class _WeatherCard extends StatelessWidget {
             _MetricCell(
               icon: Icons.air,
               value: weather?.windSpeed != null
-                  ? '${weather!.windSpeed!.round()} km/h${weather!.windDir != null ? " ${weather!.windDir}" : ""}'
+                  ? '${weather!.windSpeed!.round()} km/h\n${weather!.windDir != null ? "${weather!.windDir}" : ""}'
                   : '--',
               label: 'Vento', iconColor: AppColors.teal,
             ),

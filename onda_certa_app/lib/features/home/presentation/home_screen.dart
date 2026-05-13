@@ -10,6 +10,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/animated_waves.dart';
 import '../../../shared/widgets/tide_chart.dart';
+import '../../tides/presentation/tide_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -56,8 +57,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: AppColors.background,
-        body: _tab == 0 ? _HomeDashboard(onTabChange: (i) => setState(() => _tab = i)) : _PlaceholderTab(tab: _tab),
+        backgroundColor: _tab == 2 ? const Color(0xFF081C2E) : AppColors.background,
+        body: switch (_tab) {
+          0 => _HomeDashboard(onTabChange: (i) => setState(() => _tab = i)),
+          2 => const TideScreen(),
+          _ => _PlaceholderTab(tab: _tab),
+        },
         bottomNavigationBar: NavigationBar(
           selectedIndex: _tab,
           onDestinationSelected: (i) => setState(() => _tab = i),
