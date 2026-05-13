@@ -82,7 +82,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
       const SizedBox(height: 12),
       _SeaCard(sea: d?.sea),
       const SizedBox(height: 12),
-      _TidesCard(tidesData: d?.tides ?? TidesData.empty),
+      _TidesCard(tidesData: d?.tides ?? TidesData.empty, onViewAll: _goToTides),
       const SizedBox(height: 12),
       _WaterQualityCard(quality: waterQuality.value),
       const SizedBox(height: 12),
@@ -95,6 +95,11 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
       const SizedBox(height: 12),
       _CommunityAlertsCard(reports: d?.activeAlerts ?? []),
     ];
+  }
+
+  void _goToTides() {
+    ref.read(selectedTabProvider.notifier).set(2);
+    context.pop();
   }
 
   Future<void> _sendHeartbeat() async {
@@ -594,8 +599,9 @@ class _SeaCard extends StatelessWidget {
 // ─── Tides card ───────────────────────────────────────────────────────────────
 
 class _TidesCard extends StatelessWidget {
-  const _TidesCard({required this.tidesData});
+  const _TidesCard({required this.tidesData, this.onViewAll});
   final TidesData tidesData;
+  final VoidCallback? onViewAll;
 
   @override
   Widget build(BuildContext context) {
@@ -632,7 +638,7 @@ class _TidesCard extends StatelessWidget {
               const Text('Marés Hoje', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary)),
               const Spacer(),
               GestureDetector(
-                onTap: () {},
+                onTap: onViewAll,
                 child: const Text('Vista completa →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
               ),
             ],

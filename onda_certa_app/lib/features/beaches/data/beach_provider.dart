@@ -8,6 +8,15 @@ final beachRepositoryProvider = Provider<BeachRepository>((ref) {
   return BeachRepository(ref.read(dioProvider));
 });
 
+//Allow any to change to current homescreen tab
+final selectedTabProvider = NotifierProvider<_SelectedTabNotifier, int>(_SelectedTabNotifier.new);
+
+class _SelectedTabNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
+  void set(int tab) => state = tab;
+}
+
 // Timestamp of the last successful data refresh
 final lastUpdatedProvider =
     NotifierProvider<_LastUpdatedNotifier, DateTime?>(_LastUpdatedNotifier.new);

@@ -24,6 +24,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(selectedTabProvider, (_, tab) {
+      setState(() => _tab = tab);
+    });
+
     ref.listen<bool>(locationPermissionDeniedProvider, (_, denied) {
       final messenger = ScaffoldMessenger.of(context);
       if (denied) {
@@ -168,7 +172,7 @@ class _HomeDashboard extends ConsumerWidget {
               const SizedBox(height: 24),
               _AlertsSection(reports: reports.value ?? []),
               const SizedBox(height: 24),
-              _TidesSection(beach: bestBeach.value, tidesData: tides.value ?? TidesData.empty),
+              _TidesSection(beach: bestBeach.value, tidesData: tides.value ?? TidesData.empty, onViewAll: () => onTabChange(2)),
               const SizedBox(height: 24),
               _ExploreGrid(beachCount: beaches.value?.length ?? 0, onTabChange: onTabChange),
               const SizedBox(height: 24),
@@ -718,9 +722,10 @@ class _AlertsSection extends StatelessWidget {
 // Tides section
 
 class _TidesSection extends StatelessWidget {
-  const _TidesSection({required this.beach, required this.tidesData});
+  const _TidesSection({required this.beach, required this.tidesData, required this.onViewAll});
   final BeachSummary? beach;
   final TidesData tidesData;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
@@ -766,7 +771,7 @@ class _TidesSection extends StatelessWidget {
             Text('MARÉS · ${beachShort.toUpperCase()}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8)),
             const Spacer(),
             GestureDetector(
-              onTap: () {},
+              onTap: onViewAll,
               child: const Text('Ver detalhes →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
             ),
           ],
