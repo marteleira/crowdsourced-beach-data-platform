@@ -146,6 +146,81 @@ final beachTransportProvider = FutureProvider.family<BeachTransportInfo, String>
   return ref.read(beachRepositoryProvider).getBeachTransport(slug);
 });
 
+/// Mutable reports list for CommunityAlertsScreen — supports optimistic vote + submit.
+final communityReportsProvider =
+    AsyncNotifierProvider.family<CommunityReportsNotifier, List<BeachReport>, String>(
+  (slug) => CommunityReportsNotifier(slug),
+);
+
+class CommunityReportsNotifier extends AsyncNotifier<List<BeachReport>> {
+  CommunityReportsNotifier(this._slug);
+  final String _slug;
+
+  @override
+  Future<List<BeachReport>> build() async {
+    return ref.read(beachRepositoryProvider).getBeachReports(_slug);
+  }
+
+  Future<void> vote(int reportId, String vote) async {
+    final before = List<BeachReport>.from(state.value ?? []);
+    final voteVal = vote == 'up' ? 1 : -1;
+
+    // Optimistic update
+    state = AsyncData(before.map((r) {
+      if (r.id != reportId) return r;
+      final isToggle = r.myVote == voteVal;
+      final wasOpposite = r.myVote != null && r.myVote != voteVal;
+      return r.withVote(
+        myVote: isToggle ? null : voteVal,
+        upvotes: r.upvotes +
+            (vote == 'up'
+                ? (isToggle ? -1 : 1)
+                : (wasOpposite ? -1 : 0)),
+        downvotes: r.downvotes +
+            (vote == 'down'
+                ? (isToggle ? -1 : 1)
+                : (wasOpposite ? -1 : 0)),
+      );
+    }).toList());
+
+    try {
+      final result = await ref.read(beachRepositoryProvider).voteReport(_slug, reportId, vote);
+      state = AsyncData((state.value ?? []).map((r) {
+        if (r.id != reportId) return r;
+        final voteVal2 = vote == 'up' ? 1 : -1;
+        final myVote = r.myVote == voteVal2 ? voteVal2 : null;
+        return r.withVote(
+          myVote: myVote,
+          upvotes: result['upvotes']!,
+          downvotes: result['downvotes']!,
+        );
+      }).toList());
+    } catch (_) {
+      state = AsyncData(before);
+      rethrow;
+    }
+  }
+
+  Future<BeachReport> submitReport({
+    required String type,
+    required int severity,
+    String? note,
+    double? lat,
+    double? lon,
+  }) async {
+    final report = await ref.read(beachRepositoryProvider).createReport(
+      _slug,
+      type: type,
+      severity: severity,
+      note: note,
+      lat: lat,
+      lon: lon,
+    );
+    state = AsyncData([report, ...(state.value ?? [])]);
+    return report;
+  }
+}
+
 /// Filters the already-loaded map presence data for a single beach.
 final beachPresenceProvider = FutureProvider.family<MapBeachPresence?, String>((ref, slug) async {
   final users = await ref.watch(mapUsersProvider.future);

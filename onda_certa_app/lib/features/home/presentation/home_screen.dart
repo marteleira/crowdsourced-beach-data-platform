@@ -170,7 +170,7 @@ class _HomeDashboard extends ConsumerWidget {
                 alertsCount: totalAlerts,
               ),
               const SizedBox(height: 24),
-              _AlertsSection(reports: reports.value ?? []),
+              _AlertsSection(reports: reports.value ?? [], beach: bestBeach.value),
               const SizedBox(height: 24),
               _TidesSection(beach: bestBeach.value, tidesData: tides.value ?? TidesData.empty, onViewAll: () => onTabChange(2)),
               const SizedBox(height: 24),
@@ -693,8 +693,9 @@ class _StatCard extends StatelessWidget {
 // Alerts section
 
 class _AlertsSection extends StatelessWidget {
-  const _AlertsSection({required this.reports});
+  const _AlertsSection({required this.reports, this.beach});
   final List<BeachReport> reports;
+  final BeachSummary? beach;
 
   @override
   Widget build(BuildContext context) {
@@ -714,10 +715,11 @@ class _AlertsSection extends StatelessWidget {
                 child: Text('${reports.length}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
               ),
             const Spacer(),
-            GestureDetector(
-              onTap: () {},
-              child: const Text('Ver tudo →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
-            ),
+            if (beach != null)
+              GestureDetector(
+                onTap: () => context.push('/beach/${beach!.slug}/alerts', extra: beach),
+                child: const Text('Ver tudo →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
+              ),
           ],
         ),
         const SizedBox(height: 10),

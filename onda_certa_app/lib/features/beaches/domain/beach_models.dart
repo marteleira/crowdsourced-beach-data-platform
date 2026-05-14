@@ -127,7 +127,7 @@ class BeachReport {
     required this.id, required this.type, this.severity,
     this.note, required this.upvotes, required this.downvotes,
     required this.createdAt, required this.isExpired, required this.verified,
-    this.beachName, this.beachSlug,
+    this.beachName, this.beachSlug, this.myVote,
   });
   final int id;
   final String type;
@@ -140,6 +140,7 @@ class BeachReport {
   final bool verified;
   final String? beachName;
   final String? beachSlug;
+  final int? myVote; // 1=upvote, -1=downvote, null=no vote
 
   factory BeachReport.fromJson(Map<String, dynamic> j, {String? beachName, String? beachSlug}) =>
       BeachReport(
@@ -154,7 +155,18 @@ class BeachReport {
         verified: j['verified'] as bool? ?? false,
         beachName: beachName,
         beachSlug: beachSlug,
+        myVote: j['my_vote'] as int?,
       );
+
+  // myVote is always explicitly set (null = no vote)
+  BeachReport withVote({required int? myVote, int? upvotes, int? downvotes}) => BeachReport(
+    id: id, type: type, severity: severity, note: note,
+    upvotes: upvotes ?? this.upvotes,
+    downvotes: downvotes ?? this.downvotes,
+    createdAt: createdAt, isExpired: isExpired, verified: verified,
+    beachName: beachName, beachSlug: beachSlug,
+    myVote: myVote,
+  );
 }
 
 class MapBeachPresence {

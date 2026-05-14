@@ -93,7 +93,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
       const SizedBox(height: 12),
       _PlanTripButton(),
       const SizedBox(height: 12),
-      _CommunityAlertsCard(reports: d?.activeAlerts ?? []),
+      _CommunityAlertsCard(reports: d?.activeAlerts ?? [], beach: widget.beach),
     ];
   }
 
@@ -917,8 +917,9 @@ class _PlanTripButton extends StatelessWidget {
 // ─── Community alerts card ────────────────────────────────────────────────────
 
 class _CommunityAlertsCard extends StatelessWidget {
-  const _CommunityAlertsCard({required this.reports});
+  const _CommunityAlertsCard({required this.reports, required this.beach});
   final List<BeachReport> reports;
+  final BeachSummary beach;
 
   @override
   Widget build(BuildContext context) {
@@ -940,7 +941,7 @@ class _CommunityAlertsCard extends StatelessWidget {
               ),
             const Spacer(),
             GestureDetector(
-              onTap: () {},
+              onTap: () => context.push('/beach/${beach.slug}/alerts', extra: beach),
               child: const Text('Ver tudo →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
             ),
           ],

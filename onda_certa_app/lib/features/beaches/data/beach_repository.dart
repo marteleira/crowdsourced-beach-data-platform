@@ -77,6 +77,37 @@ class BeachRepository {
     } catch (_) { return BeachTransportInfo.empty; }
   }
 
+  Future<Map<String, int>> voteReport(String slug, int reportId, String vote) async {
+    final res = await _dio.post(
+      '/beaches/$slug/reports/$reportId/vote',
+      data: {'vote': vote},
+    );
+    final data = res.data as Map<String, dynamic>;
+    return {
+      'upvotes': data['upvotes'] as int,
+      'downvotes': data['downvotes'] as int,
+    };
+  }
+
+  Future<BeachReport> createReport(
+    String slug, {
+    required String type,
+    required int severity,
+    String? note,
+    double? lat,
+    double? lon,
+  }) async {
+    final body = <String, dynamic>{
+      'type': type,
+      'severity': severity,
+      if (note != null && note.isNotEmpty) 'note': note,
+      'lat': ?lat,
+      'lon': ?lon,
+    };
+    final res = await _dio.post('/beaches/$slug/reports', data: body);
+    return BeachReport.fromJson(res.data as Map<String, dynamic>, beachSlug: slug);
+  }
+
   Future<void> sendHeartbeat(String slug, {required double lat, required double lon}) async {
     await _dio.post(
       '/beaches/$slug/occupancy/heartbeat',
