@@ -121,4 +121,24 @@ class BeachRepository {
       return UserProfile.fromJson(res.data as Map<String, dynamic>);
     } catch (_) { return null; }
   }
+
+  Future<double> confirmFlag(String slug, String response) async {
+    final res = await _dio.post(
+      '/beaches/$slug/flag/confirm',
+      data: {'response': response},
+    );
+    return (res.data['new_confidence'] as num).toDouble();
+  }
+
+  Future<({String status, String message})> proposeFlag(String slug, String color) async {
+    final res = await _dio.post(
+      '/beaches/$slug/flag/propose',
+      data: {'color': color},
+    );
+    final data = res.data as Map<String, dynamic>;
+    return (
+      status: data['status'] as String,
+      message: data['message'] as String,
+    );
+  }
 }

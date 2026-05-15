@@ -7,7 +7,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
 
-
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
@@ -159,8 +158,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-// ─── App icon ────────────────────────────────────────────────────────────────
-
 class _AppIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -181,8 +178,6 @@ class _AppIcon extends StatelessWidget {
     );
   }
 }
-
-// ─── Buttons ─────────────────────────────────────────────────────────────────
 
 class _GoogleButton extends StatelessWidget {
   const _GoogleButton({required this.loading, required this.onTap});
@@ -265,8 +260,6 @@ class _EmailButton extends StatelessWidget {
     );
   }
 }
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
 
 class _Footer extends StatelessWidget {
   @override
