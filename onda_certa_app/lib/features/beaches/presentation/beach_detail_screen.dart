@@ -6,6 +6,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
+import '../../../features/community/presentation/flag_confirmation_sheet.dart';
+import '../../../features/community/presentation/flag_proposal_sheet.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/tide_chart.dart';
@@ -68,7 +70,18 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
     final flagConfidence = d?.status.flagConfidence ?? widget.beach.flagConfidence;
 
     return [
-      _FlagCard(flagColor: flagColor, flagConfidence: flagConfidence),
+      _FlagCard(
+        flagColor: flagColor,
+        flagConfidence: flagConfidence,
+        onTap: flagColor != 'unknown'
+            ? () => showFlagConfirmationSheet(
+                context,
+                widget.beach,
+                flagColor: flagColor,
+                flagConfidence: flagConfidence ?? 0.7,
+              )
+            : () => showFlagProposalSheet(context, widget.beach),
+      ),
       const SizedBox(height: 12),
       _OccupancyCard(
         occupancy: d?.status.occupancy,
@@ -134,8 +147,6 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
     }
   }
 }
-
-// ─── Hero SliverAppBar ────────────────────────────────────────────────────────
 
 class _HeroAppBar extends StatelessWidget {
   const _HeroAppBar({required this.beach, required this.isFavourite, required this.onFavourite});
@@ -208,7 +219,7 @@ class _HeroAppBar extends StatelessWidget {
         background: Stack(
           fit: StackFit.expand,
           children: [
-            Container(decoration: BoxDecoration(gradient: _gradient(beach.flagColor))),
+            Container(decoration: BoxDecoration(gradient: AppColors.beachGradient(beach.flagColor))),
             Positioned(
               left: 0, right: 0, bottom: 0,
               child: Container(
@@ -227,17 +238,7 @@ class _HeroAppBar extends StatelessWidget {
     );
   }
 
-  LinearGradient _gradient(String flag) {
-    switch (flag) {
-      case 'green':  return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A8A8A), Color(0xFF0D2137)]);
-      case 'yellow': return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3ECFCF), Color(0xFF0D4A5A)]);
-      case 'red':    return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF8B1A1A), Color(0xFF0D2137)]);
-      default:       return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A5A8A), Color(0xFF0D2137)]);
-    }
-  }
 }
-
-// ─── Shared card primitives ───────────────────────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
   const _SectionCard({required this.child});
@@ -310,20 +311,25 @@ Widget _metricRow(List<Widget> cells) {
   );
 }
 
-// ─── Flag card ────────────────────────────────────────────────────────────────
-
 class _FlagCard extends StatelessWidget {
-  const _FlagCard({required this.flagColor, this.flagConfidence});
+  const _FlagCard({required this.flagColor, this.flagConfidence, this.onTap});
   final String flagColor;
   final double? flagConfidence;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final (color, label) = _flagInfo(flagColor);
     final confidence = flagConfidence ?? 0.7;
 
-    return _SectionCard(
-      child: Row(
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: _SectionCard(
+          child: Row(
         children: [
           Container(width: 14, height: 14, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 12),
@@ -335,9 +341,16 @@ class _FlagCard extends StatelessWidget {
                 const SizedBox(height: 3),
                 Row(
                   children: [
-                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
-                    const SizedBox(width: 4),
-                    const Text('live · Toca para confirmar', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                    if (flagColor != 'unknown') ...[
+                      Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
+                      const SizedBox(width: 4),
+                    ],
+                    Text(
+                      flagColor != 'unknown'
+                          ? 'live · Toca para confirmar'
+                          : 'Toca para propor a bandeira',
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    ),
                   ],
                 ),
               ],
@@ -364,6 +377,8 @@ class _FlagCard extends StatelessWidget {
             ],
           ),
         ],
+          ),
+        ),
       ),
     );
   }
@@ -378,8 +393,6 @@ class _FlagCard extends StatelessWidget {
     }
   }
 }
-
-// ─── Occupancy card ───────────────────────────────────────────────────────────
 
 class _OccupancyCard extends StatelessWidget {
   const _OccupancyCard({
@@ -520,8 +533,6 @@ class _DonutPainter extends CustomPainter {
   bool shouldRepaint(_DonutPainter old) => old.percentage != percentage || old.color != color;
 }
 
-// ─── Weather card ─────────────────────────────────────────────────────────────
-
 class _WeatherCard extends StatelessWidget {
   const _WeatherCard({this.weather});
   final WeatherPoint? weather;
@@ -559,8 +570,6 @@ class _WeatherCard extends StatelessWidget {
   }
 }
 
-// ─── Sea card ─────────────────────────────────────────────────────────────────
-
 class _SeaCard extends StatelessWidget {
   const _SeaCard({this.sea});
   final SeaPoint? sea;
@@ -595,8 +604,6 @@ class _SeaCard extends StatelessWidget {
     );
   }
 }
-
-// ─── Tides card ───────────────────────────────────────────────────────────────
 
 class _TidesCard extends StatelessWidget {
   const _TidesCard({required this.tidesData, this.onViewAll});
@@ -690,8 +697,6 @@ class _TidesCard extends StatelessWidget {
   }
 }
 
-// ─── Water quality card ───────────────────────────────────────────────────────
-
 class _WaterQualityCard extends StatelessWidget {
   const _WaterQualityCard({this.quality});
   final WaterQuality? quality;
@@ -767,8 +772,6 @@ class _WaterQualityCard extends StatelessWidget {
     } catch (_) { return 'dados em cache'; }
   }
 }
-
-// ─── Transport card ───────────────────────────────────────────────────────────
 
 class _TransportCard extends StatelessWidget {
   const _TransportCard({required this.transport, this.isLoading = false});
@@ -888,8 +891,6 @@ class _DepartureChip extends StatelessWidget {
   }
 }
 
-// ─── Plan trip button ─────────────────────────────────────────────────────────
-
 class _PlanTripButton extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables
   _PlanTripButton();
@@ -913,8 +914,6 @@ class _PlanTripButton extends StatelessWidget {
     );
   }
 }
-
-// ─── Community alerts card ────────────────────────────────────────────────────
 
 class _CommunityAlertsCard extends StatelessWidget {
   const _CommunityAlertsCard({required this.reports, required this.beach});

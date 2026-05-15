@@ -17,6 +17,21 @@ class AppColors {
   static const textPrimary = Color(0xFF0D2137);
   static const textSecondary = Color(0xFF6B7280);
   static const textHint = Color(0xFF9CA3AF);
+
+  static Color forFlag(String flag) => switch (flag) {
+    'green'  => flagGreen,
+    'yellow' => flagYellow,
+    'red'    => flagRed,
+    'purple' => flagPurple,
+    _        => textSecondary,
+  };
+
+  static LinearGradient beachGradient(String flag) => switch (flag) {
+    'green'  => const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A8A8A), Color(0xFF0D2137)]),
+    'yellow' => const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3ECFCF), Color(0xFF0D4A5A)]),
+    'red'    => const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF8B1A1A), Color(0xFF0D2137)]),
+    _        => const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A5A8A), Color(0xFF0D2137)]),
+  };
 }
 
 class AppTheme {

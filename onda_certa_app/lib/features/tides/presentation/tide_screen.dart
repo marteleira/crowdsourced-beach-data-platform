@@ -5,7 +5,6 @@ import '../../beaches/data/beach_provider.dart';
 import '../../beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 
-
 // Scene configuration
 // Derived from current time + weather data, Drives all visual decisions
 

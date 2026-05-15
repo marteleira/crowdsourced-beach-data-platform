@@ -4,8 +4,6 @@ import '../api/api_client.dart';
 import '../storage/secure_storage.dart';
 import 'auth_repository.dart';
 
-// ─── Infrastructure providers ───────────────────────────────────────────────
-
 final secureStorageProvider = Provider<SecureStorage>((_) => SecureStorage());
 
 final dioProvider = Provider<Dio>((ref) {
@@ -15,8 +13,6 @@ final dioProvider = Provider<Dio>((ref) {
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(ref.read(dioProvider));
 });
-
-// ─── Auth state ──────────────────────────────────────────────────────────────
 
 sealed class AuthState {
   const AuthState();
@@ -34,8 +30,6 @@ class AuthAuthenticated extends AuthState {
 class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
 }
-
-// ─── Auth notifier ───────────────────────────────────────────────────────────
 
 class AuthNotifier extends AsyncNotifier<AuthState> {
   @override

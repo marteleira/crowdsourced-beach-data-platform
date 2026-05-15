@@ -97,8 +97,6 @@ class _PlaceholderTab extends StatelessWidget {
   }
 }
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
-
 class _HomeDashboard extends ConsumerWidget {
   const _HomeDashboard({required this.onTabChange});
   final void Function(int) onTabChange;
@@ -282,8 +280,12 @@ class _Header extends StatelessWidget {
     final greeting = hour < 5 ? 'Boa noite' : hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
     final precip = weather?.precipitationProb ?? 0;
     final wind = weather?.windSpeed ?? 0;
+    final minTemp = weather?.minTemp ?? 0;
+
     final String emoji;
-    if (precip >= 70 && wind >= 40) {
+    if(precip >= 40 && minTemp < 0) {
+      emoji = '🌨️';
+    }else if (precip >= 70 && wind >= 40) {
       emoji = '⛈️';
     } else if (precip >= 70) {
       emoji = '🌧️';
@@ -470,8 +472,8 @@ class _BestBeachCard extends StatelessWidget {
       );
     }
 
-    final flagColor = _flagColor(beach!.flagColor);
-    final gradient = _beachGradient(beach!.flagColor);
+    final flagColor = AppColors.forFlag(beach!.flagColor);
+    final gradient = AppColors.beachGradient(beach!.flagColor);
     final qualityLabel = _qualityLabel(beach!.flagColor, beach!.recommendationScore);
     final qualityColor = beach!.recommendationScore != null && beach!.recommendationScore! > 0.7
         ? AppColors.teal : AppColors.sand;
@@ -579,25 +581,6 @@ class _BestBeachCard extends StatelessWidget {
     decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
     child: ClipRRect(borderRadius: BorderRadius.circular(16), child: child),
   );
-
-  LinearGradient _beachGradient(String flag) {
-    switch (flag) {
-      case 'green': return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A8A8A), Color(0xFF0D2137)]);
-      case 'yellow': return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3ECFCF), Color(0xFF0D4A5A)]);
-      case 'red': return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF8B1A1A), Color(0xFF0D2137)]);
-      default: return const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1A5A8A), Color(0xFF0D2137)]);
-    }
-  }
-
-  Color _flagColor(String flag) {
-    switch (flag) {
-      case 'green': return AppColors.flagGreen;
-      case 'yellow': return AppColors.flagYellow;
-      case 'red': return AppColors.flagRed;
-      case 'purple': return AppColors.flagPurple;
-      default: return AppColors.textSecondary;
-    }
-  }
 
   String _flagLabel(String flag) {
     switch (flag) {
@@ -738,7 +721,6 @@ class _AlertsSection extends StatelessWidget {
     );
   }
 }
-
 
 // Tides section
 
