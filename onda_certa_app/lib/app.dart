@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onda_certa_app/features/tides/presentation/tide_screen.dart';
 import 'core/auth/auth_provider.dart';
 import 'core/presence/heartbeat_provider.dart';
 import 'features/auth/presentation/email_login_screen.dart';
@@ -15,11 +14,14 @@ import 'features/legal/presentation/terms_screen.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'shared/theme/app_theme.dart';
 
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
 final _routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
 
   return GoRouter(
     initialLocation: '/',
+    observers: [routeObserver],
     redirect: (context, state) {
       final loc = state.matchedLocation;
       // Splash and auth routes manage their own navigation
