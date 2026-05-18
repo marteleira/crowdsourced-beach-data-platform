@@ -134,6 +134,7 @@ class _HomeDashboard extends ConsumerWidget {
       ref.invalidate(tidesProvider);
       ref.invalidate(reportsProvider);
       ref.invalidate(mapUsersProvider);
+      
       await ref.read(beachListProvider.future);
     }
 

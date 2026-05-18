@@ -9,16 +9,18 @@ const _kRadius = 4000.0; // 4km radius
 const _kInterval = Duration(minutes: 19);
 
 class HeartbeatService {
+  Timer? _initialTimer;
   Timer? _timer;
 
   void start(Ref ref) {
     if (_timer != null) return;
-    // Delay first tick so locationProvider resolves before we need GPS
-    Future.delayed(const Duration(seconds: 12), () => _tick(ref));
+    _initialTimer = Timer(const Duration(seconds: 5), () => _tick(ref));
     _timer = Timer.periodic(_kInterval, (_) => _tick(ref));
   }
 
   void stop() {
+    _initialTimer?.cancel();
+    _initialTimer = null;
     _timer?.cancel();
     _timer = null;
   }

@@ -17,18 +17,17 @@ class _PermissionNotifier extends Notifier<bool> {
 final heartbeatProvider = Provider<HeartbeatService>((ref) {
   final service = HeartbeatService();
 
-  ref.listen<AsyncValue<AuthState>>(authProvider, (_, next) {
-    if (next.value is AuthAuthenticated) {
-      service.start(ref);
-    } else {
-      service.stop();
-    }
-  });
-
-  // Handle initial state (e.g. hot restart with existing session)
-  if (ref.read(authProvider).value is AuthAuthenticated) {
-    service.start(ref);
-  }
+  ref.listen<AsyncValue<AuthState>>(
+    authProvider,
+    (_, next) {
+      if (next.value is AuthAuthenticated) {
+        service.start(ref);
+      } else {
+        service.stop();
+      }
+    },
+    fireImmediately: true,
+  );
 
   ref.onDispose(service.stop);
   return service;
