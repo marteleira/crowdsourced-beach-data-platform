@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
 import '../../../features/community/presentation/flag_confirmation_sheet.dart';
@@ -20,9 +21,45 @@ class BeachDetailScreen extends ConsumerStatefulWidget {
   ConsumerState<BeachDetailScreen> createState() => _BeachDetailScreenState();
 }
 
-class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
+class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
+    with WidgetsBindingObserver, RouteAware {
   bool _isFavourite = false;
   bool _sendingHeartbeat = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refresh();
+  }
+
+  @override
+  void didPopNext() => _refresh();
+
+  Future<void> _refresh() async {
+    final slug = widget.beach.slug;
+    ref.invalidate(beachFullDetailProvider(slug));
+    ref.invalidate(beachTransportProvider(slug));
+    ref.invalidate(beachWaterQualityProvider(slug));
+    await ref.read(beachFullDetailProvider(slug).future).catchError((_) => null);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +74,10 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: CustomScrollView(
+        body: RefreshIndicator(
+          onRefresh: _refresh,
+          color: AppColors.teal,
+          child: CustomScrollView(
           slivers: [
             _HeroAppBar(
               beach: widget.beach,
@@ -56,6 +96,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen> {
                 ),
               ),
           ],
+          ),
         ),
       ),
     );
