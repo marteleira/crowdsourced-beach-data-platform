@@ -8,6 +8,7 @@ class AppColors {
   static const tealDark = Color(0xFF1A8A8A);
   static const sand = Color(0xFFE8C98A);
   static const coral = Color(0xFFE86C50);
+  static const amber = Color(0xFFF59E0B);
 
   static const flagGreen = Color(0xFF2ECC71);
   static const flagYellow = Color(0xFFF1C40F);
