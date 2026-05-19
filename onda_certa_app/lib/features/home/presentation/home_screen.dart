@@ -10,6 +10,8 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/animated_waves.dart';
 import '../../../shared/widgets/tide_chart.dart';
+import '../../beaches/presentation/beach_list_screen.dart';
+import '../../profile/presentation/profile_screen.dart';
 import '../../tides/presentation/tide_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -64,7 +66,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: _tab == 2 ? const Color(0xFF081C2E) : AppColors.background,
         body: switch (_tab) {
           0 => _HomeDashboard(onTabChange: (i) => setState(() => _tab = i)),
+          1 => const BeachListScreen(),
           2 => const TideScreen(),
+          3 => const ProfileScreen(),
           _ => _PlaceholderTab(tab: _tab),
         },
         bottomNavigationBar: NavigationBar(

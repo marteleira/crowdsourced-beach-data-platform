@@ -380,16 +380,78 @@ class BeachTransportInfo {
   );
 }
 
+class UserAchievement {
+  const UserAchievement({
+    required this.id, required this.emoji,
+    required this.label, required this.earned,
+  });
+  final String id;
+  final String emoji;
+  final String label;
+  final bool earned;
+
+  factory UserAchievement.fromJson(Map<String, dynamic> j) => UserAchievement(
+    id: j['id'] as String,
+    emoji: j['emoji'] as String,
+    label: j['label'] as String,
+    earned: j['earned'] as bool? ?? false,
+  );
+}
+
+class UserStats {
+  const UserStats({
+    required this.totalReports, required this.confirmedReports,
+    required this.falseReports, required this.accuracyRate,
+  });
+  final int totalReports;
+  final int confirmedReports;
+  final int falseReports;
+  final double accuracyRate;
+
+  factory UserStats.fromJson(Map<String, dynamic> j) => UserStats(
+    totalReports: j['total_reports'] as int? ?? 0,
+    confirmedReports: j['confirmed_reports'] as int? ?? 0,
+    falseReports: j['false_reports'] as int? ?? 0,
+    accuracyRate: (j['accuracy_rate'] as num?)?.toDouble() ?? 0.0,
+  );
+}
+
+class UserReputationEvent {
+  const UserReputationEvent({
+    required this.event, required this.delta,
+    this.reason, required this.createdAt,
+  });
+  final String event;
+  final int delta;
+  final String? reason;
+  final String createdAt;
+
+  factory UserReputationEvent.fromJson(Map<String, dynamic> j) => UserReputationEvent(
+    event: j['event'] as String,
+    delta: j['delta'] as int? ?? 0,
+    reason: j['reason'] as String?,
+    createdAt: j['created_at'] as String? ?? DateTime.now().toIso8601String(),
+  );
+}
+
 class UserProfile {
   const UserProfile({
     required this.id, this.displayName, required this.reputation,
     required this.level, required this.isAnonymous,
+    this.streak = 0,
+    this.achievements = const [],
+    this.stats,
+    this.recentEvents = const [],
   });
   final String id;
   final String? displayName;
   final int reputation;
   final String level;
   final bool isAnonymous;
+  final int streak;
+  final List<UserAchievement> achievements;
+  final UserStats? stats;
+  final List<UserReputationEvent> recentEvents;
 
   factory UserProfile.fromJson(Map<String, dynamic> j) => UserProfile(
     id: j['id'] as String,
@@ -397,5 +459,15 @@ class UserProfile {
     reputation: j['reputation'] as int? ?? 0,
     level: j['level'] as String? ?? 'novo',
     isAnonymous: j['is_anonymous'] as bool? ?? false,
+    streak: j['streak'] as int? ?? 0,
+    achievements: (j['achievements'] as List? ?? [])
+        .map((e) => UserAchievement.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    stats: j['stats'] != null
+        ? UserStats.fromJson(j['stats'] as Map<String, dynamic>)
+        : null,
+    recentEvents: (j['recent_events'] as List? ?? [])
+        .map((e) => UserReputationEvent.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }

@@ -32,8 +32,7 @@ async def get_profile(
     earned_ids = {row[0] for row in ach_r.all()}
 
     total = user.total_reports
-    confirmed = user.confirmed_reports
-    accuracy = round(confirmed / total, 2) if total > 0 else 0.0
+    accuracy = round((total - user.false_reports) / total) if total > 0.0 else 0.0
 
     return UserProfile(
         id=str(user.id),
@@ -45,7 +44,7 @@ async def get_profile(
         achievements=get_all_achievements_status(user, earned_ids),
         stats={
             "total_reports": total,
-            "confirmed_reports": confirmed,
+            "confirmed_reports": user.confirmed_reports,
             "false_reports": user.false_reports,
             "accuracy_rate": accuracy,
         },

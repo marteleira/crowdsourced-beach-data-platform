@@ -36,14 +36,14 @@ class _ThresholdAchievement(AchievementDef):
 
 
 ALL_ACHIEVEMENTS: List[AchievementDef] = [
-    _ThresholdAchievement("first_report",    "🌊", "First Wave",         "total_reports",     1),
-    _ThresholdAchievement("regular",         "🐚", "Regular",            "reputation",        50),
-    _ThresholdAchievement("accurate",        "🎯", "Accurate",           "confirmed_reports", 5),
-    _ThresholdAchievement("contributor",     "🌊", "Contributor",        "reputation",        200),
-    _ThresholdAchievement("veteran",         "🏄", "Veteran",            "reputation",        500),
-    _ThresholdAchievement("10_reports",      "📋", "10 Reports",         "total_reports",     10),
-    _ThresholdAchievement("streak_10",       "🔥", "10-day Streak",      "streak",            10),
-    _ThresholdAchievement("tide_watcher",    "🌊", "Tide Watcher",       "total_reports",     3),
+    _ThresholdAchievement("first_report",  "🌊", "First Wave",    "total_reports",     1),
+    _ThresholdAchievement("tide_watcher",  "🔭", "Tide Watcher",  "total_reports",     3),
+    _ThresholdAchievement("10_reports",    "📋", "10 Reports",    "total_reports",     10),
+    _ThresholdAchievement("accurate",      "🎯", "Accurate",      "confirmed_reports", 5),
+    _ThresholdAchievement("streak_10",     "🔥", "10-day Streak", "streak",            10),
+    _ThresholdAchievement("regular",       "🐚", "Regular",       "reputation",        10),
+    _ThresholdAchievement("contributor",   "🤝", "Contributor",   "reputation",        50),
+    _ThresholdAchievement("veteran",       "🏄", "Veteran",       "reputation",        150),
 ]
 
 
@@ -74,7 +74,7 @@ def get_all_achievements_status(user: User, earned_ids: set) -> List[dict]:
             "id": a.id,
             "emoji": a.emoji,
             "label": a.label,
-            "earned": a.id in earned_ids,
+            "earned": a.earned(user) or a.id in earned_ids,
         }
         for a in ALL_ACHIEVEMENTS
     ]
