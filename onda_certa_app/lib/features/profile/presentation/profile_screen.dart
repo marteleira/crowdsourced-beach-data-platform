@@ -764,16 +764,14 @@ class _SettingsSection extends StatelessWidget {
             icon: Icons.notifications_outlined,
             iconColor: AppColors.teal,
             label: 'Notificações',
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Em breve'), duration: Duration(seconds: 1)),
-            ),
+            onTap: () => context.push('/settings/notifications'),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.lock_outline_rounded,
             iconColor: AppColors.textSecondary,
             label: 'Privacidade & Dados',
-            onTap: () => context.push('/privacy'),
+            onTap: () => context.push('/settings/privacy'),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
