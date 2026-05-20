@@ -177,7 +177,7 @@ class _HomeDashboard extends ConsumerWidget {
               const SizedBox(height: 24),
               _TidesSection(beach: bestBeach.value, tidesData: tides.value ?? TidesData.empty, onViewAll: () => onTabChange(2)),
               const SizedBox(height: 24),
-              _ExploreGrid(beachCount: beaches.value?.length ?? 0, onTabChange: onTabChange),
+              _ExploreGrid(beachCount: beaches.value?.length ?? 0, onTabChange: onTabChange, bestBeach: bestBeach.value),
               const SizedBox(height: 24),
               _CommunitySection(
                 totalReports: totalAlerts,
@@ -373,7 +373,7 @@ class _Header extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.maxTemp != null ? '${weather!.maxTemp!.round()}°' : '--', label: 'Ar'),
+                  _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.maxTemp != null ? '${weather!.minTemp!.round()}°-${weather!.maxTemp!.round()}°' : '--', label: 'Ar'),
                   _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDir ?? 'Vento'),
                   _WeatherCell(icon: Icons.waves, value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--', label: 'Ondas'),
                   _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: 'Chuva'),
@@ -858,9 +858,10 @@ class _TidesSection extends StatelessWidget {
 // Explore grid
 
 class _ExploreGrid extends StatelessWidget {
-  const _ExploreGrid({required this.beachCount, required this.onTabChange});
+  const _ExploreGrid({required this.beachCount, required this.onTabChange, this.bestBeach});
   final int beachCount;
   final void Function(int tab) onTabChange;
+  final BeachSummary? bestBeach;
 
   @override
   Widget build(BuildContext context) {
@@ -880,7 +881,14 @@ class _ExploreGrid extends StatelessWidget {
             _ExploreCard(emoji: '🗺️', title: 'Mapa de praias', subtitle: 'Ver todas no mapa', onTap: () => onTabChange(1)),
             _ExploreCard(emoji: '🚌', title: 'Transportes', subtitle: 'Carris Metropolitana', onTap: () => onTabChange(1)),
             _ExploreCard(emoji: '🌊', title: 'Praias', subtitle: '$beachCount praias da Arrábida', onTap: () => onTabChange(1)),
-            _ExploreCard(emoji: '📋', title: 'Submeter reporte', subtitle: 'Ajuda a comunidade', onTap: () => onTabChange(1)),
+            _ExploreCard(
+              emoji: '📋',
+              title: 'Submeter reporte',
+              subtitle: 'Ajuda a comunidade',
+              onTap: bestBeach != null
+                  ? () => context.push('/beach/${bestBeach!.slug}/alerts', extra: bestBeach)
+                  : () => onTabChange(1),
+            ),
           ],
         ),
       ],

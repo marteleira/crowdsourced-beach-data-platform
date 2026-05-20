@@ -589,7 +589,7 @@ class _WeatherCard extends StatelessWidget {
           _metricRow([
             _MetricCell(
               icon: Icons.thermostat_outlined,
-              value: weather?.maxTemp != null ? '${weather!.maxTemp!.round()}°C' : '--',
+              value: weather?.maxTemp != null ? 'Min ${weather!.minTemp!.round()}°C\nMax ${weather!.maxTemp!.round()}°C' : '--',
               label: 'Temperatura', iconColor: AppColors.coral,
             ),
             _MetricCell(
