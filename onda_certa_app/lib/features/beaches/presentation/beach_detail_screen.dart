@@ -23,7 +23,6 @@ class BeachDetailScreen extends ConsumerStatefulWidget {
 
 class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
     with WidgetsBindingObserver, RouteAware {
-  bool _isFavourite = false;
   bool _sendingHeartbeat = false;
 
   @override
@@ -81,8 +80,17 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
           slivers: [
             _HeroAppBar(
               beach: widget.beach,
-              isFavourite: _isFavourite,
-              onFavourite: () => setState(() => _isFavourite = !_isFavourite),
+              isFavourite: ref.watch(favouritesProvider).value?.any((b) => b.slug == widget.beach.slug) ?? false,
+              onFavourite: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                try {
+                  await ref.read(favouritesProvider.notifier).toggle(widget.beach);
+                } catch (_) {
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Erro ao actualizar favorito'), backgroundColor: Colors.red),
+                  );
+                }
+              },
             ),
             if (detail.isLoading && detail.value == null)
               const SliverFillRemaining(child: Center(child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5)))

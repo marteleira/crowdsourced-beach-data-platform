@@ -221,6 +221,43 @@ class CommunityReportsNotifier extends AsyncNotifier<List<BeachReport>> {
   }
 }
 
+/// Favourites — supports optimistic toggle.
+final favouritesProvider =
+    AsyncNotifierProvider<FavouritesNotifier, List<BeachSummary>>(FavouritesNotifier.new);
+
+class FavouritesNotifier extends AsyncNotifier<List<BeachSummary>> {
+  @override
+  Future<List<BeachSummary>> build() async {
+    final auth = ref.watch(authProvider);
+    if (auth.value is! AuthAuthenticated) return [];
+    return ref.read(beachRepositoryProvider).getFavourites();
+  }
+
+  bool isFavourite(String slug) =>
+      state.value?.any((b) => b.slug == slug) ?? false;
+
+  Future<void> toggle(BeachSummary beach) async {
+    final current = List<BeachSummary>.from(state.value ?? []);
+    final alreadyFav = current.any((b) => b.slug == beach.slug);
+
+    // Optimistic update
+    state = AsyncData(alreadyFav
+        ? current.where((b) => b.slug != beach.slug).toList()
+        : [...current, beach]);
+
+    try {
+      if (alreadyFav) {
+        await ref.read(beachRepositoryProvider).removeFavourite(beach.slug);
+      } else {
+        await ref.read(beachRepositoryProvider).addFavourite(beach.slug);
+      }
+    } catch (_) {
+      state = AsyncData(current); // rollback
+      rethrow;
+    }
+  }
+}
+
 /// Filters the already-loaded map presence data for a single beach.
 final beachPresenceProvider = FutureProvider.family<MapBeachPresence?, String>((ref, slug) async {
   final users = await ref.watch(mapUsersProvider.future);
