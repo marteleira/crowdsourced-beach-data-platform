@@ -122,6 +122,22 @@ class BeachRepository {
     } catch (_) { return null; }
   }
 
+  Future<List<BeachSummary>> getFavourites() async {
+    try {
+      final res = await _dio.get('/users/me/favourites');
+      final list = res.data as List;
+      return list.map((e) => BeachSummary.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (_) { return []; }
+  }
+
+  Future<void> addFavourite(String slug) async {
+    await _dio.post('/users/me/favourites/$slug');
+  }
+
+  Future<void> removeFavourite(String slug) async {
+    await _dio.delete('/users/me/favourites/$slug');
+  }
+
   Future<double> confirmFlag(String slug, String response) async {
     final res = await _dio.post(
       '/beaches/$slug/flag/confirm',

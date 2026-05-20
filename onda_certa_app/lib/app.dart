@@ -13,6 +13,7 @@ import 'features/legal/presentation/privacy_screen.dart';
 import 'features/legal/presentation/terms_screen.dart';
 import 'features/settings/presentation/notification_settings_screen.dart';
 import 'features/settings/presentation/privacy_settings_screen.dart';
+import 'features/favourites/presentation/favourites_screen.dart';
 import 'features/splash/presentation/splash_screen.dart';
 import 'shared/theme/app_theme.dart';
 
@@ -50,6 +51,7 @@ final _routerProvider = Provider<GoRouter>((ref) {
         path: '/beach/:slug/alerts',
         builder: (_, state) => CommunityAlertsScreen(beach: state.extra as BeachSummary),
       ),
+      GoRoute(path: '/favourites', builder: (_, _) => const FavouritesScreen()),
     ],
   );
 });

@@ -755,9 +755,7 @@ class _SettingsSection extends StatelessWidget {
             icon: Icons.star_outline_rounded,
             iconColor: AppColors.amber,
             label: 'Praias Favoritas',
-            onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Em breve'), duration: Duration(seconds: 1)),
-            ),
+            onTap: () => context.push('/favourites'),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
