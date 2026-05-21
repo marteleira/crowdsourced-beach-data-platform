@@ -40,10 +40,10 @@ FAKE_TIDES = {
 }
 
 FAKE_WATER = {
-    "station_id": "PT06ART0002",
+    "station_id": "PTCQ8P",
     "classification": "Excelente",
-    "sampled_at": "2026-04-26",
-    "parameters": {},
+    "sampled_at": "2024",
+    "parameters": {"eea_quality_raw": "1 - Excellent", "season": 2024},
 }
 
 
@@ -151,6 +151,25 @@ class TestWaterQualityEndpoint:
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/water-quality")
         assert r.status_code == 200
         assert r.json()["data_source"] == "snapshot"
+
+    async def test_returns_unavailable_when_api_and_cache_both_down(
+        self, client: AsyncClient, beach: Beach
+    ):
+        with patch("app.api.water_quality.apa.fetch_water_quality", return_value=None):
+            r = await client.get("/api/v1/beaches/portinho-da-arrabida/water-quality")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["data_source"] == "unavailable"
+        assert body["classification"] is None
+
+    async def test_404_when_no_apa_station(self, client: AsyncClient, db: AsyncSession):
+        b = Beach(slug="praia-sem-apa", name="Praia sem APA", lat=38.0, lon=-9.0,
+                  geom="SRID=4326;POINT(-9.0 38.0)", flags_available=True)
+        db.add(b)
+        await db.commit()
+
+        r = await client.get("/api/v1/beaches/praia-sem-apa/water-quality")
+        assert r.status_code == 404
 
 
 class TestTransportEndpoint:

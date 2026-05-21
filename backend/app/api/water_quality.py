@@ -25,9 +25,20 @@ async def get_water_quality(slug: str, db: AsyncSession = Depends(get_db)):
     if not beach.apa_station_id:
         raise HTTPException(404, "Sem dados de qualidade da água para esta praia")
 
-    raw, source, snap_at = await fetch_with_fallback(
-        db, "water_quality",
-        lambda: apa.fetch_water_quality(beach.apa_station_id),
-        beach_id=beach.id,
-    )
-    return WaterQualityResponse(**raw, data_source=source, snapshot_at=snap_at)
+    try:
+        raw, source, snap_at = await fetch_with_fallback(
+            db, "water_quality",
+            lambda: apa.fetch_water_quality(beach.apa_station_id),
+            beach_id=beach.id,
+        )
+        return WaterQualityResponse(**raw, data_source=source, snapshot_at=snap_at)
+    except HTTPException:
+        # API unavailable and no cached snapshot — return unknown instead of 503
+        return WaterQualityResponse(
+            station_id=beach.apa_station_id,
+            classification=None,
+            sampled_at=None,
+            parameters=None,
+            data_source="unavailable",
+            snapshot_at=None,
+        )
