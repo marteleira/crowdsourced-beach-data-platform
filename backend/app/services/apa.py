@@ -1,99 +1,80 @@
 """
-APA InfoÁgua client — bathing water quality data.
-https://sniamb.apambiente.pt/infobathing (web UI)
-The public REST endpoint is underdocumented; we query the known JSON endpoint.
-Updates daily (lab analysis results).
+EEA WISE Bathing Water Directive client — water quality data
+
+Data source: European Environment Agency DiscoData (WISE_BWD database)
+  https://discodata.eea.europa.eu/
+
+Classification is updated once per year, at the end of each bathing season
+The `apa_station_id` field on each Beach must hold the EEA
+`bathingWaterIdentifier` for the corresponding site (e.g. "PTCQ8P")
+
+Finding the correct identifier for a beach:
+  1. Open https://snirh.apambiente.pt/?idMain=1&idItem=2.1 in a browser
+  2. Select the ARH region and municipality (Setúbal beaches → ARH Tejo)
+  3. Click the beach — the URL will contain code_cee=PTXXXX
+  OR
+  1. Open https://www.eea.europa.eu/en/analysis/maps-and-charts/state-of-bathing-waters
+  2. Search for the beach by name and note the identifier in the popup
 """
+import re
 import httpx
 from typing import Optional
 
-# APA SNIAmb InfoBathing API base
-APA_BASE = "https://sniamb.apambiente.pt/api"
+DISCODATA_URL = "https://discodata.eea.europa.eu/sql"
 
-# Quality classification mapping (APA standard)
-QUALITY_LABELS = {
-    "E": "Excelente",
-    "B": "Boa",
-    "S": "Suficiente",
-    "I": "Insuficiente",
-    "P": "Má",
+# EEA numeric quality code → Portuguese label
+EEA_QUALITY: dict[str, str] = {
+    "1": "Excelente",
+    "2": "Boa",
+    "3": "Suficiente",
+    "4": "Má",
 }
 
-
-async def fetch_bathing_sites() -> Optional[list]:
-    """List all registered bathing water sites in Portugal."""
-    url = f"{APA_BASE}/bathing/sites"
-    async with httpx.AsyncClient(timeout=12.0) as client:
-        try:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            return resp.json()
-        except Exception:
-            return None
+# Valid EEA bathingWaterIdentifier: 2-letter country code + 4 alphanumeric chars
+_VALID_ID = re.compile(r'^[A-Z]{2}[A-Z0-9]{4,10}$')
 
 
 async def fetch_water_quality(station_id: str) -> Optional[dict]:
     """
-    Fetch the latest water quality result for a given APA station.
-    Returns normalised dict or None on failure.
+    Fetch the most recent annual classification for an EEA bathing water site.
+    `station_id` must be the EEA bathingWaterIdentifier (e.g. "PTCQ8P").
+    Returns a normalised dict or None on failure / site not found.
     """
-    url = f"{APA_BASE}/bathing/sites/{station_id}/quality"
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        try:
-            resp = await client.get(url)
-            resp.raise_for_status()
-            raw = resp.json()
-            return _normalise(station_id, raw)
-        except Exception:
-            # APA API is underdocumented — try alternate endpoint
-            return await _fetch_quality_fallback(station_id)
+    if not _VALID_ID.match(station_id):
+        return None
 
+    # Parameterised-style embedding is not supported by DiscoData; we validate
+    # the ID above so the format is safe to interpolate directly.
+    query = (
+        "SELECT TOP 1 bathingWaterIdentifier, quality, season "
+        "FROM [WISE_BWD].[latest].[assessment_BathingWaterStatus] "
+        f"WHERE bathingWaterIdentifier='{station_id}' "
+        "ORDER BY season DESC"
+    )
+    params = {"query": query, "p": "1", "nrOfHits": "1"}
 
-async def _fetch_quality_fallback(station_id: str) -> Optional[dict]:
-    """
-    Fallback: query APA's public GeoServer WFS endpoint.
-    Used when the REST API is unavailable or changes structure.
-    """
-    url = "https://geo.snirh.apambiente.pt/geoserver/wfs"
-    params = {
-        "service": "WFS",
-        "version": "2.0.0",
-        "request": "GetFeature",
-        "typeNames": "snirh:InfoBathing_PraiasBalnear",
-        "outputFormat": "application/json",
-        "CQL_FILTER": f"LOCAL_ID='{station_id}'",
-        "count": "1",
-    }
-    async with httpx.AsyncClient(timeout=12.0) as client:
+    async with httpx.AsyncClient(timeout=15.0) as client:
         try:
-            resp = await client.get(url, params=params)
+            resp = await client.get(DISCODATA_URL, params=params)
             resp.raise_for_status()
             data = resp.json()
-            features = data.get("features", [])
-            if not features:
+            results = data.get("results", [])
+            if not results:
                 return None
-            props = features[0].get("properties", {})
-            return {
-                "station_id": station_id,
-                "classification": QUALITY_LABELS.get(
-                    props.get("CLASS_ATUAL", ""), props.get("CLASS_ATUAL")
-                ),
-                "sampled_at": props.get("DATA_COLHEITA") or props.get("SEASON_YEAR"),
-                "parameters": {
-                    k: v for k, v in props.items()
-                    if k not in ("LOCAL_ID", "NOME", "CLASS_ATUAL", "DATA_COLHEITA")
-                },
-            }
+            return _normalise(station_id, results[0])
         except Exception:
             return None
 
 
-def _normalise(station_id: str, raw: dict) -> dict:
+def _normalise(station_id: str, row: dict) -> dict:
+    raw_quality = (row.get("quality") or "").strip()
+    # EEA quality string format: "1 - Excellent", "2 - Good", etc.
+    code = raw_quality.split(" - ")[0]
+    classification = EEA_QUALITY.get(code) or (raw_quality if raw_quality else None)
+    season = row.get("season")
     return {
         "station_id": station_id,
-        "classification": QUALITY_LABELS.get(
-            raw.get("classification", ""), raw.get("classification")
-        ),
-        "sampled_at": raw.get("sampled_at") or raw.get("date"),
-        "parameters": raw.get("parameters") or {},
+        "classification": classification,
+        "sampled_at": str(season) if season else None,
+        "parameters": {"eea_quality_raw": raw_quality, "season": season},
     }
