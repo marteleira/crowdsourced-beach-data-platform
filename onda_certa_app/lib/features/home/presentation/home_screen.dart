@@ -220,7 +220,7 @@ class _SectionLabelWithTime extends StatelessWidget {
           if (timeStr != null)
             Text(
               'Actualizado às $timeStr',
-              style: const TextStyle(fontSize: 10, color: AppColors.textHint),
+              style: AppTextStyles.hintXs,
             ),
         ],
       ),
@@ -244,7 +244,7 @@ class _HomeLoadingView extends StatelessWidget {
               children: [
                 const CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5),
                 const SizedBox(height: AppSpacing.xl),
-                Text('A carregar dados...', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text('A carregar dados...', style: AppTextStyles.secondaryMd),
               ],
             ),
           ),
@@ -670,8 +670,8 @@ class _StatCard extends StatelessWidget {
         children: [
           Icon(icon, color: iconColor, size: 22),
           const SizedBox(height: 6),
-          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary)),
-          Text(label, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary), textAlign: TextAlign.center),
+          Text(value, style: AppTextStyles.titleLg),
+          Text(label, style: AppTextStyles.secondaryXs, textAlign: TextAlign.center),
         ],
       ),
     );
@@ -700,13 +700,13 @@ class _AlertsSection extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(10)),
-                child: Text('${reports.length}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                child: Text('${reports.length}', style: AppTextStyles.whiteLabel),
               ),
             const Spacer(),
             if (beach != null)
               GestureDetector(
                 onTap: () => context.push('/beach/${beach!.slug}/alerts', extra: beach),
-                child: const Text('Ver tudo →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
+                child: const Text('Ver tudo →', style: AppTextStyles.tealLabel),
               ),
           ],
         ),
@@ -715,7 +715,7 @@ class _AlertsSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
-            child: const Center(child: Text('Sem alertas activos', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+            child: const Center(child: Text('Sem alertas activos', style: AppTextStyles.secondaryMd)),
           )
         else
           ...visible.map((r) => Padding(
@@ -780,7 +780,7 @@ class _TidesSection extends StatelessWidget {
             const Spacer(),
             GestureDetector(
               onTap: onViewAll,
-              child: const Text('Ver detalhes →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
+              child: const Text('Ver detalhes →', style: AppTextStyles.tealLabel),
             ),
           ],
         ),
@@ -814,11 +814,11 @@ class _TidesSection extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(displayHeight,
-                          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                          style: AppTextStyles.titleXl),
                       if (nextTide != null)
                         Text(
                           '${nextTide.type == 'alta' ? 'Alta' : 'Baixa'} às ${nextTide.time}',
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                          style: AppTextStyles.secondary,
                         ),
                     ],
                   ),
@@ -921,7 +921,7 @@ class _ExploreCard extends StatelessWidget {
             const Spacer(),
             Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primary)),
             const SizedBox(height: 2),
-            Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+            Text(subtitle, style: AppTextStyles.secondarySm),
           ],
         ),
       ),
@@ -965,7 +965,7 @@ class _CommunitySection extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('$totalReports reportes activos', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.primary)),
-                      Text('em $beachCount praias · $activeUsers utilizadores online', style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                      Text('em $beachCount praias · $activeUsers utilizadores online', style: AppTextStyles.secondary),
                     ],
                   ),
                 ],

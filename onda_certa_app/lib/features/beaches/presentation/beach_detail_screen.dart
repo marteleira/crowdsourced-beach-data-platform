@@ -314,7 +314,7 @@ class _CardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary)),
+        Text(title, style: AppTextStyles.titleSm),
         const Spacer(),
         if (isLive) ...[
           Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
@@ -340,8 +340,8 @@ class _MetricCell extends StatelessWidget {
       children: [
         Icon(icon, color: iconColor, size: 22),
         const SizedBox(height: 6),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.primary)),
-        Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+        Text(value, style: AppTextStyles.titleMd),
+        Text(label, style: AppTextStyles.secondarySm),
       ],
     );
   }
@@ -386,7 +386,7 @@ class _FlagCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.primary)),
+                Text(label, style: AppTextStyles.titleMd),
                 const SizedBox(height: 3),
                 Row(
                   children: [
@@ -398,7 +398,7 @@ class _FlagCard extends StatelessWidget {
                       flagColor != 'unknown'
                           ? 'live · Toca para confirmar'
                           : 'Toca para propor a bandeira',
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      style: AppTextStyles.secondary,
                     ),
                   ],
                 ),
@@ -422,7 +422,7 @@ class _FlagCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
-              Text('${(confidence * 100).round()}% conf.', style: const TextStyle(fontSize: 10, color: AppColors.textHint)),
+              Text('${(confidence * 100).round()}% conf.', style: AppTextStyles.hintXs),
             ],
           ),
         ],
@@ -548,7 +548,7 @@ class _DonutChart extends StatelessWidget {
               Text('${(percentage * 100).round()}%',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary)),
               Text(label,
-                  style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                  style: AppTextStyles.secondaryXs,
                   textAlign: TextAlign.center),
             ],
           ),
@@ -691,11 +691,11 @@ class _TidesCard extends StatelessWidget {
             children: [
               const Icon(Icons.waves, color: AppColors.teal, size: 16),
               const SizedBox(width: 6),
-              const Text('Marés Hoje', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary)),
+              const Text('Marés Hoje', style: AppTextStyles.titleSm),
               const Spacer(),
               GestureDetector(
                 onTap: onViewAll,
-                child: const Text('Vista completa →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
+                child: const Text('Vista completa →', style: AppTextStyles.tealLabel),
               ),
             ],
           ),
@@ -712,11 +712,11 @@ class _TidesCard extends StatelessWidget {
                     Text(directionLabel, style: TextStyle(color: accentColor, fontSize: 12, fontWeight: FontWeight.w600)),
                   ]),
                   const SizedBox(height: 2),
-                  Text(displayH, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                  Text(displayH, style: AppTextStyles.titleXl),
                   if (nextTide != null)
                     Text(
                       '${nextTide.type == 'alta' ? 'alta' : 'baixa'} às ${nextTide.time}',
-                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                      style: AppTextStyles.secondary,
                     ),
                 ],
               ),
@@ -768,12 +768,12 @@ class _WaterQualityCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Qualidade da Água', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary)),
+                const Text('Qualidade da Água', style: AppTextStyles.titleSm),
                 if (cacheStr != null)
                   Row(children: [
                     const Icon(Icons.access_time, size: 11, color: AppColors.textHint),
                     const SizedBox(width: 3),
-                    Text(cacheStr, style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
+                    Text(cacheStr, style: AppTextStyles.hintSm),
                   ]),
               ],
             ),
@@ -840,19 +840,19 @@ class _TransportCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
           ] else if (transport.stops.isEmpty) ...[
             const SizedBox(height: AppSpacing.md),
-            const Center(child: Text('Sem informação de transportes para esta praia', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+            const Center(child: Text('Sem informação de transportes para esta praia', style: AppTextStyles.secondaryMd)),
           ] else if (!transport.hasDepartures) ...[
             const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               const Icon(Icons.schedule, size: 14, color: AppColors.textHint),
               const SizedBox(width: 6),
-              const Text('Sem partidas previstas', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+              const Text('Sem partidas previstas', style: AppTextStyles.secondaryMd),
             ]),
             const SizedBox(height: AppSpacing.xs),
             Center(
               child: Text(
                 '${transport.stops.length} paragem${transport.stops.length > 1 ? 's' : ''} próxima${transport.stops.length > 1 ? 's' : ''}',
-                style: const TextStyle(color: AppColors.textHint, fontSize: 11),
+                style: AppTextStyles.hintSm,
               ),
             ),
           ] else ...[
@@ -926,7 +926,7 @@ class _DepartureChip extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
             decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(4)),
-            child: Text(dep.routeShortName, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+            child: Text(dep.routeShortName, style: AppTextStyles.whiteLabel),
           ),
           const SizedBox(width: 5),
           Text(dep.displayTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
@@ -985,12 +985,12 @@ class _CommunityAlertsCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(10)),
-                child: Text('${reports.length}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                child: Text('${reports.length}', style: AppTextStyles.whiteLabel),
               ),
             const Spacer(),
             GestureDetector(
               onTap: () => context.push('/beach/${beach.slug}/alerts', extra: beach),
-              child: const Text('Ver tudo →', style: TextStyle(color: AppColors.tealDark, fontSize: 12, fontWeight: FontWeight.w600)),
+              child: const Text('Ver tudo →', style: AppTextStyles.tealLabel),
             ),
           ],
         ),
@@ -999,7 +999,7 @@ class _CommunityAlertsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
-            child: const Center(child: Text('Sem alertas activos', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+            child: const Center(child: Text('Sem alertas activos', style: AppTextStyles.secondaryMd)),
           )
         else
           ...visible.map((r) => Padding(

@@ -106,7 +106,7 @@ class _FavouriteCard extends ConsumerWidget {
                                 const SizedBox(width: 5),
                                 Text(
                                   _flagLabel(beach.flagColor),
-                                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                  style: AppTextStyles.secondary,
                                 ),
                                 if (beach.activeAlertsCount > 0) ...[
                                   const SizedBox(width: 10),

@@ -130,8 +130,8 @@ class TideTimeCell extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(entry.time, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
-        Text('${entry.height.toStringAsFixed(1)}m', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-        Text(entry.type, style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+        Text('${entry.height.toStringAsFixed(1)}m', style: AppTextStyles.secondarySm),
+        Text(entry.type, style: AppTextStyles.secondaryXs),
       ],
     );
   }

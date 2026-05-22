@@ -136,7 +136,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
 
         const Text(
           'Qual é a bandeira actual?',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+          style: AppTextStyles.titleMd,
         ),
 
         const SizedBox(height: 14),

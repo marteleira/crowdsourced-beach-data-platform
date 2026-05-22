@@ -21,7 +21,7 @@ class PrivacySettingsScreen extends ConsumerWidget {
         surfaceTintColor: Colors.transparent,
         title: const Text(
           'Privacidade & Dados',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.primary),
+          style: AppTextStyles.subtitle,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.primary),
@@ -381,7 +381,7 @@ class _SwitchTile extends StatelessWidget {
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(subtitle!,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                      style: AppTextStyles.hint),
                 ],
               ],
             ),
@@ -423,11 +423,11 @@ class _LabelRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(label,
-                    style: const TextStyle(fontSize: 15, color: AppColors.primary)),
+                    style: AppTextStyles.primaryMd),
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(subtitle!,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                      style: AppTextStyles.hint),
                 ],
               ],
             ),
@@ -479,7 +479,7 @@ class _ActionTile extends StatelessWidget {
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
                     Text(subtitle!,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                        style: AppTextStyles.hint),
                   ],
                 ],
               ),

@@ -247,7 +247,7 @@ class _ReportCard extends StatelessWidget {
                                 const Spacer(),
                                 Text(
                                   timeAgo(report.createdAt),
-                                  style: const TextStyle(color: AppColors.textHint, fontSize: 12),
+                                  style: AppTextStyles.hint,
                                 ),
                               ],
                             ),
@@ -304,7 +304,7 @@ class _ReportCard extends StatelessWidget {
                       const Spacer(),
                       Text(
                         '$totalVotes ${totalVotes == 1 ? 'voto' : 'votos'}',
-                        style: const TextStyle(color: AppColors.textHint, fontSize: 12),
+                        style: AppTextStyles.hint,
                       ),
                     ],
                   ),
@@ -457,7 +457,7 @@ class _ErrorView extends StatelessWidget {
         children: [
           const Icon(Icons.cloud_off_outlined, color: AppColors.textHint, size: 48),
           const SizedBox(height: AppSpacing.lg),
-          const Text('Erro ao carregar alertas', style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+          const Text('Erro ao carregar alertas', style: AppTextStyles.secondaryLg),
           const SizedBox(height: AppSpacing.lg),
           TextButton(onPressed: onRetry, child: const Text('Tentar de novo')),
         ],
@@ -536,12 +536,12 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                       children: [
                         const Text(
                           'Reportar Condição',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary),
+                          style: AppTextStyles.titleLg,
                         ),
                         const SizedBox(height: 2),
                         Text(
                           widget.beach.name,
-                          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          style: AppTextStyles.secondaryMd,
                         ),
                       ],
                     ),
@@ -594,7 +594,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       children: [
         const Text(
           'Tipo de condição',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary),
+          style: AppTextStyles.titleSm,
         ),
         const SizedBox(height: AppSpacing.md),
         Wrap(
@@ -652,7 +652,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       children: [
         const Text(
           'Qual a gravidade?',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary),
+          style: AppTextStyles.titleSm,
         ),
         const SizedBox(height: AppSpacing.md),
         Row(
@@ -727,10 +727,10 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
           children: [
             const Text(
               'Adicionar nota',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary),
+              style: AppTextStyles.titleSm,
             ),
             const SizedBox(width: 5),
-            const Text('(opcional)', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+            const Text('(opcional)', style: AppTextStyles.secondaryMd),
           ],
         ),
         const SizedBox(height: 10),
@@ -750,7 +750,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.all(14),
-            counterStyle: const TextStyle(color: AppColors.textHint, fontSize: 11),
+            counterStyle: AppTextStyles.hintSm,
           ),
         ),
       ],
@@ -771,7 +771,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
           Expanded(
             child: Text(
               'A tua localização aproximada será partilhada com este aviso.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              style: AppTextStyles.secondary,
             ),
           ),
         ],
