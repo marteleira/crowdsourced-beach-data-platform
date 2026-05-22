@@ -7,6 +7,7 @@ import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../shared/widgets/empty_state.dart';
 
 class BeachListScreen extends ConsumerStatefulWidget {
   const BeachListScreen({super.key});
@@ -420,7 +421,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                           color: AppColors.teal,
                         ),
                       ),
-                      error: (_, _) => _EmptyState(
+                      error: (_, _) => EmptyState(
                         icon: Icons.cloud_off_rounded,
                         message: 'Não foi possível carregar as praias',
                         actionLabel: 'Tentar de novo',
@@ -428,7 +429,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                       ),
                       data: (_) {
                         if (filteredBeaches.isEmpty) {
-                          return _EmptyState(
+                          return EmptyState(
                             icon: Icons.search_off_rounded,
                             message: _search.isNotEmpty
                                 ? 'Nenhuma praia encontrada para "$_search"'
@@ -945,44 +946,3 @@ class _Dot extends StatelessWidget {
   );
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({
-    required this.icon,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
-  final IconData icon;
-  final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 52, color: AppColors.textHint),
-            const SizedBox(height: AppSpacing.lg),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyles.secondaryLg,
-            ),
-            if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: AppSpacing.xl),
-              FilledButton(
-                onPressed: onAction,
-                style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
-                child: Text(actionLabel!),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}

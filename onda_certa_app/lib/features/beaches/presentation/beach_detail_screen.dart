@@ -11,6 +11,7 @@ import '../../../features/community/presentation/flag_confirmation_sheet.dart';
 import '../../../features/community/presentation/flag_proposal_sheet.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../shared/widgets/metric_cell.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/tide_chart.dart';
 
@@ -327,39 +328,6 @@ class _CardHeader extends StatelessWidget {
   }
 }
 
-class _MetricCell extends StatelessWidget {
-  const _MetricCell({required this.icon, required this.value, required this.label, required this.iconColor});
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: iconColor, size: 22),
-        const SizedBox(height: 6),
-        Text(value, style: AppTextStyles.titleMd),
-        Text(label, style: AppTextStyles.secondarySm),
-      ],
-    );
-  }
-}
-
-Widget _metricRow(List<Widget> cells) {
-  final items = <Widget>[];
-  for (int i = 0; i < cells.length; i++) {
-    if (i > 0) items.add(Container(width: 1, height: 40, color: AppColors.borderLight));
-    items.add(Expanded(child: Center(child: cells[i])));
-  }
-  return Container(
-    padding: const EdgeInsets.symmetric(vertical: 14),
-    decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12)),
-    child: Row(children: items),
-  );
-}
 
 class _FlagCard extends StatelessWidget {
   const _FlagCard({required this.flagColor, this.flagConfidence, this.onTap});
@@ -571,20 +539,20 @@ class _WeatherCard extends StatelessWidget {
         children: [
           _CardHeader(title: 'Meteorologia', isLive: true),
           const SizedBox(height: AppSpacing.md),
-          _metricRow([
-            _MetricCell(
+          metricRow([
+            MetricCell(
               icon: Icons.thermostat_outlined,
               value: weather?.maxTemp != null ? 'Min ${weather!.minTemp!.round()}°C\nMax ${weather!.maxTemp!.round()}°C' : '--',
               label: 'Temperatura', iconColor: AppColors.coral,
             ),
-            _MetricCell(
+            MetricCell(
               icon: Icons.air,
               value: weather?.windSpeed != null
                   ? '${weather!.windSpeed!.round()} km/h\n${weather!.windDir != null ? "${weather!.windDir}" : ""}'
                   : '--',
               label: 'Vento', iconColor: AppColors.teal,
             ),
-            _MetricCell(
+            MetricCell(
               icon: Icons.umbrella_outlined,
               value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--',
               label: 'Chuva', iconColor: const Color(0xFF3B82F6),
@@ -608,18 +576,18 @@ class _SeaCard extends StatelessWidget {
         children: [
           _CardHeader(title: 'Condições do Mar', isLive: true),
           const SizedBox(height: AppSpacing.md),
-          _metricRow([
-            _MetricCell(
+          metricRow([
+            MetricCell(
               icon: Icons.waves,
               value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--',
               label: 'Ondas', iconColor: AppColors.teal,
             ),
-            _MetricCell(
+            MetricCell(
               icon: Icons.schedule,
               value: sea?.wavePeriodMax != null ? '${sea!.wavePeriodMax!.round()}s' : '--',
               label: 'Período', iconColor: AppColors.primary,
             ),
-            _MetricCell(
+            MetricCell(
               icon: Icons.thermostat_outlined,
               value: sea?.seaTemp != null ? '${sea!.seaTemp!.round()}°C' : '--',
               label: 'Temp. Mar', iconColor: AppColors.coral,
