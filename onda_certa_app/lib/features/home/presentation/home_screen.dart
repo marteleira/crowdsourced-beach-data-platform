@@ -7,6 +7,7 @@ import '../../../core/presence/heartbeat_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/animated_waves.dart';
 import '../../../shared/widgets/tide_chart.dart';
@@ -479,7 +480,7 @@ class _BestBeachCard extends StatelessWidget {
 
     final flagColor = AppColors.forFlag(beach!.flagColor);
     final gradient = AppColors.beachGradient(beach!.flagColor);
-    final qualityLabel = _qualityLabel(beach!.flagColor, beach!.recommendationScore);
+    final qualityLabel = beachQualityLabel(beach!.flagColor, beach!.recommendationScore);
     final qualityColor = beach!.recommendationScore != null && beach!.recommendationScore! > 0.7
         ? AppColors.teal : AppColors.sand;
 
@@ -554,7 +555,7 @@ class _BestBeachCard extends StatelessWidget {
               children: [
                 _InfoPill(
                   color: flagColor,
-                  label: _flagLabel(beach!.flagColor),
+                  label: flagLabel(beach!.flagColor),
                   dot: true,
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -587,22 +588,6 @@ class _BestBeachCard extends StatelessWidget {
     child: ClipRRect(borderRadius: BorderRadius.circular(16), child: child),
   );
 
-  String _flagLabel(String flag) {
-    switch (flag) {
-      case 'green': return 'Segura';
-      case 'yellow': return 'Cuidado';
-      case 'red': return 'Perigo';
-      case 'purple': return 'Fechada';
-      default: return 'Desconhecida';
-    }
-  }
-
-  String _qualityLabel(String flag, double? score) {
-    if (flag == 'green' && (score ?? 0) > 0.7) return 'Excellent';
-    if (flag == 'green') return 'Good';
-    if (flag == 'yellow') return 'Fair';
-    return 'Poor';
-  }
 }
 
 class _InfoPill extends StatelessWidget {
