@@ -15,6 +15,10 @@ class AppColors {
   static const flagRed = Color(0xFFE74C3C);
   static const flagPurple = Color(0xFF8B5CF6);
 
+  static const borderLight = Color(0xFFE5E7EB);
+  static const borderMedium = Color(0xFFD1D5DB);
+  static const backgroundLight = Color(0xFFF3F4F6);
+
   static const textPrimary = Color(0xFF0D2137);
   static const textSecondary = Color(0xFF6B7280);
   static const textHint = Color(0xFF9CA3AF);

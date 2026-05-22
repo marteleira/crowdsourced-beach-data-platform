@@ -331,7 +331,7 @@ class _SeverityDots extends StatelessWidget {
         width: 7, height: 7,
         margin: const EdgeInsets.only(right: 3),
         decoration: BoxDecoration(
-          color: i < severity ? color : const Color(0xFFE5E7EB),
+          color: i < severity ? color : AppColors.borderLight,
           shape: BoxShape.circle,
         ),
       )),
@@ -360,7 +360,7 @@ class _VoteButton extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
-          color: isActive ? color.withValues(alpha: 0.12) : const Color(0xFFF3F4F6),
+          color: isActive ? color.withValues(alpha: 0.12) : AppColors.backgroundLight,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isActive ? color.withValues(alpha: 0.35) : Colors.transparent,
@@ -518,7 +518,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
             Container(
               width: 40, height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFE5E7EB),
+                color: AppColors.borderLight,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -556,7 +556,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
               ),
             ),
 
-            Container(height: 1, margin: const EdgeInsets.only(top: 16), color: const Color(0xFFF3F4F6)),
+            Container(height: 1, margin: const EdgeInsets.only(top: 16), color: AppColors.backgroundLight),
 
             // Scrollable form
             Expanded(
@@ -613,7 +613,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                   color: isSelected ? typeColor.withValues(alpha: 0.1) : Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? typeColor : const Color(0xFFE5E7EB),
+                    color: isSelected ? typeColor : AppColors.borderLight,
                     width: isSelected ? 1.5 : 1,
                   ),
                 ),
@@ -671,7 +671,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                     color: isSelected ? color : Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? color : const Color(0xFFE5E7EB),
+                      color: isSelected ? color : AppColors.borderLight,
                       width: isSelected ? 1.5 : 1,
                     ),
                   ),
@@ -686,7 +686,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                           decoration: BoxDecoration(
                             color: i < level
                                 ? (isSelected ? Colors.white : color)
-                                : (isSelected ? Colors.white.withValues(alpha: 0.35) : const Color(0xFFE5E7EB)),
+                                : (isSelected ? Colors.white.withValues(alpha: 0.35) : AppColors.borderLight),
                             shape: BoxShape.circle,
                           ),
                         )),
@@ -819,7 +819,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
         label: const Text('Submeter Aviso', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.teal,
-          disabledBackgroundColor: const Color(0xFFE5E7EB),
+          disabledBackgroundColor: AppColors.borderLight,
           disabledForegroundColor: AppColors.textHint,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

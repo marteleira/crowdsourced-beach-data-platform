@@ -443,7 +443,7 @@ class _SliderTile extends StatelessWidget {
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: AppColors.teal,
-                    inactiveTrackColor: const Color(0xFFE5E7EB),
+                    inactiveTrackColor: AppColors.borderLight,
                     thumbColor: AppColors.teal,
                     overlayColor: AppColors.teal.withValues(alpha: 0.12),
                     trackHeight: 4,
@@ -505,7 +505,7 @@ class _SegmentTile extends StatelessWidget {
           const SizedBox(width: 12),
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: AppColors.backgroundLight,
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.all(2),
@@ -611,5 +611,5 @@ class _TimeTile extends StatelessWidget {
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
-      const Divider(height: 1, indent: 48, color: Color(0xFFF3F4F6));
+      const Divider(height: 1, indent: 48, color: AppColors.backgroundLight);
 }
