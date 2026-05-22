@@ -314,7 +314,7 @@ class _ReputationCard extends StatelessWidget {
               curve: Curves.easeOutCubic,
               builder: (_, val, _) => LinearProgressIndicator(
                 value: val,
-                backgroundColor: const Color(0xFFE5E7EB),
+                backgroundColor: AppColors.borderLight,
                 valueColor: const AlwaysStoppedAnimation(AppColors.teal),
                 minHeight: 10,
               ),
@@ -569,9 +569,6 @@ class _AchievementChip extends StatelessWidget {
   final UserAchievement achievement;
   final String label;
 
-  static const _unearnedBg = Color(0xFFF3F4F6);
-  static const _unearnedBorder = Color(0xFFE5E7EB);
-
   @override
   Widget build(BuildContext context) {
     final earned = achievement.earned;
@@ -579,10 +576,10 @@ class _AchievementChip extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: earned ? AppColors.teal.withValues(alpha: 0.1) : _unearnedBg,
+        color: earned ? AppColors.teal.withValues(alpha: 0.1) : AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: earned ? AppColors.teal.withValues(alpha: 0.4) : _unearnedBorder,
+          color: earned ? AppColors.teal.withValues(alpha: 0.4) : AppColors.borderLight,
         ),
       ),
       child: Row(
@@ -948,5 +945,5 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      Divider(height: 1, indent: indent, color: const Color(0xFFF3F4F6));
+      Divider(height: 1, indent: indent, color: AppColors.backgroundLight);
 }

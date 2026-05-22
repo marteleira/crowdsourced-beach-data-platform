@@ -92,7 +92,7 @@ class AlertItem extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: i < (report.severity ?? 0)
                                         ? sevColor
-                                        : const Color(0xFFE5E7EB),
+                                        : AppColors.borderLight,
                                     shape: BoxShape.circle,
                                   ),
                                 )),

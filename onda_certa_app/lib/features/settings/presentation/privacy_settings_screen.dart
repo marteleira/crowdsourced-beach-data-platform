@@ -506,7 +506,7 @@ class _SegmentedPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
+        color: AppColors.backgroundLight,
         borderRadius: BorderRadius.circular(10),
       ),
       padding: const EdgeInsets.all(3),
@@ -548,5 +548,5 @@ class _SegmentedPicker extends StatelessWidget {
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
-      const Divider(height: 1, indent: 48, color: Color(0xFFF3F4F6));
+      const Divider(height: 1, indent: 48, color: AppColors.backgroundLight);
 }

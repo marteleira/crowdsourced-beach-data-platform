@@ -83,7 +83,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
                 Container(
                   width: 40, height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD1D5DB),
+                    color: AppColors.borderMedium,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -168,7 +168,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
 
         const SizedBox(height: 30),
 
-        Container(height: 1, color: const Color(0xFFE5E7EB)),
+        Container(height: 1, color: AppColors.borderLight),
 
         const SizedBox(height: 30),
 
@@ -354,7 +354,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFE5E7EB)),
+            border: Border.all(color: AppColors.borderLight),
           ),
           child: Column(
             children: [
@@ -579,7 +579,7 @@ class _ConfirmButton extends StatelessWidget {
               ? backgroundColor.withValues(alpha: 0.45)
               : backgroundColor,
           borderRadius: BorderRadius.circular(16),
-          border: hasBorder ? Border.all(color: const Color(0xFFD1D5DB)) : null,
+          border: hasBorder ? Border.all(color: AppColors.borderMedium) : null,
         ),
         child: Center(child: child),
       ),

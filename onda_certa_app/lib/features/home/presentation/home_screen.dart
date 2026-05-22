@@ -840,7 +840,7 @@ class _TidesSection extends StatelessWidget {
               ),
               if (tides.isNotEmpty) ...[
                 const SizedBox(height: 14),
-                const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                const Divider(height: 1, color: AppColors.borderLight),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,

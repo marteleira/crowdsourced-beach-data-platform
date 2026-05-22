@@ -350,7 +350,7 @@ class _MetricCell extends StatelessWidget {
 Widget _metricRow(List<Widget> cells) {
   final items = <Widget>[];
   for (int i = 0; i < cells.length; i++) {
-    if (i > 0) items.add(Container(width: 1, height: 40, color: const Color(0xFFE5E7EB)));
+    if (i > 0) items.add(Container(width: 1, height: 40, color: AppColors.borderLight));
     items.add(Expanded(child: Center(child: cells[i])));
   }
   return Container(
@@ -571,7 +571,7 @@ class _DonutPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
 
     canvas.drawArc(rect, -pi / 2, 2 * pi, false,
-      Paint()..color = const Color(0xFFE5E7EB)..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round);
+      Paint()..color = AppColors.borderLight..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round);
     if (percentage > 0) {
       canvas.drawArc(rect, -pi / 2, 2 * pi * percentage, false,
         Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round);
@@ -733,7 +733,7 @@ class _TidesCard extends StatelessWidget {
           ),
           if (tides.isNotEmpty) ...[
             const SizedBox(height: 14),
-            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+            const Divider(height: 1, color: AppColors.borderLight),
             const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1029,7 +1029,7 @@ class _VoteDots extends StatelessWidget {
         width: 7, height: 7,
         margin: const EdgeInsets.only(left: 3),
         decoration: BoxDecoration(
-          color: i < filled ? AppColors.flagGreen : const Color(0xFFE5E7EB),
+          color: i < filled ? AppColors.flagGreen : AppColors.borderLight,
           shape: BoxShape.circle,
         ),
       )),

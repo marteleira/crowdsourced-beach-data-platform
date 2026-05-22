@@ -54,7 +54,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
                 Container(
                   width: 40, height: 4,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD1D5DB),
+                    color: AppColors.borderMedium,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -409,7 +409,7 @@ class _FlagOptionCard extends StatelessWidget {
           color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected ? color : const Color(0xFFE5E7EB),
+            color: isSelected ? color : AppColors.borderLight,
             width: isSelected ? 2.0 : 1.0,
           ),
           boxShadow: isSelected

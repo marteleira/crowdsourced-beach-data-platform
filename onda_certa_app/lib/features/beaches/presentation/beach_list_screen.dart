@@ -710,7 +710,7 @@ class _FilterChip extends StatelessWidget {
           color: selected ? activeColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? activeColor : const Color(0xFFE5E7EB),
+            color: selected ? activeColor : AppColors.borderLight,
           ),
           boxShadow: selected
               ? [BoxShadow(color: activeColor.withValues(alpha: 0.25), blurRadius: 6)]
