@@ -10,6 +10,7 @@ from app.models.beach import Beach
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
 from app.schemas.user import HeartbeatRequest, HeartbeatResponse
+from app.services.achievements import update_streak
 
 router = APIRouter(prefix="/beaches/{slug}/occupancy", tags=["occupancy"])
 
@@ -39,6 +40,7 @@ async def send_heartbeat(
     )
     db.add(heartbeat)
     await db.commit()
+    await update_streak(db, user)
 
     # Return current occupancy estimate
     cutoff = datetime.now(timezone.utc) - timedelta(minutes=20)
