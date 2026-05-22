@@ -85,11 +85,13 @@ async def update_streak(db: AsyncSession, user: User) -> None:
     today = date.today()
     last = user.last_contribution_date
 
+    if last == today:
+        return
+
     if last is None or last < today - timedelta(days=1):
         user.streak = 1
-    elif last == today - timedelta(days=1):
+    else:
         user.streak = (user.streak or 0) + 1
-    # If last == today, already contributed today — no change
 
     user.last_contribution_date = today
     db.add(user)
