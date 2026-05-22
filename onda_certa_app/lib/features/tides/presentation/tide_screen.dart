@@ -402,7 +402,7 @@ class _HeroContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           Text(
             beachName ?? 'Marés',
             style: TextStyle(
@@ -439,7 +439,7 @@ class _HeroContent extends StatelessWidget {
             ]),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
             decoration: BoxDecoration(
@@ -449,7 +449,7 @@ class _HeroContent extends StatelessWidget {
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               Container(width: 7, height: 7, decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle)),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Text(pillText, style: const TextStyle(
                 color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500,
                 shadows: [Shadow(blurRadius: 4, color: Colors.black45)],
@@ -535,7 +535,7 @@ class _DetailSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               const Text('MAIS DETALHES', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textHint, letterSpacing: 1.2)),
               const SizedBox(height: 2),
               ListenableBuilder(
@@ -560,11 +560,11 @@ class _DetailSheet extends StatelessWidget {
                   children: [
                     _TodayTidesSection(entries: tidesData.entries),
                     if (sea != null) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.lg),
                       _SeaRow(sea: sea!),
                     ],
                     if (tidesData.entries.isNotEmpty) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.lg),
                       _TideChartCard(tidesData: tidesData),
                     ],
                   ],
@@ -686,7 +686,7 @@ class _SeaMini extends StatelessWidget {
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.sm),
         Row(children: [
           Icon(icon, color: iconColor, size: 18),
           const SizedBox(width: 6),

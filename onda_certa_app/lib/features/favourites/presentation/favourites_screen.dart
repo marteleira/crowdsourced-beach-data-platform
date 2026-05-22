@@ -174,12 +174,12 @@ class _EmptyView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.favorite_border, size: 64, color: AppColors.textHint),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           const Text(
             'Sem praias favoritas',
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.primary),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           const Text(
             'Abre uma praia e toca no coração\npara a guardar aqui.',
             textAlign: TextAlign.center,
@@ -202,9 +202,9 @@ class _ErrorView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.cloud_off_outlined, size: 48, color: AppColors.textHint),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           const Text('Erro ao carregar favoritos', style: TextStyle(color: AppColors.textSecondary)),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           TextButton(onPressed: onRetry, child: const Text('Tentar novamente')),
         ],
       ),

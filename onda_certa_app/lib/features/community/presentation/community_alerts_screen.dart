@@ -100,7 +100,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
       child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
         itemCount: reports.length,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
+        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
         itemBuilder: (_, i) => _ReportCard(
           report: reports[i],
           onVote: (vote) => _vote(reports[i].id, vote),
@@ -196,7 +196,7 @@ class _ReportCard extends StatelessWidget {
                         ),
                         child: Icon(icon, color: typeColor, size: 22),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +231,7 @@ class _ReportCard extends StatelessWidget {
                                   ),
                               ],
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.xs),
                             Row(
                               children: [
                                 _SeverityDots(severity: report.severity ?? 0, color: severityColor),
@@ -279,7 +279,7 @@ class _ReportCard extends StatelessWidget {
                     ),
                   ],
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.md),
 
                   // Vote row
                   Row(
@@ -292,7 +292,7 @@ class _ReportCard extends StatelessWidget {
                         color: const Color(0xFF10B981),
                         onTap: () => onVote('up'),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       _VoteButton(
                         icon: Icons.thumb_down_outlined,
                         activeIcon: Icons.thumb_down,
@@ -412,18 +412,18 @@ class _EmptyState extends StatelessWidget {
               ),
               child: const Icon(Icons.check_circle_outline, color: AppColors.flagGreen, size: 40),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.xl),
             const Text(
               'Tudo calmo!',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.primary),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             const Text(
               'Sem alertas activos nesta praia.\nSe vires algo, reporta!',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xxl),
             OutlinedButton.icon(
               onPressed: onReport,
               icon: const Icon(Icons.add_circle_outline, size: 18),
@@ -456,9 +456,9 @@ class _ErrorView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.cloud_off_outlined, color: AppColors.textHint, size: 48),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           const Text('Erro ao carregar alertas', style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           TextButton(onPressed: onRetry, child: const Text('Tentar de novo')),
         ],
       ),
@@ -522,7 +522,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
 
             // Header
             Padding(
@@ -566,9 +566,9 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                 children: [
                   _buildTypeSection(),
                   if (_selectedType != null) ...[
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.xxl),
                     _buildSeveritySection(),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.xxl),
                     _buildNoteSection(),
                     const SizedBox(height: 14),
                     _buildLocationNote(),
@@ -576,7 +576,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                       const SizedBox(height: 10),
                       _buildGuestNote(),
                     ],
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.xxl),
                     _buildSubmitButton(),
                   ],
                 ],
@@ -596,7 +596,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
           'Tipo de condição',
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -654,7 +654,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
           'Qual a gravidade?',
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.primary),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
         Row(
           children: severities.map((s) {
             final (level, label, sub, color) = s;
@@ -767,7 +767,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       child: const Row(
         children: [
           Icon(Icons.location_on_outlined, color: AppColors.textHint, size: 16),
-          SizedBox(width: 8),
+          SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               'A tua localização aproximada será partilhada com este aviso.',
@@ -791,7 +791,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('🌿', style: TextStyle(fontSize: 15)),
-          SizedBox(width: 8),
+          SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
               'Modo convidado: os avisos funcionam, mas criar uma conta dá-te reputação e ajuda a acompanhar a precisão.',

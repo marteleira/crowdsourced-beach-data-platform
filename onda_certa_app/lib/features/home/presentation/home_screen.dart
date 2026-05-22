@@ -166,19 +166,19 @@ class _HomeDashboard extends ConsumerWidget {
               _SectionLabelWithTime(label: 'Melhor Praia Agora', updatedAt: lastUpdated),
               const SizedBox(height: 10),
               _BestBeachCard(beach: bestBeach.value, sea: sea.value),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               _StatsRow(
                 seaTemp: sea.value?.seaTemp,
                 activeUsers: totalActiveUsers,
                 alertsCount: totalAlerts,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xxl),
               _AlertsSection(reports: reports.value ?? [], beach: bestBeach.value),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xxl),
               _TidesSection(beach: bestBeach.value, tidesData: tides.value ?? TidesData.empty, onViewAll: () => onTabChange(2)),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xxl),
               _ExploreGrid(beachCount: beaches.value?.length ?? 0, onTabChange: onTabChange, bestBeach: bestBeach.value),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xxl),
               _CommunitySection(
                 totalReports: totalAlerts,
                 beachCount: beaches.value?.length ?? 0,
@@ -243,7 +243,7 @@ class _HomeLoadingView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.xl),
                 Text('A carregar dados...', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
               ],
             ),
@@ -335,7 +335,7 @@ class _Header extends StatelessWidget {
               Row(
                 children: [
                   Image.asset("assets/icon/icon.png", width: 24,),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   const Text('OndaCerta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
                   const Spacer(),
                   Stack(
@@ -358,17 +358,17 @@ class _Header extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 bestBeach != null ? '$dateStr · ${bestBeach!.name}' : dateStr,
                 style: const TextStyle(color: Colors.white54, fontSize: 12),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 '$emoji $greeting,\n$name.',
                 style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700, height: 1.2),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               // Weather strip
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -379,7 +379,7 @@ class _Header extends StatelessWidget {
                   _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: 'Chuva'),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               // Live + badge pills
               Row(
                 children: [
@@ -393,12 +393,12 @@ class _Header extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: AppSpacing.xs),
                         const Text('live', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   if (safe > 0) _StatusPill('$safe Seguras', AppColors.flagGreen),
                   if (safe > 0) const SizedBox(width: 6),
                   if (caution > 0) _StatusPill('$caution Cuidado', AppColors.flagYellow),
@@ -425,7 +425,7 @@ class _WeatherCell extends StatelessWidget {
     return Column(
       children: [
         Icon(icon, color: Colors.white70, size: 18),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.xs),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
         Text(label, style: const TextStyle(color: Colors.white54, fontSize: 10)),
       ],
@@ -451,7 +451,7 @@ class _StatusPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-          const SizedBox(width: 4),
+          const SizedBox(width: AppSpacing.xs),
           Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600)),
         ],
       ),
@@ -557,10 +557,10 @@ class _BestBeachCard extends StatelessWidget {
                   label: _flagLabel(beach!.flagColor),
                   dot: true,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.sm),
                 if (sea?.waveHeightMax != null)
                   _InfoPill(icon: Icons.waves, label: '${sea!.waveHeightMax!.toStringAsFixed(1)}m'),
-                if (sea?.waveHeightMax != null) const SizedBox(width: 8),
+                if (sea?.waveHeightMax != null) const SizedBox(width: AppSpacing.sm),
                 if (sea?.seaTemp != null)
                   _InfoPill(icon: Icons.thermostat_outlined, label: '${sea!.seaTemp!.round()}°C'),
                 const Spacer(),
@@ -822,7 +822,7 @@ class _TidesSection extends StatelessWidget {
                         ),
                     ],
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   // Right: chart — Expanded so it fills remaining width
                   Expanded(
                     child: SizedBox(
@@ -960,7 +960,7 @@ class _CommunitySection extends StatelessWidget {
                     decoration: BoxDecoration(color: AppColors.teal.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
                     child: const Icon(Icons.waves, color: AppColors.teal, size: 20),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

@@ -61,7 +61,7 @@ class _SectionWidget extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             section.body,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(

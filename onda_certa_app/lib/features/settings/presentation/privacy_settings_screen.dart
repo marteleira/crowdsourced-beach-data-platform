@@ -36,7 +36,7 @@ class PrivacySettingsScreen extends ConsumerWidget {
             children: [
               const Text('Não foi possível carregar as definições',
                   style: TextStyle(color: AppColors.textSecondary)),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => ref.invalidate(privacySettingsProvider),
                 style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
@@ -87,11 +87,11 @@ class _PrivacyForm extends ConsumerWidget {
                 onChanged: (v) => patch({'location_accuracy': v}),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xs),
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Perfil público
         _Section(
@@ -117,7 +117,7 @@ class _PrivacyForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Presença
         _Section(
@@ -143,7 +143,7 @@ class _PrivacyForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Dados pessoais
         _Section(
@@ -255,7 +255,7 @@ class _PrivacyForm extends ConsumerWidget {
                 'Esta ação é permanente. Todos os teus dados serão eliminados.\n\n'
                 'Escreve APAGAR para confirmar:',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: controller,
                 onChanged: (_) => setState(() {}),
@@ -365,7 +365,7 @@ class _SwitchTile extends StatelessWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: 20, color: iconColor ?? AppColors.primary),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
           ],
           Expanded(
             child: Column(
@@ -386,7 +386,7 @@ class _SwitchTile extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           Switch.adaptive(
             value: value,
             onChanged: onChanged,
@@ -417,7 +417,7 @@ class _LabelRow extends StatelessWidget {
       child: Row(
         children: [
           Icon(icon, size: 20, color: iconColor),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,7 +463,7 @@ class _ActionTile extends StatelessWidget {
         child: Row(
           children: [
             Icon(icon, size: 20, color: iconColor),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

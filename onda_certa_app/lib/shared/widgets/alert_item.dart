@@ -71,7 +71,7 @@ class AlertItem extends StatelessWidget {
                         ),
                         child: Icon(icon, color: typeColor, size: 20),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +97,7 @@ class AlertItem extends StatelessWidget {
                                   ),
                                 )),
                                 if (sevLabel.isNotEmpty) ...[
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: AppSpacing.xs),
                                   Text(sevLabel,
                                       style: TextStyle(
                                           color: sevColor,
@@ -122,7 +122,7 @@ class AlertItem extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       trailing ??
                           Icon(Icons.more_horiz,
                               color: AppColors.coral.withValues(alpha: 0.7)),
