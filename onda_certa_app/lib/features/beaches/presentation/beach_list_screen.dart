@@ -27,7 +27,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
   bool _hasZoomedToUser = false;
 
   static const _kMinSize = 0.08;
-  static const _kMidSize = 0.50;
+  static const _kMidSize = 0.30;
   static const _kMaxSize = 0.90;
 
   static const _kCenter = LatLng(38.465, -8.94);
