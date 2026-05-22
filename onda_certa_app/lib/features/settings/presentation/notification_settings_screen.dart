@@ -34,7 +34,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
             children: [
               const Text('Não foi possível carregar as notificações',
                   style: TextStyle(color: AppColors.textSecondary)),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => ref.invalidate(notificationSettingsProvider),
                 style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
@@ -82,7 +82,7 @@ class _NotificationForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Alertas de comunidade
         _Section(
@@ -124,7 +124,7 @@ class _NotificationForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Tipos de alerta
         _Section(
@@ -178,7 +178,7 @@ class _NotificationForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Praias favoritas
         _Section(
@@ -196,7 +196,7 @@ class _NotificationForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Bandeira e marés
         _Section(
@@ -224,7 +224,7 @@ class _NotificationForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Os meus avisos
         _Section(
@@ -252,7 +252,7 @@ class _NotificationForm extends ConsumerWidget {
           ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         // Horas de silêncio
         _Section(
@@ -359,7 +359,7 @@ class _SwitchTile extends StatelessWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: 20, color: enabled ? (iconColor ?? AppColors.primary) : AppColors.textHint),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
           ],
           Expanded(
             child: Column(
@@ -380,7 +380,7 @@ class _SwitchTile extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           Switch.adaptive(
             value: value,
             onChanged: enabled ? onChanged : null,
@@ -422,7 +422,7 @@ class _SliderTile extends StatelessWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: 20, color: iconColor ?? AppColors.textSecondary),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
           ],
           Expanded(
             child: Column(
@@ -491,7 +491,7 @@ class _SegmentTile extends StatelessWidget {
         children: [
           if (icon != null) ...[
             Icon(icon, size: 20, color: enabled ? (iconColor ?? AppColors.primary) : AppColors.textHint),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
           ],
           Expanded(
             child: Text(
@@ -502,7 +502,7 @@ class _SegmentTile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Container(
             decoration: BoxDecoration(
               color: AppColors.backgroundLight,
@@ -571,7 +571,7 @@ class _TimeTile extends StatelessWidget {
           children: [
             if (icon != null) ...[
               Icon(icon, size: 20, color: iconColor ?? AppColors.textSecondary),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
             ],
             Expanded(
               child: Text(label,
@@ -585,7 +585,7 @@ class _TimeTile extends StatelessWidget {
                 color: AppColors.tealDark,
               ),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.xs),
             const Icon(Icons.chevron_right_rounded, color: AppColors.textHint, size: 20),
           ],
         ),

@@ -65,7 +65,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 SliverToBoxAdapter(child: _RecentActivity(profile: profile)),
               const SliverToBoxAdapter(child: _SettingsSection()),
               const SliverToBoxAdapter(child: _SignOutButton()),
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxxl)),
             ],
           ),
         );
@@ -126,7 +126,7 @@ class _ProfileHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               Text(
                 name,
                 style: const TextStyle(
@@ -135,7 +135,7 @@ class _ProfileHeader extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 profile.isAnonymous
                     ? 'Modo convidado'
@@ -320,7 +320,7 @@ class _ReputationCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -370,14 +370,14 @@ class _StatsRow extends StatelessWidget {
             value: '${stats?.totalReports ?? 0}',
             label: 'Avisos',
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           _StatTile(
             icon: Icons.local_fire_department_outlined,
             iconColor: AppColors.amber,
             value: profile.streak > 0 ? '${profile.streak}d' : 'N/A',
             label: 'Streak',
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           _StatTile(
             icon: Icons.gps_fixed,
             iconColor: AppColors.teal,
@@ -439,7 +439,7 @@ class _StatTile extends StatelessWidget {
                 height: 1,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xs),
             Text(
               label,
               style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
@@ -468,7 +468,7 @@ class _GuestBanner extends StatelessWidget {
         child: Row(
           children: [
             const Icon(Icons.info_outline, color: AppColors.tealDark, size: 20),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,7 +522,7 @@ class _AchievementsSection extends StatelessWidget {
           Row(
             children: [
               const Icon(Icons.emoji_events_outlined, size: 18, color: AppColors.primary),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               const Text(
                 'Conquistas',
                 style: TextStyle(
@@ -549,7 +549,7 @@ class _AchievementsSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -627,7 +627,7 @@ class _RecentActivity extends StatelessWidget {
           const Row(
             children: [
               Icon(Icons.history_rounded, size: 18, color: AppColors.primary),
-              SizedBox(width: 8),
+              SizedBox(width: AppSpacing.sm),
               Text(
                 'Atividade Recente',
                 style: TextStyle(
@@ -638,7 +638,7 @@ class _RecentActivity extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           ...profile.recentEvents.asMap().entries.map((entry) {
             final i = entry.key;
             final e = entry.value;
@@ -693,7 +693,7 @@ class _EventRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -895,12 +895,12 @@ class _ErrorView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.cloud_off_rounded, size: 52, color: AppColors.textHint),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           const Text(
             'Não foi possível carregar o perfil',
             style: TextStyle(color: AppColors.textSecondary),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           FilledButton(
             onPressed: onRetry,
             style: FilledButton.styleFrom(backgroundColor: AppColors.teal),

@@ -410,7 +410,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.sm),
                   // Beach list
                   Expanded(
                     child: beachesAsync.when(
@@ -441,7 +441,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                             controller: scrollController,
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                             itemCount: filteredBeaches.length,
-                            separatorBuilder: (_, _) => const SizedBox(height: 8),
+                            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
                             itemBuilder: (_, i) => _BeachCard(
                               beach: filteredBeaches[i],
                               selected: _selectedBeach?.slug == filteredBeaches[i].slug,
@@ -598,7 +598,7 @@ class _SelectedBeachBanner extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
@@ -635,9 +635,9 @@ class _SelectedBeachBanner extends StatelessWidget {
                         ),
                       ),
                       if (beach.occupancyLevel != 'unknown') ...[
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.sm),
                         const _Dot(),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.sm),
                         Text(
                           _occupancyLabel(beach.occupancyLevel),
                           style: const TextStyle(
@@ -803,7 +803,7 @@ class _BeachCard extends StatelessWidget {
                             ),
                           ),
                           if (beach.distanceKm != null) ...[
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.sm),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -887,7 +887,7 @@ class _BeachCard extends StatelessWidget {
                               size: 13,
                               color: AppColors.amber,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: AppSpacing.xs),
                             Text(
                               '${beach.activeAlertsCount} ${beach.activeAlertsCount == 1 ? 'alerta ativo' : 'alertas ativos'}',
                               style: TextStyle(
@@ -985,14 +985,14 @@ class _EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 52, color: AppColors.textHint),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             Text(
               message,
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
             ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.xl),
               FilledButton(
                 onPressed: onAction,
                 style: FilledButton.styleFrom(backgroundColor: AppColors.teal),

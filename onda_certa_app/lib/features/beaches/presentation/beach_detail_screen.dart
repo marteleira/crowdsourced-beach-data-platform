@@ -131,7 +131,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
               )
             : () => showFlagProposalSheet(context, widget.beach),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _OccupancyCard(
         occupancy: d?.status.occupancy,
         occupancyLevel: d?.status.occupancy.level ?? widget.beach.occupancyLevel,
@@ -139,22 +139,22 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         onImHere: _sendHeartbeat,
         sending: _sendingHeartbeat,
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _WeatherCard(weather: d?.weather),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _SeaCard(sea: d?.sea),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _TidesCard(tidesData: d?.tides ?? TidesData.empty, onViewAll: _goToTides),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _WaterQualityCard(quality: waterQuality.value),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _TransportCard(
         transport: transport.value ?? BeachTransportInfo.empty,
         isLoading: transport.isLoading,
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _PlanTripButton(),
-      const SizedBox(height: 12),
+      const SizedBox(height: AppSpacing.md),
       _CommunityAlertsCard(reports: d?.activeAlerts ?? [], beach: widget.beach),
     ];
   }
@@ -318,7 +318,7 @@ class _CardHeader extends StatelessWidget {
         const Spacer(),
         if (isLive) ...[
           Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
-          const SizedBox(width: 4),
+          const SizedBox(width: AppSpacing.xs),
           const Text('live', style: TextStyle(color: AppColors.teal, fontSize: 11, fontWeight: FontWeight.w600)),
         ],
       ],
@@ -381,7 +381,7 @@ class _FlagCard extends StatelessWidget {
           child: Row(
         children: [
           Container(width: 14, height: 14, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -392,7 +392,7 @@ class _FlagCard extends StatelessWidget {
                   children: [
                     if (flagColor != 'unknown') ...[
                       Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
-                      const SizedBox(width: 4),
+                      const SizedBox(width: AppSpacing.xs),
                     ],
                     Text(
                       flagColor != 'unknown'
@@ -405,7 +405,7 @@ class _FlagCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -421,7 +421,7 @@ class _FlagCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.xs),
               Text('${(confidence * 100).round()}% conf.', style: const TextStyle(fontSize: 10, color: AppColors.textHint)),
             ],
           ),
@@ -469,7 +469,7 @@ class _OccupancyCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _DonutChart(percentage: pct, label: levelLabel, color: color),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,7 +486,7 @@ class _OccupancyCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpacing.md),
                     OutlinedButton.icon(
                       onPressed: sending ? null : onImHere,
                       icon: sending
@@ -593,7 +593,7 @@ class _WeatherCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(title: 'Meteorologia', isLive: true),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           _metricRow([
             _MetricCell(
               icon: Icons.thermostat_outlined,
@@ -630,7 +630,7 @@ class _SeaCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _CardHeader(title: 'Condições do Mar', isLive: true),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.md),
           _metricRow([
             _MetricCell(
               icon: Icons.waves,
@@ -720,7 +720,7 @@ class _TidesCard extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: SizedBox(
                   height: 70,
@@ -763,7 +763,7 @@ class _WaterQualityCard extends StatelessWidget {
             decoration: BoxDecoration(color: AppColors.teal.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
             child: const Icon(Icons.water_drop_outlined, color: AppColors.teal, size: 22),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -789,7 +789,7 @@ class _WaterQualityCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.check_circle_outline, color: color, size: 14),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppSpacing.xs),
                 Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13)),
               ],
             ),
@@ -835,11 +835,11 @@ class _TransportCard extends StatelessWidget {
         children: [
           _CardHeader(title: 'Próximas Partidas', isLive: !isLoading),
           if (isLoading) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2))),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
           ] else if (transport.stops.isEmpty) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             const Center(child: Text('Sem informação de transportes para esta praia', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
           ] else if (!transport.hasDepartures) ...[
             const SizedBox(height: 10),
@@ -848,7 +848,7 @@ class _TransportCard extends StatelessWidget {
               const SizedBox(width: 6),
               const Text('Sem partidas previstas', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
             ]),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xs),
             Center(
               child: Text(
                 '${transport.stops.length} paragem${transport.stops.length > 1 ? 's' : ''} próxima${transport.stops.length > 1 ? 's' : ''}',
@@ -856,7 +856,7 @@ class _TransportCard extends StatelessWidget {
               ),
             ),
           ] else ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             ...transport.directions.where((d) => d.departures.isNotEmpty).map(
               (d) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -931,7 +931,7 @@ class _DepartureChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(dep.displayTime, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
           if (dep.isRealtime) ...[
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.xs),
             Container(width: 5, height: 5, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
           ],
         ],

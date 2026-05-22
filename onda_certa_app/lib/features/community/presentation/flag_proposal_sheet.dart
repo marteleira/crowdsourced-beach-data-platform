@@ -50,7 +50,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           children: [
             Column(
               children: [
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 Container(
                   width: 40, height: 4,
                   decoration: BoxDecoration(
@@ -58,7 +58,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Expanded(
                   child: SingleChildScrollView(
                     controller: controller,
@@ -95,20 +95,20 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.sm),
 
         // Header
         const Text(
           'Propor Bandeira',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.xs),
         Text(
           widget.beach.name,
           style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
 
         // Info banner
         Container(
@@ -163,25 +163,25 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
 
         // Error banners
         if (_state == _ProposeState.noRep) ...[
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           _ErrorBanner(
             icon: Icons.star_outline_rounded,
             text: 'Ainda não tens reputação suficiente (mínimo: 5). Continua a contribuir com alertas e confirmações!',
           ),
         ] else if (_state == _ProposeState.notPresent) ...[
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           _ErrorBanner(
             icon: Icons.location_off_outlined,
             text: 'Tens de estar na praia (nos últimos 10 min) para propor uma bandeira.',
           ),
         ] else if (_state == _ProposeState.unavailable) ...[
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           _ErrorBanner(
             icon: Icons.flag_outlined,
             text: 'Esta praia não tem sistema de bandeiras físicas.',
           ),
         ] else if (_state == _ProposeState.error) ...[
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           _ErrorBanner(
             icon: Icons.error_outline_rounded,
             text: 'Algo correu mal. Tenta de novo.',
@@ -291,7 +291,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
 
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
@@ -318,7 +318,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.lg),
 
         Text(
           applied
@@ -433,7 +433,7 @@ class _FlagOptionCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             Text(
               name,
               style: TextStyle(
@@ -442,7 +442,7 @@ class _FlagOptionCard extends StatelessWidget {
                 color: isSelected ? color : AppColors.primary,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xs),
             Text(
               desc,
               textAlign: TextAlign.center,

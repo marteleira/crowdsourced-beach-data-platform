@@ -78,7 +78,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           children: [
             Column(
               children: [
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 // Handle
                 Container(
                   width: 40, height: 4,
@@ -87,7 +87,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
                 Expanded(
                   child: SingleChildScrollView(
                     controller: controller,
@@ -126,7 +126,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
 
     return Column(
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
 
         // Pulsing animated flag circle
         _PulsingFlagCircle(color: color, controller: _pulseCtrl),
@@ -149,7 +149,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           ),
         ),
 
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.xs),
 
         // Beach name
         Text(
@@ -161,7 +161,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.xxl),
 
         // Animated confidence bar
         _AnimatedConfidenceBar(color: color, confidence: confidence),
@@ -182,7 +182,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
 
         // Error / rate limit feedback
         if (_state == _ConfirmState.rateLimited) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           _InfoBanner(
             icon: Icons.hourglass_top_rounded,
             text: 'Já confirmaste a bandeira desta praia na última hora.',
@@ -190,7 +190,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
             textColor: AppColors.primary,
           ),
         ] else if (_state == _ConfirmState.error) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           _InfoBanner(
             icon: Icons.error_outline_rounded,
             text: 'Algo correu mal. Tenta de novo.',
@@ -346,7 +346,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           style: TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.5),
         ),
 
-        const SizedBox(height: 32),
+        const SizedBox(height: AppSpacing.xxxl),
 
         Container(
           width: double.infinity,
@@ -503,7 +503,7 @@ class _AnimatedConfidenceBar extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.sm),
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(

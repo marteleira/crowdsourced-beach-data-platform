@@ -58,7 +58,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 Text(
                   _isRegister ? 'Criar conta' : 'Entrar',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -66,7 +66,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.sm),
                 Text(
                   _isRegister
                       ? 'Regista-te para contribuíres com a comunidade'
@@ -75,7 +75,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                         color: AppColors.textSecondary,
                       ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.xxxl),
                 if (_isRegister) ...[
                   _buildField(
                     controller: _nameCtrl,
@@ -85,7 +85,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? 'Introduz o teu nome' : null,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                 ],
                 _buildField(
                   controller: _emailCtrl,
@@ -99,10 +99,10 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 _buildPasswordField(),
                 if (_errorMessage != null) ...[
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.lg),
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
@@ -114,7 +114,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                       children: [
                         const Icon(Icons.error_outline,
                             color: AppColors.coral, size: 18),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.sm),
                         Expanded(
                           child: Text(
                             _errorMessage!,
@@ -159,7 +159,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                           ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.xl),
                 GestureDetector(
                   onTap: () => setState(() {
                     _isRegister = !_isRegister;
@@ -189,7 +189,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.xxxl),
               ],
             ),
           ),

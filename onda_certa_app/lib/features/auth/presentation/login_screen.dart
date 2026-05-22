@@ -41,7 +41,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               const Spacer(flex: 3),
               _AppIcon(),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xxl),
               Text(
                 'OndaCerta',
                 textAlign: TextAlign.center,
@@ -52,7 +52,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       letterSpacing: -0.5,
                     ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 'Real beaches. Real conditions.',
                 textAlign: TextAlign.center,
@@ -61,7 +61,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       fontWeight: FontWeight.w400,
                     ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 'Arrábida Natural Park · Portugal',
                 textAlign: TextAlign.center,
@@ -74,11 +74,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 loading: _googleLoading,
                 onTap: _handleGoogleSignIn,
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               _EmailButton(
                 onTap: () => context.push('/login/email'),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: AppSpacing.xl),
               GestureDetector(
                 onTap: _guestLoading ? null : _handleGuestSignIn,
                 child: Center(
@@ -99,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const Spacer(flex: 1),
               _Footer(),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
             ],
           ),
         ),
@@ -211,7 +211,7 @@ class _GoogleButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _GoogleGLogo(),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   const Text(
                     'Entrar com Google',
                     style: TextStyle(
