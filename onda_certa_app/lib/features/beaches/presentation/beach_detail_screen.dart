@@ -10,6 +10,7 @@ import '../domain/beach_models.dart';
 import '../../../features/community/presentation/flag_confirmation_sheet.dart';
 import '../../../features/community/presentation/flag_proposal_sheet.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/tide_chart.dart';
 
@@ -368,7 +369,7 @@ class _FlagCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, label) = _flagInfo(flagColor);
+    final (color, label) = flagInfo(flagColor);
     final confidence = flagConfidence ?? 0.7;
 
     return Material(
@@ -432,15 +433,6 @@ class _FlagCard extends StatelessWidget {
     );
   }
 
-  (Color, String) _flagInfo(String flag) {
-    switch (flag) {
-      case 'green':  return (AppColors.flagGreen,    'Segura para nadar');
-      case 'yellow': return (AppColors.flagYellow,   'Cuidado ao nadar');
-      case 'red':    return (AppColors.flagRed,      'Condições perigosas');
-      case 'purple': return (AppColors.flagPurple,   'Praia fechada');
-      default:       return (AppColors.textSecondary, 'Estado desconhecido');
-    }
-  }
 }
 
 class _OccupancyCard extends StatelessWidget {
@@ -457,7 +449,7 @@ class _OccupancyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userCount = occupancy?.userCount ?? 0;
-    final (pct, levelLabel, color) = _occupancyInfo(occupancyLevel, userCount);
+    final (pct, levelLabel, color) = occupancyInfo(occupancyLevel, userCount, maxCapacity: maxCapacity);
 
     return _SectionCard(
       child: Column(
@@ -511,21 +503,6 @@ class _OccupancyCard extends StatelessWidget {
     );
   }
 
-  (double, String, Color) _occupancyInfo(String level, int userCount) {
-    // Use real capacity data when available
-    if (maxCapacity != null && maxCapacity! > 0) {
-      final pct = (userCount / maxCapacity!).clamp(0.0, 1.0);
-      final label = pct < 0.35 ? 'Tranquila' : pct < 0.70 ? 'Animada' : 'Cheia';
-      final color = pct < 0.35 ? AppColors.flagGreen : pct < 0.70 ? AppColors.sand : AppColors.coral;
-      return (pct, label, color);
-    }
-    switch (level) {
-      case 'low':    return (0.22, 'Tranquila', AppColors.flagGreen);
-      case 'normal': return (0.55, 'Animada',   AppColors.sand);
-      case 'high':   return (0.85, 'Cheia',     AppColors.coral);
-      default:       return (0.0,  'Desconhecida', AppColors.textHint);
-    }
-  }
 }
 
 class _DonutChart extends StatelessWidget {
@@ -752,7 +729,7 @@ class _WaterQualityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, label) = _qualityInfo(quality?.classification);
+    final (color, label) = waterQualityInfo(quality?.classification);
     final cacheStr = _cacheStr(quality);
 
     return _SectionCard(
@@ -797,16 +774,6 @@ class _WaterQualityCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  (Color, String) _qualityInfo(String? raw) {
-    switch ((raw ?? '').toLowerCase()) {
-      case 'excelente': case 'excellent': return (AppColors.flagGreen,    'Excelente');
-      case 'boa':       case 'good':      return (AppColors.teal,         'Boa');
-      case 'suficiente': case 'sufficient': return (AppColors.flagYellow, 'Suficiente');
-      case 'má':        case 'poor':      return (AppColors.flagRed,      'Má');
-      default:                             return (AppColors.textSecondary, 'Desconhecida');
-    }
   }
 
   String? _cacheStr(WaterQuality? q) {

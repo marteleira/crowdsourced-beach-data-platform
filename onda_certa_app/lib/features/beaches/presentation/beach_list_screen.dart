@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/beach_helpers.dart';
 
 class BeachListScreen extends ConsumerStatefulWidget {
   const BeachListScreen({super.key});
@@ -639,7 +640,7 @@ class _SelectedBeachBanner extends StatelessWidget {
                         const _Dot(),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
-                          _occupancyLabel(beach.occupancyLevel),
+                          occupancyLabel(beach.occupancyLevel),
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
@@ -676,12 +677,6 @@ class _SelectedBeachBanner extends StatelessWidget {
     );
   }
 
-  String _occupancyLabel(String level) => switch (level) {
-    'low' => 'Tranquila',
-    'medium' => 'Moderada',
-    'high' => 'Lotada',
-    _ => '',
-  };
 }
 
 // ── List widgets ─────────────────────────────────────────────────────────────
@@ -842,7 +837,7 @@ class _BeachCard extends StatelessWidget {
                           _StatusDot(color: flagColor),
                           const SizedBox(width: 5),
                           Text(
-                            _flagLabel(beach.flagColor),
+                            flagLabel(beach.flagColor),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -854,7 +849,7 @@ class _BeachCard extends StatelessWidget {
                             const _Dot(),
                             const SizedBox(width: 10),
                             Text(
-                              _occupancyLabel(beach.occupancyLevel),
+                              occupancyLabel(beach.occupancyLevel),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary,
@@ -925,20 +920,6 @@ class _BeachCard extends StatelessWidget {
   String _formatDist(double km) =>
       km < 1 ? '${(km * 1000).round()} m' : '${km.toStringAsFixed(1)} km';
 
-  String _flagLabel(String color) => switch (color) {
-    'green' => 'Segura',
-    'yellow' => 'Cuidado',
-    'red' => 'Perigo',
-    'purple' => 'Encerrada',
-    _ => 'Sem dados',
-  };
-
-  String _occupancyLabel(String level) => switch (level) {
-    'low' => 'Tranquila',
-    'medium' => 'Moderada',
-    'high' => 'Lotada',
-    _ => '',
-  };
 }
 
 class _StatusDot extends StatelessWidget {
