@@ -19,7 +19,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
         surfaceTintColor: Colors.transparent,
         title: const Text(
           'Notificações',
-          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.primary),
+          style: AppTextStyles.subtitle,
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.primary),
@@ -375,7 +375,7 @@ class _SwitchTile extends StatelessWidget {
                 if (subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(subtitle!,
-                      style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                      style: AppTextStyles.hint),
                 ],
               ],
             ),
@@ -432,7 +432,7 @@ class _SliderTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(label,
-                        style: const TextStyle(fontSize: 15, color: AppColors.primary)),
+                        style: AppTextStyles.primaryMd),
                     Text(format(value),
                         style: const TextStyle(
                             fontSize: 13,
@@ -575,7 +575,7 @@ class _TimeTile extends StatelessWidget {
             ],
             Expanded(
               child: Text(label,
-                  style: const TextStyle(fontSize: 15, color: AppColors.primary)),
+                  style: AppTextStyles.primaryMd),
             ),
             Text(
               time,

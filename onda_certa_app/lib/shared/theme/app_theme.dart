@@ -39,6 +39,36 @@ class AppColors {
   };
 }
 
+class AppTextStyles {
+  // Secondary (gray) — subtitles, captions
+  static const secondaryXs = TextStyle(fontSize: 10, color: AppColors.textSecondary);
+  static const secondarySm = TextStyle(fontSize: 11, color: AppColors.textSecondary);
+  static const secondary   = TextStyle(fontSize: 12, color: AppColors.textSecondary);
+  static const secondaryMd = TextStyle(fontSize: 13, color: AppColors.textSecondary);
+  static const secondaryLg = TextStyle(fontSize: 15, color: AppColors.textSecondary);
+
+  // Hint (lighter gray) — placeholders, less important info
+  static const hintXs = TextStyle(fontSize: 10, color: AppColors.textHint);
+  static const hintSm = TextStyle(fontSize: 11, color: AppColors.textHint);
+  static const hint   = TextStyle(fontSize: 12, color: AppColors.textHint);
+
+  // Primary bold titles
+  static const titleSm = TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.primary);
+  static const titleMd = TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary);
+  static const titleLg = TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary);
+  static const titleXl = TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.primary);
+
+  // Primary non-bold
+  static const primaryMd = TextStyle(fontSize: 15, color: AppColors.primary);
+  static const subtitle   = TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppColors.primary);
+
+  // Teal accent
+  static const tealLabel = TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.tealDark);
+
+  // White small label
+  static const whiteLabel = TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white);
+}
+
 class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;

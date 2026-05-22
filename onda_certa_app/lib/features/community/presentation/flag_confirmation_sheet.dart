@@ -360,7 +360,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
             children: [
               const Text(
                 'Confiança da comunidade',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: AppTextStyles.secondaryMd,
               ),
               const SizedBox(height: 14),
               _AnimatedConfidenceBar(color: color, confidence: confidence),
@@ -493,7 +493,7 @@ class _AnimatedConfidenceBar extends StatelessWidget {
             children: [
               const Text(
                 'Confiança da comunidade',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: AppTextStyles.secondaryMd,
               ),
               Text(
                 '${(value * 100).round()}% confiança',

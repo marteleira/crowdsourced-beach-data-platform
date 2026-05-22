@@ -271,7 +271,7 @@ class _ReputationCard extends StatelessWidget {
                   children: [
                     Text(
                       'Próximo nível',
-                      style: TextStyle(fontSize: 11, color: AppColors.textHint),
+                      style: AppTextStyles.hintSm,
                     ),
                     Text(
                       info.next!,
@@ -283,7 +283,7 @@ class _ReputationCard extends StatelessWidget {
                     ),
                     Text(
                       '$ptsToGo pts restantes',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: AppTextStyles.secondary,
                     ),
                   ],
                 )
@@ -326,12 +326,12 @@ class _ReputationCard extends StatelessWidget {
             children: [
               Text(
                 '${info.label} (${info.min})',
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                style: AppTextStyles.secondarySm,
               ),
               if (info.next != null)
                 Text(
                   '${info.next} (${info.max})',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: AppTextStyles.secondarySm,
                 ),
             ],
           ),
@@ -442,7 +442,7 @@ class _StatTile extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               label,
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: AppTextStyles.secondary,
             ),
           ],
         ),
@@ -484,7 +484,7 @@ class _GuestBanner extends StatelessWidget {
                   const SizedBox(height: 2),
                   const Text(
                     'Cria uma conta para guardar as tuas contribuições.',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: AppTextStyles.secondary,
                   ),
                 ],
               ),
@@ -711,7 +711,7 @@ class _EventRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _timeAgo(event.createdAt),
-                  style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                  style: AppTextStyles.hint,
                 ),
               ],
             ),
@@ -820,7 +820,7 @@ class _SettingsTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 15, color: AppColors.primary),
+                style: AppTextStyles.primaryMd,
               ),
             ),
             const Icon(Icons.chevron_right_rounded, color: AppColors.textHint, size: 20),

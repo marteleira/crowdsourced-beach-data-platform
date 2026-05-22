@@ -591,7 +591,7 @@ class _TodayTidesSection extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
-        child: const Center(child: Text('Sem dados de marés disponíveis', style: TextStyle(color: AppColors.textSecondary, fontSize: 13))),
+        child: const Center(child: Text('Sem dados de marés disponíveis', style: AppTextStyles.secondaryMd)),
       );
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -627,16 +627,16 @@ class _TideRow extends StatelessWidget {
       child: Row(children: [
         Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 14),
-        Text(entry.time, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary)),
+        Text(entry.time, style: AppTextStyles.titleMd),
         const Spacer(),
         Text.rich(TextSpan(children: [
           TextSpan(
             text: '${entry.height.toStringAsFixed(1)} m',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+            style: AppTextStyles.titleMd,
           ),
           TextSpan(
             text: '  ${isHigh ? 'alta' : 'baixa'}',
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            style: AppTextStyles.secondaryMd,
           ),
         ])),
       ]),
