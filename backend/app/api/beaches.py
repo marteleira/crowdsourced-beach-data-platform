@@ -16,7 +16,7 @@ from app.models.user import User
 from app.schemas.beach import BeachSummary, BeachFullResponse, BeachStatusResponse, OccupancyData
 from app.services.activity import get_activity_level, get_params
 from app.services.snapshot import fetch_with_fallback
-from app.services import ipma, hidrografico, apa, carris
+from app.services import ipma, hidrografico, eea, carris
 
 router = APIRouter(prefix="/beaches", tags=["beaches"])
 
@@ -237,11 +237,11 @@ async def get_beach(
         except Exception:
             pass
 
-    if beach.apa_station_id:
+    if beach.eea_station_id:
         try:
             raw, source, snap_at = await fetch_with_fallback(
                 db, "water_quality",
-                lambda: apa.fetch_water_quality(beach.apa_station_id),
+                lambda: eea.fetch_water_quality(beach.eea_station_id),
                 beach_id=beach.id,
             )
             water_quality = {**raw, "data_source": source, "snapshot_at": snap_at}

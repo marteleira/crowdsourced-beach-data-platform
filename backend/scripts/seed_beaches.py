@@ -5,8 +5,8 @@ IPMA global IDs for the Setúbal region:
   Weather (Setúbal): 1151200  — from distrits-islands.json
   Sea (Arrábida coast): 1111026  — lat 38.65 lon -9.31, from hp-daily-sea-forecast-day0.json
 
-APA station IDs are provisional — verify against
-https://sniamb.apambiente.pt/infobathing
+EEA station IDs (bathingWaterIdentifier) — verify against
+https://www.eea.europa.eu/en/analysis/maps-and-charts/state-of-bathing-waters
 
 Instituto Hidrográfico station IDs — verify against
 https://api-features.hidrografico.pt/collections/PortosEstacoes/items
@@ -31,7 +31,7 @@ BEACHES = [
         "lon": -8.978540,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCW2P",
+        "eea_station_id": "PTCW2P",
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": 800,
@@ -45,7 +45,7 @@ BEACHES = [
         "lon": -8.968473,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCW7E",
+        "eea_station_id": "PTCW7E",
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": None,
@@ -59,7 +59,7 @@ BEACHES = [
         "lon": -8.963943,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCT8X",
+        "eea_station_id": "PTCT8X",
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": None,
@@ -73,7 +73,7 @@ BEACHES = [
         "lon": -8.977562,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCW2P",
+        "eea_station_id": "PTCW2P",
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": 600,
@@ -87,7 +87,7 @@ BEACHES = [
         "lon": -8.944748,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCJ7C",
+        "eea_station_id": "PTCJ7C",
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": 1200,
@@ -101,7 +101,7 @@ BEACHES = [
         "lon": -8.934784,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": 2000,
@@ -115,7 +115,7 @@ BEACHES = [
         "lon": -9.103129,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCT2H",
+        "eea_station_id": "PTCT2H",
         "tide_station_id": "PT_151101_1",
         "has_capacity_data": False,
         "max_capacity": 3000,
@@ -129,7 +129,7 @@ BEACHES = [
         "lon": -9.105478,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCT2H",
+        "eea_station_id": "PTCT2H",
         "tide_station_id": "PT_151101_1",
         "has_capacity_data": False,
         "max_capacity": 500,
@@ -143,7 +143,7 @@ BEACHES = [
         "lon": -9.095100,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": "PTCQ7V",
+        "eea_station_id": "PTCQ7V",
         "tide_station_id": "PT_151101_1",
         "has_capacity_data": False,
         "max_capacity": 300,
@@ -157,7 +157,7 @@ BEACHES = [
         "lon": -9.130301,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_151101_1",   # 1.9km vs 21km — clearly Sesimbra station
         "has_capacity_data": False,
         "max_capacity": None,               # pandemic value removed — no official limit
@@ -171,7 +171,7 @@ BEACHES = [
         "lon": -8.990139,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_150505_2",   # new coords in Arrábida: 8.3km vs 10.9km
         "has_capacity_data": False,
         "max_capacity": None,               # pandemic value removed
@@ -185,7 +185,7 @@ BEACHES = [
         "lon": -8.970491,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,           # small natural beach, no official APA monitoring
+        "eea_station_id": None,           # small natural beach, no EEA monitoring station
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": None,
@@ -199,7 +199,7 @@ BEACHES = [
         "lon": -8.969542,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": None,
@@ -213,7 +213,7 @@ BEACHES = [
         "lon": -8.972535,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": None,
@@ -227,7 +227,7 @@ BEACHES = [
         "lon": -8.984338,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_150505_2",
         "has_capacity_data": False,
         "max_capacity": None,
@@ -241,7 +241,7 @@ BEACHES = [
         "lon": -9.043049,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_151101_1",  # 5.9km vs 13.5km
         "has_capacity_data": False,
         "max_capacity": None,
@@ -255,7 +255,7 @@ BEACHES = [
         "lon": -9.059571,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_151101_1",  # 4.4km vs 15.0km
         "has_capacity_data": False,
         "max_capacity": None,
@@ -269,7 +269,7 @@ BEACHES = [
         "lon": -9.145722,
         "ipma_global_id": 1151200,
         "ipma_sea_global_id": 1111026,
-        "apa_station_id": None,
+        "eea_station_id": None,
         "tide_station_id": "PT_151101_1",  # 3.2km vs 22.5km
         "has_capacity_data": False,
         "max_capacity": None,
@@ -298,7 +298,7 @@ async def seed():
                 beach.geom = geom
                 beach.ipma_global_id = data.get("ipma_global_id")
                 beach.ipma_sea_global_id = data.get("ipma_sea_global_id")
-                beach.apa_station_id = data.get("apa_station_id")
+                beach.eea_station_id = data.get("eea_station_id")
                 beach.tide_station_id = data.get("tide_station_id")
                 beach.has_capacity_data = data.get("has_capacity_data", False)
                 beach.max_capacity = data.get("max_capacity")
@@ -315,7 +315,7 @@ async def seed():
                 geom=geom,
                 ipma_global_id=data.get("ipma_global_id"),
                 ipma_sea_global_id=data.get("ipma_sea_global_id"),
-                apa_station_id=data.get("apa_station_id"),
+                eea_station_id=data.get("eea_station_id"),
                 tide_station_id=data.get("tide_station_id"),
                 has_capacity_data=data.get("has_capacity_data", False),
                 max_capacity=data.get("max_capacity"),

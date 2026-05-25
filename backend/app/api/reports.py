@@ -130,7 +130,7 @@ async def vote_report(
     )
     report = result.scalar_one_or_none()
     if not report or report.is_expired:
-        raise HTTPException(404, "Report não encontrado ou expirado")
+        raise HTTPException(404, "Aviso não encontrado ou expirado")
 
     # Presence required for all votes:
     vote_value = 1 if body.vote == "up" else -1
@@ -195,9 +195,9 @@ async def delete_report(
     )
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(404, "Report não encontrado")
+        raise HTTPException(404, "Aviso não encontrado")
     if report.user_id != user.id:
-        raise HTTPException(403, "Não podes apagar reports de outros utilizadores")
+        raise HTTPException(403, "Não podes apagar avisos de outros utilizadores")
 
     report.is_expired = True
     await db.commit()

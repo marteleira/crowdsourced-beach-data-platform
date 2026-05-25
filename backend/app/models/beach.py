@@ -22,7 +22,7 @@ class Beach(Base):
     # External API identifiers (nullable – not all APIs cover every beach)
     ipma_global_id = Column(Integer)
     ipma_sea_global_id = Column(Integer)
-    apa_station_id = Column(Text)
+    eea_station_id = Column(Text)
     tide_station_id = Column(Text)
 
     # Capacity
