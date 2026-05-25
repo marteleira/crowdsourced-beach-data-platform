@@ -1,6 +1,6 @@
 # Arrábida Backend
 
-REST API for the OndaCerta platform. Pulls official data from IPMA, Instituto Hidrográfico, APA InfoÁgua and Carris Metropolitana, and exposes a community layer for real-time beach conditions — reports, flags, occupancy, reputation.
+REST API for the OndaCerta platform. Pulls official data from IPMA, Instituto Hidrográfico, EEA DiscoData and Carris Metropolitana, and exposes a community layer for real-time beach conditions — reports, flags, occupancy, reputation.
 
 ---
 
@@ -114,30 +114,36 @@ alembic downgrade -1
 alembic revision --autogenerate -m "description"
 ```
 
-There are three migrations:
+There are four migrations:
 - `0001` — core schema (beaches, users, reports, flags, snapshots, etc.)
 - `0002` — favourites, push tokens, achievements, notification/privacy settings
 - `0003` — tide observations and fitted harmonic model coefficients
+- `0004` — rename `apa_station_id` → `eea_station_id`
 
 ### Seed data
 
-The seed script inserts the 13 Arrábida beaches with coordinates, IPMA forecast IDs, APA station IDs, Instituto Hidrográfico station IDs, and Carris Metropolitana stop IDs:
+The seed script inserts the 18 Arrábida beaches with coordinates, IPMA forecast IDs, EEA bathing water identifiers, Instituto Hidrográfico station IDs, and Carris Metropolitana stop IDs:
 
 ```bash
 python scripts/seed_beaches.py
 ```
 
-> **Note:** APA station IDs are provisional placeholders — verify against the live API before going to production.
+The script is idempotent — re-running it updates existing records rather than duplicating them.
+
+If you need to update just the EEA identifiers for a set of beaches there's a ready-made SQL script for that:
+```bash
+psql -U postgres -d arrabida -f scripts/update_eea_station_ids.sql
+```
 
 ### Schema overview
 
 | Table | Purpose |
 |---|---|
-| `beaches` | Master list of beaches with external API identifiers |
+| `beaches` | Curated list of beaches with external API identifiers |
 | `users` | Accounts (email/password, Google, anonymous guest) |
 | `refresh_tokens` | Server-side refresh token store for revocation |
 | `reputation_events` | Immutable audit log of every reputation change |
-| `reports` | Community alerts (jellyfish, current, pollution, etc.) |
+| `reports` | Community alerts (jellyfish, strong current, pollution, etc.) |
 | `report_votes` | One vote per user per report |
 | `beach_status` | Current flag colour + confidence score per beach |
 | `flag_proposals` | Proposed flag changes pending community confirmation |
@@ -205,7 +211,7 @@ backend/
 │   │   ├── beaches.py              # GET /beaches, GET /beaches/{slug}
 │   │   ├── weather.py              # GET /beaches/{slug}/weather  (IPMA)
 │   │   ├── tides.py                # GET /beaches/{slug}/tides    (Instituto Hidrográfico)
-│   │   ├── water_quality.py        # GET /beaches/{slug}/water-quality  (APA)
+│   │   ├── water_quality.py        # GET /beaches/{slug}/water-quality  (EEA)
 │   │   ├── transport.py            # GET /beaches/{slug}/transport  (Carris)
 │   │   ├── reports.py              # Community alerts + voting
 │   │   ├── flags.py                # Flag proposals + confirmation
@@ -218,14 +224,14 @@ backend/
 │   ├── core/
 │   │   ├── config.py               # Settings (pydantic-settings, .env)
 │   │   ├── database.py             # Async engine + session factory
-│   │   ├── deps.py                 # FastAPI dependencies (auth guards)
+│   │   ├── deps.py                 # Shared dependencies: auth guards, get_beach_or_404, was_recently_present
 │   │   └── security.py             # JWT, bcrypt, Google token verification
 │   ├── models/                     # SQLAlchemy ORM models
 │   ├── schemas/                    # Pydantic request/response models
 │   ├── services/
 │   │   ├── ipma.py                 # IPMA weather + sea forecast client
 │   │   ├── hidrografico.py         # IH tide observations + harmonic model
-│   │   ├── apa.py                  # APA bathing water quality client
+│   │   ├── eea.py                  # EEA DiscoData client — bathing water quality
 │   │   ├── carris.py               # Carris Metropolitana client
 │   │   ├── snapshot.py             # fetch_with_fallback — live → cache
 │   │   ├── activity.py             # Beach activity level + dynamic parameters
@@ -240,7 +246,8 @@ backend/
 │   └── versions/
 │       ├── 0001_initial_schema.py
 │       ├── 0002_favourites_notifications_privacy.py
-│       └── 0003_tide_observations.py
+│       ├── 0003_tide_observations.py
+│       └── 0004_rename_apa_station_id_to_eea.py
 ├── tests/
 │   ├── conftest.py
 │   ├── test_auth.py
@@ -254,8 +261,10 @@ backend/
 │   ├── test_notifications_privacy.py
 │   └── test_map.py
 ├── scripts/
-│   ├── seed_beaches.py             # Insert the 13 Arrábida beaches
-│   └── populate_tide_observations.py  # Bootstrap IH historical tide data
+│   ├── seed_beaches.py                # Insert the 18 Arrábida beaches
+│   ├── populate_tide_observations.py  # Bootstrap IH historical tide data
+│   ├── update_eea_station_ids.sql     # Update EEA identifiers for existing beaches
+│   └── generate_er_diagram.py        # Generate ER diagram from the live schema
 ├── alembic.ini
 ├── pytest.ini
 ├── requirements.txt
@@ -284,12 +293,12 @@ All endpoints are prefixed with `/api/v1`.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/beaches` | Optional | List all beaches. Pass `?lat=&lon=` for proximity-ranked results with scores |
+| `GET` | `/beaches` | Optional | List all beaches. Pass `?lat=&lon=` for proximity-ranked results with recommendation scores |
 | `GET` | `/beaches/{slug}` | Optional | Full beach detail — conditions, alerts, weather, tides, transport |
 | `GET` | `/beaches/{slug}/weather` | — | IPMA 5-day weather forecast |
 | `GET` | `/beaches/{slug}/sea` | — | IPMA sea state (wave height, period, sea temperature) |
 | `GET` | `/beaches/{slug}/tides` | — | Tide table from the harmonic model (see below) |
-| `GET` | `/beaches/{slug}/water-quality` | — | APA bathing water classification |
+| `GET` | `/beaches/{slug}/water-quality` | — | EEA bathing water classification |
 | `GET` | `/beaches/{slug}/transport` | — | Next Carris bus departures from nearby stops |
 
 ### Community layer
@@ -309,7 +318,7 @@ All endpoints are prefixed with `/api/v1`.
 
 | Method | Path | Auth | Description |
 |---|---|---|---|
-| `GET` | `/map/users` | Optional | Active users grouped by beach. `user_count` includes everyone; `users` array respects privacy settings |
+| `GET` | `/map/users` | Optional | Active users grouped by beach. `user_count` includes everyone; `users` array respects individual privacy settings |
 
 ### Users & profile
 
@@ -363,11 +372,13 @@ All endpoints are prefixed with `/api/v1`.
 - **Result:** Tide predictions that get better over time as more observations accumulate. After ~30 days the accuracy is typically ±10 minutes.
 - **Stations used:** `PT_150505_2` (Setúbal-Tróia), `PT_151101_1` (Sesimbra)
 
-### APA InfoÁgua — bathing water quality
-- **Base URL:** `https://sniamb.apambiente.pt/api`
+### EEA DiscoData — bathing water quality
+- **Base URL:** `https://discodata.eea.europa.eu/sql`
 - **Auth:** None
-- **Update frequency:** Daily (lab analysis results)
-- **Fallback:** GeoServer WFS endpoint at `geo.snirh.apambiente.pt` if the REST API is down
+- **Data source:** European Environment Agency WISE Bathing Water Directive (WISE_BWD database)
+- **Update frequency:** Once per year, at the end of each bathing season
+- **How it works:** Parameterised SQL query against the `WISE_BWD` database for the most recent annual classification of a specific bathing site. Each beach stores an `eea_station_id` which is the EEA `bathingWaterIdentifier` (e.g. `"PTCW2P"`).
+- **Classifications:** Excellent / Good / Sufficient / Poor
 
 ### Carris Metropolitana — public transport
 - **Base URL:** `https://api.carrismetropolitana.pt`
@@ -384,7 +395,7 @@ Every successful response from an external API is saved to `api_snapshots`. If a
 
 ## Key design decisions
 
-**Beaches as the anchor entity.** The 13 beaches are a fixed, curated list. Each row stores the identifiers for all four external data sources, so the API always knows exactly which IPMA ID, IH station, APA station, and Carris stops to use for a given beach — no geocoding or discovery at request time.
+**Beaches as the anchor entity.** The 18 beaches are a fixed, curated list. Each row stores the identifiers for all four external data sources, so the API always knows exactly which IPMA ID, IH station, EEA identifier, and Carris stops to use for a given beach — no geocoding or discovery at request time.
 
 **Presence as a trust signal.** Submitting reports and voting both require a recent heartbeat at the beach (occupancy ping within the last 1–2 hours). This ties reputation to actual physical presence and makes remote manipulation of community data much harder.
 
