@@ -10,7 +10,7 @@ from app.core.database import get_db
 from app.core.deps import require_user
 from app.models.user import User, ReputationEvent
 from app.models.report import Report
-from app.models.user_extended import DEFAULT_PRIVACY_SETTINGS
+from app.models.user_extended import effective_privacy_settings
 
 router = APIRouter(prefix="/users/me", tags=["privacy"])
 
@@ -27,19 +27,12 @@ class DeleteAccountRequest(BaseModel):
     confirmation: str   # must equal "APAGAR"
 
 
-def _effective_privacy_settings(user: User) -> dict:
-    base = dict(DEFAULT_PRIVACY_SETTINGS)
-    if user.privacy_settings:
-        base.update(user.privacy_settings)
-    return base
-
-
 @router.get("/privacy-settings")
 async def get_privacy_settings(
     user: User = Depends(require_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return _effective_privacy_settings(user)
+    return effective_privacy_settings(user)
 
 
 @router.patch("/privacy-settings")
@@ -48,7 +41,7 @@ async def update_privacy_settings(
     user: User = Depends(require_user),
     db: AsyncSession = Depends(get_db),
 ):
-    current = _effective_privacy_settings(user)
+    current = effective_privacy_settings(user)
     current.update(body.model_dump(exclude_none=True))
     user.privacy_settings = current
     db.add(user)

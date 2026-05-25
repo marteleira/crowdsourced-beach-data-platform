@@ -16,20 +16,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
-from app.models.user_extended import PushToken, UserFavourite, DEFAULT_NOTIFICATION_SETTINGS
+from app.models.user_extended import PushToken, UserFavourite, effective_notification_settings
 from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
 CHECKIN_WINDOW_MINUTES = 180   # 3h active check-in session
 PROXIMITY_WINDOW_MINUTES = 20  # GPS within radius
-
-
-def _effective_settings(user: User) -> dict:
-    base = dict(DEFAULT_NOTIFICATION_SETTINGS)
-    if user.notification_settings:
-        base.update(user.notification_settings)
-    return base
 
 
 def _in_quiet_hours(settings: dict) -> bool:
@@ -99,7 +92,7 @@ async def dispatch_report_notification(
         if not user or user.is_banned:
             continue
 
-        settings = _effective_settings(user)
+        settings = effective_notification_settings(user)
 
         if not settings.get("global_enabled"):
             continue

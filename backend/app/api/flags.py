@@ -5,9 +5,8 @@ from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_user
-from app.models.beach import Beach
-from app.models.beach_status import BeachStatus, FlagProposal, FlagConfirmation, OccupancyHeartbeat
+from app.core.deps import get_current_user, require_user, get_beach_or_404, was_recently_present
+from app.models.beach_status import BeachStatus, FlagProposal, FlagConfirmation
 from app.models.user import User
 from app.schemas.flag import (
     FlagProposalRequest, FlagProposalResponse,
@@ -22,26 +21,6 @@ router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
 MIN_REPUTATION_TO_PROPOSE = 5
 
 
-async def _get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
-    result = await db.execute(select(Beach).where(Beach.slug == slug))
-    beach = result.scalar_one_or_none()
-    if not beach:
-        raise HTTPException(404, f"Praia '{slug}' não encontrada")
-    return beach
-
-
-async def _was_recently_present(db: AsyncSession, user_id, beach_id: int, minutes: int = 10) -> bool:
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=minutes)
-    result = await db.execute(
-        select(OccupancyHeartbeat.id).where(
-            OccupancyHeartbeat.user_id == user_id,
-            OccupancyHeartbeat.beach_id == beach_id,
-            OccupancyHeartbeat.created_at > cutoff,
-        ).limit(1)
-    )
-    return result.scalar_one_or_none() is not None
-
-
 async def _ensure_beach_status(db: AsyncSession, beach_id: int) -> BeachStatus:
     result = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach_id))
     status = result.scalar_one_or_none()
@@ -54,7 +33,7 @@ async def _ensure_beach_status(db: AsyncSession, beach_id: int) -> BeachStatus:
 
 @router.get("", response_model=BeachFlagStatus)
 async def get_flag_status(slug: str, db: AsyncSession = Depends(get_db)):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
     status = await _ensure_beach_status(db, beach.id)
     activity_level = await get_activity_level(db, beach.id)
     label = get_params(activity_level)["label"]
@@ -77,11 +56,11 @@ async def propose_flag(
     if user.reputation < MIN_REPUTATION_TO_PROPOSE:
         raise HTTPException(403, f"Reputação mínima necessária: {MIN_REPUTATION_TO_PROPOSE}")
 
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
     if not beach.flags_available:
         raise HTTPException(400, "Esta praia não tem sistema de bandeiras")
 
-    present = await _was_recently_present(db, user.id, beach.id, minutes=10)
+    present = await was_recently_present(db, user.id, beach.id, window=timedelta(minutes=10))
     if not present:
         raise HTTPException(403, "Tens de estar na praia para propor uma bandeira")
 
@@ -144,7 +123,7 @@ async def confirm_flag(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
 ):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
     status = await _ensure_beach_status(db, beach.id)
 
     if status.flag_color == "unknown":
