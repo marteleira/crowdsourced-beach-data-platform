@@ -1,18 +1,19 @@
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, func, literal
 from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2.functions import ST_Distance, ST_GeogFromText
 
+from app.api.transport import _group_by_direction
 from app.core.database import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_beach_or_404, get_current_user
 from app.models.beach import Beach
 from app.models.beach_status import BeachStatus, OccupancyHeartbeat
 from app.models.report import Report
 from app.models.user import User
-from app.schemas.beach import BeachSummary, BeachDetail, BeachFullResponse, BeachStatusResponse, OccupancyData
+from app.schemas.beach import BeachSummary, BeachFullResponse, BeachStatusResponse, OccupancyData
 from app.services.activity import get_activity_level, get_params
 from app.services.snapshot import fetch_with_fallback
 from app.services import ipma, hidrografico, apa, carris
@@ -29,23 +30,12 @@ def _recommendation_score(distance_km: float, flag_color: str,
     flag          = FLAG_SCORE.get(flag_color, 0.4)
     occupancy     = OCCUPANCY_SCORE.get(occupancy_level, 0.5)
     alert_penalty = min(1.0, alerts_count / 5.0)
-    """
     return (
         0.40 * proximity
         + 0.30 * flag
         + 0.20 * occupancy
         + 0.10 * (1.0 - alert_penalty)
     )
-    """
-    return proximity
-
-
-async def _get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
-    result = await db.execute(select(Beach).where(Beach.slug == slug))
-    beach = result.scalar_one_or_none()
-    if not beach:
-        raise HTTPException(404, f"Praia '{slug}' não encontrada")
-    return beach
 
 
 async def _compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
@@ -192,7 +182,7 @@ async def get_beach(
     db: AsyncSession = Depends(get_db),
     _user: Optional[User] = Depends(get_current_user),
 ):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
     activity_level = await get_activity_level(db, beach.id)
     params = get_params(activity_level)
 
@@ -260,7 +250,6 @@ async def get_beach(
 
     if beach.nearby_stop_ids:
         try:
-            from app.api.transport import _group_by_direction
             raw, source, snap_at = await fetch_with_fallback(
                 db, "carris_stops",
                 lambda: carris.fetch_multiple_stops_departures(beach.nearby_stop_ids),

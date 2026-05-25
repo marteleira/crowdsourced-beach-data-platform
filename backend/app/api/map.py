@@ -22,7 +22,7 @@ from app.core.deps import get_current_user
 from app.models.beach import Beach
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
-from app.models.user_extended import DEFAULT_PRIVACY_SETTINGS
+from app.models.user_extended import effective_privacy_settings
 
 router = APIRouter(prefix="/map", tags=["map"])
 
@@ -49,13 +49,6 @@ class MapBeachPresence(BaseModel):
 
 def _jitter(coord: float) -> float:
     return coord + random.uniform(-JITTER_DEGREES, JITTER_DEGREES)
-
-
-def _privacy(user: User) -> dict:
-    base = dict(DEFAULT_PRIVACY_SETTINGS)
-    if user.privacy_settings:
-        base.update(user.privacy_settings)
-    return base
 
 
 @router.get("/users", response_model=List[MapBeachPresence])
@@ -110,7 +103,7 @@ async def get_map_users(
             user = None
 
         if user:
-            priv = _privacy(user)
+            priv = effective_privacy_settings(user)
             if not priv["share_presence"] or priv["location_accuracy"] == "none":
                 continue  # excluded from the visible list, but still counted above
             name = user.display_name if priv["name_public"] else None

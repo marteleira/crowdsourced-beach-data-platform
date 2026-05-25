@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -8,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import decode_access_token
+from app.models.beach import Beach
+from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -40,6 +43,30 @@ async def require_user(
     if user is None:
         raise HTTPException(status_code=401, detail="Autenticação necessária")
     return user
+
+
+async def get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
+    result = await db.execute(select(Beach).where(Beach.slug == slug))
+    beach = result.scalar_one_or_none()
+    if not beach:
+        raise HTTPException(404, f"Praia '{slug}' não encontrada")
+    return beach
+
+
+async def was_recently_present(
+    db: AsyncSession, user_id, beach_id: int, *, window: timedelta
+) -> bool:
+    cutoff = datetime.now(timezone.utc) - window
+    result = await db.execute(
+        select(OccupancyHeartbeat.id)
+        .where(
+            OccupancyHeartbeat.user_id == user_id,
+            OccupancyHeartbeat.beach_id == beach_id,
+            OccupancyHeartbeat.created_at > cutoff,
+        )
+        .limit(1)
+    )
+    return result.scalar_one_or_none() is not None
 
 
 def require_reputation(min_rep: int):

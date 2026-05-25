@@ -1,19 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, update, delete, func
-from sqlalchemy.ext.asyncio import AsyncSession
+from datetime import datetime, timezone
 from typing import List
 
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy import select, update, delete, func
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.beaches import _compute_occupancy
 from app.core.database import get_db
 from app.core.deps import require_user
 from app.models.beach import Beach
-from app.models.beach_status import BeachStatus, OccupancyHeartbeat
+from app.models.beach_status import BeachStatus
 from app.models.report import Report
 from app.models.user import User
 from app.models.user_extended import UserFavourite
 from app.schemas.beach import BeachSummary
 from app.services.activity import get_activity_level, get_params
-from datetime import datetime, timedelta, timezone
-from pydantic import BaseModel
 
 router = APIRouter(prefix="/users/me/favourites", tags=["favourites"])
 
@@ -27,28 +29,14 @@ async def _beach_summary(db: AsyncSession, beach: Beach) -> BeachSummary:
     status_r = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach.id))
     status = status_r.scalar_one_or_none()
     now = datetime.now(timezone.utc)
-    count_r = await db.execute(
+    alerts_r = await db.execute(
         select(func.count(Report.id)).where(
             Report.beach_id == beach.id,
             Report.is_expired == False,
             Report.expires_at > now,
         )
     )
-    cutoff = now - timedelta(minutes=20)
-    occ_r = await db.execute(
-        select(func.count(func.distinct(OccupancyHeartbeat.user_id))).where(
-            OccupancyHeartbeat.beach_id == beach.id,
-            OccupancyHeartbeat.created_at > cutoff,
-        )
-    )
-    count = occ_r.scalar_one() or 0
-    if beach.max_capacity:
-        ratio = count / beach.max_capacity
-        occ_level = "low" if ratio < 0.4 else "medium" if ratio < 0.75 else "high"
-    else:
-        occ_level = "low" if count < 10 else "medium" if count < 40 else "high"
-    if count == 0 and not beach.has_capacity_data:
-        occ_level = "unknown"
+    occupancy = await _compute_occupancy(db, beach)
 
     return BeachSummary(
         id=beach.id,
@@ -58,8 +46,8 @@ async def _beach_summary(db: AsyncSession, beach: Beach) -> BeachSummary:
         lon=beach.lon,
         flag_color=status.flag_color if status else "unknown",
         flag_confidence=status.flag_confidence if status else 0.0,
-        occupancy_level=occ_level,
-        active_alerts_count=count_r.scalar_one() or 0,
+        occupancy_level=occupancy.level,
+        active_alerts_count=alerts_r.scalar_one() or 0,
         activity_level=activity_level,
         activity_label=get_params(activity_level)["label"],
     )

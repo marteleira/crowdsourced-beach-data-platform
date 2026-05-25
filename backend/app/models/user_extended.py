@@ -46,6 +46,20 @@ DEFAULT_PRIVACY_SETTINGS = {
 }
 
 
+def effective_notification_settings(user) -> dict:
+    base = dict(DEFAULT_NOTIFICATION_SETTINGS)
+    if user.notification_settings:
+        base.update(user.notification_settings)
+    return base
+
+
+def effective_privacy_settings(user) -> dict:
+    base = dict(DEFAULT_PRIVACY_SETTINGS)
+    if user.privacy_settings:
+        base.update(user.privacy_settings)
+    return base
+
+
 class UserFavourite(Base):
     __tablename__ = "user_favourites"
 

@@ -6,38 +6,13 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_user
-from app.models.beach import Beach
+from app.core.deps import get_current_user, require_user, get_beach_or_404, was_recently_present
 from app.models.report import Report, ReportVote
 from app.models.user import User
-from app.models.beach_status import OccupancyHeartbeat
 from app.schemas.report import ReportCreate, ReportResponse, VoteRequest, ReportListResponse
 from app.services.activity import get_activity_level, get_params, report_ttl_minutes
 
 router = APIRouter(prefix="/beaches/{slug}/reports", tags=["reports"])
-
-# Safety-critical types where presence is required for downvotes
-SAFETY_TYPES = {"strong_current", "red_flag", "jellyfish"}  # kept for legacy reference
-
-
-async def _get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
-    result = await db.execute(select(Beach).where(Beach.slug == slug))
-    beach = result.scalar_one_or_none()
-    if not beach:
-        raise HTTPException(404, f"Praia '{slug}' não encontrada")
-    return beach
-
-
-async def _was_recently_present(db: AsyncSession, user_id, beach_id: int, hours: int = 2) -> bool:
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
-    result = await db.execute(
-        select(OccupancyHeartbeat.id).where(
-            OccupancyHeartbeat.user_id == user_id,
-            OccupancyHeartbeat.beach_id == beach_id,
-            OccupancyHeartbeat.created_at > cutoff,
-        ).limit(1)
-    )
-    return result.scalar_one_or_none() is not None
 
 
 def _to_response(r: Report, my_vote: Optional[int], activity_label: Optional[str]) -> ReportResponse:
@@ -65,7 +40,7 @@ async def list_reports(
     db: AsyncSession = Depends(get_db),
     user: Optional[User] = Depends(get_current_user),
 ):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
     activity_level = await get_activity_level(db, beach.id)
     label = get_params(activity_level)["label"]
     now = datetime.now(timezone.utc)
@@ -101,10 +76,10 @@ async def create_report(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
 ):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
 
     # Only users physically at the beach can submit reports
-    present = await _was_recently_present(db, user.id, beach.id, hours=1)
+    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=1))
     if not present:
         raise HTTPException(403, "Tens de estar na praia para submeter um aviso")
 
@@ -148,7 +123,7 @@ async def vote_report(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
 ):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
 
     result = await db.execute(
         select(Report).where(Report.id == report_id, Report.beach_id == beach.id)
@@ -159,7 +134,7 @@ async def vote_report(
 
     # Presence required for all votes:
     vote_value = 1 if body.vote == "up" else -1
-    present = await _was_recently_present(db, user.id, beach.id, hours=2)
+    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=2))
     if not present:
         raise HTTPException(403, "Tens de estar na praia para votar neste aviso")
 
@@ -214,7 +189,7 @@ async def delete_report(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
 ):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
     result = await db.execute(
         select(Report).where(Report.id == report_id, Report.beach_id == beach.id)
     )

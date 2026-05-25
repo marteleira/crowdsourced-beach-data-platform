@@ -6,7 +6,7 @@ from typing import Optional, Literal
 from app.core.database import get_db
 from app.core.deps import require_user
 from app.models.user import User
-from app.models.user_extended import PushToken, DEFAULT_NOTIFICATION_SETTINGS
+from app.models.user_extended import PushToken, effective_notification_settings
 
 router = APIRouter(tags=["notifications"])
 
@@ -34,19 +34,12 @@ class PushTokenRequest(BaseModel):
     platform: Literal["ios", "android"]
 
 
-def _effective_notification_settings(user: User) -> dict:
-    base = dict(DEFAULT_NOTIFICATION_SETTINGS)
-    if user.notification_settings:
-        base.update(user.notification_settings)
-    return base
-
-
 @router.get("/users/me/notification-settings")
 async def get_notification_settings(
     user: User = Depends(require_user),
     db: AsyncSession = Depends(get_db),
 ):
-    return _effective_notification_settings(user)
+    return effective_notification_settings(user)
 
 
 @router.patch("/users/me/notification-settings")
@@ -55,7 +48,7 @@ async def update_notification_settings(
     user: User = Depends(require_user),
     db: AsyncSession = Depends(get_db),
 ):
-    current = _effective_notification_settings(user)
+    current = effective_notification_settings(user)
     patch = body.model_dump(exclude_none=True)
     current.update(patch)
 

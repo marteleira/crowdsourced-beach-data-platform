@@ -1,24 +1,15 @@
 from collections import defaultdict
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.models.beach import Beach
+from app.core.deps import get_beach_or_404
 from app.schemas.beach import TransportResponse, TransportDirection, TransportTrip
 from app.services.snapshot import fetch_with_fallback
 from app.services import carris
 
 router = APIRouter(prefix="/beaches/{slug}", tags=["transport"])
-
-
-async def _get_beach_or_404(slug: str, db: AsyncSession) -> Beach:
-    result = await db.execute(select(Beach).where(Beach.slug == slug))
-    beach = result.scalar_one_or_none()
-    if not beach:
-        raise HTTPException(404, f"Praia '{slug}' não encontrada")
-    return beach
 
 
 def _group_by_direction(trips: list) -> list[TransportDirection]:
@@ -42,7 +33,7 @@ def _group_by_direction(trips: list) -> list[TransportDirection]:
 
 @router.get("/transport", response_model=TransportResponse)
 async def get_transport(slug: str, db: AsyncSession = Depends(get_db)):
-    beach = await _get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db)
     if not beach.nearby_stop_ids:
         raise HTTPException(404, "Sem paragens de autocarro para esta praia")
 
