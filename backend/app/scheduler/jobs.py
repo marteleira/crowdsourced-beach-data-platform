@@ -13,7 +13,7 @@ from app.models.beach import Beach
 from app.models.beach_status import BeachStatus, OccupancyHeartbeat
 from app.models.report import Report
 from app.models.snapshot import ApiSnapshot
-from app.services import ipma, hidrografico, apa, carris
+from app.services import ipma, hidrografico, eea, carris
 from app.services.activity import get_activity_level
 from app.services.reputation import process_report_outcomes
 from app.services.flag_confidence import recalculate_beach_confidence
@@ -121,15 +121,15 @@ async def fetch_water_quality() -> None:
     async with AsyncSessionLocal() as db:
         beaches = await _all_beaches(db)
         for beach in beaches:
-            if not beach.apa_station_id:
+            if not beach.eea_station_id:
                 continue
             try:
-                data = await apa.fetch_water_quality(beach.apa_station_id)
+                data = await eea.fetch_water_quality(beach.eea_station_id)
                 if data:
                     snap = ApiSnapshot(source="water_quality", beach_id=beach.id, data=data)
                     db.add(snap)
             except Exception as e:
-                logger.warning("APA water quality fetch failed for beach %d: %s", beach.id, e)
+                logger.warning("EEA water quality fetch failed for beach %d: %s", beach.id, e)
         await db.commit()
         logger.info("Water quality snapshots updated")
 

@@ -136,7 +136,7 @@ class TestTidesEndpoint:
 
 class TestWaterQualityEndpoint:
     async def test_returns_live_quality(self, client: AsyncClient, beach: Beach):
-        with patch("app.api.water_quality.apa.fetch_water_quality", return_value=FAKE_WATER):
+        with patch("app.api.water_quality.eea.fetch_water_quality", return_value=FAKE_WATER):
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/water-quality")
         assert r.status_code == 200
         body = r.json()
@@ -147,7 +147,7 @@ class TestWaterQualityEndpoint:
         db.add(ApiSnapshot(source="water_quality", beach_id=beach.id, data=FAKE_WATER))
         await db.commit()
 
-        with patch("app.api.water_quality.apa.fetch_water_quality", side_effect=Exception("down")):
+        with patch("app.api.water_quality.eea.fetch_water_quality", side_effect=Exception("down")):
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/water-quality")
         assert r.status_code == 200
         assert r.json()["data_source"] == "snapshot"
@@ -155,20 +155,20 @@ class TestWaterQualityEndpoint:
     async def test_returns_unavailable_when_api_and_cache_both_down(
         self, client: AsyncClient, beach: Beach
     ):
-        with patch("app.api.water_quality.apa.fetch_water_quality", return_value=None):
+        with patch("app.api.water_quality.eea.fetch_water_quality", return_value=None):
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/water-quality")
         assert r.status_code == 200
         body = r.json()
         assert body["data_source"] == "unavailable"
         assert body["classification"] is None
 
-    async def test_404_when_no_apa_station(self, client: AsyncClient, db: AsyncSession):
-        b = Beach(slug="praia-sem-apa", name="Praia sem APA", lat=38.0, lon=-9.0,
+    async def test_404_when_no_eea_station(self, client: AsyncClient, db: AsyncSession):
+        b = Beach(slug="praia-sem-eea", name="Praia sem APA", lat=38.0, lon=-9.0,
                   geom="SRID=4326;POINT(-9.0 38.0)", flags_available=True)
         db.add(b)
         await db.commit()
 
-        r = await client.get("/api/v1/beaches/praia-sem-apa/water-quality")
+        r = await client.get("/api/v1/beaches/praia-sem-eea/water-quality")
         assert r.status_code == 404
 
 

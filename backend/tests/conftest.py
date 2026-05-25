@@ -108,7 +108,7 @@ async def beach(db: AsyncSession) -> Beach:
         geom="SRID=4326;POINT(-8.9821 38.4839)",
         ipma_global_id=1151200,
         ipma_sea_global_id=1111026,
-        apa_station_id="PT06ART0002",
+        eea_station_id="PT06ART0002",
         tide_station_id="setubal",
         has_capacity_data=False,
         max_capacity=800,
