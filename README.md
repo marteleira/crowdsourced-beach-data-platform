@@ -78,28 +78,25 @@ The initial geographic scope covers the beaches of Arrábida and Sesimbra, with 
 
 <table><tr>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/splash.png -->
-> **[ SPLASH — docs/assets/screens/splash.png ]**
+<img src="docs/assets/screens/splash.png" width="220" alt="Splash">
 
 **Splash**
 Adaptive wave animation while the session is verified.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/login.png -->
-> **[ LOGIN — docs/assets/screens/login.png ]**
+<img src="docs/assets/screens/login.png" width="220" alt="Login">
 
 **Login**
 Google or email/password authentication. Guest access without registration.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/email_login.png -->
-> **[ EMAIL LOGIN — docs/assets/screens/email_login.png ]**
+<img src="docs/assets/screens/email_login.png" width="220" alt="Email Login">
 
 **Email Login**
 Registration and authentication with email and password.
@@ -113,28 +110,25 @@ Registration and authentication with email and password.
 
 <table><tr>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/home.png -->
-> **[ HOME — docs/assets/screens/home.png ]**
+<img src="docs/assets/screens/home.png" width="220" alt="Dashboard">
 
 **Dashboard**
 Nearest beach highlighted with flag, conditions, tides and active alerts.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/beach_list.png -->
-> **[ BEACH LIST — docs/assets/screens/beach_list.png ]**
+<img src="docs/assets/screens/beach_list.png" width="220" alt="Beach List">
 
 **Beaches**
 Interactive map (OpenStreetMap) with sliding panel. Search and filters by flag.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/beach_detail.png -->
-> **[ BEACH DETAIL — docs/assets/screens/beach_detail.png ]**
+<img src="docs/assets/screens/beach_detail.png" width="220" alt="Beach Detail">
 
 **Beach Detail**
 Complete data: weather, sea, tides, water quality, transport and alerts.
@@ -148,28 +142,25 @@ Complete data: weather, sea, tides, water quality, transport and alerts.
 
 <table><tr>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/community_alerts.png -->
-> **[ COMMUNITY ALERTS — docs/assets/screens/community_alerts.png ]**
+<img src="docs/assets/screens/community_alerts.png" width="220" alt="Community Alerts">
 
 **Alerts**
 Alert list with severity indicator, voting and new report submission.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/flag_confirm.png -->
-> **[ FLAG CONFIRM — docs/assets/screens/flag_confirm.png ]**
+<img src="docs/assets/screens/flag_confirm.png" width="220" alt="Flag Confirm">
 
 **Confirm Flag**
 Sheet with sonar animation, confidence index and confirm/contest actions.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/flag_proposal.png -->
-> **[ FLAG PROPOSAL — docs/assets/screens/flag_proposal.png ]**
+<img src="docs/assets/screens/flag_proposal.png" width="220" alt="Flag Proposal">
 
 **Propose Flag**
 2×2 grid to select the proposed flag colour. Available to users with sufficient reputation.
@@ -183,28 +174,25 @@ Sheet with sonar animation, confidence index and confirm/contest actions.
 
 <table><tr>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/tides.png -->
-> **[ TIDES — docs/assets/screens/tides.png ]**
+<img src="docs/assets/screens/tides.png" width="220" alt="Tides">
 
 **Tides**
 Immersive visualisation with oceanic animation adaptive to the time and weather conditions.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/profile.png -->
-> **[ PROFILE — docs/assets/screens/profile.png ]**
+<img src="docs/assets/screens/profile.png" width="220" alt="Profile">
 
 **Profile**
 Reputation, streak, achievements, contribution statistics and activity history.
 </td>
 
-<td align="center" width="33%">
+<td align="center" valign="top" width="33%">
 
-<!-- 🖼️ docs/assets/screens/favourites.png -->
-> **[ FAVOURITES — docs/assets/screens/favourites.png ]**
+<img src="docs/assets/screens/favorites.png" width="220" alt="Favourites">
 
 **Favourites**
 Favourite beaches list with pull-to-refresh and cross-device synchronisation.
@@ -218,19 +206,17 @@ Favourite beaches list with pull-to-refresh and cross-device synchronisation.
 
 <table><tr>
 
-<td align="center" width="50%">
+<td align="center" valign="top" width="50%">
 
-<!-- 🖼️ docs/assets/screens/privacy_settings.png -->
-> **[ PRIVACY SETTINGS — docs/assets/screens/privacy_settings.png ]**
+<img src="docs/assets/screens/privacy_settings.png" width="300" alt="Privacy Settings">
 
 **Privacy**
 Control over location accuracy, profile visibility and data sharing. Account deletion.
 </td>
 
-<td align="center" width="50%">
+<td align="center" valign="top" width="50%">
 
-<!-- 🖼️ docs/assets/screens/notification_settings.png -->
-> **[ NOTIFICATION SETTINGS — docs/assets/screens/notification_settings.png ]**
+<img src="docs/assets/screens/notification_settings.png" width="300" alt="Notification Settings">
 
 **Notifications**
 Granular configuration: alert types, proximity radius, minimum severity and quiet hours.
@@ -321,9 +307,9 @@ Detailed documentation for each component is in their respective directories:
 - [ ] Personal data export (`/users/me/data-export` endpoint already exists in the backend)
 - [ ] Administration panel (backoffice) for beach management and moderation
 - [ ] Geographic expansion to other Portuguese bathing areas
+- [ ] Think in a way to display users on the map
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] E2e integration tests
-- [ ] Terms and conditions
 ---
 
 <div align="center">
