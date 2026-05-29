@@ -315,23 +315,29 @@ class WaterQuality {
 // Backend: TransportResponse { stops: [{ stop_id, stop_name }],
 //                              next_departures: [{ route_id, route_short_name, trip_headsign, departure_time }] }
 class TransportStop {
-  const TransportStop({required this.stopId, required this.stopName});
+  const TransportStop({required this.stopId, required this.stopName, this.lat, this.lon});
   final String stopId;
   final String stopName;
+  final double? lat;
+  final double? lon;
 
   factory TransportStop.fromJson(Map<String, dynamic> j) => TransportStop(
     stopId: j['stop_id'] as String,
     stopName: j['stop_name'] as String,
+    lat: (j['lat'] as num?)?.toDouble(),
+    lon: (j['lon'] as num?)?.toDouble(),
   );
 }
 
 // Single departure within a direction group
 class TransportDeparture {
   const TransportDeparture({
-    required this.departureTime, required this.routeShortName, this.isRealtime = false,
+    required this.departureTime, required this.routeShortName,
+    this.stopId, this.isRealtime = false,
   });
   final String departureTime;  // "HH:MM:SS" from backend
   final String routeShortName;
+  final String? stopId;
   final bool isRealtime;
 
   String get displayTime {
@@ -343,6 +349,7 @@ class TransportDeparture {
   factory TransportDeparture.fromJson(Map<String, dynamic> j) => TransportDeparture(
     departureTime: j['departure_time'] as String,
     routeShortName: j['route_short_name'] as String,
+    stopId: j['stop_id'] as String?,
     isRealtime: j['is_realtime'] as bool? ?? false,
   );
 }
@@ -362,9 +369,14 @@ class TransportDirection {
 }
 
 class BeachTransportInfo {
-  const BeachTransportInfo({required this.stops, required this.directions});
+  const BeachTransportInfo({
+    required this.stops, required this.directions,
+    this.dataSource = 'live', this.snapshotAt,
+  });
   final List<TransportStop> stops;
   final List<TransportDirection> directions;
+  final String dataSource;
+  final String? snapshotAt;
 
   static const empty = BeachTransportInfo(stops: [], directions: []);
 
@@ -377,6 +389,8 @@ class BeachTransportInfo {
     directions: (j['directions'] as List? ?? [])
         .map((e) => TransportDirection.fromJson(e as Map<String, dynamic>))
         .toList(),
+    dataSource: j['data_source'] as String? ?? 'live',
+    snapshotAt: j['snapshot_at'] as String?,
   );
 }
 

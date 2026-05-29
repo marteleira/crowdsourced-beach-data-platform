@@ -8,6 +8,7 @@ import 'features/auth/presentation/login_screen.dart';
 import 'features/beaches/domain/beach_models.dart';
 import 'features/beaches/presentation/beach_detail_screen.dart';
 import 'features/community/presentation/community_alerts_screen.dart';
+import 'features/transport/presentation/transport_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 import 'features/legal/presentation/privacy_screen.dart';
 import 'features/legal/presentation/terms_screen.dart';
@@ -52,6 +53,10 @@ final _routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => CommunityAlertsScreen(beach: state.extra as BeachSummary),
       ),
       GoRoute(path: '/favourites', builder: (_, _) => const FavouritesScreen()),
+      GoRoute(
+        path: '/beach/:slug/transport',
+        builder: (_, state) => TransportScreen(beach: state.extra as BeachSummary),
+      ),
     ],
   );
 });
