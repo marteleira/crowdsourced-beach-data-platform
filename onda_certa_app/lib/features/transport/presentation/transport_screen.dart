@@ -10,6 +10,24 @@ import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 
+//Utility 
+
+double _geoDistanceMeters(
+  double lat1, double lon1, double lat2, double lon2,
+) {
+  const R = 6371000.0;
+  final dLat = (lat2 - lat1) * pi / 180;
+  final dLon = (lon2 - lon1) * pi / 180;
+  final a = sin(dLat / 2) * sin(dLat / 2) +
+      cos(lat1 * pi / 180) * cos(lat2 * pi / 180) *
+          sin(dLon / 2) * sin(dLon / 2);
+  return R * 2 * atan2(sqrt(a), sqrt(1 - a));
+}
+
+int _walkMinsFromMeters(double meters) => (meters / 83.0).ceil();
+
+//Screen 
+
 class TransportScreen extends ConsumerStatefulWidget {
   const TransportScreen({super.key, required this.beach});
   final BeachSummary beach;
@@ -90,20 +108,20 @@ class _TransportScreenState extends ConsumerState<TransportScreen> {
       onRefresh: _refresh,
       color: AppColors.teal,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 40),
         children: [
           _StatusStrip(
             flagColor: flagColor,
             weather: detail?.weather,
             sea: detail?.sea,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           if (transport.stops.isEmpty)
             const _EmptyTransport()
           else ...[
             ...activeDirections.asMap().entries.map(
               (e) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: _DirectionCard(
                   direction: e.value,
                   stops: transport.stops,
@@ -112,9 +130,9 @@ class _TransportScreenState extends ConsumerState<TransportScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xs),
             _WalkButton(beach: widget.beach, stops: transport.stops),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.xl),
             _FooterDisclaimer(dataSource: transport.dataSource),
           ],
         ],
@@ -145,7 +163,9 @@ class _StatusStrip extends StatelessWidget {
     final temp = weather?.maxTemp ?? sea?.seaTemp;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg, vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -155,10 +175,10 @@ class _StatusStrip extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 8, height: 8,
+            width: AppSpacing.sm, height: AppSpacing.sm,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: AppSpacing.sm - 2),
           Text(
             label,
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: color),
@@ -166,7 +186,7 @@ class _StatusStrip extends StatelessWidget {
           if (waves != null) ...[
             const _StripDivider(),
             const Icon(Icons.waves_rounded, size: 14, color: AppColors.textSecondary),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.xs),
             Text('${waves.toStringAsFixed(1)}m ondas', style: AppTextStyles.secondaryMd),
           ],
           if (temp != null) ...[
@@ -251,29 +271,14 @@ class _DirectionCardState extends State<_DirectionCard>
   int? get _walkMins {
     final stop = _stop;
     if (stop?.lat == null || stop?.lon == null) return null;
-    final dist = _haversine(
-      widget.beach.lat, widget.beach.lon,
-      stop!.lat!, stop.lon!,
+    return _walkMinsFromMeters(
+      _geoDistanceMeters(widget.beach.lat, widget.beach.lon, stop!.lat!, stop.lon!),
     );
-    return (dist / 83.0).ceil();
-  }
-
-  static double _haversine(
-    double lat1, double lon1, double lat2, double lon2,
-  ) {
-    const R = 6371000.0;
-    final dLat = (lat2 - lat1) * pi / 180;
-    final dLon = (lon2 - lon1) * pi / 180;
-    final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * pi / 180) * cos(lat2 * pi / 180) *
-            sin(dLon / 2) * sin(dLon / 2);
-    return R * 2 * atan2(sqrt(a), sqrt(1 - a));
   }
 
   @override
   Widget build(BuildContext context) {
     final firstDep = widget.direction.departures.firstOrNull;
-    final routeNum = firstDep?.routeShortName ?? '';
     final stop = _stop;
     final walkMins = _walkMins;
 
@@ -287,28 +292,25 @@ class _DirectionCardState extends State<_DirectionCard>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          //Header — always visible
           InkWell(
             onTap: _toggle,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.lg),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  //Bus icon
                   Container(
                     width: 40, height: 40,
                     decoration: BoxDecoration(
                       color: AppColors.coral.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppSpacing.md),
                     ),
                     child: const Icon(
                       Icons.directions_bus_rounded,
                       size: 20, color: AppColors.coral,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  //Route badge + headsign + stop name
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,42 +318,31 @@ class _DirectionCardState extends State<_DirectionCard>
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColors.coral,
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                routeNum,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
-                                ),
+                                firstDep?.routeShortName ?? '',
+                                style: AppTextStyles.whiteLabel,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Text(
                                 widget.direction.headsign,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
-                                ),
+                                style: AppTextStyles.titleSm,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
                         ),
                         if (stop != null) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: AppSpacing.xs),
                           Row(
                             children: [
-                              const Icon(Icons.place_outlined,
-                                  size: 12, color: AppColors.textHint),
+                              const Icon(Icons.place_outlined, size: 12, color: AppColors.textHint),
                               const SizedBox(width: 3),
                               Expanded(
                                 child: Text(
@@ -368,8 +359,7 @@ class _DirectionCardState extends State<_DirectionCard>
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  //Next time + chevron
+                  const SizedBox(width: AppSpacing.sm),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
@@ -383,7 +373,7 @@ class _DirectionCardState extends State<_DirectionCard>
                             color: AppColors.tealDark,
                           ),
                         ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.xs),
                       AnimatedRotation(
                         turns: _expanded ? 0.5 : 0,
                         duration: const Duration(milliseconds: 200),
@@ -398,7 +388,6 @@ class _DirectionCardState extends State<_DirectionCard>
               ),
             ),
           ),
-          //Animated departures section
           SizeTransition(
             sizeFactor: _anim,
             child: Column(
@@ -406,7 +395,9 @@ class _DirectionCardState extends State<_DirectionCard>
               children: [
                 const Divider(height: 1, color: AppColors.borderLight),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg, 14, AppSpacing.lg, AppSpacing.lg,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -440,7 +431,7 @@ class _DirectionCardState extends State<_DirectionCard>
   }
 }
 
-// Departure row 
+//Departure row 
 
 class _DepartureRow extends StatelessWidget {
   const _DepartureRow({required this.dep, required this.headsign});
@@ -470,7 +461,7 @@ class _DepartureRow extends StatelessWidget {
             size: 14,
             color: soon ? AppColors.tealDark : AppColors.textHint,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           Text(
             dep.displayTime,
             style: TextStyle(
@@ -480,15 +471,13 @@ class _DepartureRow extends StatelessWidget {
             ),
           ),
           if (soon) ...[
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.sm),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
               decoration: BoxDecoration(
                 color: AppColors.teal.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: AppColors.teal.withValues(alpha: 0.30),
-                ),
+                border: Border.all(color: AppColors.teal.withValues(alpha: 0.30)),
               ),
               child: const Text(
                 'A chegar',
@@ -502,7 +491,7 @@ class _DepartureRow extends StatelessWidget {
           ],
           const Spacer(),
           const Icon(Icons.arrow_forward, size: 11, color: AppColors.textHint),
-          const SizedBox(width: 4),
+          const SizedBox(width: AppSpacing.xs),
           Flexible(
             child: Text(
               headsign,
@@ -517,7 +506,7 @@ class _DepartureRow extends StatelessWidget {
   }
 }
 
-// Walk-to-beach button 
+//Walk-to-beach button 
 
 class _WalkButton extends StatelessWidget {
   const _WalkButton({required this.beach, required this.stops});
@@ -528,22 +517,10 @@ class _WalkButton extends StatelessWidget {
     double? minDist;
     for (final stop in stops) {
       if (stop.lat == null || stop.lon == null) continue;
-      final d = _haversine(beach.lat, beach.lon, stop.lat!, stop.lon!);
+      final d = _geoDistanceMeters(beach.lat, beach.lon, stop.lat!, stop.lon!);
       if (minDist == null || d < minDist) minDist = d;
     }
-    return minDist != null ? (minDist / 83.0).ceil() : null;
-  }
-
-  static double _haversine(
-    double lat1, double lon1, double lat2, double lon2,
-  ) {
-    const R = 6371000.0;
-    final dLat = (lat2 - lat1) * pi / 180;
-    final dLon = (lon2 - lon1) * pi / 180;
-    final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1 * pi / 180) * cos(lat2 * pi / 180) *
-            sin(dLon / 2) * sin(dLon / 2);
-    return R * 2 * atan2(sqrt(a), sqrt(1 - a));
+    return minDist != null ? _walkMinsFromMeters(minDist) : null;
   }
 
   Future<void> _launch() async {
@@ -580,17 +557,16 @@ class _WalkButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: AppSpacing.lg),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle:
-              const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
         ),
       ),
     );
   }
 }
 
-// Footer disclaimer 
+//Footer disclaimer 
 
 class _FooterDisclaimer extends StatelessWidget {
   const _FooterDisclaimer({required this.dataSource});
@@ -621,7 +597,7 @@ class _EmptyTransport extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.directions_bus_outlined, size: 48, color: AppColors.textHint),
-          SizedBox(height: 12),
+          SizedBox(height: AppSpacing.md),
           Text(
             'Sem transportes disponíveis\npara esta praia',
             style: AppTextStyles.secondaryMd,
@@ -644,18 +620,18 @@ class _ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(Icons.error_outline, size: 48, color: AppColors.textHint),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.md),
             const Text(
               'Não foi possível carregar os transportes',
               style: AppTextStyles.secondaryMd,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             TextButton(
               onPressed: onRetry,
               child: const Text('Tentar novamente'),
