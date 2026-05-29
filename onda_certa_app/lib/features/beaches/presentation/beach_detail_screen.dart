@@ -155,7 +155,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         isLoading: transport.isLoading,
       ),
       const SizedBox(height: AppSpacing.md),
-      _PlanTripButton(),
+      _PlanTripButton(beach: widget.beach),
       const SizedBox(height: AppSpacing.md),
       _CommunityAlertsCard(reports: d?.activeAlerts ?? [], beach: widget.beach),
     ];
@@ -876,17 +876,17 @@ class _DepartureChip extends StatelessWidget {
 }
 
 class _PlanTripButton extends StatelessWidget {
-  // ignore: prefer_const_constructors_in_immutables
-  _PlanTripButton();
+  const _PlanTripButton({required this.beach});
+  final BeachSummary beach;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () {},
+        onPressed: () => context.push('/beach/${beach.slug}/transport', extra: beach),
         icon: const Icon(Icons.directions_bus, size: 18),
-        label: const Text('Planear viagem  →'),
+        label: const Text('Ver horários completos →'),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
