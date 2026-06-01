@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -131,7 +132,11 @@ class _TransportScreenState extends ConsumerState<TransportScreen> {
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
-            _WalkButton(beach: widget.beach, stops: transport.stops),
+            _WalkButton(
+              beach: widget.beach,
+              stops: transport.stops,
+              hasActiveBuses: activeDirections.isNotEmpty,
+            ),
             const SizedBox(height: AppSpacing.xl),
             _FooterDisclaimer(dataSource: transport.dataSource),
           ],
@@ -347,7 +352,7 @@ class _DirectionCardState extends State<_DirectionCard>
                               Expanded(
                                 child: Text(
                                   walkMins != null
-                                      ? '${stop.stopName} · $walkMins min a pé'
+                                      ? '${stop.stopName} · $walkMins min a pé até à praia'
                                       : stop.stopName,
                                   style: AppTextStyles.secondarySm,
                                   overflow: TextOverflow.ellipsis,
@@ -506,35 +511,96 @@ class _DepartureRow extends StatelessWidget {
   }
 }
 
-//Walk-to-beach button 
+//Walk-to-beach button
 
-class _WalkButton extends StatelessWidget {
-  const _WalkButton({required this.beach, required this.stops});
+class _WalkButton extends StatefulWidget {
+  const _WalkButton({
+    required this.beach,
+    required this.stops,
+    required this.hasActiveBuses,
+  });
   final BeachSummary beach;
   final List<TransportStop> stops;
+  final bool hasActiveBuses;
 
-  int? get _nearestWalkMins {
+  @override
+  State<_WalkButton> createState() => _WalkButtonState();
+}
+
+class _WalkButtonState extends State<_WalkButton> {
+  int? _walkMins;
+  bool _fromCurrentLocation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.hasActiveBuses) {
+      _walkMins = _nearestStopWalkMins();
+    } else {
+      _fetchCurrentLocationDistance();
+    }
+  }
+
+  int? _nearestStopWalkMins() {
     double? minDist;
-    for (final stop in stops) {
+    for (final stop in widget.stops) {
       if (stop.lat == null || stop.lon == null) continue;
-      final d = _geoDistanceMeters(beach.lat, beach.lon, stop.lat!, stop.lon!);
+      final d = _geoDistanceMeters(
+        widget.beach.lat, widget.beach.lon, stop.lat!, stop.lon!,
+      );
       if (minDist == null || d < minDist) minDist = d;
     }
     return minDist != null ? _walkMinsFromMeters(minDist) : null;
   }
 
+  Future<void> _fetchCurrentLocationDistance() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (mounted) setState(() => _walkMins = _nearestStopWalkMins());
+        return;
+      }
+      Position? pos;
+      try {
+        pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.low,
+            timeLimit: Duration(seconds: 5),
+          ),
+        );
+      } catch (_) {
+        pos = await Geolocator.getLastKnownPosition();
+      }
+      if (!mounted) return;
+      if (pos != null) {
+        final d = _geoDistanceMeters(
+          widget.beach.lat, widget.beach.lon, pos.latitude, pos.longitude,
+        );
+        setState(() {
+          _walkMins = _walkMinsFromMeters(d);
+          _fromCurrentLocation = true;
+        });
+      } else {
+        setState(() => _walkMins = _nearestStopWalkMins());
+      }
+    } catch (_) {
+      if (mounted) setState(() => _walkMins = _nearestStopWalkMins());
+    }
+  }
+
   Future<void> _launch() async {
     final geoUri = Uri.parse(
-      'geo:${beach.lat},${beach.lon}'
-      '?q=${beach.lat},${beach.lon}'
-      '(${Uri.encodeComponent(beach.name)})',
+      'geo:${widget.beach.lat},${widget.beach.lon}'
+      '?q=${widget.beach.lat},${widget.beach.lon}'
+      '(${Uri.encodeComponent(widget.beach.name)})',
     );
     if (await canLaunchUrl(geoUri)) {
       await launchUrl(geoUri);
     } else {
       final webUri = Uri.parse(
         'https://www.google.com/maps/dir/?api=1'
-        '&destination=${beach.lat},${beach.lon}'
+        '&destination=${widget.beach.lat},${widget.beach.lon}'
         '&travelmode=walking',
       );
       await launchUrl(webUri, mode: LaunchMode.externalApplication);
@@ -543,10 +609,15 @@ class _WalkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mins = _nearestWalkMins;
-    final label = mins != null
-        ? 'Ir a pé para ${beach.name} ($mins min)'
-        : 'Ir a pé para ${beach.name}';
+    final mins = _walkMins;
+    final String label;
+    if (mins == null) {
+      label = 'Ir a pé para ${widget.beach.name}';
+    } else if (_fromCurrentLocation) {
+      label = 'Ir a pé para ${widget.beach.name} ($mins min)';
+    } else {
+      label = 'Ir a pé para ${widget.beach.name} ($mins min da paragem)';
+    }
 
     return SizedBox(
       width: double.infinity,
