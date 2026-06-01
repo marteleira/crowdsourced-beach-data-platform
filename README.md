@@ -290,12 +290,12 @@ Detailed docs for each part live in their respective directories:
 - [x] Centralised AppColors, AppSpacing, AppTextStyles
 - [x] Flag gradients and colour mappings all in AppColors
 - [x] Shared widgets: AlertItem, TideChartPainter, MetricCell, EmptyState
+- [x] **TransportPlannerScreen**: a screen to plan how to get to the beach, nearby stop lookup and trip planning
 
 ---
 
 ### 🚧 In development
 
-- [ ] **TransportPlannerScreen**: a screen to plan how to get to the beach, nearby stop lookup and trip planning
 
 ---
 
