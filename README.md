@@ -300,12 +300,15 @@ Detailed docs for each part live in their respective directories:
 ---
 
 ### 🔜 Planned
-
+- [ ] Display the account deletion time if applicable
+- [ ] Require a secure password on the regular account creation
+- [ ] Revert/Cancel account deletion (maybe)
+- [ ] Display current temps (requires another api) (still consider)
 - [ ] Dark mode (still deciding whether it's worth it)
 - [ ] Push notifications
 - [ ] Personal data export (the `/users/me/data-export` endpoint already exists in the backend)
-- [ ] Admin panel for beach management and moderation
-- [ ] Expand to other Portuguese beaches
+- [ ] Admin panel for beach management and moderation (still deciding)
+- [ ] Expand to other Portuguese beaches (still deciding)
 - [ ] Some way to show which users are currently at each beach
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests

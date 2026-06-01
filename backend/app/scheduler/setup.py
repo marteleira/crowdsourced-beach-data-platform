@@ -24,5 +24,6 @@ def create_scheduler() -> AsyncIOScheduler:
     scheduler.add_job(jobs.recalculate_flag_confidences,  IntervalTrigger(minutes=10), id="flag_confidence",      replace_existing=True)
     scheduler.add_job(jobs.cleanup_old_heartbeats,        IntervalTrigger(hours=1),    id="cleanup_heartbeats",   replace_existing=True)
     scheduler.add_job(jobs.cleanup_old_snapshots,         IntervalTrigger(hours=6),    id="cleanup_snapshots",    replace_existing=True)
+    scheduler.add_job(jobs.purge_scheduled_deletions,     IntervalTrigger(hours=24),   id="purge_deletions",      replace_existing=True)
 
     return scheduler

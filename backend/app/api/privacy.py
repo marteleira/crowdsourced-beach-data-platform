@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select, delete, update
@@ -7,12 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, Literal
 
 from app.core.database import get_db
-from app.core.deps import require_user
-from app.models.user import User, ReputationEvent
+from app.core.deps import require_user, require_user_or_pending
+from app.models.user import User, ReputationEvent, RefreshToken
 from app.models.report import Report
 from app.models.user_extended import effective_privacy_settings
 
 router = APIRouter(prefix="/users/me", tags=["privacy"])
+
+DELETION_GRACE_DAYS = 30
 
 
 class PrivacySettingsPatch(BaseModel):
@@ -116,18 +118,48 @@ async def delete_all_reports(
     await db.commit()
 
 
-@router.delete("", status_code=204)
+@router.delete("", status_code=202)
 async def delete_account(
     body: DeleteAccountRequest,
-    user: User = Depends(require_user),
+    user: User = Depends(require_user_or_pending),
     db: AsyncSession = Depends(get_db),
 ):
     if body.confirmation != "APAGAR":
         raise HTTPException(400, "Confirmação inválida — escreve 'APAGAR' para confirmar")
 
-    # Soft-delete reports first, then hard-delete the user (cascades handle the rest)
+    if user.scheduled_deletion_at:
+        return {
+            "scheduled_deletion_at": user.scheduled_deletion_at.isoformat(),
+            "message": "A conta já está agendada para eliminação.",
+        }
+
+    deletion_at = datetime.now(timezone.utc) + timedelta(days=DELETION_GRACE_DAYS)
+    user.scheduled_deletion_at = deletion_at
+
+    # Revoke all active refresh tokens so the session ends
     await db.execute(
-        update(Report).where(Report.user_id == user.id).values(is_expired=True)
+        update(RefreshToken)
+        .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))
+        .values(revoked_at=datetime.now(timezone.utc))
     )
-    await db.delete(user)
+    db.add(user)
     await db.commit()
+
+    return {
+        "scheduled_deletion_at": deletion_at.isoformat(),
+        "message": f"Conta agendada para eliminação em {DELETION_GRACE_DAYS} dias. Podes cancelar antes dessa data.",
+    }
+
+
+@router.post("/cancel-deletion", status_code=200)
+async def cancel_deletion(
+    user: User = Depends(require_user_or_pending),
+    db: AsyncSession = Depends(get_db),
+):
+    if not user.scheduled_deletion_at:
+        raise HTTPException(400, "A conta não está agendada para eliminação.")
+
+    user.scheduled_deletion_at = None
+    db.add(user)
+    await db.commit()
+    return {"message": "Eliminação cancelada. A conta foi restaurada."}
