@@ -42,6 +42,27 @@ async def require_user(
 ) -> User:
     if user is None:
         raise HTTPException(status_code=401, detail="Autenticação necessária")
+
+    if user.scheduled_deletion_at:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "account_pending_deletion",
+                "scheduled_deletion_at": user.scheduled_deletion_at.isoformat(),
+                "message": "Conta agendada para eliminação. Cancela em /users/me/cancel-deletion.",
+            },
+        )
+
+    return user
+
+
+async def require_user_or_pending(
+    user: Optional[User] = Depends(get_current_user),
+) -> User:
+    """Like require_user but allows accounts with scheduled_deletion_at set.
+    Use only for endpoints that let the user cancel their own deletion."""
+    if user is None:
+        raise HTTPException(status_code=401, detail="Autenticação necessária")
     return user
 
 

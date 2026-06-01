@@ -13,6 +13,7 @@ from app.models.beach import Beach
 from app.models.beach_status import BeachStatus, OccupancyHeartbeat
 from app.models.report import Report
 from app.models.snapshot import ApiSnapshot
+from app.models.user import User
 from app.services import ipma, hidrografico, eea, carris
 from app.services.activity import get_activity_level
 from app.services.reputation import process_report_outcomes
@@ -196,6 +197,27 @@ async def cleanup_old_heartbeats() -> None:
         )
         await db.commit()
         logger.info("Old heartbeats cleaned up")
+
+
+async def purge_scheduled_deletions() -> None:
+    """Hard-delete user accounts whose 30-day grace period has elapsed."""
+    async with AsyncSessionLocal() as db:
+        now = datetime.now(timezone.utc)
+        result = await db.execute(
+            select(User).where(
+                User.scheduled_deletion_at.is_not(None),
+                User.scheduled_deletion_at <= now,
+            )
+        )
+        users = result.scalars().all()
+        for user in users:
+            await db.execute(
+                update(Report).where(Report.user_id == user.id).values(is_expired=True)
+            )
+            await db.delete(user)
+        await db.commit()
+        if users:
+            logger.info("Purged %d scheduled account deletion(s)", len(users))
 
 
 async def cleanup_old_snapshots() -> None:

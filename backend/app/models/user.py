@@ -37,6 +37,7 @@ class User(Base):
     privacy_settings = Column(JSONB)
 
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    scheduled_deletion_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
 
 class RefreshToken(Base):

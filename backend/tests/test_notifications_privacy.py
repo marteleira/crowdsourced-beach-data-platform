@@ -178,7 +178,9 @@ class TestDeleteAccount:
         )
         assert r.status_code == 400
 
-    async def test_delete_account(self, client: AsyncClient, db: AsyncSession):
+    async def test_delete_schedules_account_for_30_days(
+        self, client: AsyncClient, db: AsyncSession
+    ):
         r = await client.post("/api/v1/auth/register", json={
             "email": "todelete@example.com",
             "password": "password123",
@@ -191,13 +193,65 @@ class TestDeleteAccount:
             json={"confirmation": "APAGAR"},
             headers={"Authorization": f"Bearer {token}"},
         )
-        assert r2.status_code == 204
+        assert r2.status_code == 202
+        body = r2.json()
+        assert "scheduled_deletion_at" in body
 
+        # Account is now pending deletion — regular API calls must be blocked
         r3 = await client.get(
             "/api/v1/users/me",
             headers={"Authorization": f"Bearer {token}"},
         )
-        assert r3.status_code == 401
+        assert r3.status_code == 403
+        assert r3.json()["detail"]["code"] == "account_pending_deletion"
+
+    async def test_delete_idempotent_when_already_pending(
+        self, client: AsyncClient, db: AsyncSession
+    ):
+        r = await client.post("/api/v1/auth/register", json={
+            "email": "todelete-idem@example.com",
+            "password": "password123",
+            "display_name": "ToDeleteIdem",
+        })
+        token = r.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        r1 = await client.request("DELETE", "/api/v1/users/me",
+                                  json={"confirmation": "APAGAR"}, headers=headers)
+        assert r1.status_code == 202
+        date1 = r1.json()["scheduled_deletion_at"]
+
+        r2 = await client.request("DELETE", "/api/v1/users/me",
+                                  json={"confirmation": "APAGAR"}, headers=headers)
+        assert r2.status_code == 202
+        assert r2.json()["scheduled_deletion_at"] == date1  # same date, not extended
+
+    async def test_cancel_deletion_restores_account(
+        self, client: AsyncClient, db: AsyncSession
+    ):
+        r = await client.post("/api/v1/auth/register", json={
+            "email": "cancel-delete@example.com",
+            "password": "password123",
+            "display_name": "CancelDelete",
+        })
+        token = r.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        await client.request("DELETE", "/api/v1/users/me",
+                              json={"confirmation": "APAGAR"}, headers=headers)
+
+        r2 = await client.post("/api/v1/users/me/cancel-deletion", headers=headers)
+        assert r2.status_code == 200
+
+        # Account is restored — regular API calls work again
+        r3 = await client.get("/api/v1/users/me", headers=headers)
+        assert r3.status_code == 200
+
+    async def test_cancel_deletion_when_not_pending_returns_400(
+        self, client: AsyncClient, auth_headers: dict
+    ):
+        r = await client.post("/api/v1/users/me/cancel-deletion", headers=auth_headers)
+        assert r.status_code == 400
 
 
 #Privacy enforcement on /map/users 
