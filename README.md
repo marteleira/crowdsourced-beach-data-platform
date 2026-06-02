@@ -291,6 +291,8 @@ Detailed docs for each part live in their respective directories:
 - [x] Flag gradients and colour mappings all in AppColors
 - [x] Shared widgets: AlertItem, TideChartPainter, MetricCell, EmptyState
 - [x] **TransportPlannerScreen**: a screen to plan how to get to the beach, nearby stop lookup and trip planning
+- [X] Display the account deletion time if applicable (login failiture)
+- [X] Revert/Cancel account deletion
 
 ---
 
@@ -300,9 +302,7 @@ Detailed docs for each part live in their respective directories:
 ---
 
 ### 🔜 Planned
-- [ ] Display the account deletion time if applicable
 - [ ] Require a secure password on the regular account creation
-- [ ] Revert/Cancel account deletion (maybe)
 - [ ] Display current temps (requires another api) (still consider)
 - [ ] Dark mode (still deciding whether it's worth it)
 - [ ] Push notifications
