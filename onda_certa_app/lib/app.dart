@@ -5,6 +5,7 @@ import 'core/auth/auth_provider.dart';
 import 'core/presence/heartbeat_provider.dart';
 import 'features/auth/presentation/email_login_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
+import 'features/auth/presentation/pending_deletion_screen.dart';
 import 'features/beaches/domain/beach_models.dart';
 import 'features/beaches/presentation/beach_detail_screen.dart';
 import 'features/community/presentation/community_alerts_screen.dart';
@@ -22,23 +23,33 @@ final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<v
 
 final _routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
+  final pendingDeletion = ref.watch(pendingDeletionProvider);
 
   return GoRouter(
     initialLocation: '/',
     observers: [routeObserver],
     redirect: (context, state) {
       final loc = state.matchedLocation;
+
       // Splash and auth routes manage their own navigation
       if (loc == '/' || loc.startsWith('/login')) return null;
+
       // Protect app routes
       final authed = authState.value is AuthAuthenticated;
-      if (!authed && loc != '/') return '/login';
+      if (!authed) return '/login';
+
+      // Redirect to pending-deletion screen for any app route when account is flagged
+      if (pendingDeletion != null && loc != '/pending-deletion') {
+        return '/pending-deletion';
+      }
+
       return null;
     },
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/login/email', builder: (_, _) => const EmailLoginScreen()),
+      GoRoute(path: '/pending-deletion', builder: (_, _) => const PendingDeletionScreen()),
       GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
       GoRoute(path: '/terms', builder: (_, _) => const TermsScreen()),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),

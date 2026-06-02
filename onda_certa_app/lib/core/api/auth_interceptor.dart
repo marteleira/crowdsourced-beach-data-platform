@@ -2,10 +2,11 @@ import 'package:dio/dio.dart';
 import '../storage/secure_storage.dart';
 
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._dio, this._storage);
+  AuthInterceptor(this._dio, this._storage, {this.onPendingDeletion});
 
   final Dio _dio;
   final SecureStorage _storage;
+  final void Function(DateTime scheduledAt)? onPendingDeletion;
 
   @override
   Future<void> onRequest(
@@ -28,6 +29,17 @@ class AuthInterceptor extends Interceptor {
     // clear tokens and let the error propagate — no retry.
     if (err.requestOptions.extra['skipAuthInterceptor'] == true) {
       await _storage.clearTokens();
+      return handler.next(err);
+    }
+
+    if (err.response?.statusCode == 403) {
+      final detail = err.response?.data?['detail'];
+      if (detail is Map && detail['code'] == 'account_pending_deletion') {
+        final raw = detail['scheduled_deletion_at'] as String?;
+        if (raw != null && onPendingDeletion != null) {
+          onPendingDeletion!(DateTime.parse(raw));
+        }
+      }
       return handler.next(err);
     }
 

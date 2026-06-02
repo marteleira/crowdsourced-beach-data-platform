@@ -1,10 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../data/settings_provider.dart';
-
 import '../domain/settings_models.dart';
 
 class PrivacySettingsScreen extends ConsumerWidget {
@@ -30,21 +30,27 @@ class PrivacySettingsScreen extends ConsumerWidget {
       ),
       body: settingsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.teal)),
-        error: (_, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Não foi possível carregar as definições',
-                  style: TextStyle(color: AppColors.textSecondary)),
-              const SizedBox(height: AppSpacing.lg),
-              FilledButton(
-                onPressed: () => ref.invalidate(privacySettingsProvider),
-                style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
-                child: const Text('Tentar de novo'),
-              ),
-            ],
-          ),
-        ),
+        error: (error, _) {
+          final pendingDate = _parsePendingDeletionDate(error);
+          if (pendingDate != null) {
+            return _PendingDeletionView(scheduledAt: pendingDate);
+          }
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Não foi possível carregar as definições',
+                    style: TextStyle(color: AppColors.textSecondary)),
+                const SizedBox(height: AppSpacing.lg),
+                FilledButton(
+                  onPressed: () => ref.invalidate(privacySettingsProvider),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
+                  child: const Text('Tentar de novo'),
+                ),
+              ],
+            ),
+          );
+        },
         data: (s) => _PrivacyForm(settings: s),
       ),
     );
@@ -295,6 +301,127 @@ class _PrivacyForm extends ConsumerWidget {
         );
       }
     }
+  }
+}
+
+// ── Pending-deletion helpers & view ───────────────────────────────────────────
+
+DateTime? _parsePendingDeletionDate(Object error) {
+  if (error is DioException) {
+    final detail = error.response?.data?['detail'];
+    if (detail is Map && detail['code'] == 'account_pending_deletion') {
+      final raw = detail['scheduled_deletion_at'] as String?;
+      if (raw != null) return DateTime.tryParse(raw);
+    }
+  }
+  return null;
+}
+
+String _formatDate(DateTime dt) {
+  final l = dt.toLocal();
+  return '${l.day.toString().padLeft(2, '0')}/${l.month.toString().padLeft(2, '0')}/${l.year}';
+}
+
+class _PendingDeletionView extends ConsumerStatefulWidget {
+  const _PendingDeletionView({required this.scheduledAt});
+  final DateTime scheduledAt;
+
+  @override
+  ConsumerState<_PendingDeletionView> createState() => _PendingDeletionViewState();
+}
+
+class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
+  bool _cancelling = false;
+
+  Future<void> _cancel() async {
+    setState(() => _cancelling = true);
+    try {
+      await ref.read(settingsRepositoryProvider).cancelDeletion();
+      ref.invalidate(privacySettingsProvider);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao cancelar a eliminação. Tenta de novo.')),
+        );
+        setState(() => _cancelling = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppColors.coral.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.person_off_outlined, size: 36, color: AppColors.coral),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Conta agendada para eliminação',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'A tua conta e todos os teus dados serão eliminados definitivamente a ${_formatDate(widget.scheduledAt)}.\n\nPodes cancelar esta ação até essa data.',
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _cancelling ? null : _cancel,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.teal,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                icon: _cancelling
+                    ? const SizedBox(
+                        width: 16, height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Icon(Icons.undo_rounded, size: 18),
+                label: Text(_cancelling ? 'A cancelar…' : 'Cancelar eliminação'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => ref.read(authProvider.notifier).logout().then((_) {
+                  if (context.mounted) context.go('/login');
+                }),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Terminar sessão'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
