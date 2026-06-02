@@ -287,26 +287,53 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
       _errorMessage = null;
     });
     try {
-      if (_isRegister) {
-        await ref.read(authProvider.notifier).registerWithEmail(
+      final repo = ref.read(authRepositoryProvider);
+      final tokens = _isRegister
+          ? await repo.registerWithEmail(
               _emailCtrl.text.trim(),
               _passwordCtrl.text,
               _nameCtrl.text.trim(),
-            );
-      } else {
-        await ref.read(authProvider.notifier).loginWithEmail(
+            )
+          : await repo.loginWithEmail(
               _emailCtrl.text.trim(),
               _passwordCtrl.text,
             );
-      }
+      await ref.read(authProvider.notifier).completeEmailAuth(tokens);
     } on DioException catch (e) {
-      final msg = e.response?.data?['detail'];
-      setState(() => _errorMessage = msg is String
-          ? msg
-          : _isRegister
-              ? 'Erro ao criar conta. Verifica os dados.'
-              : 'Email ou password incorrectos.');
+      if (!mounted) return;
+      final status = e.response?.statusCode;
+      final detail = e.response?.data?['detail'];
+      final msg = detail is String ? detail : null;
+
+      if (status == 409) {
+        showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Email já registado'),
+            content: Text(msg ?? 'Este email já tem uma conta. Entra com a tua password.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  setState(() => _isRegister = false);
+                },
+                child: const Text('Entrar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        setState(() => _errorMessage = msg ??
+            (_isRegister
+                ? 'Erro ao criar conta. Verifica os dados.'
+                : 'Email ou password incorrectos.'));
+      }
     } catch (_) {
+      if (!mounted) return;
       setState(() => _errorMessage = 'Erro de ligação. Tenta novamente.');
     } finally {
       if (mounted) setState(() => _loading = false);
