@@ -29,7 +29,13 @@ class SettingsRepository {
     await _dio.delete('/users/me/reports');
   }
 
-  Future<void> deleteAccount() async {
-    await _dio.delete('/users/me', data: {'confirmation': 'APAGAR'});
+  Future<DateTime> deleteAccount() async {
+    final res = await _dio.delete('/users/me', data: {'confirmation': 'APAGAR'});
+    final raw = res.data['scheduled_deletion_at'] as String;
+    return DateTime.parse(raw);
+  }
+
+  Future<void> cancelDeletion() async {
+    await _dio.post('/users/me/cancel-deletion');
   }
 }

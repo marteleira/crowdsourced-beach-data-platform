@@ -6,8 +6,23 @@ import 'auth_repository.dart';
 
 final secureStorageProvider = Provider<SecureStorage>((_) => SecureStorage());
 
+class PendingDeletionNotifier extends Notifier<DateTime?> {
+  @override
+  DateTime? build() => null;
+  void set(DateTime? dt) => state = dt;
+}
+
+final pendingDeletionProvider =
+    NotifierProvider<PendingDeletionNotifier, DateTime?>(
+  PendingDeletionNotifier.new,
+);
+
 final dioProvider = Provider<Dio>((ref) {
-  return createDio(ref.read(secureStorageProvider));
+  return createDio(
+    ref.read(secureStorageProvider),
+    onPendingDeletion: (dt) =>
+        ref.read(pendingDeletionProvider.notifier).set(dt),
+  );
 });
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
@@ -126,6 +141,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       } catch (_) {}
     }
     await storage.clearTokens();
+    ref.read(pendingDeletionProvider.notifier).set(null);
     state = const AsyncData(AuthUnauthenticated());
   }
 }
