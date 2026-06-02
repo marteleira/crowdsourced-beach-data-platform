@@ -298,15 +298,19 @@ Detailed docs for each part live in their respective directories:
 
 ### 🚧 In development
 
+- [ ] Personal data export (the `/users/me/data-export` endpoint already exists in the backend)
 
 ---
 
 ### 🔜 Planned
-- [ ] Require a secure password on the regular account creation
+- [ ] Require a safer password on the regular account creation (currently requires only 8 chars)
+- [ ] Display auth/register HTTP/1.1" 409 Conflict (on account creation, if happens)
+- [ ] Require email validation (if not using google)
+- [ ] Improve feedback when doing login with the wrong credentials
+- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id) (consider)
 - [ ] Display current temps (requires another api) (still consider)
 - [ ] Dark mode (still deciding whether it's worth it)
 - [ ] Push notifications
-- [ ] Personal data export (the `/users/me/data-export` endpoint already exists in the backend)
 - [ ] Admin panel for beach management and moderation (still deciding)
 - [ ] Expand to other Portuguese beaches (still deciding)
 - [ ] Some way to show which users are currently at each beach
