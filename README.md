@@ -291,20 +291,20 @@ Detailed docs for each part live in their respective directories:
 - [x] Flag gradients and colour mappings all in AppColors
 - [x] Shared widgets: AlertItem, TideChartPainter, MetricCell, EmptyState
 - [x] **TransportPlannerScreen**: a screen to plan how to get to the beach, nearby stop lookup and trip planning
-- [X] Display the account deletion time if applicable (login failiture)
-- [X] Revert/Cancel account deletion
+- [x] Display the account deletion time if applicable (login failiture)
+- [x] Revert/Cancel account deletion
+- [x] Personal data export (the `/users/me/data-export` endpoint already exists in the backend)
+- [x] Display auth/register HTTP/1.1" 409 Conflict (on account creation, if happens)
 
 ---
 
 ### 🚧 In development
 
-- [ ] Personal data export (the `/users/me/data-export` endpoint already exists in the backend)
 
 ---
 
 ### 🔜 Planned
 - [ ] Require a safer password on the regular account creation (currently requires only 8 chars)
-- [ ] Display auth/register HTTP/1.1" 409 Conflict (on account creation, if happens)
 - [ ] Require email validation (if not using google)
 - [ ] Improve feedback when doing login with the wrong credentials
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id) (consider)

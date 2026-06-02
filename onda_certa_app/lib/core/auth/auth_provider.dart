@@ -132,6 +132,19 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     });
   }
 
+  Future<void> completeEmailAuth(TokenResponse tokens) async {
+    final storage = ref.read(secureStorageProvider);
+    await storage.saveTokens(
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      isAnonymous: false,
+    );
+    state = AsyncData(AuthAuthenticated(
+      accessToken: tokens.accessToken,
+      isAnonymous: false,
+    ));
+  }
+
   Future<void> logout() async {
     final storage = ref.read(secureStorageProvider);
     final refreshToken = await storage.getRefreshToken();
