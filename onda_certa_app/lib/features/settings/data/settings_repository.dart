@@ -38,4 +38,9 @@ class SettingsRepository {
   Future<void> cancelDeletion() async {
     await _dio.post('/users/me/cancel-deletion');
   }
+
+  Future<Map<String, dynamic>> exportData() async {
+    final res = await _dio.get('/users/me/data-export');
+    return res.data as Map<String, dynamic>;
+  }
 }

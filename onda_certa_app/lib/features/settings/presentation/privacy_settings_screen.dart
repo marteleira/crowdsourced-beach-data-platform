@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../data/settings_provider.dart';
@@ -160,7 +164,7 @@ class _PrivacyForm extends ConsumerWidget {
               iconColor: AppColors.teal,
               label: 'Exportar os meus dados',
               subtitle: 'Recebe uma cópia de tudo o que guardamos',
-              onTap: () => _showExportInfo(context),
+              onTap: () => _doExport(context, ref),
             ),
             _Divider(),
             _ActionTile(
@@ -186,24 +190,35 @@ class _PrivacyForm extends ConsumerWidget {
     );
   }
 
-  void _showExportInfo(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Exportar dados'),
-        content: const Text(
-          'Os teus dados (avisos, histórico de reputação) estão disponíveis via API.\n\n'
-          'Endpoint: GET /users/me/data-export\n\n'
-          'Integração com exportação direta em breve.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+  Future<void> _doExport(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      const SnackBar(content: Text('A exportar dados…'), duration: Duration(seconds: 2)),
     );
+    try {
+      final data = await ref.read(settingsRepositoryProvider).exportData();
+      final dir = (await getExternalStorageDirectory()) ?? await getApplicationDocumentsDirectory();
+      final now = DateTime.now();
+      final filename =
+          'ondacerta_dados_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
+      final file = File('${dir.path}/$filename');
+      await file.writeAsString(const JsonEncoder.withIndent('  ').convert(data));
+      if (context.mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('Guardado: $filename'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e, st) {
+      debugPrint('exportData error: $e\n$st');
+      if (context.mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Erro: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _confirmDeleteReports(BuildContext context, WidgetRef ref) async {
