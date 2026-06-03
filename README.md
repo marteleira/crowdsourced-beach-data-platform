@@ -301,16 +301,18 @@ Detailed docs for each part live in their respective directories:
 ---
 
 ### 🚧 In development
+- [x] Push notifications (backend)
 
 
 ---
 
 ### 🔜 Planned
+- [ ] Receive notifications (client)
 - [ ] Require email validation (if not using google)
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id) (consider)
 - [ ] Display current temps (requires another api) (still consider)
 - [ ] Dark mode (still deciding whether it's worth it)
-- [ ] Push notifications
+- [ ] Support more than one language (consider)
 - [ ] Admin panel for beach management and moderation (still deciding)
 - [ ] Expand to other Portuguese beaches (still deciding)
 - [ ] Some way to show which users are currently at each beach/ display on the map

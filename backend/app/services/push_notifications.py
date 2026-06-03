@@ -1,14 +1,15 @@
 """
-Push notification dispatch service.
+Push notification dispatch service
 
-Determines which users should receive a notification when a report is validated
-or a flag changes. Respects each user's notification settings and quiet hours.
+Sends push notifications to users currently at a beach (active heartbeat within
+CHECKIN_WINDOW_MINUTES) and users who have the beach in favourites,
+respects each user's notification settings and quiet hours.
 
-FCM/APNs sending is stubbed — integrate with firebase-admin SDK when credentials
-are available. The targeting logic is complete and production-ready.
+FCM/APNs sending is stubbed, integrate with firebase-admin SDK when credentials
+are available
 """
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy import select
@@ -17,12 +18,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
 from app.models.user_extended import PushToken, UserFavourite, effective_notification_settings
-from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
-CHECKIN_WINDOW_MINUTES = 180   # 3h active check-in session
-PROXIMITY_WINDOW_MINUTES = 20  # GPS within radius
+CHECKIN_WINDOW_MINUTES = 180  #lasts 3h active
 
 
 def _in_quiet_hours(settings: dict) -> bool:
@@ -50,6 +49,37 @@ async def _get_tokens(db: AsyncSession, user_id) -> list[str]:
     return [row[0] for row in r.all()]
 
 
+async def _checkin_and_fav_candidates(
+    db: AsyncSession,
+    beach_id: int,
+    exclude_user_id=None,
+) -> tuple[set, set]:
+    """Returns (checkin_users, fav_users), optionally excluding one user id."""
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=CHECKIN_WINDOW_MINUTES)
+
+    checkin_r = await db.execute(
+        select(OccupancyHeartbeat.user_id)
+        .where(
+            OccupancyHeartbeat.beach_id == beach_id,
+            OccupancyHeartbeat.created_at > cutoff,
+            OccupancyHeartbeat.user_id != None,
+        )
+        .distinct()
+    )
+    checkin_users = {row[0] for row in checkin_r.all()}
+
+    fav_r = await db.execute(
+        select(UserFavourite.user_id).where(UserFavourite.beach_id == beach_id)
+    )
+    fav_users = {row[0] for row in fav_r.all()}
+
+    if exclude_user_id is not None:
+        checkin_users.discard(exclude_user_id)
+        fav_users.discard(exclude_user_id)
+
+    return checkin_users, fav_users
+
+
 async def dispatch_report_notification(
     db: AsyncSession,
     beach_id: int,
@@ -57,34 +87,27 @@ async def dispatch_report_notification(
     severity: int,
     beach_name: str,
     note: Optional[str],
+    exclude_user_id=None,
 ) -> int:
     """
-    Send push notifications to all users who should receive this alert.
+    Notify users at the beach (or with it in favourites) about a new report.
+    exclude_user_id skips the report author.
     Returns the number of users notified.
     """
-    cutoff_checkin = datetime.now(timezone.utc) - timedelta(minutes=CHECKIN_WINDOW_MINUTES)
-    cutoff_proximity = datetime.now(timezone.utc) - timedelta(minutes=PROXIMITY_WINDOW_MINUTES)
-
-    # 1. Users in check-in (heartbeat within 3h)
-    checkin_r = await db.execute(
-        select(OccupancyHeartbeat.user_id)
-        .where(
-            OccupancyHeartbeat.beach_id == beach_id,
-            OccupancyHeartbeat.created_at > cutoff_checkin,
-            OccupancyHeartbeat.user_id != None,
-        )
-        .distinct()
+    checkin_users, fav_users = await _checkin_and_fav_candidates(
+        db, beach_id, exclude_user_id=exclude_user_id
     )
-    checkin_users = {row[0] for row in checkin_r.all()}
-
-    # 2. Users with beach in favourites
-    fav_r = await db.execute(
-        select(UserFavourite.user_id).where(UserFavourite.beach_id == beach_id)
-    )
-    fav_users = {row[0] for row in fav_r.all()}
-
     candidate_ids = checkin_users | fav_users
     notified = 0
+
+    type_emojis = {
+        "jellyfish": "🪼", "strong_current": "⚡",
+        "pollution": "🗑️", "rough_sea": "🌊", "other_alert": "⚠️",
+    }
+    severity_labels = {1: "Ligeiro", 2: "Moderado", 3: "Grave"}
+    emoji = type_emojis.get(alert_type, "⚠️")
+    title = f"{emoji} {alert_type.replace('_', ' ').title()} · {beach_name}"
+    body = note or f"Aviso reportado. Severidade: {severity_labels.get(severity, str(severity))}."
 
     for user_id in candidate_ids:
         user_r = await db.execute(select(User).where(User.id == user_id))
@@ -93,11 +116,9 @@ async def dispatch_report_notification(
             continue
 
         settings = effective_notification_settings(user)
-
         if not settings.get("global_enabled"):
             continue
 
-        # Determine why this user is a candidate and check corresponding toggle
         is_checkin = user_id in checkin_users
         is_favourite = user_id in fav_users
 
@@ -116,7 +137,7 @@ async def dispatch_report_notification(
         if not _severity_allowed(settings, severity):
             continue
 
-        # Quiet hours — severity 3 always goes through
+        # Quiet hours — severity 3 (grave) always goes through
         if severity < 3 and _in_quiet_hours(settings):
             continue
 
@@ -124,33 +145,93 @@ async def dispatch_report_notification(
         if not tokens:
             continue
 
-        severity_labels = {1: "Mild", 2: "Moderate", 3: "Severe"}
-        type_emojis = {
-            "jellyfish": "🪼", "strong_current": "⚡",
-            "pollution": "🗑️", "rough_sea": "🌊", "other_alert": "⚠️",
-        }
-        emoji = type_emojis.get(alert_type, "⚠️")
-        title = f"{emoji} {alert_type.replace('_', ' ').title()} · {beach_name}"
-        body = note or f"Reported condition. Severity: {severity_labels.get(severity, str(severity))}."
+        for token in tokens:
+            await _send_push(token, title, body, beach_id=beach_id)
+        notified += 1
+
+    return notified
+
+
+async def dispatch_flag_notification(
+    db: AsyncSession,
+    beach_id: int,
+    old_color: str,
+    new_color: str,
+    beach_name: str,
+) -> int:
+    """
+    Notify users at the beach (or with it in favourites) about a flag color change.
+    Returns the number of users notified.
+    """
+    checkin_users, fav_users = await _checkin_and_fav_candidates(db, beach_id)
+    candidate_ids = checkin_users | fav_users
+    notified = 0
+
+    color_emojis = {
+        "green": "🟢", "yellow": "🟡", "red": "🔴", "purple": "🟣", "unknown": "⚪",
+    }
+    emoji = color_emojis.get(new_color, "🏖️")
+    title = f"{emoji} Bandeira alterada · {beach_name}"
+    body = f"A bandeira mudou de {old_color} para {new_color}."
+
+    for user_id in candidate_ids:
+        user_r = await db.execute(select(User).where(User.id == user_id))
+        user = user_r.scalar_one_or_none()
+        if not user or user.is_banned:
+            continue
+
+        settings = effective_notification_settings(user)
+        if not settings.get("global_enabled"):
+            continue
+        if not settings.get("flag_change_alerts", True):
+            continue
+
+        is_checkin = user_id in checkin_users
+        is_favourite = user_id in fav_users
+
+        if is_checkin and not settings.get("checkin_alerts"):
+            if not (is_favourite and settings.get("favourite_alerts_enabled")):
+                continue
+        if is_favourite and not is_checkin:
+            if not settings.get("favourite_alerts_enabled"):
+                continue
+            per_beach = settings.get("favourite_alerts_per_beach", {})
+            if not per_beach.get(str(beach_id), True):
+                continue
+
+        if _in_quiet_hours(settings):
+            continue
+
+        tokens = await _get_tokens(db, user_id)
+        if not tokens:
+            continue
 
         for token in tokens:
             await _send_push(token, title, body, beach_id=beach_id)
-
         notified += 1
 
     return notified
 
 
 async def _send_push(token: str, title: str, body: str, beach_id: int) -> None:
-    """
-    Stub — replace with actual FCM call once firebase-admin is configured.
+    from app.core.firebase import is_firebase_ready
+    if not is_firebase_ready():
+        logger.info("PUSH [stub] -> %s | %s: %s", token[:12] + "...", title, body)
+        return
 
-    Example FCM call:
-        message = messaging.Message(
-            notification=messaging.Notification(title=title, body=body),
-            data={"beach_id": str(beach_id), "route": f"/beach/{beach_id}/alerts"},
-            token=token,
-        )
-        messaging.send(message)
-    """
-    logger.info("PUSH [stub] → %s | %s: %s", token[:12] + "...", title, body)
+    from firebase_admin import messaging
+    import asyncio
+
+    message = messaging.Message(
+        notification=messaging.Notification(title=title, body=body),
+        data={"beach_id": str(beach_id), "route": f"/beach/{beach_id}/alerts"},
+        token=token,
+    )
+    try:
+        # messaging.send is synchronous — run in thread pool to avoid blocking event loop
+        result = await asyncio.get_event_loop().run_in_executor(None, messaging.send, message)
+        logger.info("PUSH sent -> %s | message_id=%s", token[:12] + "...", result)
+    except messaging.UnregisteredError:
+        logger.warning("PUSH token unregistered, should be removed: %s", token[:12] + "...")
+    except Exception as exc:
+        logger.error("PUSH failed for token %s: %s", token[:12] + "...", exc)

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
     ENVIRONMENT: str = "development"
+    FIREBASE_CREDENTIALS_PATH: str = ""  # path to serviceAccountKey.json, (the .env should overlap this...)
 
 
 settings = Settings()

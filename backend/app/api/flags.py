@@ -15,6 +15,7 @@ from app.schemas.flag import (
 from app.services.activity import get_activity_level, get_params
 from app.services.flag_confidence import recalculate_beach_confidence
 from app.services.reputation import apply_delta, proposal_weight, DELTA_FLAG_CONFIRMED, DELTA_FLAG_CONTRADICTED
+from app.services.push_notifications import dispatch_flag_notification
 
 router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
 
@@ -80,8 +81,15 @@ async def propose_flag(
     min_confirmations = get_params(activity_level)["flag_confirmation_min"]
 
     if weight >= min_confirmations:
+        old_status = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach.id))
+        old_color = (old_status.scalar_one_or_none() or BeachStatus(flag_color="unknown")).flag_color
+
         await _apply_proposal(db, proposal, beach.id, body.color, user.id)
         await db.commit()
+
+        if old_color != body.color:
+            await dispatch_flag_notification(db, beach.id, old_color, body.color, beach.name)
+
         return FlagProposalResponse(
             proposal_id=proposal.id,
             status="applied",
