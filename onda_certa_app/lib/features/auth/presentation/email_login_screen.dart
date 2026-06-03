@@ -23,6 +23,32 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
   bool _loading = false;
   String? _errorMessage;
 
+  bool _pwHasLength = false;
+  bool _pwHasUpper = false;
+  bool _pwHasLower = false;
+  bool _pwHasDigitOrSpecial = false;
+  int get _pwScore =>
+      [_pwHasLength, _pwHasUpper, _pwHasLower, _pwHasDigitOrSpecial]
+          .where((b) => b)
+          .length;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordCtrl.addListener(_updatePasswordStrength);
+  }
+
+  void _updatePasswordStrength() {
+    final v = _passwordCtrl.text;
+    setState(() {
+      _pwHasLength = v.length >= 8;
+      _pwHasUpper = v.contains(RegExp(r'[A-Z]'));
+      _pwHasLower = v.contains(RegExp(r'[a-z]'));
+      _pwHasDigitOrSpecial =
+          v.contains(RegExp(r'[0-9]')) || v.contains(RegExp(r'[^A-Za-z0-9]'));
+    });
+  }
+
   @override
   void dispose() {
     _emailCtrl.dispose();
@@ -101,6 +127,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 _buildPasswordField(),
+                if (_isRegister && _passwordCtrl.text.isNotEmpty)
+                  _buildPasswordStrengthIndicator(),
                 if (_errorMessage != null) ...[
                   const SizedBox(height: AppSpacing.lg),
                   Container(
@@ -215,13 +243,107 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     );
   }
 
+  Widget _buildPasswordStrengthIndicator() {
+    final score = _pwScore;
+    final (label, barColor) = switch (score) {
+      0 || 1 => ('Fraca', AppColors.coral),
+      2 => ('Razoável', AppColors.amber),
+      3 => ('Boa', AppColors.teal),
+      _ => ('Forte', AppColors.flagGreen),
+    };
+
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(end: score / 4),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                      builder: (_, value, _) => LinearProgressIndicator(
+                        value: value,
+                        minHeight: 5,
+                        backgroundColor:
+                            AppColors.primary.withValues(alpha: 0.08),
+                        valueColor: AlwaysStoppedAnimation(barColor),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    label,
+                    key: ValueKey(label),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: barColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _pwRequirement('8+ caracteres', _pwHasLength),
+            _pwRequirement('Letra maiúscula (A–Z)', _pwHasUpper),
+            _pwRequirement('Letra minúscula (a–z)', _pwHasLower),
+            _pwRequirement('Número ou caractere especial', _pwHasDigitOrSpecial),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _pwRequirement(String label, bool met) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 3),
+      child: Row(
+        children: [
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              met ? Icons.check_circle_outline : Icons.radio_button_unchecked,
+              key: ValueKey(met),
+              size: 14,
+              color: met ? AppColors.teal : AppColors.textHint,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: met ? AppColors.teal : AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPasswordField() {
     return TextFormField(
       controller: _passwordCtrl,
       obscureText: _obscurePassword,
       validator: (v) {
         if (v == null || v.isEmpty) return 'Introduz a password';
-        if (_isRegister && v.length < 8) return 'Mínimo 8 caracteres';
+        if (_isRegister) {
+          if (!_pwHasLength) return 'Mínimo 8 caracteres';
+          if (!_pwHasUpper) return 'Precisa de uma letra maiúscula';
+          if (!_pwHasLower) return 'Precisa de uma letra minúscula';
+          if (!_pwHasDigitOrSpecial) return 'Precisa de um número ou caractere especial';
+        }
         return null;
       },
       style: const TextStyle(color: AppColors.primary),
