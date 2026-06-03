@@ -11,6 +11,7 @@ from app.models.report import Report, ReportVote
 from app.models.user import User
 from app.schemas.report import ReportCreate, ReportResponse, VoteRequest, ReportListResponse
 from app.services.activity import get_activity_level, get_params, report_ttl_minutes
+from app.services.push_notifications import dispatch_report_notification
 
 router = APIRouter(prefix="/beaches/{slug}/reports", tags=["reports"])
 
@@ -111,6 +112,16 @@ async def create_report(
 
     await db.commit()
     await db.refresh(report)
+
+    await dispatch_report_notification(
+        db=db,
+        beach_id=beach.id,
+        alert_type=body.type,
+        severity=body.severity,
+        beach_name=beach.name,
+        note=body.note,
+        exclude_user_id=user.id,
+    )
 
     return _to_response(report, None, label)
 
