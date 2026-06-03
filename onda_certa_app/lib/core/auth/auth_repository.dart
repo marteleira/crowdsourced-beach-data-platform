@@ -46,6 +46,7 @@ class AuthRepository {
         'password': password,
         'display_name': displayName,
       },
+      options: Options(extra: {'skipAuthInterceptor': true}),
     );
     return TokenResponse.fromJson(res.data as Map<String, dynamic>);
   }
@@ -54,6 +55,7 @@ class AuthRepository {
     final res = await _dio.post(
       '/auth/login',
       data: {'email': email, 'password': password},
+      options: Options(extra: {'skipAuthInterceptor': true}),
     );
     return TokenResponse.fromJson(res.data as Map<String, dynamic>);
   }

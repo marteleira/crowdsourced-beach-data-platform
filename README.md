@@ -295,6 +295,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Revert/Cancel account deletion
 - [x] Personal data export (the `/users/me/data-export` endpoint already exists in the backend)
 - [x] Display auth/register HTTP/1.1" 409 Conflict (on account creation, if happens)
+- [x] Improve feedback when doing login with the wrong credentials (or failiture)
 
 ---
 
@@ -304,9 +305,8 @@ Detailed docs for each part live in their respective directories:
 ---
 
 ### 🔜 Planned
-- [ ] Require a safer password on the regular account creation (currently requires only 8 chars)
 - [ ] Require email validation (if not using google)
-- [ ] Improve feedback when doing login with the wrong credentials
+- [ ] Require a safer password on the regular account creation (currently requires only 8 chars)
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id) (consider)
 - [ ] Display current temps (requires another api) (still consider)
 - [ ] Dark mode (still deciding whether it's worth it)
