@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/api_client.dart';
+import '../notifications/fcm_service.dart';
 import '../storage/secure_storage.dart';
 import 'auth_repository.dart';
 
@@ -27,6 +28,10 @@ final dioProvider = Provider<Dio>((ref) {
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(ref.read(dioProvider));
+});
+
+final fcmServiceProvider = Provider<FcmService>((ref) {
+  return FcmService(ref.read(dioProvider));
 });
 
 sealed class AuthState {
@@ -72,6 +77,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         isAnonymous: tokens.isAnonymous,
       );
     });
+    _registerFcmToken();
   }
 
   Future<void> loginAsGuest(String deviceId) async {
@@ -90,6 +96,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         isAnonymous: true,
       );
     });
+    _registerFcmToken();
   }
 
   Future<void> registerWithEmail(
@@ -112,6 +119,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         isAnonymous: false,
       );
     });
+    _registerFcmToken();
   }
 
   Future<void> loginWithEmail(String email, String password) async {
@@ -130,6 +138,7 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         isAnonymous: false,
       );
     });
+    _registerFcmToken();
   }
 
   Future<void> completeEmailAuth(TokenResponse tokens) async {
@@ -143,9 +152,11 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       accessToken: tokens.accessToken,
       isAnonymous: false,
     ));
+    _registerFcmToken();
   }
 
   Future<void> logout() async {
+    await ref.read(fcmServiceProvider).unregisterToken();
     final storage = ref.read(secureStorageProvider);
     final refreshToken = await storage.getRefreshToken();
     if (refreshToken != null) {
@@ -156,6 +167,12 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     await storage.clearTokens();
     ref.read(pendingDeletionProvider.notifier).set(null);
     state = const AsyncData(AuthUnauthenticated());
+  }
+
+  void _registerFcmToken() {
+    if (state.value is AuthAuthenticated) {
+      ref.read(fcmServiceProvider).registerToken();
+    }
   }
 }
 

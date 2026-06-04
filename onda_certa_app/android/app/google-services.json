@@ -1,1 +1,29 @@
-{"installed":{"client_id":"690249877915-0fugbef3smp5eh1kfao5r9vmkgaf897d.apps.googleusercontent.com","project_id":"ondacerta","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs"}}
+{
+  "project_info": {
+    "project_number": "619733741611",
+    "project_id": "ondacerta-de591",
+    "storage_bucket": "ondacerta-de591.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619733741611:android:4bd6962ed045b64d853a6e",
+        "android_client_info": {
+          "package_name": "com.example.onda_certa_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaJokLzHhPR2jI2klSjfbjV2hh76RfAVs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
