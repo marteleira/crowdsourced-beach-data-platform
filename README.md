@@ -297,17 +297,17 @@ Detailed docs for each part live in their respective directories:
 - [x] Display auth/register HTTP/1.1" 409 Conflict (on account creation, if happens)
 - [x] Improve feedback when doing login with the wrong credentials (or failiture)
 - [x] Require a safer password on the regular account creation (currently requires only 8 chars)
+- [x] Push notifications (backend)
+- [x] Receive notifications (client)
 
 ---
 
 ### 🚧 In development
-- [x] Push notifications (backend)
 
 
 ---
 
 ### 🔜 Planned
-- [ ] Receive notifications (client)
 - [ ] Require email validation (if not using google)
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id) (consider)
 - [ ] Display current temps (requires another api) (still consider)
