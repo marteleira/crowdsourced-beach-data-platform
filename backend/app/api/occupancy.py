@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.beaches import _compute_occupancy
@@ -22,6 +23,16 @@ async def send_heartbeat(
     user: User = Depends(require_user),
 ):
     beach = await get_beach_or_404(slug, db)
+
+    # invalidade heartbeats from this user at other beaches (last 20 minutes)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=20)
+    await db.execute(
+        delete(OccupancyHeartbeat).where(
+            OccupancyHeartbeat.user_id == user.id,
+            OccupancyHeartbeat.beach_id != beach.id,
+            OccupancyHeartbeat.created_at > cutoff,
+        )
+    )
 
     geom = f"SRID=4326;POINT({body.lon} {body.lat})"
     db.add(OccupancyHeartbeat(beach_id=beach.id, user_id=user.id, geom=geom))

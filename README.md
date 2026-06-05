@@ -299,6 +299,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Require a safer password on the regular account creation (currently requires only 8 chars)
 - [x] Push notifications (backend)
 - [x] Receive notifications (client)
+- [x] A user cant have hearthbeats on 2 or more beaches (this gives the effect of being at multiple different places at the same time)
 
 ---
 
@@ -309,7 +310,6 @@ Detailed docs for each part live in their respective directories:
 
 ### 🔜 Planned
 - [ ] List the users on the beach (respecting the privacy settings)
-- [ ] A user cant have hearthbeats on 2 beaches (this gives the effect of being at 2 different places at the same time)
 
 - [ ] Require email validation (if not using google)
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id) (consider)

@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.beach import Beach
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
+from app.core.security import create_access_token
 
 
 class TestHeartbeat:
@@ -66,14 +67,63 @@ class TestHeartbeat:
         )
         assert r.status_code == 404
 
+    async def test_beach_switch_invalidates_previous_heartbeats(
+        self, client: AsyncClient, beach: Beach, db: AsyncSession
+    ):
+        """Moving to another beach must remove the user from the previous beach's count"""
+        beach2 = Beach(
+            slug="praia-galapinhos",
+            name="Praia dos Galapinhos",
+            lat=38.47, lon=-8.99,
+            geom="SRID=4326;POINT(-8.99 38.47)",
+            has_capacity_data=False,
+            max_capacity=500,
+            nearby_stop_ids=[],
+            flags_available=True,
+        )
+        db.add(beach2)
+
+        mover = User(email="mover@test.com", is_anonymous=False, reputation=0)
+        stayer = User(email="stayer@test.com", is_anonymous=False, reputation=0)
+        db.add(mover)
+        db.add(stayer)
+        await db.commit()
+        await db.refresh(beach2)
+        await db.refresh(mover)
+        await db.refresh(stayer)
+
+        mover_token = create_access_token(mover.id, 0, False)
+        stayer_token = create_access_token(stayer.id, 0, False)
+
+        # user arrives at beach 1
+        await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/occupancy/heartbeat",
+            json={"lat": 38.4839, "lon": -8.9821},
+            headers={"Authorization": f"Bearer {mover_token}"},
+        )
+
+        # user switches to beach 2
+        r = await client.post(
+            "/api/v1/beaches/praia-galapinhos/occupancy/heartbeat",
+            json={"lat": 38.47, "lon": -8.99},
+            headers={"Authorization": f"Bearer {mover_token}"},
+        )
+        assert r.json()["user_count"] == 1  # mover is counted at beach 2
+
+        # user sends heartbeat to beach 1 — should only see themselve
+        r = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/occupancy/heartbeat",
+            json={"lat": 38.4839, "lon": -8.9821},
+            headers={"Authorization": f"Bearer {stayer_token}"},
+        )
+        assert r.json()["user_count"] == 1  # mover was invalidated
+
     async def test_multiple_users_increase_count(
         self, client: AsyncClient, beach: Beach, db: AsyncSession
     ):
-        from app.core.security import create_access_token
-
         tokens = []
         for i in range(5):
-            u = User(email=f"beach{i}@test.com", is_anonymous=False, reputation=0)
+            u = User(email=f"beachcount{i}@test.com", is_anonymous=False, reputation=0)
             db.add(u)
             await db.flush()
             tokens.append(create_access_token(u.id, 0, False))
