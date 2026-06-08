@@ -114,6 +114,17 @@ final userProfileProvider = FutureProvider<UserProfile?>((ref) async {
   return ref.read(beachRepositoryProvider).getUserProfile();
 });
 
+Future<void> refreshHomeData(WidgetRef ref) {
+  ref.invalidate(locationProvider);
+  ref.invalidate(beachListProvider);
+  ref.invalidate(weatherProvider);
+  ref.invalidate(seaProvider);
+  ref.invalidate(tidesProvider);
+  ref.invalidate(reportsProvider);
+  ref.invalidate(mapUsersProvider);
+  return ref.read(beachListProvider.future);
+}
+
 // Single combined call for BeachDetailScreen
 
 final beachFullDetailProvider = FutureProvider.family<BeachFullDetail?, String>((ref, slug) async {

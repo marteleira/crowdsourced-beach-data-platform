@@ -64,7 +64,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: _tab == 2 ? const Color(0xFF081C2E) : AppColors.background,
+        backgroundColor: _tab == 2 ? AppColors.primaryDark : AppColors.background,
         body: switch (_tab) {
           0 => _HomeDashboard(onTabChange: (i) => setState(() => _tab = i)),
           1 => const BeachListScreen(),
@@ -131,17 +131,7 @@ class _HomeDashboard extends ConsumerWidget {
       return const _HomeLoadingView();
     }
 
-    Future<void> onRefresh() async {
-      ref.invalidate(locationProvider);
-      ref.invalidate(beachListProvider);
-      ref.invalidate(weatherProvider);
-      ref.invalidate(seaProvider);
-      ref.invalidate(tidesProvider);
-      ref.invalidate(reportsProvider);
-      ref.invalidate(mapUsersProvider);
-      
-      await ref.read(beachListProvider.future);
-    }
+    Future<void> onRefresh() => refreshHomeData(ref);
 
     return RefreshIndicator(
       onRefresh: onRefresh,
