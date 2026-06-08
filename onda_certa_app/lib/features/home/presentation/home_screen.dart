@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/notifications/notification_provider.dart';
 import '../../../core/presence/heartbeat_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
@@ -147,7 +148,6 @@ class _HomeDashboard extends ConsumerWidget {
             weather: weather.value,
             sea: sea.value,
             profile: profile.value,
-            hasNotifications: false, // wire up notification provider when ready
           ),
         ),
         SliverPadding(
@@ -260,17 +260,17 @@ Widget _sectionLabel(String text) => Padding(
 
 // Header
 
-class _Header extends StatelessWidget {
-  const _Header({required this.beaches, this.bestBeach, required this.weather, required this.sea, required this.profile, this.hasNotifications = false});
+class _Header extends ConsumerWidget {
+  const _Header({required this.beaches, this.bestBeach, required this.weather, required this.sea, required this.profile});
   final List<BeachSummary> beaches;
   final BeachSummary? bestBeach;
   final WeatherPoint? weather;
   final SeaPoint? sea;
   final UserProfile? profile;
-  final bool hasNotifications;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasUnread = ref.watch(hasUnreadProvider);
     final now = DateTime.now();
     final hour = now.hour;
     final greeting = hour < 5 ? 'Boa noite' : hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
@@ -340,11 +340,11 @@ class _Header extends StatelessWidget {
                         ),
                         child: IconButton(
                           icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 18),
-                          onPressed: () {},
+                          onPressed: () => context.push('/notifications'),
                           padding: EdgeInsets.zero,
                         ),
                       ),
-                      if (hasNotifications) Positioned(top: 2, right: 2, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.coral, shape: BoxShape.circle))),
+                      if (hasUnread) Positioned(top: 2, right: 2, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.coral, shape: BoxShape.circle))),
                     ],
                   ),
                 ],

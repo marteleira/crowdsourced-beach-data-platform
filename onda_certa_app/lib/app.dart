@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'core/auth/auth_provider.dart';
+import 'core/notifications/notification_provider.dart';
 import 'core/presence/heartbeat_provider.dart';
+import 'features/notifications/presentation/notifications_screen.dart';
 import 'features/auth/presentation/email_login_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/pending_deletion_screen.dart';
@@ -68,6 +70,7 @@ final _routerProvider = Provider<GoRouter>((ref) {
         path: '/beach/:slug/transport',
         builder: (_, state) => TransportScreen(beach: state.extra as BeachSummary),
       ),
+      GoRoute(path: '/notifications', builder: (_, _) => const NotificationsScreen()),
     ],
   );
 });
@@ -78,6 +81,7 @@ class OndaCertaApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(heartbeatProvider);
+    ref.watch(notificationsProvider);
     final router = ref.watch(_routerProvider);
     return MaterialApp.router(
       title: 'OndaCerta',
