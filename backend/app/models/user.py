@@ -36,6 +36,10 @@ class User(Base):
     notification_settings = Column(JSONB)
     privacy_settings = Column(JSONB)
 
+    is_email_verified = Column(Boolean, default=False)
+    email_verification_code_hash = Column(Text, nullable=True)
+    email_verification_expires_at = Column(TIMESTAMP(timezone=True), nullable=True)
+
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     scheduled_deletion_at = Column(TIMESTAMP(timezone=True), nullable=True)
 

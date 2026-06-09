@@ -14,5 +14,14 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     FIREBASE_CREDENTIALS_PATH: str = ""  # path to serviceAccountKey.json, (the .env should overlap this...)
 
+    # Email / SMTP (leave SMTP_HOST empty to skip sending (logs code instead))
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_TLS: bool = True
+    EMAIL_FROM: str = "noreply@ondacerta.app"
+    EMAIL_VERIFICATION_EXPIRE_MINUTES: int = 15
+
 
 settings = Settings()

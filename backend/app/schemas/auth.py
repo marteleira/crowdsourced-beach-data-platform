@@ -50,9 +50,18 @@ class PromoteRequest(BaseModel):
         return v
 
 
+class VerifyEmailRequest(BaseModel):
+    code: str
+
+
+class ResendVerificationRequest(BaseModel):
+    pass
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
-    expires_in: int       # seconds until access_token expires
+    expires_in: int
     is_anonymous: bool
+    is_email_verified: bool

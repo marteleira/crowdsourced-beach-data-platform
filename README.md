@@ -306,19 +306,20 @@ Detailed docs for each part live in their respective directories:
 ### 🔜 Planned
 
 - [ ] Require email validation (if not using google)
-- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests
 
 ---
 
-### Consider
+### Consider -> Talk with Professor Bruno
+- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
 - [ ] Support more than one language 
 - [ ] List the users on the beach (respecting the privacy settings)
 
 - [ ] Display current temps (requires another api)
 - [ ] Admin panel for beach management and moderation
-
+- [ ] Implement the flag system with prolog
+ 
 #### Probably wont
 - [ ] Dark mode (Darkmode may be worse to see on the beach)
 - [ ] Expand to other Portuguese beaches 
