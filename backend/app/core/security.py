@@ -1,4 +1,5 @@
 import hashlib
+import random
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -18,12 +19,15 @@ def verify_password(plain: str, hashed: str) -> bool:
     return _bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
-def create_access_token(user_id: UUID, reputation: int, is_anonymous: bool) -> str:
+def create_access_token(
+    user_id: UUID, reputation: int, is_anonymous: bool, is_email_verified: bool = False
+) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.JWT_ACCESS_EXPIRE_MINUTES)
     payload = {
         "sub": str(user_id),
         "rep": reputation,
         "anon": is_anonymous,
+        "email_verified": is_email_verified,
         "exp": expire,
     }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
@@ -45,6 +49,17 @@ def generate_refresh_token() -> tuple[str, str]:
 
 def hash_refresh_token(raw: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
+
+
+def generate_verification_code() -> tuple[str, str]:
+    """Return (plain_code, sha256_hash). Store only the hash."""
+    code = f"{random.randint(0, 999_999):06d}"
+    hashed = hashlib.sha256(code.encode()).hexdigest()
+    return code, hashed
+
+
+def hash_verification_code(code: str) -> str:
+    return hashlib.sha256(code.encode()).hexdigest()
 
 
 async def verify_google_id_token(id_token: str) -> dict:

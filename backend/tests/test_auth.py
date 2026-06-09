@@ -1,10 +1,11 @@
 """Authentication endpoint tests."""
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.security import hash_verification_code
 from app.models.user import User
 
 
@@ -30,20 +31,24 @@ class TestGuestAuth:
 
 class TestRegister:
     async def test_register_success(self, client: AsyncClient):
-        r = await client.post("/api/v1/auth/register", json={
-            "email": "new@example.com",
-            "password": "strongpass",
-            "display_name": "New User",
-        })
+        with patch("app.api.auth.send_verification_email", new_callable=AsyncMock):
+            r = await client.post("/api/v1/auth/register", json={
+                "email": "new@example.com",
+                "password": "strongpass",
+                "display_name": "New User",
+            })
         assert r.status_code == 201
-        assert r.json()["is_anonymous"] is False
+        body = r.json()
+        assert body["is_anonymous"] is False
+        assert body["is_email_verified"] is False
 
     async def test_register_duplicate_email(self, client: AsyncClient, user: User):
-        r = await client.post("/api/v1/auth/register", json={
-            "email": "test@example.com",
-            "password": "strongpass",
-            "display_name": "Dup",
-        })
+        with patch("app.api.auth.send_verification_email", new_callable=AsyncMock):
+            r = await client.post("/api/v1/auth/register", json={
+                "email": "test@example.com",
+                "password": "strongpass",
+                "display_name": "Dup",
+            })
         assert r.status_code == 409
 
     async def test_register_short_password(self, client: AsyncClient):
@@ -141,13 +146,16 @@ class TestPromote:
         guest = await client.post("/api/v1/auth/guest", json={"device_id": "promo-device"})
         token = guest.json()["access_token"]
 
-        r = await client.post(
-            "/api/v1/auth/promote",
-            json={"email": "promoted@example.com", "password": "password123", "display_name": "Promoted"},
-            headers={"Authorization": f"Bearer {token}"},
-        )
+        with patch("app.api.auth.send_verification_email", new_callable=AsyncMock):
+            r = await client.post(
+                "/api/v1/auth/promote",
+                json={"email": "promoted@example.com", "password": "password123", "display_name": "Promoted"},
+                headers={"Authorization": f"Bearer {token}"},
+            )
         assert r.status_code == 200
-        assert r.json()["is_anonymous"] is False
+        body = r.json()
+        assert body["is_anonymous"] is False
+        assert body["is_email_verified"] is False
 
     async def test_promote_fails_for_registered_user(self, client: AsyncClient, auth_headers: dict):
         r = await client.post(
@@ -161,9 +169,153 @@ class TestPromote:
         guest = await client.post("/api/v1/auth/guest", json={"device_id": "promo-device-2"})
         token = guest.json()["access_token"]
 
+        with patch("app.api.auth.send_verification_email", new_callable=AsyncMock):
+            r = await client.post(
+                "/api/v1/auth/promote",
+                json={"email": "test@example.com", "password": "password123", "display_name": "X"},
+                headers={"Authorization": f"Bearer {token}"},
+            )
+        assert r.status_code == 409
+
+
+class TestEmailVerification:
+    async def _register_unverified(self, client: AsyncClient) -> tuple[str, str]:
+        """Register a new user and return (access_token, captured_code)."""
+        mock_send = AsyncMock()
+        with patch("app.api.auth.send_verification_email", mock_send):
+            r = await client.post("/api/v1/auth/register", json={
+                "email": "verify@example.com",
+                "password": "password123",
+                "display_name": "Verify Me",
+            })
+        assert r.status_code == 201
+        token = r.json()["access_token"]
+        # code is the second positional arg of send_verification_email(email, code)
+        code = mock_send.call_args.args[1]
+        return token, code
+
+    async def test_register_email_not_verified_by_default(self, client: AsyncClient):
+        with patch("app.api.auth.send_verification_email", new_callable=AsyncMock):
+            r = await client.post("/api/v1/auth/register", json={
+                "email": "verify@example.com",
+                "password": "password123",
+                "display_name": "Verify Me",
+            })
+        assert r.json()["is_email_verified"] is False
+
+    async def test_verify_email_correct_code(self, client: AsyncClient):
+        token, code = await self._register_unverified(client)
         r = await client.post(
-            "/api/v1/auth/promote",
-            json={"email": "test@example.com", "password": "password123", "display_name": "X"},
+            "/api/v1/auth/verify-email",
+            json={"code": code},
             headers={"Authorization": f"Bearer {token}"},
         )
-        assert r.status_code == 409
+        assert r.status_code == 200
+        assert r.json()["status"] == "verified"
+
+    async def test_verify_email_wrong_code(self, client: AsyncClient):
+        token, _ = await self._register_unverified(client)
+        r = await client.post(
+            "/api/v1/auth/verify-email",
+            json={"code": "000000"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 400
+
+    async def test_verify_email_already_verified(self, client: AsyncClient, user: User, auth_headers: dict):
+        r = await client.post(
+            "/api/v1/auth/verify-email",
+            json={"code": "123456"},
+            headers=auth_headers,
+        )
+        assert r.status_code == 200
+        assert r.json()["status"] == "already_verified"
+
+    async def test_verify_email_no_pending_code(self, client: AsyncClient, db: AsyncSession):
+        from app.models.user import User as UserModel
+        from app.core.security import hash_password as hp
+        u = UserModel(
+            email="nopending@example.com",
+            display_name="NoPending",
+            password_hash=hp("password123"),
+            is_anonymous=False,
+            is_email_verified=False,
+        )
+        db.add(u)
+        await db.commit()
+        await db.refresh(u)
+
+        login = await client.post("/api/v1/auth/login", json={
+            "email": "nopending@example.com", "password": "password123"
+        })
+        token = login.json()["access_token"]
+
+        r = await client.post(
+            "/api/v1/auth/verify-email",
+            json={"code": "123456"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 400
+
+    async def test_resend_verification_sends_new_code(self, client: AsyncClient):
+        token, old_code = await self._register_unverified(client)
+
+        mock_send = AsyncMock()
+        with patch("app.api.auth.send_verification_email", mock_send):
+            r = await client.post(
+                "/api/v1/auth/resend-verification",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+        assert r.status_code == 200
+        new_code = mock_send.call_args.args[1]
+
+        # old code no longer works
+        r = await client.post(
+            "/api/v1/auth/verify-email",
+            json={"code": old_code},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 400
+
+        # new code works
+        r = await client.post(
+            "/api/v1/auth/verify-email",
+            json={"code": new_code},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+
+    async def test_resend_verification_fails_if_already_verified(
+        self, client: AsyncClient, auth_headers: dict
+    ):
+        r = await client.post(
+            "/api/v1/auth/resend-verification",
+            headers=auth_headers,
+        )
+        assert r.status_code == 400
+
+    async def test_google_user_is_always_verified(self, client: AsyncClient):
+        fake_payload = {"sub": "google-uid-999", "email": "gverify@example.com", "name": "GUser"}
+        with patch("app.api.auth.verify_google_id_token", return_value=fake_payload):
+            r = await client.post("/api/v1/auth/google", json={"id_token": "fake"})
+        assert r.status_code == 200
+        assert r.json()["is_email_verified"] is True
+
+    async def test_login_token_reflects_verification_state(self, client: AsyncClient):
+        token, code = await self._register_unverified(client)
+
+        login = await client.post("/api/v1/auth/login", json={
+            "email": "verify@example.com", "password": "password123"
+        })
+        assert login.json()["is_email_verified"] is False
+
+        await client.post(
+            "/api/v1/auth/verify-email",
+            json={"code": code},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        login2 = await client.post("/api/v1/auth/login", json={
+            "email": "verify@example.com", "password": "password123"
+        })
+        assert login2.json()["is_email_verified"] is True

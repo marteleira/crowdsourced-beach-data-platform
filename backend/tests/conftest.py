@@ -138,6 +138,7 @@ async def user(db: AsyncSession) -> User:
         password_hash=hash_password("password123"),
         is_anonymous=False,
         reputation=0,
+        is_email_verified=True,
     )
     db.add(u)
     await db.commit()
@@ -153,6 +154,7 @@ async def user_with_rep(db: AsyncSession) -> User:
         password_hash=hash_password("password123"),
         is_anonymous=False,
         reputation=20,
+        is_email_verified=True,
     )
     db.add(u)
     await db.commit()
