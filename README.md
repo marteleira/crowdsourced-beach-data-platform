@@ -303,24 +303,25 @@ Detailed docs for each part live in their respective directories:
 
 ---
 
-### 🚧 In development
-
-
----
-
 ### 🔜 Planned
-- [ ] List the users on the beach (respecting the privacy settings)
 
 - [ ] Require email validation (if not using google)
-- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id) (consider)
-- [ ] Display current temps (requires another api) (still consider)
-- [ ] Dark mode (still deciding whether it's worth it)
-- [ ] Support more than one language (consider)
-- [ ] Admin panel for beach management and moderation (still deciding)
-- [ ] Expand to other Portuguese beaches (still deciding)
+- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests
 
+---
+
+### Consider
+- [ ] Support more than one language 
+- [ ] List the users on the beach (respecting the privacy settings)
+
+- [ ] Display current temps (requires another api)
+- [ ] Admin panel for beach management and moderation
+
+#### Probably wont
+- [ ] Dark mode (Darkmode may be worse to see on the beach)
+- [ ] Expand to other Portuguese beaches 
 ---
 
 <div align="center">
