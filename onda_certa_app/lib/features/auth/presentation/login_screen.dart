@@ -110,6 +110,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleGoogleSignIn() async {
     setState(() => _googleLoading = true);
     try {
+      //Ensures a fresh token..
+      await GoogleSignIn.instance.signOut();
       final account = await GoogleSignIn.instance.authenticate();
       final idToken = account.authentication.idToken;
       if (idToken == null) {

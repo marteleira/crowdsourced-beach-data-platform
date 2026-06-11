@@ -23,13 +23,24 @@ import 'shared/theme/app_theme.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
+/// Notifies GoRouter to re-run its redirect logic when auth/account state
+/// changes, without recreating the GoRouter instance itself (which would
+/// reset navigation back to '/' mid-transition).
+class _RouterRefreshNotifier extends ChangeNotifier {
+  _RouterRefreshNotifier(Ref ref) {
+    ref.listen(authProvider, (_, _) => notifyListeners());
+    ref.listen(pendingDeletionProvider, (_, _) => notifyListeners());
+  }
+}
+
 final _routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
-  final pendingDeletion = ref.watch(pendingDeletionProvider);
+  final refresh = _RouterRefreshNotifier(ref);
+  ref.onDispose(refresh.dispose);
 
   return GoRouter(
     initialLocation: '/',
     observers: [routeObserver],
+    refreshListenable: refresh,
     redirect: (context, state) {
       final loc = state.matchedLocation;
 
@@ -37,10 +48,11 @@ final _routerProvider = Provider<GoRouter>((ref) {
       if (loc == '/' || loc.startsWith('/login')) return null;
 
       // Protect app routes
-      final authed = authState.value is AuthAuthenticated;
+      final authed = ref.read(authProvider).value is AuthAuthenticated;
       if (!authed) return '/login';
 
       // Redirect to pending-deletion screen for any app route when account is flagged
+      final pendingDeletion = ref.read(pendingDeletionProvider);
       if (pendingDeletion != null && loc != '/pending-deletion') {
         return '/pending-deletion';
       }
