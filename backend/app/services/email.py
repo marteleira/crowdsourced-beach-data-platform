@@ -38,3 +38,4 @@ async def send_verification_email(to_email: str, code: str) -> None:
         password=settings.SMTP_PASSWORD or None,
         use_tls=settings.SMTP_TLS,
     )
+

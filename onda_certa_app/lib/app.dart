@@ -6,6 +6,7 @@ import 'core/notifications/notification_provider.dart';
 import 'core/presence/heartbeat_provider.dart';
 import 'features/notifications/presentation/notifications_screen.dart';
 import 'features/auth/presentation/email_login_screen.dart';
+import 'features/auth/presentation/email_verification_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/pending_deletion_screen.dart';
 import 'features/beaches/domain/beach_models.dart';
@@ -48,13 +49,20 @@ final _routerProvider = Provider<GoRouter>((ref) {
       if (loc == '/' || loc.startsWith('/login')) return null;
 
       // Protect app routes
-      final authed = ref.read(authProvider).value is AuthAuthenticated;
-      if (!authed) return '/login';
+      final authState = ref.read(authProvider).value;
+      if (authState is! AuthAuthenticated) return '/login';
 
       // Redirect to pending-deletion screen for any app route when account is flagged
       final pendingDeletion = ref.read(pendingDeletionProvider);
       if (pendingDeletion != null && loc != '/pending-deletion') {
         return '/pending-deletion';
+      }
+
+      // Force email verification for registered (non-guest) accounts
+      if (!authState.isAnonymous &&
+          !authState.isEmailVerified &&
+          loc != '/verify-email') {
+        return '/verify-email';
       }
 
       return null;
@@ -64,6 +72,7 @@ final _routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/login/email', builder: (_, _) => const EmailLoginScreen()),
       GoRoute(path: '/pending-deletion', builder: (_, _) => const PendingDeletionScreen()),
+      GoRoute(path: '/verify-email', builder: (_, _) => const EmailVerificationScreen()),
       GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
       GoRoute(path: '/terms', builder: (_, _) => const TermsScreen()),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),

@@ -42,9 +42,11 @@ class AuthAuthenticated extends AuthState {
   const AuthAuthenticated({
     required this.accessToken,
     required this.isAnonymous,
+    required this.isEmailVerified,
   });
   final String accessToken;
   final bool isAnonymous;
+  final bool isEmailVerified;
 }
 
 class AuthUnauthenticated extends AuthState {
@@ -58,7 +60,12 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     final token = await storage.getAccessToken();
     if (token == null) return const AuthUnauthenticated();
     final isAnon = await storage.getIsAnonymous();
-    return AuthAuthenticated(accessToken: token, isAnonymous: isAnon);
+    final isEmailVerified = await storage.getIsEmailVerified();
+    return AuthAuthenticated(
+      accessToken: token,
+      isAnonymous: isAnon,
+      isEmailVerified: isEmailVerified,
+    );
   }
 
   Future<void> loginWithGoogle(String idToken) async {
@@ -71,10 +78,12 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAnonymous: tokens.isAnonymous,
+        isEmailVerified: tokens.isEmailVerified,
       );
       return AuthAuthenticated(
         accessToken: tokens.accessToken,
         isAnonymous: tokens.isAnonymous,
+        isEmailVerified: tokens.isEmailVerified,
       );
     });
     _registerFcmToken();
@@ -90,10 +99,12 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAnonymous: true,
+        isEmailVerified: tokens.isEmailVerified,
       );
       return AuthAuthenticated(
         accessToken: tokens.accessToken,
         isAnonymous: true,
+        isEmailVerified: tokens.isEmailVerified,
       );
     });
     _registerFcmToken();
@@ -113,10 +124,12 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAnonymous: false,
+        isEmailVerified: tokens.isEmailVerified,
       );
       return AuthAuthenticated(
         accessToken: tokens.accessToken,
         isAnonymous: false,
+        isEmailVerified: tokens.isEmailVerified,
       );
     });
     _registerFcmToken();
@@ -132,10 +145,12 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         isAnonymous: false,
+        isEmailVerified: tokens.isEmailVerified,
       );
       return AuthAuthenticated(
         accessToken: tokens.accessToken,
         isAnonymous: false,
+        isEmailVerified: tokens.isEmailVerified,
       );
     });
     _registerFcmToken();
@@ -147,12 +162,39 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       isAnonymous: false,
+      isEmailVerified: tokens.isEmailVerified,
     );
     state = AsyncData(AuthAuthenticated(
       accessToken: tokens.accessToken,
       isAnonymous: false,
+      isEmailVerified: tokens.isEmailVerified,
     ));
     _registerFcmToken();
+  }
+
+  Future<void> verifyEmail(String code) async {
+    final repo = ref.read(authRepositoryProvider);
+    final storage = ref.read(secureStorageProvider);
+
+    await repo.verifyEmail(code);
+
+    final refreshToken = await storage.getRefreshToken();
+    final tokens = await repo.refresh(refreshToken!);
+    await storage.saveTokens(
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      isAnonymous: tokens.isAnonymous,
+      isEmailVerified: tokens.isEmailVerified,
+    );
+    state = AsyncData(AuthAuthenticated(
+      accessToken: tokens.accessToken,
+      isAnonymous: tokens.isAnonymous,
+      isEmailVerified: tokens.isEmailVerified,
+    ));
+  }
+
+  Future<void> resendVerification() async {
+    await ref.read(authRepositoryProvider).resendVerification();
   }
 
   Future<void> logout() async {

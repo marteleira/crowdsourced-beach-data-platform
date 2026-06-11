@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,6 +8,8 @@ from app.core.config import settings
 from app.core.firebase import init_firebase
 from app.scheduler.setup import create_scheduler
 from app.api import auth, beaches, reports, flags, occupancy, weather, tides, water_quality, transport, users, favourites, notifications, privacy, map
+
+logging.basicConfig(level=logging.INFO)
 
 
 @asynccontextmanager

@@ -7,6 +7,7 @@ class TokenResponse {
     required this.tokenType,
     required this.expiresIn,
     required this.isAnonymous,
+    required this.isEmailVerified,
   });
 
   final String accessToken;
@@ -14,6 +15,7 @@ class TokenResponse {
   final String tokenType;
   final int expiresIn;
   final bool isAnonymous;
+  final bool isEmailVerified;
 
   factory TokenResponse.fromJson(Map<String, dynamic> json) => TokenResponse(
         accessToken: json['access_token'] as String,
@@ -21,6 +23,7 @@ class TokenResponse {
         tokenType: json['token_type'] as String,
         expiresIn: json['expires_in'] as int,
         isAnonymous: json['is_anonymous'] as bool? ?? false,
+        isEmailVerified: json['is_email_verified'] as bool? ?? false,
       );
 }
 
@@ -67,5 +70,22 @@ class AuthRepository {
 
   Future<void> logout(String refreshToken) async {
     await _dio.post('/auth/logout', data: {'refresh_token': refreshToken});
+  }
+
+  Future<TokenResponse> refresh(String refreshToken) async {
+    final res = await _dio.post(
+      '/auth/refresh',
+      data: {'refresh_token': refreshToken},
+      options: Options(extra: {'skipAuthInterceptor': true}),
+    );
+    return TokenResponse.fromJson(res.data as Map<String, dynamic>);
+  }
+
+  Future<void> verifyEmail(String code) async {
+    await _dio.post('/auth/verify-email', data: {'code': code});
+  }
+
+  Future<void> resendVerification() async {
+    await _dio.post('/auth/resend-verification');
   }
 }
