@@ -319,6 +319,9 @@ Detailed docs for each part live in their respective directories:
 - [ ] Display current temps (requires another api)
 - [ ] Admin panel for beach management and moderation
 - [ ] Implement the flag system with prolog
+
+- [ ] Disable the "im there" button to hearthbeat on the beach (when im not actually there)...
+- [ ]
  
 #### Probably wont
 - [ ] Dark mode (Darkmode may be worse to see on the beach)
