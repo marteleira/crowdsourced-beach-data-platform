@@ -63,11 +63,13 @@ class AuthInterceptor extends Interceptor {
       final newAccess = response.data['access_token'] as String;
       final newRefresh = response.data['refresh_token'] as String;
       final isAnon = response.data['is_anonymous'] as bool? ?? false;
+      final isEmailVerified = response.data['is_email_verified'] as bool? ?? false;
 
       await _storage.saveTokens(
         accessToken: newAccess,
         refreshToken: newRefresh,
         isAnonymous: isAnon,
+        isEmailVerified: isEmailVerified,
       );
 
       final retried = await _dio.fetch(

@@ -103,6 +103,24 @@ class TestGoogleLogin:
             r = await client.post("/api/v1/auth/google", json={"id_token": "bad"})
         assert r.status_code == 401
 
+    async def test_existing_google_user_becomes_verified(self, client: AsyncClient, db: AsyncSession):
+        fake_payload = {"sub": "google-uid-789", "email": "googleold@example.com", "name": "Old Google User"}
+
+        user = User(
+            email="googleold@example.com",
+            display_name="Old Google User",
+            google_sub="google-uid-789",
+            is_anonymous=False,
+            is_email_verified=False,
+        )
+        db.add(user)
+        await db.commit()
+
+        with patch("app.api.auth.verify_google_id_token", return_value=fake_payload):
+            r = await client.post("/api/v1/auth/google", json={"id_token": "fake-token"})
+        assert r.status_code == 200
+        assert r.json()["is_email_verified"] is True
+
 
 class TestRefreshAndLogout:
     async def test_refresh_returns_new_tokens(self, client: AsyncClient, user: User):
