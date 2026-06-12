@@ -129,17 +129,18 @@ async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
 
         if user:
             user.google_sub = google_sub
-            user.is_email_verified = True
         else:
             user = User(
                 email=email or None,
                 display_name=name,
                 google_sub=google_sub,
                 is_anonymous=False,
-                is_email_verified=True,
             )
             db.add(user)
             await db.flush()
+
+    if not user.is_email_verified:
+        user.is_email_verified = True
 
     await db.commit()
     return await _issue_tokens(user, db)
