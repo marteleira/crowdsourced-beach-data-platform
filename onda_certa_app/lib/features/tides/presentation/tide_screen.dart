@@ -95,6 +95,7 @@ class _TideScreenState extends ConsumerState<TideScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _waveCtrl;
   late final DraggableScrollableController _sheetCtrl;
+  bool _reloading = false;
 
   @override
   void initState() {
@@ -105,6 +106,16 @@ class _TideScreenState extends ConsumerState<TideScreen>
 
   @override
   void dispose() { _waveCtrl.dispose(); _sheetCtrl.dispose(); super.dispose(); }
+
+  Future<void> _reload() async {
+    if (_reloading) return;
+    setState(() => _reloading = true);
+    try {
+      await refreshHomeData(ref);
+    } finally {
+      if (mounted) setState(() => _reloading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +159,30 @@ class _TideScreenState extends ConsumerState<TideScreen>
           builder: (_, sc) => _DetailSheet(
             scrollController: sc, sheetCtrl: _sheetCtrl,
             tidesData: tides, sea: sea, isLoading: loading,
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.paddingOf(context).top + 6,
+          right: 12,
+          child: GestureDetector(
+            onTap: _reload,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Colors.black26,
+                shape: BoxShape.circle,
+              ),
+              child: _reloading
+                  ? const Padding(
+                      padding: EdgeInsets.all(9),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.refresh, color: Colors.white, size: 20),
+            ),
           ),
         ),
       ],
