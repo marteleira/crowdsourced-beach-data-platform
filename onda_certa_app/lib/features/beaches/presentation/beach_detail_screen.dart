@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app.dart';
+import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
 import '../../../features/community/presentation/flag_confirmation_sheet.dart';
@@ -179,8 +180,20 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         pos = await Geolocator.getLastKnownPosition();
       }
       if (pos != null && mounted) {
+        final beaches = await ref.read(beachListProvider.future);
+        final nearest = findNearestBeach(beaches, pos);
+        if (nearest == null) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Estás demasiado longe de uma praia para registar presença.'),
+              duration: Duration(seconds: 2),
+              backgroundColor: AppColors.coral,
+            ));
+          }
+          return;
+        }
         await ref.read(beachRepositoryProvider).sendHeartbeat(
-          widget.beach.slug, lat: pos.latitude, lon: pos.longitude,
+          nearest.slug, lat: pos.latitude, lon: pos.longitude,
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -189,7 +202,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
             backgroundColor: AppColors.teal,
           ));
           // Refresh detail to update occupancy count
-          ref.invalidate(beachFullDetailProvider(widget.beach.slug));
+          ref.invalidate(beachFullDetailProvider(nearest.slug));
         }
       }
     } catch (_) {
@@ -452,7 +465,7 @@ class _OccupancyCard extends StatelessWidget {
                       icon: sending
                           ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
                           : const Text('📍', style: TextStyle(fontSize: 14)),
-                      label: Text(sending ? 'A registar...' : 'Estou aqui'),
+                      label: Text(sending ? 'A atualizar...' : 'Atualizar presença'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
