@@ -300,12 +300,14 @@ Detailed docs for each part live in their respective directories:
 - [x] Push notifications (backend)
 - [x] Receive notifications (client)
 - [x] A user cant have hearthbeats on 2 or more beaches (this gives the effect of being at multiple different places at the same time)
+- [x] Require email validation (if not using google account)
+- [x] Modify the "im there" button to behave like an "update" hearthbeat
 
 ---
 
 ### 🔜 Planned
-
-- [ ] Require email validation (if not using google)
+- [ ] Update/Reload for the Tides/Marés page
+- [ ] Update/Reload for the Map page
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests
 
@@ -320,8 +322,7 @@ Detailed docs for each part live in their respective directories:
 - [ ] Admin panel for beach management and moderation
 - [ ] Implement the flag system with prolog
 
-- [ ] Disable the "im there" button to hearthbeat on the beach (when im not actually there)...
-- [ ]
+- [ ] Include a more detailed tide prediction
  
 #### Probably wont
 - [ ] Dark mode (Darkmode may be worse to see on the beach)

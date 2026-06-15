@@ -8,6 +8,21 @@ import 'heartbeat_provider.dart';
 const _kRadius = 4000.0; // 4km radius
 const _kInterval = Duration(minutes: 19);
 
+// Finds the closest beach to [pos], within [radius] meters. Returns null if
+// none of the known beaches is close enough.
+BeachSummary? findNearestBeach(List<BeachSummary> beaches, Position pos, {double radius = _kRadius}) {
+  BeachSummary? result;
+  double minDist = double.infinity;
+  for (final b in beaches) {
+    final d = Geolocator.distanceBetween(pos.latitude, pos.longitude, b.lat, b.lon);
+    if (d < minDist) {
+      minDist = d;
+      result = b;
+    }
+  }
+  return minDist <= radius ? result : null;
+}
+
 class HeartbeatService {
   Timer? _initialTimer;
   Timer? _timer;
@@ -66,7 +81,7 @@ class HeartbeatService {
       return;
     }
 
-    final nearest = _nearest(beaches, pos);
+    final nearest = findNearestBeach(beaches, pos);
     if (nearest == null) {
       return;
     }
@@ -78,20 +93,5 @@ class HeartbeatService {
         lon: pos.longitude,
       );
     } catch (_) {}
-  }
-
-  BeachSummary? _nearest(List<BeachSummary> beaches, Position pos) {
-    BeachSummary? result;
-    double minDist = double.infinity;
-    for (final b in beaches) {
-      final d = Geolocator.distanceBetween(
-        pos.latitude, pos.longitude, b.lat, b.lon,
-      );
-      if (d < minDist) {
-        minDist = d;
-        result = b;
-      }
-    }
-    return minDist <= _kRadius ? result : null;
   }
 }
