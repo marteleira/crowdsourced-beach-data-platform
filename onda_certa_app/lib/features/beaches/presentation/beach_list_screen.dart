@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -25,6 +27,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
   String _flagFilter = 'all';
   BeachSummary? _selectedBeach;
   bool _hasZoomedToUser = false;
+  bool _reloading = false;
 
   static const _kMinSize = 0.08;
   static const _kMidSize = 0.30;
@@ -83,6 +86,42 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
     ref.invalidate(beachListProvider);
     ref.invalidate(mapUsersProvider);
     await ref.read(beachListProvider.future);
+  }
+
+  Future<void> _reload() async {
+    if (_reloading) return;
+    setState(() => _reloading = true);
+    try {
+      await _sendHeartbeatForCurrentLocation();
+      await _refresh();
+    } finally {
+      if (mounted) setState(() => _reloading = false);
+    }
+  }
+
+  // register presence at the nearest beach before reloading,
+  // so the refreshed occupancy/map data reflects it.
+  Future<void> _sendHeartbeatForCurrentLocation() async {
+    try {
+      Position? pos;
+      try {
+        pos = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 5)),
+        );
+      } catch (_) {
+        pos = await Geolocator.getLastKnownPosition();
+      }
+      if (pos == null) return;
+
+      final cached = ref.read(beachListProvider).asData?.value;
+      final List<BeachSummary> beaches = cached ?? await ref.read(beachListProvider.future);
+      final nearest = findNearestBeach(beaches, pos);
+      if (nearest == null) return;
+
+      await ref.read(beachRepositoryProvider).sendHeartbeat(
+        nearest.slug, lat: pos.latitude, lon: pos.longitude,
+      );
+    } catch (_) {}
   }
 
   void _selectOnMap(BeachSummary beach) {
@@ -261,19 +300,30 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
             ),
           ),
         ),
-        if (beachesAsync.isLoading)
-          const Positioned(
-            top: 60,
-            right: 16,
-            child: SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(
-                color: AppColors.teal,
-                strokeWidth: 2,
+        Positioned(
+          top: top + 6,
+          right: 12,
+          child: GestureDetector(
+            onTap: _reload,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Colors.black26,
+                shape: BoxShape.circle,
               ),
+              child: (_reloading || beachesAsync.isLoading)
+                  ? const Padding(
+                      padding: EdgeInsets.all(9),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Icon(Icons.refresh, color: Colors.white, size: 20),
             ),
           ),
+        ),
         // ── Draggable sheet ──────────────────────────────────────────
         DraggableScrollableSheet(
           controller: _sheetCtrl,
