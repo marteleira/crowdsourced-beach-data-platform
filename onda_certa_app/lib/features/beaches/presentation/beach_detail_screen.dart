@@ -2,7 +2,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app.dart';
 import '../../../core/presence/heartbeat_service.dart';
@@ -171,39 +170,25 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
     if (_sendingHeartbeat) return;
     setState(() => _sendingHeartbeat = true);
     try {
-      Position? pos;
-      try {
-        pos = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 5)),
-        );
-      } catch (_) {
-        pos = await Geolocator.getLastKnownPosition();
-      }
-      if (pos != null && mounted) {
-        final beaches = await ref.read(beachListProvider.future);
-        final nearest = findNearestBeach(beaches, pos);
-        if (nearest == null) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Estás demasiado longe de uma praia para registar presença.'),
-              duration: Duration(seconds: 2),
-              backgroundColor: AppColors.coral,
-            ));
-          }
-          return;
-        }
-        await ref.read(beachRepositoryProvider).sendHeartbeat(
-          nearest.slug, lat: pos.latitude, lon: pos.longitude,
-        );
+      final nearest = await sendHeartbeatForCurrentPosition(ref);
+      if (nearest == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Presença registada!'),
+            content: Text('Estás demasiado longe de uma praia para registar presença.'),
             duration: Duration(seconds: 2),
-            backgroundColor: AppColors.teal,
+            backgroundColor: AppColors.coral,
           ));
-          // Refresh detail to update occupancy count
-          ref.invalidate(beachFullDetailProvider(nearest.slug));
         }
+        return;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Presença registada!'),
+          duration: Duration(seconds: 2),
+          backgroundColor: AppColors.teal,
+        ));
+        // Refresh detail to update occupancy count
+        ref.invalidate(beachFullDetailProvider(nearest.slug));
       }
     } catch (_) {
     } finally {

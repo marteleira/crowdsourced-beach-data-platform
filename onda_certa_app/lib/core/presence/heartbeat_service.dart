@@ -23,6 +23,34 @@ BeachSummary? findNearestBeach(List<BeachSummary> beaches, Position pos, {double
   return minDist <= radius ? result : null;
 }
 
+// gets the device current position, falling back to the last known one if
+// a fresh fix cant be obtained quickly
+Future<Position?> getCurrentOrLastPosition() async {
+  try {
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 5)),
+    );
+  } catch (_) {
+    return await Geolocator.getLastKnownPosition();
+  }
+}
+
+// Sends a heartbeat for the beach nearest to the device current position
+// Returns that beach, or null if no position or no nearby beach was found
+Future<BeachSummary?> sendHeartbeatForCurrentPosition(WidgetRef ref) async {
+  final pos = await getCurrentOrLastPosition();
+  if (pos == null) return null;
+
+  final beaches = await ref.read(beachListProvider.future);
+  final nearest = findNearestBeach(beaches, pos);
+  if (nearest == null) return null;
+
+  await ref.read(beachRepositoryProvider).sendHeartbeat(
+    nearest.slug, lat: pos.latitude, lon: pos.longitude,
+  );
+  return nearest;
+}
+
 class HeartbeatService {
   Timer? _initialTimer;
   Timer? _timer;

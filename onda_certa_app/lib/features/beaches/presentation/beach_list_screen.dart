@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/presence/heartbeat_service.dart';
@@ -92,36 +91,14 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
     if (_reloading) return;
     setState(() => _reloading = true);
     try {
-      await _sendHeartbeatForCurrentLocation();
+      // register presence at the nearest beach before reloading
+      try {
+        await sendHeartbeatForCurrentPosition(ref);
+      } catch (_) {}
       await _refresh();
     } finally {
       if (mounted) setState(() => _reloading = false);
     }
-  }
-
-  // register presence at the nearest beach before reloading,
-  // so the refreshed occupancy/map data reflects it.
-  Future<void> _sendHeartbeatForCurrentLocation() async {
-    try {
-      Position? pos;
-      try {
-        pos = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.low, timeLimit: Duration(seconds: 5)),
-        );
-      } catch (_) {
-        pos = await Geolocator.getLastKnownPosition();
-      }
-      if (pos == null) return;
-
-      final cached = ref.read(beachListProvider).asData?.value;
-      final List<BeachSummary> beaches = cached ?? await ref.read(beachListProvider.future);
-      final nearest = findNearestBeach(beaches, pos);
-      if (nearest == null) return;
-
-      await ref.read(beachRepositoryProvider).sendHeartbeat(
-        nearest.slug, lat: pos.latitude, lon: pos.longitude,
-      );
-    } catch (_) {}
   }
 
   void _selectOnMap(BeachSummary beach) {

@@ -302,18 +302,19 @@ Detailed docs for each part live in their respective directories:
 - [x] A user cant have hearthbeats on 2 or more beaches (this gives the effect of being at multiple different places at the same time)
 - [x] Require email validation (if not using google account)
 - [x] Modify the "im there" button to behave like an "update" hearthbeat
+- [x] Update/Reload for the Map page
+- [x] Update/Reload for the Tides/Marés page
 
 ---
 
 ### 🔜 Planned
-- [ ] Update/Reload for the Tides/Marés page
-- [ ] Update/Reload for the Map page
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests
 
 ---
 
 ### Consider -> Talk with Professor Bruno
+- [ ] Share button (on <beach_detail)
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
 - [ ] Support more than one language 
 - [ ] List the users on the beach (respecting the privacy settings)
