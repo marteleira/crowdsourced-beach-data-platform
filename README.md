@@ -308,6 +308,8 @@ Detailed docs for each part live in their respective directories:
 ---
 
 ### 🔜 Planned
+- [ ] Review privacy settings and related features
+- [ ] Review the point win/loss features
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests
 
@@ -321,13 +323,13 @@ Detailed docs for each part live in their respective directories:
 
 - [ ] Display current temps (requires another api)
 - [ ] Admin panel for beach management and moderation
-- [ ] Implement the flag system with prolog
+- [ ] Implement the flag system with prolog (ideia maluca)
 
-- [ ] Include a more detailed tide prediction
  
 #### Probably wont
 - [ ] Dark mode (Darkmode may be worse to see on the beach)
 - [ ] Expand to other Portuguese beaches 
+- [ ] Include a more detailed/longer tide prediction (8 instead of 4 levels for example is a lot)
 ---
 
 <div align="center">
