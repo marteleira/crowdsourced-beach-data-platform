@@ -169,21 +169,34 @@ class BeachReport {
   );
 }
 
+class PresenceUser {
+  const PresenceUser({this.displayName});
+  final String? displayName; // null = anonymous / private
+
+  factory PresenceUser.fromJson(Map<String, dynamic> j) =>
+      PresenceUser(displayName: j['display_name'] as String?);
+}
+
 class MapBeachPresence {
   const MapBeachPresence({
     required this.beachId, required this.beachSlug,
     required this.beachName, required this.userCount,
+    this.users = const <PresenceUser>[],
   });
   final int beachId;
   final String beachSlug;
   final String beachName;
   final int userCount;
+  final List<PresenceUser> users; // only those who opted in
 
   factory MapBeachPresence.fromJson(Map<String, dynamic> j) => MapBeachPresence(
     beachId: j['beach_id'] as int,
     beachSlug: j['beach_slug'] as String,
     beachName: j['beach_name'] as String,
     userCount: j['user_count'] as int? ?? 0,
+    users: (j['users'] as List? ?? [])
+        .map((e) => PresenceUser.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 

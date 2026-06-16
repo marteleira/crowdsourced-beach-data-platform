@@ -59,6 +59,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
     ref.invalidate(beachFullDetailProvider(slug));
     ref.invalidate(beachTransportProvider(slug));
     ref.invalidate(beachWaterQualityProvider(slug));
+    ref.invalidate(mapUsersProvider);
     await ref.read(beachFullDetailProvider(slug).future).catchError((_) => null);
   }
 
@@ -158,6 +159,8 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
       _PlanTripButton(beach: widget.beach),
       const SizedBox(height: AppSpacing.md),
       _CommunityAlertsCard(reports: d?.activeAlerts ?? [], beach: widget.beach),
+      const SizedBox(height: AppSpacing.md),
+      _PresenceSection(slug: widget.beach.slug),
     ];
   }
 
@@ -968,4 +971,229 @@ class _VoteDots extends StatelessWidget {
       )),
     );
   }
+}
+
+// Presence section
+
+class _PresenceSection extends ConsumerWidget {
+  const _PresenceSection({required this.slug});
+  final String slug;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final presence = ref.watch(beachPresenceProvider(slug)).value;
+    if (presence == null || presence.userCount == 0) return const SizedBox.shrink();
+
+    final shown = presence.users.take(5).toList();
+    final overflow = presence.userCount - shown.length;
+    final hasVisible = shown.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header (same style as community alerts)
+        Row(
+          children: [
+            const Icon(Icons.people_alt_outlined, color: AppColors.teal, size: 18),
+            const SizedBox(width: 6),
+            const Text(
+              'QUEM ESTÁ AQUI',
+              style: TextStyle(
+                fontSize: 11, fontWeight: FontWeight.w700,
+                color: AppColors.textSecondary, letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
+            const SizedBox(width: 4),
+            const Text('live', style: TextStyle(color: AppColors.teal, fontSize: 11, fontWeight: FontWeight.w600)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+          ),
+          child: hasVisible
+              ? _PresenceWithAvatars(shown: shown, overflow: overflow, total: presence.userCount)
+              : _PresenceAllPrivate(total: presence.userCount),
+        ),
+      ],
+    );
+  }
+}
+
+class _PresenceWithAvatars extends StatelessWidget {
+  const _PresenceWithAvatars({
+    required this.shown,
+    required this.overflow,
+    required this.total,
+  });
+  final List<PresenceUser> shown;
+  final int overflow;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    const avatarSize = 40.0;
+    const step = 28.0; // overlap: each avatar starts 28px after the previous
+    final itemCount = shown.length + (overflow > 0 ? 1 : 0);
+    final stackWidth = itemCount <= 1
+        ? avatarSize
+        : (itemCount - 1) * step + avatarSize;
+
+    final countLabel = total == 1 ? '1 pessoa' : '$total pessoas';
+    final sharedLabel = shown.length == 1
+        ? '1 partilha o perfil'
+        : '${shown.length} partilham o perfil';
+    final subtitle = overflow > 0
+        ? '$countLabel · $sharedLabel'
+        : '$countLabel nesta praia agora';
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: stackWidth,
+          height: avatarSize,
+          child: Stack(
+            children: [
+              for (int i = 0; i < shown.length; i++)
+                Positioned(
+                  left: i * step,
+                  child: _AvatarBubble(user: shown[i]),
+                ),
+              if (overflow > 0)
+                Positioned(
+                  left: shown.length * step,
+                  child: _OverflowBubble(count: overflow),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PresenceAllPrivate extends StatelessWidget {
+  const _PresenceAllPrivate({required this.total});
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = total == 1 ? '1 pessoa está aqui' : '$total pessoas estão aqui';
+    return Row(
+      children: [
+        Container(
+          width: 40, height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.06),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.lock_outline, color: AppColors.textSecondary, size: 18),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary)),
+              const SizedBox(height: 2),
+              const Text(
+                'Localização não partilhada pelos utilizadores',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AvatarBubble extends StatelessWidget {
+  const _AvatarBubble({required this.user});
+  final PresenceUser user;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _presenceAvatarColor(user.displayName);
+    final initials = _presenceInitials(user.displayName);
+    return Container(
+      width: 40, height: 40,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2.5),
+      ),
+      child: Center(
+        child: initials.isNotEmpty
+            ? Text(initials,
+                style: const TextStyle(
+                  color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700,
+                ))
+            : Icon(Icons.person_rounded,
+                color: Colors.white.withValues(alpha: 0.85), size: 20),
+      ),
+    );
+  }
+}
+
+class _OverflowBubble extends StatelessWidget {
+  const _OverflowBubble({required this.count});
+  final int count;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 40, height: 40,
+    decoration: BoxDecoration(
+      color: AppColors.primary.withValues(alpha: 0.07),
+      shape: BoxShape.circle,
+      border: Border.all(color: Colors.white, width: 2.5),
+    ),
+    child: Center(
+      child: Text(
+        '+$count',
+        style: const TextStyle(
+          color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w800,
+        ),
+      ),
+    ),
+  );
+}
+
+Color _presenceAvatarColor(String? name) {
+  if (name == null) return const Color(0xFFB0B7C3);
+  const palette = [
+    Color(0xFF3ECFCF),
+    Color(0xFFE86C50),
+    Color(0xFF8B5CF6),
+    Color(0xFF3B82F6),
+    Color(0xFF10B981),
+    Color(0xFFF59E0B),
+  ];
+  return palette[name.hashCode.abs() % palette.length];
+}
+
+String _presenceInitials(String? name) {
+  if (name == null || name.trim().isEmpty) return '';
+  final parts = name.trim().split(RegExp(r'\s+'));
+  if (parts.length == 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 }
