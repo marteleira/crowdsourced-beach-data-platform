@@ -304,6 +304,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Modify the "im there" button to behave like an "update" hearthbeat
 - [x] Update/Reload for the Map page
 - [x] Update/Reload for the Tides/Marés page
+- [x] Usercount and section on beach detail
 
 ---
 
@@ -324,6 +325,8 @@ Detailed docs for each part live in their respective directories:
 - [ ] Display current temps (requires another api)
 - [ ] Admin panel for beach management and moderation
 - [ ] Implement the flag system with prolog (ideia maluca)
+- [ ] Send anonymous data to improve the app (configured with)
+- [ ] First use -> app tour
 
  
 #### Probably wont
