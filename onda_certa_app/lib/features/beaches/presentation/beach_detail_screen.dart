@@ -991,7 +991,6 @@ class _PresenceSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header (same style as community alerts)
         Row(
           children: [
             const Icon(Icons.people_alt_outlined, color: AppColors.teal, size: 18),
@@ -1007,20 +1006,33 @@ class _PresenceSection extends ConsumerWidget {
             Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
             const SizedBox(width: 4),
             const Text('live', style: TextStyle(color: AppColors.teal, fontSize: 11, fontWeight: FontWeight.w600)),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => _showPresencePeople(context, presence),
+              child: const Text('Ver todos →', style: AppTextStyles.tealLabel),
+            ),
           ],
         ),
         const SizedBox(height: 10),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
+        Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            onTap: () => _showPresencePeople(context, presence),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+              ),
+              child: hasVisible
+                  ? _PresenceWithAvatars(shown: shown, overflow: overflow, total: presence.userCount)
+                  : _PresenceAllPrivate(total: presence.userCount),
+            ),
           ),
-          child: hasVisible
-              ? _PresenceWithAvatars(shown: shown, overflow: overflow, total: presence.userCount)
-              : _PresenceAllPrivate(total: presence.userCount),
         ),
       ],
     );
@@ -1196,4 +1208,221 @@ String _presenceInitials(String? name) {
   final parts = name.trim().split(RegExp(r'\s+'));
   if (parts.length == 1) return parts[0][0].toUpperCase();
   return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+// Presence people sheet
+
+void _showPresencePeople(BuildContext context, MapBeachPresence presence) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    useRootNavigator: true,
+    builder: (_) => DraggableScrollableSheet(
+      initialChildSize: 0.6,
+      minChildSize: 0.35,
+      maxChildSize: 0.92,
+      snap: true,
+      snapSizes: const [0.6, 0.92],
+      builder: (_, scrollController) => _PresencePeopleSheet(
+        presence: presence,
+        scrollController: scrollController,
+      ),
+    ),
+  );
+}
+
+class _PresencePeopleSheet extends StatelessWidget {
+  const _PresencePeopleSheet({
+    required this.presence,
+    required this.scrollController,
+  });
+  final MapBeachPresence presence;
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    final privateCount = presence.userCount - presence.users.length;
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 4),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // Header
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+            child: Row(
+              children: [
+                const Icon(Icons.people_alt_outlined, color: AppColors.teal, size: 22),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Quem está aqui', style: AppTextStyles.titleMd),
+                      Text(presence.beachName, style: AppTextStyles.secondary),
+                    ],
+                  ),
+                ),
+                // Live count badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.teal.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6, height: 6,
+                        decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        '${presence.userCount} ${presence.userCount == 1 ? "pessoa" : "pessoas"}',
+                        style: const TextStyle(
+                          color: AppColors.teal, fontWeight: FontWeight.w700, fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1, color: AppColors.borderLight),
+          Expanded(
+            child: presence.users.isEmpty
+                ? _PresenceSheetEmpty(total: presence.userCount)
+                : ListView.separated(
+                    controller: scrollController,
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.bottom + 24,
+                    ),
+                    itemCount: presence.users.length + (privateCount > 0 ? 1 : 0),
+                    separatorBuilder: (_, i) => i < presence.users.length - 1
+                        ? const Divider(height: 1, indent: 72, color: AppColors.borderLight)
+                        : const SizedBox.shrink(),
+                    itemBuilder: (_, i) {
+                      if (i < presence.users.length) {
+                        return _PresencePersonTile(user: presence.users[i]);
+                      }
+                      return _PresencePrivateFooter(count: privateCount);
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PresencePersonTile extends StatelessWidget {
+  const _PresencePersonTile({required this.user});
+  final PresenceUser user;
+
+  @override
+  Widget build(BuildContext context) {
+    final isNamed = user.displayName != null;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+      child: Row(
+        children: [
+          _AvatarBubble(user: user),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              user.displayName ?? 'Utilizador Anónimo',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: isNamed ? FontWeight.w500 : FontWeight.normal,
+                color: isNamed ? AppColors.primary : AppColors.textSecondary,
+              ),
+            ),
+          ),
+          if (!isNamed)
+            const Icon(Icons.person_outline_rounded, size: 16, color: AppColors.textHint),
+        ],
+      ),
+    );
+  }
+}
+
+class _PresencePrivateFooter extends StatelessWidget {
+  const _PresencePrivateFooter({required this.count});
+  final int count;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    decoration: BoxDecoration(
+      color: AppColors.primary.withValues(alpha: 0.05),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      children: [
+        const Icon(Icons.lock_outline, size: 15, color: AppColors.textSecondary),
+        const SizedBox(width: 10),
+        Text(
+          '+$count ${count == 1 ? "pessoa em" : "pessoas em"} modo privado',
+          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PresenceSheetEmpty extends StatelessWidget {
+  const _PresenceSheetEmpty({required this.total});
+  final int total;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 64, height: 64,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.06),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.lock_outline, size: 28, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '$total ${total == 1 ? "pessoa está" : "pessoas estão"} aqui',
+            style: AppTextStyles.titleSm,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Todos preferiram não partilhar\na sua localização.',
+            style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    ),
+  );
 }
