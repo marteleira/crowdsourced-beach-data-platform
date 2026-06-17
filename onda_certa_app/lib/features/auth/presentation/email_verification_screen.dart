@@ -114,6 +114,7 @@ class _EmailVerificationScreenState
       await ref.read(authProvider.notifier).verifyEmail(_code);
       if (mounted) context.go('/home');
     } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) return;
       final detail = e.response?.data?['detail'];
       for (final c in _controllers) {
         c.clear();

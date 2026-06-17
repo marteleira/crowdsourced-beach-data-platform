@@ -153,7 +153,7 @@ async def user_with_rep(db: AsyncSession) -> User:
         display_name="Trusted User",
         password_hash=hash_password("password123"),
         is_anonymous=False,
-        reputation=20,
+        reputation=25,
         is_email_verified=True,
     )
     db.add(u)

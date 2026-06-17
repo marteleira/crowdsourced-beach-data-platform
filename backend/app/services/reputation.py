@@ -260,6 +260,51 @@ async def process_confirmation_accuracy(db: AsyncSession) -> None:
     await db.commit()
 
 
+async def lift_expired_suspensions(db: AsyncSession) -> None:
+    """Clear suspended_until for users whose suspension period has passed."""
+    now = datetime.now(timezone.utc)
+    await db.execute(
+        update(User)
+        .where(User.suspended_until.is_not(None), User.suspended_until <= now)
+        .values(suspended_until=None)
+    )
+    await db.commit()
+
+
+async def sync_account_status(db: AsyncSession) -> None:
+    """
+    Proactively ensures ban and suspension flags match current reputation.
+    Catches users who were already below thresholds before the logic existed,
+    or whose reputation was updated outside of apply_delta (e.g. direct DB edits).
+    """
+    now = datetime.now(timezone.utc)
+    suspended_until = now + timedelta(hours=SUSPENSION_DURATION_HOURS)
+
+    # Users below ban threshold who aren't banned yet
+    await db.execute(
+        update(User)
+        .where(
+            User.reputation <= AUTO_BAN_THRESHOLD,
+            User.is_banned == False,
+        )
+        .values(is_banned=True, ban_reason="Reputação abaixo de −50")
+    )
+
+    # Users between suspension and ban threshold who aren't suspended yet
+    await db.execute(
+        update(User)
+        .where(
+            User.reputation <= SUSPENSION_THRESHOLD,
+            User.reputation > AUTO_BAN_THRESHOLD,
+            User.is_banned == False,
+            User.suspended_until == None,
+        )
+        .values(suspended_until=suspended_until)
+    )
+
+    await db.commit()
+
+
 async def detect_spam(db: AsyncSession) -> None:
     """
     Apply DELTA_SPAM_PENALTY when a user submits >= 4 reports at the same beach

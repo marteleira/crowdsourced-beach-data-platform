@@ -21,6 +21,8 @@ from app.services.reputation import (
     process_flag_outcomes,
     process_confirmation_accuracy,
     detect_spam,
+    sync_account_status,
+    lift_expired_suspensions as _lift_expired_suspensions,
 )
 from app.services.flag_confidence import recalculate_beach_confidence
 
@@ -177,6 +179,7 @@ async def process_reputation() -> None:
         await process_flag_outcomes(db)
         await process_confirmation_accuracy(db)
         await detect_spam(db)
+        await sync_account_status(db)
 
 
 async def recalculate_flag_confidences() -> None:
@@ -231,13 +234,7 @@ async def recalculate_flag_confidences() -> None:
 async def lift_expired_suspensions() -> None:
     """Clear suspended_until for users whose suspension period has passed."""
     async with AsyncSessionLocal() as db:
-        now = datetime.now(timezone.utc)
-        await db.execute(
-            update(User)
-            .where(User.suspended_until.is_not(None), User.suspended_until <= now)
-            .values(suspended_until=None)
-        )
-        await db.commit()
+        await _lift_expired_suspensions(db)
 
 
 async def cleanup_old_heartbeats() -> None:

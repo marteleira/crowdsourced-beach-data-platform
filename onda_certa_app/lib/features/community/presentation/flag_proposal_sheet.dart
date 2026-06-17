@@ -362,9 +362,11 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           ? _ProposeState.successApplied
           : _ProposeState.successPending);
     } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) return;
       if (!mounted) return;
       final code = e.response?.statusCode;
-      final detail = e.response?.data?['detail'] as String? ?? '';
+      final rawDetail = e.response?.data?['detail'];
+      final detail = rawDetail is String ? rawDetail : '';
       setState(() {
         if (code == 400) {
           _state = _ProposeState.unavailable;

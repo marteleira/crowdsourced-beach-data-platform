@@ -114,6 +114,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
     try {
       await ref.read(communityReportsProvider(widget.beach.slug).notifier).vote(reportId, vote);
     } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) return;
       if (!mounted) return;
       final msg = e.response?.statusCode == 403
           ? 'Tens de estar na praia para votar'

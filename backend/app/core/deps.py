@@ -44,17 +44,6 @@ async def get_current_user(
             },
         )
 
-    now = datetime.now(timezone.utc)
-    if user.suspended_until and user.suspended_until > now:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "code": "account_suspended",
-                "suspended_until": user.suspended_until.isoformat(),
-                "message": "Conta suspensa temporariamente.",
-            },
-        )
-
     return user
 
 
@@ -71,6 +60,17 @@ async def require_user(
                 "code": "account_pending_deletion",
                 "scheduled_deletion_at": user.scheduled_deletion_at.isoformat(),
                 "message": "Conta agendada para eliminação. Cancela em /users/me/cancel-deletion.",
+            },
+        )
+
+    now = datetime.now(timezone.utc)
+    if user.suspended_until and user.suspended_until > now:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "account_suspended",
+                "suspended_until": user.suspended_until.isoformat(),
+                "message": "Conta suspensa temporariamente.",
             },
         )
 
