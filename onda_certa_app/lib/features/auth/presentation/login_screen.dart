@@ -1,4 +1,5 @@
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,8 +26,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go('/home');
       }
       if (next case AsyncError(:final error)) {
+        if (error is DioException && error.type == DioExceptionType.cancel) return;
+        if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.toString())),
+          const SnackBar(content: Text('Erro ao iniciar sessão. Tenta novamente.')),
         );
       }
     });

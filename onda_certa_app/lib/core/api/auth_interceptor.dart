@@ -52,9 +52,19 @@ class AuthInterceptor extends Interceptor {
         } else if (code == 'account_banned') {
           await _storage.clearTokens();
           onBanned?.call(detail['ban_reason'] as String?);
+          // Swallow the error — router will redirect to ban screen
+          return handler.reject(DioException(
+            requestOptions: err.requestOptions,
+            type: DioExceptionType.cancel,
+          ));
         } else if (code == 'account_suspended') {
           final raw = detail['suspended_until'] as String?;
           if (raw != null) onSuspended?.call(DateTime.parse(raw));
+          // Swallow the error — router will redirect to suspended screen
+          return handler.reject(DioException(
+            requestOptions: err.requestOptions,
+            type: DioExceptionType.cancel,
+          ));
         }
       }
       return handler.next(err);

@@ -307,7 +307,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Review privacy settings and related features
 - [x] Usercount and section on beach detail
 - [x] Review the point win/loss features
-
+- [x] Autoban and suspension features completelty working
 ---
 
 ### 🔜 Planned

@@ -19,6 +19,7 @@ class AccountBannedScreen extends ConsumerWidget {
           ? 'A tua conta foi banida permanentemente por violação das regras da comunidade.\n\nRazão: $banReason'
           : 'A tua conta foi banida permanentemente por violação das regras da comunidade.',
       onLogout: () async {
+        ref.read(accountBannedProvider.notifier).set(null);
         await ref.read(authProvider.notifier).logout();
         if (context.mounted) context.go('/login');
       },
@@ -50,6 +51,7 @@ class AccountSuspendedScreen extends ConsumerWidget {
           ? 'A tua conta está temporariamente suspensa até ${_formatDateTime(suspendedUntil)}.\n\nContinuas a poder ver as praias. Podes voltar a contribuir após esse período.'
           : 'A tua conta está temporariamente suspensa.\n\nContinuas a poder ver as praias.',
       onLogout: () async {
+        ref.read(accountSuspendedProvider.notifier).set(null);
         await ref.read(authProvider.notifier).logout();
         if (context.mounted) context.go('/login');
       },

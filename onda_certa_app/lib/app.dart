@@ -48,20 +48,22 @@ final _routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final loc = state.matchedLocation;
 
+      // Account status overrides fire from any location, including login/splash.
+      // Return null (not a redirect) when already on the target screen so we
+      // don't loop through the unauthenticated guard below.
+      if (ref.read(accountBannedProvider) != null) {
+        return loc == '/account-banned' ? null : '/account-banned';
+      }
+      if (ref.read(accountSuspendedProvider) != null) {
+        return loc == '/account-suspended' ? null : '/account-suspended';
+      }
+
       // Splash and auth routes manage their own navigation
       if (loc == '/' || loc.startsWith('/login')) return null;
 
       // Protect app routes
       final authState = ref.read(authProvider).value;
       if (authState is! AuthAuthenticated) return '/login';
-
-      // Account status overrides take priority over all other app navigation
-      if (ref.read(accountBannedProvider) != null && loc != '/account-banned') {
-        return '/account-banned';
-      }
-      if (ref.read(accountSuspendedProvider) != null && loc != '/account-suspended') {
-        return '/account-suspended';
-      }
 
       // Redirect to pending-deletion screen for any app route when account is flagged
       final pendingDeletion = ref.read(pendingDeletionProvider);

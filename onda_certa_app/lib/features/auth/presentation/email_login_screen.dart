@@ -422,9 +422,24 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
             );
       await ref.read(authProvider.notifier).completeEmailAuth(tokens);
     } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) return;
       if (!mounted) return;
       final status = e.response?.statusCode;
       final detail = e.response?.data?['detail'];
+
+      if (status == 403 && detail is Map) {
+        final code = detail['code'] as String?;
+        if (code == 'account_banned') {
+          ref.read(accountBannedProvider.notifier).set(detail['ban_reason'] as String?);
+          return;
+        }
+        if (code == 'account_suspended') {
+          final raw = detail['suspended_until'] as String?;
+          if (raw != null) ref.read(accountSuspendedProvider.notifier).set(DateTime.parse(raw));
+          return;
+        }
+      }
+
       final msg = detail is String ? detail : null;
 
       if (status == 409) {
