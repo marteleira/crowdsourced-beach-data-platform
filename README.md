@@ -304,12 +304,12 @@ Detailed docs for each part live in their respective directories:
 - [x] Modify the "im there" button to behave like an "update" hearthbeat
 - [x] Update/Reload for the Map page
 - [x] Update/Reload for the Tides/Marés page
+- [x] Review privacy settings and related features
 - [x] Usercount and section on beach detail
 
 ---
 
 ### 🔜 Planned
-- [ ] Review privacy settings and related features
 - [ ] Review the point win/loss features
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests
