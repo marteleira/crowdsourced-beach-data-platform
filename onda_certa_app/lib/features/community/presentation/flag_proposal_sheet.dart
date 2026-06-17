@@ -124,7 +124,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Tens de estar na praia e ter reputação ≥ 5 para propor.',
+                  'Tens de estar na praia e ter reputação ≥ 25 para propor.',
                   style: TextStyle(fontSize: 13, color: AppColors.tealDark, height: 1.4),
                 ),
               ),
@@ -166,7 +166,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           const SizedBox(height: AppSpacing.xl),
           _ErrorBanner(
             icon: Icons.star_outline_rounded,
-            text: 'Ainda não tens reputação suficiente (mínimo: 5). Continua a contribuir com alertas e confirmações!',
+            text: 'Ainda não tens reputação suficiente (mínimo: 25). Continua a contribuir com alertas e confirmações!',
           ),
         ] else if (_state == _ProposeState.notPresent) ...[
           const SizedBox(height: AppSpacing.xl),
