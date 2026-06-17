@@ -102,7 +102,19 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
         raise HTTPException(401, "Credenciais inválidas")
 
     if user.is_banned:
-        raise HTTPException(403, "Conta suspensa")
+        raise HTTPException(403, detail={
+            "code": "account_banned",
+            "ban_reason": user.ban_reason,
+            "message": "Conta permanentemente banida.",
+        })
+
+    now = datetime.now(timezone.utc)
+    if user.suspended_until and user.suspended_until > now:
+        raise HTTPException(403, detail={
+            "code": "account_suspended",
+            "suspended_until": user.suspended_until.isoformat(),
+            "message": "Conta suspensa temporariamente.",
+        })
 
     return await _issue_tokens(user, db)
 
@@ -143,6 +155,22 @@ async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
         user.is_email_verified = True
 
     await db.commit()
+
+    if user.is_banned:
+        raise HTTPException(403, detail={
+            "code": "account_banned",
+            "ban_reason": user.ban_reason,
+            "message": "Conta permanentemente banida.",
+        })
+
+    now = datetime.now(timezone.utc)
+    if user.suspended_until and user.suspended_until > now:
+        raise HTTPException(403, detail={
+            "code": "account_suspended",
+            "suspended_until": user.suspended_until.isoformat(),
+            "message": "Conta suspensa temporariamente.",
+        })
+
     return await _issue_tokens(user, db)
 
 
@@ -167,8 +195,23 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
 
     result = await db.execute(select(User).where(User.id == record.user_id))
     user = result.scalar_one_or_none()
-    if not user or user.is_banned:
+    if not user:
         raise HTTPException(401, "Utilizador não encontrado")
+
+    if user.is_banned:
+        raise HTTPException(403, detail={
+            "code": "account_banned",
+            "ban_reason": user.ban_reason,
+            "message": "Conta permanentemente banida.",
+        })
+
+    now = datetime.now(timezone.utc)
+    if user.suspended_until and user.suspended_until > now:
+        raise HTTPException(403, detail={
+            "code": "account_suspended",
+            "suspended_until": user.suspended_until.isoformat(),
+            "message": "Conta suspensa temporariamente.",
+        })
 
     return await _issue_tokens(user, db)
 

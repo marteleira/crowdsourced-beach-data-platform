@@ -31,8 +31,29 @@ async def get_current_user(
     result = await db.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
 
-    if not user or user.is_banned:
-        raise HTTPException(status_code=401, detail="Utilizador não encontrado ou banido")
+    if not user:
+        raise HTTPException(status_code=401, detail="Utilizador não encontrado")
+
+    if user.is_banned:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "account_banned",
+                "ban_reason": user.ban_reason,
+                "message": "Conta permanentemente banida.",
+            },
+        )
+
+    now = datetime.now(timezone.utc)
+    if user.suspended_until and user.suspended_until > now:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "account_suspended",
+                "suspended_until": user.suspended_until.isoformat(),
+                "message": "Conta suspensa temporariamente.",
+            },
+        )
 
     return user
 
