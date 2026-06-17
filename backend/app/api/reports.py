@@ -2,16 +2,17 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_user, get_beach_or_404, was_recently_present
 from app.models.report import Report, ReportVote
-from app.models.user import User
+from app.models.user import User, ReputationEvent
 from app.schemas.report import ReportCreate, ReportResponse, VoteRequest, ReportListResponse
 from app.services.activity import get_activity_level, get_params, report_ttl_minutes
 from app.services.push_notifications import dispatch_report_notification
+from app.services.reputation import apply_delta, DELTA_REPORT_SUBMITTED, DELTA_FIRST_REPORT_BONUS
 
 router = APIRouter(prefix="/beaches/{slug}/reports", tags=["reports"])
 
@@ -104,6 +105,31 @@ async def create_report(
         expires_at=expires,
     )
     db.add(report)
+    await db.flush()  # needed to get report.id before apply_delta
+
+    # Bónus de primeiro report (uma vez só)
+    if user.total_reports == 0:
+        await apply_delta(
+            db, user.id, DELTA_FIRST_REPORT_BONUS,
+            "first_report_bonus", "Primeiro aviso submetido",
+            ref_id=report.id,
+        )
+
+    # +1 por report submetido (máx. 3 por dia)
+    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    count_today = await db.scalar(
+        select(func.count()).select_from(ReputationEvent).where(
+            ReputationEvent.user_id == user.id,
+            ReputationEvent.event == "report_submitted",
+            ReputationEvent.created_at >= today_start,
+        )
+    )
+    if count_today < 3:
+        await apply_delta(
+            db, user.id, DELTA_REPORT_SUBMITTED,
+            "report_submitted", f"Aviso de '{body.type}' submetido",
+            ref_id=report.id,
+        )
 
     # Increment total_reports counter
     await db.execute(

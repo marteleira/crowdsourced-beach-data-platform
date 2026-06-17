@@ -19,7 +19,7 @@ from app.services.push_notifications import dispatch_flag_notification
 
 router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
 
-MIN_REPUTATION_TO_PROPOSE = 5
+MIN_REPUTATION_TO_PROPOSE = 25
 
 
 async def _ensure_beach_status(db: AsyncSession, beach_id: int) -> BeachStatus:

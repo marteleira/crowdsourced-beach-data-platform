@@ -306,11 +306,11 @@ Detailed docs for each part live in their respective directories:
 - [x] Update/Reload for the Tides/Marés page
 - [x] Review privacy settings and related features
 - [x] Usercount and section on beach detail
+- [x] Review the point win/loss features
 
 ---
 
 ### 🔜 Planned
-- [ ] Review the point win/loss features
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests
 

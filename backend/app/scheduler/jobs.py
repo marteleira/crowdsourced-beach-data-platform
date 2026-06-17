@@ -10,13 +10,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import AsyncSessionLocal
 from app.models.beach import Beach
-from app.models.beach_status import BeachStatus, OccupancyHeartbeat
+from app.models.beach_status import BeachStatus, FlagProposal, OccupancyHeartbeat
 from app.models.report import Report
 from app.models.snapshot import ApiSnapshot
 from app.models.user import User
 from app.services import ipma, hidrografico, eea, carris
 from app.services.activity import get_activity_level
-from app.services.reputation import process_report_outcomes
+from app.services.reputation import (
+    process_report_outcomes,
+    process_flag_outcomes,
+    process_confirmation_accuracy,
+    detect_spam,
+)
 from app.services.flag_confidence import recalculate_beach_confidence
 
 logger = logging.getLogger(__name__)
@@ -169,19 +174,54 @@ async def expire_stale_reports() -> None:
 async def process_reputation() -> None:
     async with AsyncSessionLocal() as db:
         await process_report_outcomes(db)
+        await process_flag_outcomes(db)
+        await process_confirmation_accuracy(db)
+        await detect_spam(db)
 
 
 async def recalculate_flag_confidences() -> None:
+    from sqlalchemy import func
+    from app.models.beach_status import FlagConfirmation
+
     async with AsyncSessionLocal() as db:
         result = await db.execute(select(BeachStatus).where(BeachStatus.flag_color != "unknown"))
         statuses = result.scalars().all()
         for status in statuses:
             activity_level = await get_activity_level(db, status.beach_id)
+            current_color = status.flag_color
             new_conf = await recalculate_beach_confidence(
-                db, status.beach_id, status.flag_color, status.updated_at, activity_level
+                db, status.beach_id, current_color, status.updated_at, activity_level
             )
             status.flag_confidence = new_conf
             if new_conf <= 0.05:
+                # Determine if the reset is due to active contradiction (not just time decay)
+                vote_result = await db.execute(
+                    select(FlagConfirmation.response, func.count().label("cnt"))
+                    .where(
+                        FlagConfirmation.beach_id == status.beach_id,
+                        FlagConfirmation.flag_color == current_color,
+                    )
+                    .group_by(FlagConfirmation.response)
+                )
+                counts = {row.response: row.cnt for row in vote_result.all()}
+                actively_contradicted = counts.get("no", 0) > counts.get("yes", 0)
+
+                if actively_contradicted:
+                    # Mark the most recent applied proposal as rejected
+                    proposal_result = await db.execute(
+                        select(FlagProposal)
+                        .where(
+                            FlagProposal.beach_id == status.beach_id,
+                            FlagProposal.proposed_color == current_color,
+                            FlagProposal.status == "applied",
+                        )
+                        .order_by(FlagProposal.created_at.desc())
+                        .limit(1)
+                    )
+                    proposal = proposal_result.scalar_one_or_none()
+                    if proposal:
+                        proposal.status = "rejected"
+
                 status.flag_color = "unknown"
                 status.flag_confidence = 0.0
         await db.commit()
