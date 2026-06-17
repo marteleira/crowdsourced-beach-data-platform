@@ -9,6 +9,7 @@ import 'features/auth/presentation/email_login_screen.dart';
 import 'features/auth/presentation/email_verification_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/pending_deletion_screen.dart';
+import 'features/auth/presentation/account_status_screen.dart';
 import 'features/beaches/domain/beach_models.dart';
 import 'features/beaches/presentation/beach_detail_screen.dart';
 import 'features/community/presentation/community_alerts_screen.dart';
@@ -31,6 +32,8 @@ class _RouterRefreshNotifier extends ChangeNotifier {
   _RouterRefreshNotifier(Ref ref) {
     ref.listen(authProvider, (_, _) => notifyListeners());
     ref.listen(pendingDeletionProvider, (_, _) => notifyListeners());
+    ref.listen(accountBannedProvider, (_, _) => notifyListeners());
+    ref.listen(accountSuspendedProvider, (_, _) => notifyListeners());
   }
 }
 
@@ -52,6 +55,14 @@ final _routerProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authProvider).value;
       if (authState is! AuthAuthenticated) return '/login';
 
+      // Account status overrides take priority over all other app navigation
+      if (ref.read(accountBannedProvider) != null && loc != '/account-banned') {
+        return '/account-banned';
+      }
+      if (ref.read(accountSuspendedProvider) != null && loc != '/account-suspended') {
+        return '/account-suspended';
+      }
+
       // Redirect to pending-deletion screen for any app route when account is flagged
       final pendingDeletion = ref.read(pendingDeletionProvider);
       if (pendingDeletion != null && loc != '/pending-deletion') {
@@ -72,6 +83,8 @@ final _routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/login/email', builder: (_, _) => const EmailLoginScreen()),
       GoRoute(path: '/pending-deletion', builder: (_, _) => const PendingDeletionScreen()),
+      GoRoute(path: '/account-banned', builder: (_, _) => const AccountBannedScreen()),
+      GoRoute(path: '/account-suspended', builder: (_, _) => const AccountSuspendedScreen()),
       GoRoute(path: '/verify-email', builder: (_, _) => const EmailVerificationScreen()),
       GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
       GoRoute(path: '/terms', builder: (_, _) => const TermsScreen()),

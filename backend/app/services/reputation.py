@@ -19,6 +19,8 @@ DELTA_FLAG_CONFIRMED = 15
 DELTA_FLAG_CONTRADICTED = -20
 DELTA_SPAM_PENALTY = -5
 
+SUSPENSION_THRESHOLD = -30
+SUSPENSION_DURATION_HOURS = 48
 AUTO_BAN_THRESHOLD = -50
 
 
@@ -53,7 +55,7 @@ async def apply_delta(
         .values(reputation=User.reputation + delta)
     )
 
-    # Check for auto-ban
+    # Check for auto-ban and suspension
     result = await db.execute(select(User.reputation).where(User.id == user_id))
     rep = result.scalar_one_or_none() or 0
     if rep <= AUTO_BAN_THRESHOLD:
@@ -61,6 +63,13 @@ async def apply_delta(
             update(User)
             .where(User.id == user_id)
             .values(is_banned=True, ban_reason="Reputação abaixo de −50")
+        )
+    elif rep <= SUSPENSION_THRESHOLD:
+        suspended_until = datetime.now(timezone.utc) + timedelta(hours=SUSPENSION_DURATION_HOURS)
+        await db.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(suspended_until=suspended_until)
         )
 
     await db.commit()

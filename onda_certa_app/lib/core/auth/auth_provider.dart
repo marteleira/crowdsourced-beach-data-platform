@@ -18,11 +18,37 @@ final pendingDeletionProvider =
   PendingDeletionNotifier.new,
 );
 
+class AccountBannedNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+  void set(String? reason) => state = reason;
+}
+
+final accountBannedProvider =
+    NotifierProvider<AccountBannedNotifier, String?>(
+  AccountBannedNotifier.new,
+);
+
+class AccountSuspendedNotifier extends Notifier<DateTime?> {
+  @override
+  DateTime? build() => null;
+  void set(DateTime? dt) => state = dt;
+}
+
+final accountSuspendedProvider =
+    NotifierProvider<AccountSuspendedNotifier, DateTime?>(
+  AccountSuspendedNotifier.new,
+);
+
 final dioProvider = Provider<Dio>((ref) {
   return createDio(
     ref.read(secureStorageProvider),
     onPendingDeletion: (dt) =>
         ref.read(pendingDeletionProvider.notifier).set(dt),
+    onBanned: (reason) =>
+        ref.read(accountBannedProvider.notifier).set(reason),
+    onSuspended: (dt) =>
+        ref.read(accountSuspendedProvider.notifier).set(dt),
   );
 });
 

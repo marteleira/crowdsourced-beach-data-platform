@@ -2,11 +2,19 @@ import 'package:dio/dio.dart';
 import '../storage/secure_storage.dart';
 
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._dio, this._storage, {this.onPendingDeletion});
+  AuthInterceptor(
+    this._dio,
+    this._storage, {
+    this.onPendingDeletion,
+    this.onBanned,
+    this.onSuspended,
+  });
 
   final Dio _dio;
   final SecureStorage _storage;
   final void Function(DateTime scheduledAt)? onPendingDeletion;
+  final void Function(String? banReason)? onBanned;
+  final void Function(DateTime suspendedUntil)? onSuspended;
 
   @override
   Future<void> onRequest(
@@ -34,10 +42,19 @@ class AuthInterceptor extends Interceptor {
 
     if (err.response?.statusCode == 403) {
       final detail = err.response?.data?['detail'];
-      if (detail is Map && detail['code'] == 'account_pending_deletion') {
-        final raw = detail['scheduled_deletion_at'] as String?;
-        if (raw != null && onPendingDeletion != null) {
-          onPendingDeletion!(DateTime.parse(raw));
+      if (detail is Map) {
+        final code = detail['code'] as String?;
+        if (code == 'account_pending_deletion') {
+          final raw = detail['scheduled_deletion_at'] as String?;
+          if (raw != null && onPendingDeletion != null) {
+            onPendingDeletion!(DateTime.parse(raw));
+          }
+        } else if (code == 'account_banned') {
+          await _storage.clearTokens();
+          onBanned?.call(detail['ban_reason'] as String?);
+        } else if (code == 'account_suspended') {
+          final raw = detail['suspended_until'] as String?;
+          if (raw != null) onSuspended?.call(DateTime.parse(raw));
         }
       }
       return handler.next(err);

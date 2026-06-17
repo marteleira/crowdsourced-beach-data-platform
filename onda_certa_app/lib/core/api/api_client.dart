@@ -12,6 +12,8 @@ const _kBaseUrl = 'http://$_kApiHost:8000/api/v1';
 Dio createDio(
   SecureStorage storage, {
   void Function(DateTime)? onPendingDeletion,
+  void Function(String? banReason)? onBanned,
+  void Function(DateTime suspendedUntil)? onSuspended,
 }) {
   final dio = Dio(
     BaseOptions(
@@ -22,7 +24,13 @@ Dio createDio(
     ),
   );
   dio.interceptors.add(
-    AuthInterceptor(dio, storage, onPendingDeletion: onPendingDeletion),
+    AuthInterceptor(
+      dio,
+      storage,
+      onPendingDeletion: onPendingDeletion,
+      onBanned: onBanned,
+      onSuspended: onSuspended,
+    ),
   );
   return dio;
 }

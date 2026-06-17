@@ -228,6 +228,18 @@ async def recalculate_flag_confidences() -> None:
         logger.info("Flag confidences recalculated")
 
 
+async def lift_expired_suspensions() -> None:
+    """Clear suspended_until for users whose suspension period has passed."""
+    async with AsyncSessionLocal() as db:
+        now = datetime.now(timezone.utc)
+        await db.execute(
+            update(User)
+            .where(User.suspended_until.is_not(None), User.suspended_until <= now)
+            .values(suspended_until=None)
+        )
+        await db.commit()
+
+
 async def cleanup_old_heartbeats() -> None:
     """Keep only the last 2 hours of heartbeats."""
     async with AsyncSessionLocal() as db:

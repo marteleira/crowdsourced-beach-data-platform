@@ -24,6 +24,7 @@ class User(Base):
     reputation = Column(Integer, default=0)
     is_banned = Column(Boolean, default=False)
     ban_reason = Column(Text)
+    suspended_until = Column(TIMESTAMP(timezone=True), nullable=True)
 
     # Denormalised counters for fast reads
     total_reports = Column(Integer, default=0)
