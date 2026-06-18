@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/auth_code_input.dart';
 
 class EmailVerificationScreen extends ConsumerStatefulWidget {
   const EmailVerificationScreen({super.key});
@@ -18,13 +18,10 @@ class EmailVerificationScreen extends ConsumerStatefulWidget {
 
 class _EmailVerificationScreenState
     extends ConsumerState<EmailVerificationScreen> {
-  static const _codeLength = 6;
   static const _resendCooldown = 30;
 
-  final _controllers =
-      List.generate(_codeLength, (_) => TextEditingController());
-  late final List<FocusNode> _focusNodes;
-
+  final _codeKey = GlobalKey<AuthCodeInputState>();
+  bool _codeComplete = false;
   bool _verifying = false;
   bool _resending = false;
   String? _errorMessage;
@@ -34,35 +31,12 @@ class _EmailVerificationScreenState
   @override
   void initState() {
     super.initState();
-    _focusNodes = List.generate(
-      _codeLength,
-      (i) => FocusNode(
-        onKeyEvent: (node, event) {
-          if (event is KeyDownEvent &&
-              event.logicalKey == LogicalKeyboardKey.backspace &&
-              _controllers[i].text.isEmpty &&
-              i > 0) {
-            _controllers[i - 1].clear();
-            _focusNodes[i - 1].requestFocus();
-            setState(() {});
-            return KeyEventResult.handled;
-          }
-          return KeyEventResult.ignored;
-        },
-      ),
-    );
     _startCooldown();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    for (final c in _controllers) {
-      c.dispose();
-    }
-    for (final f in _focusNodes) {
-      f.dispose();
-    }
     super.dispose();
   }
 
@@ -79,50 +53,23 @@ class _EmailVerificationScreenState
     });
   }
 
-  String get _code => _controllers.map((c) => c.text).join();
-
-  void _onChanged(int index, String value) {
-
-    // Allow pasting the code
-    if (value.length == _codeLength) {
-      for (var i = 0; i < _codeLength; i++) {
-        _controllers[i].text = value[i];
-      }
-      _focusNodes.last.unfocus();
-      setState(() => _errorMessage = null);
-      _verify();
-      return;
-    }
-
-    //Logic
-    if (value.isNotEmpty && index < _codeLength - 1) {
-      _focusNodes[index + 1].requestFocus();
-    } else if (value.isNotEmpty) {
-      _focusNodes[index].unfocus();
-    }
-    setState(() => _errorMessage = null);
-    if (_code.length == _codeLength) _verify();
-  }
-
-  Future<void> _verify() async {
-    if (_code.length != _codeLength || _verifying) return;
+  Future<void> _verify(String code) async {
+    if (code.length != 6 || _verifying) return;
     setState(() {
       _verifying = true;
       _errorMessage = null;
     });
     try {
-      await ref.read(authProvider.notifier).verifyEmail(_code);
+      await ref.read(authProvider.notifier).verifyEmail(code);
       if (mounted) context.go('/home');
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) return;
       final detail = e.response?.data?['detail'];
-      for (final c in _controllers) {
-        c.clear();
-      }
+      _codeKey.currentState?.clear();
       setState(() {
+        _codeComplete = false;
         _errorMessage = detail is String ? detail : 'Código inválido. Tenta de novo.';
       });
-      _focusNodes[0].requestFocus();
     } catch (_) {
       setState(() => _errorMessage = 'Erro de ligação. Tenta novamente.');
     } finally {
@@ -144,7 +91,9 @@ class _EmailVerificationScreenState
       final detail = e.response?.data?['detail'];
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(detail is String ? detail : 'Erro ao reenviar o código.')),
+          SnackBar(
+              content:
+                  Text(detail is String ? detail : 'Erro ao reenviar o código.')),
         );
       }
     } catch (_) {
@@ -206,44 +155,34 @@ class _EmailVerificationScreenState
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.xxxl),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(_codeLength, _buildDigitField),
+              AuthCodeInput(
+                key: _codeKey,
+                enabled: !_verifying,
+                onChanged: (code) {
+                  setState(() {
+                    _codeComplete = code.length == 6;
+                    if (_errorMessage != null) _errorMessage = null;
+                  });
+                  if (code.length == 6) _verify(code);
+                },
               ),
               if (_errorMessage != null) ...[
                 const SizedBox(height: AppSpacing.lg),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.coral.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error_outline, color: AppColors.coral, size: 18),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          _errorMessage!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.coral,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _errorBanner(context, _errorMessage!),
               ],
               const SizedBox(height: AppSpacing.xxl),
               SizedBox(
                 height: 54,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: (_verifying || _code.length != _codeLength) ? null : _verify,
+                  onPressed: (_verifying || !_codeComplete)
+                      ? null
+                      : () => _verify(_codeKey.currentState!.code),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
+                    disabledBackgroundColor:
+                        AppColors.primary.withValues(alpha: 0.4),
                     shape: const StadiumBorder(),
                     elevation: 0,
                   ),
@@ -258,7 +197,8 @@ class _EmailVerificationScreenState
                         )
                       : const Text(
                           'Verificar',
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600),
                         ),
                 ),
               ),
@@ -279,7 +219,9 @@ class _EmailVerificationScreenState
                             ? 'Reenviar código (${_cooldown}s)'
                             : 'Reenviar código',
                         style: TextStyle(
-                          color: _cooldown > 0 ? AppColors.textHint : AppColors.tealDark,
+                          color: _cooldown > 0
+                              ? AppColors.textHint
+                              : AppColors.tealDark,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -295,9 +237,11 @@ class _EmailVerificationScreenState
                     side: BorderSide(
                       color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
-                  child: const Text('Terminar sessão', style: TextStyle(fontSize: 15)),
+                  child:
+                      const Text('Terminar sessão', style: TextStyle(fontSize: 15)),
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
@@ -308,41 +252,27 @@ class _EmailVerificationScreenState
     );
   }
 
-  Widget _buildDigitField(int index) {
-    return SizedBox(
-      width: 46,
-      height: 56,
-      child: TextField(
-        controller: _controllers[index],
-        focusNode: _focusNodes[index],
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-        maxLength: 1,
-        style: const TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: AppColors.primary,
-        ),
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: InputDecoration(
-          counterText: '',
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: EdgeInsets.zero,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.15)),
+  Widget _errorBanner(BuildContext context, String message) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.coral.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.coral, size: 18),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: AppColors.coral),
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.15)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: AppColors.teal, width: 1.5),
-          ),
-        ),
-        onChanged: (v) => _onChanged(index, v),
+        ],
       ),
     );
   }

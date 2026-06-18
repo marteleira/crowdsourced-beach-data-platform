@@ -7,9 +7,11 @@ import 'core/presence/heartbeat_provider.dart';
 import 'features/notifications/presentation/notifications_screen.dart';
 import 'features/auth/presentation/email_login_screen.dart';
 import 'features/auth/presentation/email_verification_screen.dart';
+import 'features/auth/presentation/forgot_password_screen.dart';
 import 'features/auth/presentation/login_screen.dart';
 import 'features/auth/presentation/pending_deletion_screen.dart';
 import 'features/auth/presentation/account_status_screen.dart';
+import 'features/auth/presentation/reset_password_screen.dart';
 import 'features/beaches/domain/beach_models.dart';
 import 'features/beaches/presentation/beach_detail_screen.dart';
 import 'features/community/presentation/community_alerts_screen.dart';
@@ -84,6 +86,18 @@ final _routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/login/email', builder: (_, _) => const EmailLoginScreen()),
+      GoRoute(
+        path: '/login/forgot-password',
+        builder: (_, state) => ForgotPasswordScreen(
+          prefillEmail: state.extra as String?,
+        ),
+      ),
+      GoRoute(
+        path: '/login/reset-password',
+        builder: (_, state) => ResetPasswordScreen(
+          email: state.extra as String,
+        ),
+      ),
       GoRoute(path: '/pending-deletion', builder: (_, _) => const PendingDeletionScreen()),
       GoRoute(path: '/account-banned', builder: (_, _) => const AccountBannedScreen()),
       GoRoute(path: '/account-suspended', builder: (_, _) => const AccountSuspendedScreen()),

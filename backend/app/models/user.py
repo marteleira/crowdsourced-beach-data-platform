@@ -41,6 +41,9 @@ class User(Base):
     email_verification_code_hash = Column(Text, nullable=True)
     email_verification_expires_at = Column(TIMESTAMP(timezone=True), nullable=True)
 
+    password_reset_code_hash = Column(Text, nullable=True)
+    password_reset_expires_at = Column(TIMESTAMP(timezone=True), nullable=True)
+
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     scheduled_deletion_at = Column(TIMESTAMP(timezone=True), nullable=True)
 

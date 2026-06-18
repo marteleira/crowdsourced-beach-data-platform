@@ -88,4 +88,20 @@ class AuthRepository {
   Future<void> resendVerification() async {
     await _dio.post('/auth/resend-verification');
   }
+
+  Future<void> forgotPassword(String email) async {
+    await _dio.post(
+      '/auth/forgot-password',
+      data: {'email': email},
+      options: Options(extra: {'skipAuthInterceptor': true}),
+    );
+  }
+
+  Future<void> resetPassword(String email, String code, String newPassword) async {
+    await _dio.post(
+      '/auth/reset-password',
+      data: {'email': email, 'code': code, 'new_password': newPassword},
+      options: Options(extra: {'skipAuthInterceptor': true}),
+    );
+  }
 }
