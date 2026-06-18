@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/auth_input_decoration.dart';
+import '../../../shared/widgets/password_strength_field.dart';
 
 class EmailLoginScreen extends ConsumerStatefulWidget {
   const EmailLoginScreen({super.key});
@@ -19,35 +21,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
   final _nameCtrl = TextEditingController();
 
   bool _isRegister = false;
-  bool _obscurePassword = true;
   bool _loading = false;
   String? _errorMessage;
-
-  bool _pwHasLength = false;
-  bool _pwHasUpper = false;
-  bool _pwHasLower = false;
-  bool _pwHasDigitOrSpecial = false;
-  int get _pwScore =>
-      [_pwHasLength, _pwHasUpper, _pwHasLower, _pwHasDigitOrSpecial]
-          .where((b) => b)
-          .length;
-
-  @override
-  void initState() {
-    super.initState();
-    _passwordCtrl.addListener(_updatePasswordStrength);
-  }
-
-  void _updatePasswordStrength() {
-    final v = _passwordCtrl.text;
-    setState(() {
-      _pwHasLength = v.length >= 8;
-      _pwHasUpper = v.contains(RegExp(r'[A-Z]'));
-      _pwHasLower = v.contains(RegExp(r'[a-z]'));
-      _pwHasDigitOrSpecial =
-          v.contains(RegExp(r'[0-9]')) || v.contains(RegExp(r'[^A-Za-z0-9]'));
-    });
-  }
 
   @override
   void dispose() {
@@ -103,58 +78,67 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                 ),
                 const SizedBox(height: AppSpacing.xxxl),
                 if (_isRegister) ...[
-                  _buildField(
+                  TextFormField(
                     controller: _nameCtrl,
-                    label: 'Nome',
-                    hint: 'O teu nome',
-                    icon: Icons.person_outline,
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? 'Introduz o teu nome' : null,
+                    style: const TextStyle(color: AppColors.primary),
+                    decoration: authInputDecoration(
+                      label: 'Nome',
+                      hint: 'O teu nome',
+                      icon: Icons.person_outline,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                 ],
-                _buildField(
+                TextFormField(
                   controller: _emailCtrl,
-                  label: 'Email',
-                  hint: 'o.teu@email.com',
-                  icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) return 'Introduz o email';
                     if (!v.contains('@')) return 'Email inválido';
                     return null;
                   },
+                  style: const TextStyle(color: AppColors.primary),
+                  decoration: authInputDecoration(
+                    label: 'Email',
+                    hint: 'o.teu@email.com',
+                    icon: Icons.email_outlined,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                _buildPasswordField(),
-                if (_isRegister && _passwordCtrl.text.isNotEmpty)
-                  _buildPasswordStrengthIndicator(),
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.coral.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline,
-                            color: AppColors.coral, size: 18),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Text(
-                            _errorMessage!,
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.coral,
-                                    ),
-                          ),
+                PasswordStrengthField(
+                  controller: _passwordCtrl,
+                  requireStrength: _isRegister,
+                ),
+                if (!_isRegister) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () => context.push(
+                        '/login/forgot-password',
+                        extra: _emailCtrl.text.trim(),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'Esqueci a password',
+                        style: TextStyle(
+                          color: AppColors.tealDark,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
                         ),
-                      ],
+                      ),
                     ),
                   ),
+                ],
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  _ErrorBanner(message: _errorMessage!),
                 ],
                 const SizedBox(height: 28),
                 SizedBox(
@@ -226,182 +210,6 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     );
   }
 
-  Widget _buildField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      validator: validator,
-      style: const TextStyle(color: AppColors.primary),
-      decoration: _inputDecoration(label: label, hint: hint, icon: icon),
-    );
-  }
-
-  Widget _buildPasswordStrengthIndicator() {
-    final score = _pwScore;
-    final (label, barColor) = switch (score) {
-      0 || 1 => ('Fraca', AppColors.coral),
-      2 => ('Razoável', AppColors.amber),
-      3 => ('Boa', AppColors.teal),
-      _ => ('Forte', AppColors.flagGreen),
-    };
-
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween(end: score / 4),
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOut,
-                      builder: (_, value, _) => LinearProgressIndicator(
-                        value: value,
-                        minHeight: 5,
-                        backgroundColor:
-                            AppColors.primary.withValues(alpha: 0.08),
-                        valueColor: AlwaysStoppedAnimation(barColor),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Text(
-                    label,
-                    key: ValueKey(label),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: barColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _pwRequirement('8+ caracteres', _pwHasLength),
-            _pwRequirement('Letra maiúscula (A–Z)', _pwHasUpper),
-            _pwRequirement('Letra minúscula (a–z)', _pwHasLower),
-            _pwRequirement('Número ou caractere especial', _pwHasDigitOrSpecial),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _pwRequirement(String label, bool met) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 3),
-      child: Row(
-        children: [
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: Icon(
-              met ? Icons.check_circle_outline : Icons.radio_button_unchecked,
-              key: ValueKey(met),
-              size: 14,
-              color: met ? AppColors.teal : AppColors.textHint,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: met ? AppColors.teal : AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _passwordCtrl,
-      obscureText: _obscurePassword,
-      validator: (v) {
-        if (v == null || v.isEmpty) return 'Introduz a password';
-        if (_isRegister) {
-          if (!_pwHasLength) return 'Mínimo 8 caracteres';
-          if (!_pwHasUpper) return 'Precisa de uma letra maiúscula';
-          if (!_pwHasLower) return 'Precisa de uma letra minúscula';
-          if (!_pwHasDigitOrSpecial) return 'Precisa de um número ou caractere especial';
-        }
-        return null;
-      },
-      style: const TextStyle(color: AppColors.primary),
-      decoration: _inputDecoration(
-        label: 'Password',
-        hint: '••••••••',
-        icon: Icons.lock_outline,
-      ).copyWith(
-        suffixIcon: IconButton(
-          icon: Icon(
-            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-            color: AppColors.textSecondary,
-            size: 20,
-          ),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration({
-    required String label,
-    required String hint,
-    required IconData icon,
-  }) {
-    return InputDecoration(
-      labelText: label,
-      hintText: hint,
-      prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 20),
-      labelStyle: const TextStyle(color: AppColors.textSecondary),
-      hintStyle: const TextStyle(color: AppColors.textHint),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-            color: AppColors.primary.withValues(alpha: 0.15)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(
-            color: AppColors.primary.withValues(alpha: 0.15)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.teal, width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.coral),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.coral, width: 1.5),
-      ),
-    );
-  }
-
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() {
@@ -435,7 +243,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
         }
         if (code == 'account_suspended') {
           final raw = detail['suspended_until'] as String?;
-          if (raw != null) ref.read(accountSuspendedProvider.notifier).set(DateTime.parse(raw));
+          if (raw != null) {
+            ref.read(accountSuspendedProvider.notifier).set(DateTime.parse(raw));
+          }
           return;
         }
       }
@@ -447,7 +257,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('Email já registado'),
-            content: Text(msg ?? 'Este email já tem uma conta. Entra com a tua password.'),
+            content: Text(
+                msg ?? 'Este email já tem uma conta. Entra com a tua password.'),
             actions: [
               TextButton(
                 onPressed: () {
@@ -475,5 +286,36 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+}
+
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.coral.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: AppColors.coral, size: 18),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: AppColors.coral),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

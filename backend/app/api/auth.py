@@ -18,9 +18,9 @@ from app.models.user import User, RefreshToken
 from app.schemas.auth import (
     RegisterRequest, LoginRequest, GoogleRequest, GuestRequest,
     RefreshRequest, LogoutRequest, PromoteRequest, TokenResponse,
-    VerifyEmailRequest,
+    VerifyEmailRequest, ForgotPasswordRequest, ResetPasswordRequest,
 )
-from app.services.email import send_verification_email
+from app.services.email import send_verification_email, send_password_reset_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 logger = logging.getLogger(__name__)
@@ -297,3 +297,55 @@ async def resend_verification(
 
     await _send_verification(user, db)
     return {"status": "sent"}
+
+
+@router.post("/forgot-password")
+async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.email == body.email))
+    user = result.scalar_one_or_none()
+
+    # Only send for email/password accounts; always return same response to avoid enumeration
+    if user and user.password_hash:
+        code, code_hash = generate_verification_code()
+        user.password_reset_code_hash = code_hash
+        user.password_reset_expires_at = (
+            datetime.now(timezone.utc)
+            + timedelta(minutes=settings.EMAIL_VERIFICATION_EXPIRE_MINUTES)
+        )
+        await db.commit()
+        await send_password_reset_email(user.email, code)
+
+    return {"status": "sent"}
+
+
+@router.post("/reset-password")
+async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(User).where(User.email == body.email))
+    user = result.scalar_one_or_none()
+
+    if not user or not user.password_reset_code_hash or not user.password_reset_expires_at:
+        raise HTTPException(400, "Pedido de recuperação inválido ou expirado")
+
+    now = datetime.now(timezone.utc)
+    expires = user.password_reset_expires_at
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if expires < now:
+        raise HTTPException(400, "Código expirado. Solicita um novo.")
+
+    if hash_verification_code(body.code) != user.password_reset_code_hash:
+        raise HTTPException(400, "Código inválido")
+
+    user.password_hash = hash_password(body.new_password)
+    user.password_reset_code_hash = None
+    user.password_reset_expires_at = None
+
+    # Revoke all active refresh tokens so existing sessions are invalidated
+    await db.execute(
+        update(RefreshToken)
+        .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))
+        .values(revoked_at=now)
+    )
+    await db.commit()
+
+    return {"status": "ok"}

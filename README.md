@@ -308,10 +308,10 @@ Detailed docs for each part live in their respective directories:
 - [x] Usercount and section on beach detail
 - [x] Review the point win/loss features
 - [x] Autoban and suspension features completelty working
+- [x] Forgot password with code verification
 ---
 
 ### 🔜 Planned
-- [ ] Forgot password with code verification
 - [ ] Change password on current session
 - [ ] Change email ""
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
