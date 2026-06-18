@@ -311,13 +311,19 @@ Detailed docs for each part live in their respective directories:
 ---
 
 ### 🔜 Planned
+- [ ] Forgot password with code verification
+- [ ] Change password on current session
+- [ ] Change email ""
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
-- [ ] End-to-end tests
+- [ ] End-to-end tests & more
 
 ---
 
 ### Consider -> Talk with Professor Bruno
 - [ ] Share button (on <beach_detail)
+- [ ] Images on beaches
+- [ ] Option to put a profile image/avatar
+
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
 - [ ] Support more than one language 
 - [ ] List the users on the beach (respecting the privacy settings)
