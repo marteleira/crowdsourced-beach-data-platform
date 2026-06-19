@@ -122,6 +122,30 @@ class BeachRepository {
     } catch (_) { return null; }
   }
 
+  Future<UserProfile> updateProfile({
+    String? displayName,
+    String? email,
+    String? currentPassword,
+  }) async {
+    final body = <String, dynamic>{
+      'display_name': ?displayName,
+      'email': ?email,
+      'current_password': ?currentPassword,
+    };
+    final res = await _dio.patch('/users/me', data: body);
+    return UserProfile.fromJson(res.data as Map<String, dynamic>);
+  }
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _dio.post('/users/me/change-password', data: {
+      'current_password': currentPassword,
+      'new_password': newPassword,
+    });
+  }
+
   Future<List<BeachSummary>> getFavourites() async {
     try {
       final res = await _dio.get('/users/me/favourites');

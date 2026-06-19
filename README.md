@@ -309,36 +309,39 @@ Detailed docs for each part live in their respective directories:
 - [x] Review the point win/loss features
 - [x] Autoban and suspension features completelty working
 - [x] Forgot password with code verification
+- [x] Change password on current session
+- [x] Change email ""
+- [x] Change username
+- [ ] List the users on the beach (respecting the privacy settings) (tirar/repensar)
 ---
 
 ### 🔜 Planned
-- [ ] Change password on current session
-- [ ] Change email ""
+
+- [ ] Share button (on <beach_detail)
+- [ ] Images on beaches
+- [ ] Option to put a profile image/avatar (avatares pre-definidos.)
+ver nomes
+- [ ] Display current temps (requires another api)
+- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
+
+- [ ] Support more than one language 
+
+- [ ] Notifications for flag changes on favorite beaches
+- [ ] Review the points system and requirements for certain tasks
+- [ ] Widget/Shortcut for the favorite beaches
+- [ ] Water quality update date
+
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] End-to-end tests & more
 
 ---
 
-### Consider -> Talk with Professor Bruno
-- [ ] Share button (on <beach_detail)
-- [ ] Images on beaches
-- [ ] Option to put a profile image/avatar
-
-- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
-- [ ] Support more than one language 
-- [ ] List the users on the beach (respecting the privacy settings)
-
-- [ ] Display current temps (requires another api)
-- [ ] Admin panel for beach management and moderation
-- [ ] Implement the flag system with prolog (ideia maluca)
-- [ ] Send anonymous data to improve the app (configured with)
+### Low priority
 - [ ] First use -> app tour
 
- 
-#### Probably wont
-- [ ] Dark mode (Darkmode may be worse to see on the beach)
+### After the first launch
 - [ ] Expand to other Portuguese beaches 
-- [ ] Include a more detailed/longer tide prediction (8 instead of 4 levels for example is a lot)
+
 ---
 
 <div align="center">

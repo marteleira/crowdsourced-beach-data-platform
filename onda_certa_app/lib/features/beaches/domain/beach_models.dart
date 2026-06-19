@@ -463,8 +463,9 @@ class UserReputationEvent {
 
 class UserProfile {
   const UserProfile({
-    required this.id, this.displayName, required this.reputation,
-    required this.level, required this.isAnonymous,
+    required this.id, this.displayName, this.email,
+    this.hasPassword = false,
+    required this.reputation, required this.level, required this.isAnonymous,
     this.streak = 0,
     this.achievements = const [],
     this.stats,
@@ -472,6 +473,8 @@ class UserProfile {
   });
   final String id;
   final String? displayName;
+  final String? email;
+  final bool hasPassword;
   final int reputation;
   final String level;
   final bool isAnonymous;
@@ -483,6 +486,8 @@ class UserProfile {
   factory UserProfile.fromJson(Map<String, dynamic> j) => UserProfile(
     id: j['id'] as String,
     displayName: j['display_name'] as String?,
+    email: j['email'] as String?,
+    hasPassword: j['has_password'] as bool? ?? false,
     reputation: j['reputation'] as int? ?? 0,
     level: j['level'] as String? ?? 'novo',
     isAnonymous: j['is_anonymous'] as bool? ?? false,

@@ -19,6 +19,7 @@ import 'features/transport/presentation/transport_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 import 'features/legal/presentation/privacy_screen.dart';
 import 'features/legal/presentation/terms_screen.dart';
+import 'features/settings/presentation/account_settings_screen.dart';
 import 'features/settings/presentation/notification_settings_screen.dart';
 import 'features/settings/presentation/privacy_settings_screen.dart';
 import 'features/favourites/presentation/favourites_screen.dart';
@@ -105,6 +106,7 @@ final _routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
       GoRoute(path: '/terms', builder: (_, _) => const TermsScreen()),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),
+      GoRoute(path: '/settings/account', builder: (_, _) => const AccountSettingsScreen()),
       GoRoute(path: '/settings/privacy', builder: (_, _) => const PrivacySettingsScreen()),
       GoRoute(path: '/settings/notifications', builder: (_, _) => const NotificationSettingsScreen()),
       GoRoute(
