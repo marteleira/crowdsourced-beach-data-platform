@@ -5,6 +5,7 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/user_avatar.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -43,6 +44,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         if (profile == null) {
           return _ErrorView(onRetry: () => ref.invalidate(userProfileProvider));
         }
+        final avatarId = profile.avatarId;
         return RefreshIndicator(
           onRefresh: () async => ref.invalidate(userProfileProvider),
           color: AppColors.teal,
@@ -52,6 +54,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               SliverToBoxAdapter(
                 child: _ProfileHeader(
                   profile: profile,
+                  avatarId: avatarId,
                   onSettingsTap: _scrollToSettings,
                 ),
               ),
@@ -75,9 +78,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 }
 
 class _ProfileHeader extends StatelessWidget {
-  const _ProfileHeader({required this.profile, required this.onSettingsTap});
+  const _ProfileHeader({
+    required this.profile,
+    required this.onSettingsTap,
+    this.avatarId,
+  });
   final UserProfile profile;
   final VoidCallback onSettingsTap;
+  final String? avatarId;
 
   @override
   Widget build(BuildContext context) {
@@ -100,31 +108,11 @@ class _ProfileHeader extends StatelessWidget {
           child: Column(
             children: [
               // avatar
-              Container(
-                width: 84,
-                height: 84,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.teal,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.teal.withValues(alpha: 0.35),
-                      blurRadius: 20,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    initials,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
+              UserAvatarWidget(
+                size: 84,
+                avatarId: avatarId,
+                initials: initials,
+                showGlow: true,
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(

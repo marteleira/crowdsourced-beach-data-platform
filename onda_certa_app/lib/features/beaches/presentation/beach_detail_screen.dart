@@ -14,6 +14,7 @@ import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/widgets/metric_cell.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/tide_chart.dart';
+import '../../../shared/widgets/user_avatar.dart';
 
 class BeachDetailScreen extends ConsumerStatefulWidget {
   const BeachDetailScreen({super.key, required this.beach});
@@ -1163,23 +1164,16 @@ class _AvatarBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _presenceAvatarColor(user.displayName);
     final initials = _presenceInitials(user.displayName);
     return Container(
-      width: 40, height: 40,
       decoration: BoxDecoration(
-        color: color,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white, width: 2.5),
       ),
-      child: Center(
-        child: initials.isNotEmpty
-            ? Text(initials,
-                style: const TextStyle(
-                  color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700,
-                ))
-            : Icon(Icons.person_rounded,
-                color: Colors.white.withValues(alpha: 0.85), size: 20),
+      child: UserAvatarWidget(
+        size: 40,
+        avatarId: user.avatarId,
+        initials: initials.isNotEmpty ? initials : '?',
       ),
     );
   }
@@ -1208,18 +1202,6 @@ class _OverflowBubble extends StatelessWidget {
   );
 }
 
-Color _presenceAvatarColor(String? name) {
-  if (name == null) return const Color(0xFFB0B7C3);
-  const palette = [
-    Color(0xFF3ECFCF),
-    Color(0xFFE86C50),
-    Color(0xFF8B5CF6),
-    Color(0xFF3B82F6),
-    Color(0xFF10B981),
-    Color(0xFFF59E0B),
-  ];
-  return palette[name.hashCode.abs() % palette.length];
-}
 
 String _presenceInitials(String? name) {
   if (name == null || name.trim().isEmpty) return '';

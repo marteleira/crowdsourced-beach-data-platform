@@ -19,6 +19,7 @@ class UserProfile(BaseModel):
     level: str         # novo | regular | contribuidor | veterano
     is_anonymous: bool
     streak: int = 0
+    avatar_id: Optional[str] = None
     achievements: List[dict] = []
     stats: dict        # total_reports, confirmed_reports, false_reports, accuracy_rate
     recent_events: List[ReputationEventOut] = []
@@ -38,10 +39,17 @@ class HeartbeatResponse(BaseModel):
     user_count: int
 
 
+_VALID_AVATAR_IDS = {
+    "wave", "surfer", "shell", "anchor", "dolphin",
+    "crab", "sailboat", "compass", "fish", "shark",
+    "lighthouse", "star",
+}
+
 class UpdateProfileRequest(BaseModel):
     display_name: Optional[str] = None
     email: Optional[EmailStr] = None
     current_password: Optional[str] = None  # required when changing email
+    avatar_id: Optional[str] = None         # None = keep current; "default" = clear
 
     @field_validator("display_name")
     @classmethod
@@ -50,6 +58,13 @@ class UpdateProfileRequest(BaseModel):
             v = v.strip()
             if not (1 <= len(v) <= 50):
                 raise ValueError("Nome deve ter entre 1 e 50 caracteres")
+        return v
+
+    @field_validator("avatar_id")
+    @classmethod
+    def avatar_valid(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v != "default" and v not in _VALID_AVATAR_IDS:
+            raise ValueError(f"Avatar inválido: {v}")
         return v
 
 

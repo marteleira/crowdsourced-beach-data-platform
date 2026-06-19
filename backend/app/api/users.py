@@ -51,6 +51,7 @@ async def _build_profile(user: User, db: AsyncSession) -> UserProfile:
         level=reputation_level(user.reputation),
         is_anonymous=user.is_anonymous,
         streak=user.streak or 0,
+        avatar_id=user.avatar_id,
         achievements=get_all_achievements_status(user, earned_ids),
         stats={
             "total_reports": total,
@@ -102,11 +103,14 @@ async def update_profile(
     if user.is_anonymous:
         raise HTTPException(403, "Convidados não podem alterar o perfil")
 
-    if body.display_name is None and body.email is None:
+    if body.display_name is None and body.email is None and body.avatar_id is None:
         raise HTTPException(400, "Nenhuma alteração fornecida")
 
     if body.display_name is not None:
         user.display_name = body.display_name
+
+    if body.avatar_id is not None:
+        user.avatar_id = None if body.avatar_id == "default" else body.avatar_id
 
     if body.email is not None and body.email != user.email:
         # Google-only accounts cannot change email

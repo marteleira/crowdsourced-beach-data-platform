@@ -32,6 +32,7 @@ JITTER_DEGREES = 0.003   # ~300m at Arrábida latitude
 
 class MapUser(BaseModel):
     display_name: Optional[str] = None   # None = "Anonymous"
+    avatar_id: Optional[str] = None
     lat: float
     lon: float
     beach_id: int
@@ -107,10 +108,12 @@ async def get_map_users(
             if not priv["share_presence"] or priv["location_accuracy"] == "none":
                 continue  # excluded from the visible list, but still counted above
             name = user.display_name if priv["name_public"] else None
+            avatar = user.avatar_id if priv.get("avatar_public", True) else None
             accuracy = priv["location_accuracy"]
         else:
             # Anonymous heartbeat — always show, no name
             name = None
+            avatar = None
             accuracy = "approximate"
 
         # Resolve position from geometry (stored as WKB; fall back to beach coords)
@@ -124,7 +127,7 @@ async def get_map_users(
 
         if hb.beach_id not in beach_map:
             beach_map[hb.beach_id] = []
-        beach_map[hb.beach_id].append(MapUser(display_name=name, lat=lat, lon=lon, beach_id=hb.beach_id))
+        beach_map[hb.beach_id].append(MapUser(display_name=name, avatar_id=avatar, lat=lat, lon=lon, beach_id=hb.beach_id))
 
     # Include beaches that have active users even if all chose maximum privacy
     result = []
