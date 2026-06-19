@@ -312,12 +312,12 @@ Detailed docs for each part live in their respective directories:
 - [x] Change password on current session
 - [x] Change email ""
 - [x] Change username
+- [x] Water quality EEA update year
 - [ ] List the users on the beach (respecting the privacy settings) (tirar/repensar)
 ---
 
 ### 🔜 Planned
 
-- [ ] Share button (on <beach_detail)
 - [ ] Images on beaches
 - [ ] Option to put a profile image/avatar (avatares pre-definidos.)
 ver nomes
@@ -329,9 +329,9 @@ ver nomes
 - [ ] Notifications for flag changes on favorite beaches
 - [ ] Review the points system and requirements for certain tasks
 - [ ] Widget/Shortcut for the favorite beaches
-- [ ] Water quality update date
 
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
+- [ ] Share button (on beach_detail)
 - [ ] End-to-end tests & more
 
 ---
