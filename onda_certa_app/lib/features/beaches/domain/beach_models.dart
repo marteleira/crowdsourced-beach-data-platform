@@ -170,11 +170,14 @@ class BeachReport {
 }
 
 class PresenceUser {
-  const PresenceUser({this.displayName});
+  const PresenceUser({this.displayName, this.avatarId});
   final String? displayName; // null = anonymous / private
+  final String? avatarId;
 
-  factory PresenceUser.fromJson(Map<String, dynamic> j) =>
-      PresenceUser(displayName: j['display_name'] as String?);
+  factory PresenceUser.fromJson(Map<String, dynamic> j) => PresenceUser(
+    displayName: j['display_name'] as String?,
+    avatarId: j['avatar_id'] as String?,
+  );
 }
 
 class MapBeachPresence {
@@ -467,6 +470,7 @@ class UserProfile {
     this.hasPassword = false,
     required this.reputation, required this.level, required this.isAnonymous,
     this.streak = 0,
+    this.avatarId,
     this.achievements = const [],
     this.stats,
     this.recentEvents = const [],
@@ -479,6 +483,7 @@ class UserProfile {
   final String level;
   final bool isAnonymous;
   final int streak;
+  final String? avatarId;
   final List<UserAchievement> achievements;
   final UserStats? stats;
   final List<UserReputationEvent> recentEvents;
@@ -492,6 +497,7 @@ class UserProfile {
     level: j['level'] as String? ?? 'novo',
     isAnonymous: j['is_anonymous'] as bool? ?? false,
     streak: j['streak'] as int? ?? 0,
+    avatarId: j['avatar_id'] as String?,
     achievements: (j['achievements'] as List? ?? [])
         .map((e) => UserAchievement.fromJson(e as Map<String, dynamic>))
         .toList(),

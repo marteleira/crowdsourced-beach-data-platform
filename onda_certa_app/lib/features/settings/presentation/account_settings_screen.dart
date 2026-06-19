@@ -10,6 +10,7 @@ import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_input_decoration.dart';
 import '../../../shared/widgets/password_strength_field.dart';
+import '../../../shared/widgets/user_avatar.dart';
 
 class AccountSettingsScreen extends ConsumerWidget {
   const AccountSettingsScreen({super.key});
@@ -86,6 +87,7 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
   bool _nameBusy = false;
   bool _emailBusy = false;
   bool _passwordBusy = false;
+  bool _avatarBusy = false;
 
   @override
   void dispose() {
@@ -99,6 +101,41 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
   }
 
   BeachRepository get _repo => ref.read(beachRepositoryProvider);
+
+  String _initials(String name) {
+    final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();
+    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    if (parts.isNotEmpty && parts[0].isNotEmpty) return parts[0][0].toUpperCase();
+    return '?';
+  }
+
+  Future<void> _showAvatarPicker(BuildContext context, String? currentId) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _AvatarPickerSheet(
+        currentId: currentId,
+        onSelect: (id) async {
+          if (context.mounted) Navigator.pop(context);
+          await _saveAvatar(id);
+        },
+      ),
+    );
+  }
+
+  Future<void> _saveAvatar(String? id) async {
+    setState(() => _avatarBusy = true);
+    try {
+      await _repo.updateProfile(avatarId: id ?? 'default');
+      ref.invalidate(userProfileProvider);
+      _showSuccess('Avatar atualizado com sucesso');
+    } catch (e) {
+      _showError(_extractError(e) ?? 'Não foi possível atualizar o avatar');
+    } finally {
+      if (mounted) setState(() => _avatarBusy = false);
+    }
+  }
 
   String? _extractError(Object e) {
     if (e is DioException) {
@@ -206,10 +243,49 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
     final profile = widget.profile;
     final canChangeEmail = profile.hasPassword && !profile.isAnonymous;
     final canChangePassword = profile.hasPassword && !profile.isAnonymous;
+    final currentAvatarId = widget.profile.avatarId;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
       children: [
+        // Avatar
+        _SectionHeader(title: 'Avatar', icon: Icons.face_outlined),
+        _Card(
+          child: Column(
+            children: [
+              UserAvatarWidget(
+                size: 80,
+                avatarId: currentAvatarId,
+                initials: _initials(profile.displayName ?? '?'),
+                showGlow: true,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                currentAvatarId == null
+                    ? 'Avatar predefinido (iniciais)'
+                    : (avatarById(currentAvatarId)?.label ?? currentAvatarId),
+                style: AppTextStyles.secondary,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _avatarBusy ? null : () => _showAvatarPicker(context, currentAvatarId),
+                  icon: const Icon(Icons.grid_view_rounded, size: 18),
+                  label: const Text('Escolher avatar'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.teal,
+                    side: BorderSide(color: AppColors.teal.withValues(alpha: 0.5)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // Informação pessoal
         _SectionHeader(title: 'Informação Pessoal', icon: Icons.person_outline_rounded),
         _Card(
@@ -475,6 +551,170 @@ class _ObscuredFieldState extends State<_ObscuredField> {
             size: 20,
           ),
           onPressed: () => setState(() => _obscure = !_obscure),
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarPickerSheet extends StatelessWidget {
+  const _AvatarPickerSheet({required this.currentId, required this.onSelect});
+  final String? currentId;
+  final void Function(String? id) onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        24, 16, 24, MediaQuery.paddingOf(context).bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.borderLight,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Escolhe o teu avatar',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Toca num avatar para o selecionar.',
+            style: AppTextStyles.secondary,
+          ),
+          const SizedBox(height: 20),
+          // Default initials option
+          _DefaultAvatarTile(
+            selected: currentId == null,
+            onTap: () => onSelect(null),
+          ),
+          const SizedBox(height: 16),
+          // Grid of predefined avatars
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+            ),
+            itemCount: kPredefinedAvatars.length,
+            itemBuilder: (context, i) {
+              final def = kPredefinedAvatars[i];
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AvatarPickerTile(
+                    def: def,
+                    selected: currentId == def.id,
+                    onTap: () => onSelect(def.id),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    def.label,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DefaultAvatarTile extends StatelessWidget {
+  const _DefaultAvatarTile({required this.selected, required this.onTap});
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.teal.withValues(alpha: 0.08)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: selected
+                ? AppColors.teal
+                : AppColors.borderLight,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.teal,
+              ),
+              child: const Center(
+                child: Text(
+                  'AB',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Predefinido (iniciais)',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Mostra as iniciais do teu nome',
+                    style: AppTextStyles.secondary,
+                  ),
+                ],
+              ),
+            ),
+            if (selected)
+              const Icon(Icons.check_circle_rounded,
+                  color: AppColors.teal, size: 22),
+          ],
         ),
       ),
     );

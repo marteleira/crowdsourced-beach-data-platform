@@ -126,11 +126,13 @@ class BeachRepository {
     String? displayName,
     String? email,
     String? currentPassword,
+    String? avatarId,
   }) async {
     final body = <String, dynamic>{
       'display_name': ?displayName,
       'email': ?email,
       'current_password': ?currentPassword,
+      'avatar_id': ?avatarId,
     };
     final res = await _dio.patch('/users/me', data: body);
     return UserProfile.fromJson(res.data as Map<String, dynamic>);

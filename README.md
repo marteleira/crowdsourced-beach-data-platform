@@ -314,12 +314,12 @@ Detailed docs for each part live in their respective directories:
 - [x] Change username
 - [x] Water quality EEA update year
 - [ ] List the users on the beach (respecting the privacy settings) (tirar/repensar)
+- [ ] Option to choose a profile avatar (pre-defined)
 ---
 
 ### 🔜 Planned
 
 - [ ] Images on beaches
-- [ ] Option to put a profile image/avatar (avatares pre-definidos.)
 ver nomes
 - [ ] Display current temps (requires another api)
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
