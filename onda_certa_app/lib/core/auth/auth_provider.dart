@@ -223,6 +223,27 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     await ref.read(authRepositoryProvider).resendVerification();
   }
 
+  /// Forces a token refresh and updates auth state.
+  /// Call after email change so the JWT reflects is_email_verified=false.
+  Future<void> refreshSession() async {
+    final storage = ref.read(secureStorageProvider);
+    final refreshToken = await storage.getRefreshToken();
+    if (refreshToken == null) return;
+    final repo = ref.read(authRepositoryProvider);
+    final tokens = await repo.refresh(refreshToken);
+    await storage.saveTokens(
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      isAnonymous: tokens.isAnonymous,
+      isEmailVerified: tokens.isEmailVerified,
+    );
+    state = AsyncData(AuthAuthenticated(
+      accessToken: tokens.accessToken,
+      isAnonymous: tokens.isAnonymous,
+      isEmailVerified: tokens.isEmailVerified,
+    ));
+  }
+
   Future<void> logout() async {
     await ref.read(fcmServiceProvider).unregisterToken();
     final storage = ref.read(secureStorageProvider);

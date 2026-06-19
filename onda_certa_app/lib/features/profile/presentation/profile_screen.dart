@@ -749,6 +749,13 @@ class _SettingsSection extends StatelessWidget {
       child: Column(
         children: [
           _SettingsTile(
+            icon: Icons.manage_accounts_outlined,
+            iconColor: AppColors.teal,
+            label: 'Definições da Conta',
+            onTap: () => context.push('/settings/account'),
+          ),
+          const _Divider(indent: 58),
+          _SettingsTile(
             icon: Icons.star_outline_rounded,
             iconColor: AppColors.amber,
             label: 'Praias Favoritas',
