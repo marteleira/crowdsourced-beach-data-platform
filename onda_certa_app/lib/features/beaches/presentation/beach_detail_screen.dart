@@ -543,7 +543,7 @@ class _WeatherCard extends StatelessWidget {
           metricRow([
             MetricCell(
               icon: Icons.thermostat_outlined,
-              value: weather?.maxTemp != null ? 'Min ${weather!.minTemp!.round()}°C\nMax ${weather!.maxTemp!.round()}°C' : '--',
+              value: weather?.maxTemp != null ? '${weather!.minTemp!.round()}-${weather!.maxTemp!.round()}°C' : '--',
               label: 'Temperatura', iconColor: AppColors.coral,
             ),
             MetricCell(
@@ -700,6 +700,7 @@ class _WaterQualityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final (color, label) = waterQualityInfo(quality?.classification);
     final cacheStr = _cacheStr(quality);
+    final eeaStr = _eeaStr(quality);
 
     return _SectionCard(
       child: Row(
@@ -715,12 +716,24 @@ class _WaterQualityCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Qualidade da Água', style: AppTextStyles.titleSm),
+                if (eeaStr != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Row(children: [
+                      const Icon(Icons.calendar_today_outlined, size: 11, color: AppColors.textHint),
+                      const SizedBox(width: 3),
+                      Text(eeaStr, style: AppTextStyles.hintSm),
+                    ]),
+                  ),
                 if (cacheStr != null)
-                  Row(children: [
-                    const Icon(Icons.access_time, size: 11, color: AppColors.textHint),
-                    const SizedBox(width: 3),
-                    Text(cacheStr, style: AppTextStyles.hintSm),
-                  ]),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 1),
+                    child: Row(children: [
+                      const Icon(Icons.access_time, size: 11, color: AppColors.textHint),
+                      const SizedBox(width: 3),
+                      Text(cacheStr, style: AppTextStyles.hintSm),
+                    ]),
+                  ),
               ],
             ),
           ),
@@ -743,6 +756,11 @@ class _WaterQualityCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String? _eeaStr(WaterQuality? q) {
+    if (q == null || q.sampledAt == null) return null;
+    return 'Ultima avaliação em ${q.sampledAt}';
   }
 
   String? _cacheStr(WaterQuality? q) {
