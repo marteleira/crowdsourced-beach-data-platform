@@ -315,6 +315,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Water quality EEA update year
 - [x] Option to choose a profile avatar (pre-defined)
 - [x] Images on beaches
+- [x] Red flag notification for favorite beaches
 ---
 
 ### 🔜 Planned

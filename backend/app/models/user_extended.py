@@ -29,6 +29,7 @@ DEFAULT_NOTIFICATION_SETTINGS = {
     },
     "min_severity": 1,
     "flag_change_alerts": True,
+    "red_flag_favourite_alerts": True,
     "tide_alerts": True,
     "report_confirmed": True,
     "report_rejected": True,

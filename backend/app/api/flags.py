@@ -15,7 +15,7 @@ from app.schemas.flag import (
 from app.services.activity import get_activity_level, get_params
 from app.services.flag_confidence import recalculate_beach_confidence
 from app.services.reputation import apply_delta, proposal_weight, DELTA_FLAG_CONFIRMED, DELTA_FLAG_CONTRADICTED
-from app.services.push_notifications import dispatch_flag_notification
+from app.services.push_notifications import dispatch_flag_notification, dispatch_red_flag_favourite_notification
 
 router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
 
@@ -89,6 +89,8 @@ async def propose_flag(
 
         if old_color != body.color:
             await dispatch_flag_notification(db, beach.id, old_color, body.color, beach.name)
+            if body.color == "red":
+                await dispatch_red_flag_favourite_notification(db, beach.id, beach.name)
 
         return FlagProposalResponse(
             proposal_id=proposal.id,

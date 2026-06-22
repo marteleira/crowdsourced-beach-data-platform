@@ -355,16 +355,28 @@ class TestFlagDispatch:
         assert n == 0
         mock.assert_not_called()
 
-    async def test_fav_user_without_heartbeat_receives_flag(self, db: AsyncSession, beach: Beach):
+    async def test_fav_user_without_heartbeat_receives_non_red_flag(self, db: AsyncSession, beach: Beach):
         u = await _make_user(db, "fav-flag@x.com")
         await _favourite(db, u, beach)
         tok = await _token(db, u)
 
         with patch(MOCK_SEND, new_callable=AsyncMock) as mock:
-            n = await dispatch_flag_notification(db, beach.id, "yellow", "red", beach.name)
+            n = await dispatch_flag_notification(db, beach.id, "green", "yellow", beach.name)
 
         assert n == 1
         assert tok in _tokens_called(mock)
+
+    async def test_fav_user_skipped_in_flag_dispatch_when_going_red(self, db: AsyncSession, beach: Beach):
+        # Red-flag fav-only users are handled by dispatch_red_flag_favourite_notification
+        u = await _make_user(db, "fav-flag-red@x.com")
+        await _favourite(db, u, beach)
+        await _token(db, u)
+
+        with patch(MOCK_SEND, new_callable=AsyncMock) as mock:
+            n = await dispatch_flag_notification(db, beach.id, "yellow", "red", beach.name)
+
+        assert n == 0
+        mock.assert_not_called()
 
     async def test_flag_change_alerts_disabled_skips(self, db: AsyncSession, beach: Beach):
         u = await _make_user(db, "noflag@x.com",

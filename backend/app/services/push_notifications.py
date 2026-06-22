@@ -160,7 +160,7 @@ async def dispatch_flag_notification(
     beach_name: str,
 ) -> int:
     """
-    Notify users at the beach (or with it in favourites) about a flag color change.
+    Notify users at the beach (or with it in favourites) about a flag color change,
     Returns the number of users notified.
     """
     checkin_users, fav_users = await _checkin_and_fav_candidates(db, beach_id)
@@ -189,6 +189,10 @@ async def dispatch_flag_notification(
         is_checkin = user_id in checkin_users
         is_favourite = user_id in fav_users
 
+        # Fav-only users when flag goes red are handled by dispatch_red_flag_favourite_notification
+        if new_color == "red" and is_favourite and not is_checkin:
+            continue
+
         if is_checkin and not settings.get("checkin_alerts"):
             if not (is_favourite and settings.get("favourite_alerts_enabled")):
                 continue
@@ -201,6 +205,56 @@ async def dispatch_flag_notification(
 
         if _in_quiet_hours(settings):
             continue
+
+        tokens = await _get_tokens(db, user_id)
+        if not tokens:
+            continue
+
+        for token in tokens:
+            await _send_push(token, title, body, beach_id=beach_id)
+        notified += 1
+
+    return notified
+
+
+async def dispatch_red_flag_favourite_notification(
+    db: AsyncSession,
+    beach_id: int,
+    beach_name: str,
+) -> int:
+    """
+    Notify users who have the beach in favourites when the flag changes to red,
+    This one bypasses quiet hours -> a red flag is a safety alert
+    Returns the number of users notified
+    """
+    fav_r = await db.execute(
+        select(UserFavourite.user_id).where(UserFavourite.beach_id == beach_id)
+    )
+    fav_users = {row[0] for row in fav_r.all()}
+    notified = 0
+
+    title = f"🚨 Bandeira vermelha! · {beach_name}"
+    body = "A bandeira desta praia favorita ficou vermelha. Evita entrar na água."
+
+    for user_id in fav_users:
+        user_r = await db.execute(select(User).where(User.id == user_id))
+        user = user_r.scalar_one_or_none()
+        if not user or user.is_banned:
+            continue
+
+        settings = effective_notification_settings(user)
+        if not settings.get("global_enabled"):
+            continue
+        if not settings.get("favourite_alerts_enabled", True):
+            continue
+        if not settings.get("red_flag_favourite_alerts", True):
+            continue
+
+        per_beach = settings.get("favourite_alerts_per_beach", {})
+        if not per_beach.get(str(beach_id), True):
+            continue
+
+        # Quiet hours do not apply
 
         tokens = await _get_tokens(db, user_id)
         if not tokens:
