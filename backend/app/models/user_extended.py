@@ -43,7 +43,7 @@ DEFAULT_PRIVACY_SETTINGS = {
     "name_public": True,
     "avatar_public": True,
     "share_usage_data": True, #This settings does nothing yet
-    "share_presence": True,               # show on map
+    "share_presence": False,              # show on map
 }
 
 

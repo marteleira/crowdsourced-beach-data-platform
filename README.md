@@ -316,13 +316,13 @@ Detailed docs for each part live in their respective directories:
 - [x] Option to choose a profile avatar (pre-defined)
 - [x] Images on beaches
 - [x] Red flag notification for favorite beaches
+- [x] List the users on the beach (respecting the privacy settings) (Now by default this is disabled, but can be enabled by the user)
 ---
 
 ### 🔜 Planned
 
-- [ ] List the users on the beach (respecting the privacy settings) (tirar/repensar)
 ver nomes
-- [ ] Display current temps (requires another api)
+- [ ] Display current temps (prob requires another api), and remove the "Parque nacional..." for every one
 - [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
 
 - [ ] Support more than one language 
