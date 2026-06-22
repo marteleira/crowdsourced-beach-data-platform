@@ -11,6 +11,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/animated_waves.dart';
+import '../../../shared/widgets/beach_cover_image.dart';
 import '../../../shared/widgets/tide_chart.dart';
 import '../../beaches/presentation/beach_list_screen.dart';
 import '../../profile/presentation/profile_screen.dart';
@@ -469,7 +470,6 @@ class _BestBeachCard extends StatelessWidget {
     }
 
     final flagColor = AppColors.forFlag(beach!.flagColor);
-    final gradient = AppColors.beachGradient(beach!.flagColor);
     final qualityLabel = beachQualityLabel(beach!.flagColor, beach!.recommendationScore);
     final qualityColor = beach!.recommendationScore != null && beach!.recommendationScore! > 0.7
         ? AppColors.teal : AppColors.sand;
@@ -483,14 +483,15 @@ class _BestBeachCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Image placeholder with gradient
+          // Cover photo / gradient
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Stack(
               children: [
-                Container(
+                BeachCoverImage(
+                  flagColor: beach!.flagColor,
+                  photoUrl: beach!.coverPhotoUrl,
                   height: 170,
-                  decoration: BoxDecoration(gradient: gradient),
                 ),
                 // Scrim
                 Positioned(

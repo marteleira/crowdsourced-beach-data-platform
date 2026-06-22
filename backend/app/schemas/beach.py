@@ -17,6 +17,7 @@ class BeachSummary(BaseModel):
     activity_label: Optional[str] = None
     distance_km: Optional[float] = None         # only when lat/lon provided
     recommendation_score: Optional[float] = None
+    cover_photo_url: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -31,6 +32,7 @@ class BeachDetail(BaseModel):
     max_capacity: Optional[int] = None
     flags_available: bool
     nearby_stop_ids: List[str] = []
+    cover_photo_url: Optional[str] = None
 
     model_config = {"from_attributes": True}
 

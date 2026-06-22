@@ -1,3 +1,8 @@
+import '../../../core/api/api_client.dart';
+
+String? _resolvePhotoUrl(String? raw) =>
+    raw != null ? (raw.startsWith('/') ? '$kServerBaseUrl$raw' : raw) : null;
+
 class BeachSummary {
   const BeachSummary({
     required this.id, required this.slug, required this.name,
@@ -5,6 +10,7 @@ class BeachSummary {
     this.flagConfidence, required this.occupancyLevel,
     required this.activeAlertsCount, required this.activityLevel,
     this.activityLabel, this.distanceKm, this.recommendationScore,
+    this.coverPhotoUrl,
   });
   final int id;
   final String slug;
@@ -19,6 +25,7 @@ class BeachSummary {
   final String? activityLabel;
   final double? distanceKm;
   final double? recommendationScore;
+  final String? coverPhotoUrl;
 
   factory BeachSummary.fromJson(Map<String, dynamic> j) => BeachSummary(
     id: j['id'] as int,
@@ -34,6 +41,7 @@ class BeachSummary {
     activityLabel: j['activity_label'] as String?,
     distanceKm: (j['distance_km'] as num?)?.toDouble(),
     recommendationScore: (j['recommendation_score'] as num?)?.toDouble(),
+    coverPhotoUrl: _resolvePhotoUrl(j['cover_photo_url'] as String?),
   );
 }
 
@@ -244,6 +252,7 @@ class BeachDetailInfo {
     required this.id, required this.slug, required this.name,
     required this.lat, required this.lon,
     this.maxCapacity, required this.flagsAvailable,
+    this.coverPhotoUrl,
   });
   final int id;
   final String slug;
@@ -252,6 +261,7 @@ class BeachDetailInfo {
   final double lon;
   final int? maxCapacity;
   final bool flagsAvailable;
+  final String? coverPhotoUrl;
 
   factory BeachDetailInfo.fromJson(Map<String, dynamic> j) => BeachDetailInfo(
     id: j['id'] as int,
@@ -261,6 +271,7 @@ class BeachDetailInfo {
     lon: (j['lon'] as num).toDouble(),
     maxCapacity: j['max_capacity'] as int?,
     flagsAvailable: j['flags_available'] as bool? ?? false,
+    coverPhotoUrl: _resolvePhotoUrl(j['cover_photo_url'] as String?),
   );
 }
 

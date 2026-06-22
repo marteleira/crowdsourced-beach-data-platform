@@ -37,6 +37,7 @@ BEACHES = [
         "max_capacity": 800,
         "nearby_stop_ids": ['162842', '160802'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/portinho_arrabida.jpg",
     },
     {
         "slug": "praia-de-galapinhos",
@@ -51,6 +52,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['160817', '160818'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/galapinhos.jpg",
     },
     {
         "slug": "praia-de-galapos",
@@ -65,6 +67,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['168562', '168137'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/galapos.jpg",
     },
     {
         "slug": "praia-do-creiro",
@@ -79,6 +82,7 @@ BEACHES = [
         "max_capacity": 600,
         "nearby_stop_ids": ['162842', '160802'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/creiro.jpg",
     },
     {
         "slug": "praia-da-figuerinha",
@@ -93,6 +97,7 @@ BEACHES = [
         "max_capacity": 1200,
         "nearby_stop_ids": ['160819', '160975', '160976'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/figueirinha.jpg",
     },
     {
         "slug": "praia-do-outao",
@@ -107,6 +112,7 @@ BEACHES = [
         "max_capacity": 2000,
         "nearby_stop_ids": ['160331', '160332', '160334', '160333'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/outao.jpg",
     },
     {
         "slug": "praia-de-sesimbra",
@@ -121,6 +127,7 @@ BEACHES = [
         "max_capacity": 3000,
         "nearby_stop_ids": ['150463', '150477', '150453'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/sesimbra.jpg",
     },
     {
         "slug": "praia-do-ouro",
@@ -135,6 +142,7 @@ BEACHES = [
         "max_capacity": 500,
         "nearby_stop_ids": ['150463', '150477'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/ouro.jpg",
     },
     {
         "slug": "praia-da-california",
@@ -149,6 +157,7 @@ BEACHES = [
         "max_capacity": 300,
         "nearby_stop_ids": ['150463', '150477'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/california.jpg",
     },
     {
         "slug": "praia-da-ribeira-do-cavalo",
@@ -163,6 +172,7 @@ BEACHES = [
         "max_capacity": None,               # pandemic value removed — no official limit
         "nearby_stop_ids": ['150415', '150437'],  # Porto Abrigo + Sesimbra Parque Campismo
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/ribeira_cavalo.jpg",
     },
     {
         "slug": "praia-de-alpertucho",
@@ -177,6 +187,7 @@ BEACHES = [
         "max_capacity": None,               # pandemic value removed
         "nearby_stop_ids": ['160800', '160799'],  # X Arrábida, 0.36/0.41km
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/alpertuche.jpg",
     },
     {
         "slug": "praia-da-anixa",
@@ -191,6 +202,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['160802', '160799', '160800'],  # Creiro parking + X Arrábida
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/anixa.jpg",
     },
     {
         "slug": "praia-dos-coelhos",
@@ -205,6 +217,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['160802', '160819'],  # Creiro parking + Figueirinha
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/coelhos.jpg",
     },
     {
         "slug": "praia-do-monte-branco",
@@ -219,6 +232,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['160802', '160799', '160800'],
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/monte_branco.jpg",
     },
     {
         "slug": "praia-dos-pilotos",
@@ -233,6 +247,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['160799', '160800', '160802'],  # X Arrábida 0.64km
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/pilotos.jpg",
     },
     {
         "slug": "praia-dos-penedos",
@@ -247,6 +262,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['150359', '150360'],  # Pedreiras ~2.8km (road access)
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/penedos.jpg",
     },
     {
         "slug": "praia-da-cova",
@@ -261,6 +277,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['150361', '150362'],  # Pedreiras ~2.1km
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/cova.jpg",
     },
     {
         "slug": "praia-da-mijona",
@@ -275,6 +292,7 @@ BEACHES = [
         "max_capacity": None,
         "nearby_stop_ids": ['150190', '150189'],  # Facho Azóia ~1.5km
         "flags_available": True,
+        "cover_photo_url": "/static/beaches/mijona.jpg",
     },
 ]
 """
@@ -304,6 +322,7 @@ async def seed():
                 beach.max_capacity = data.get("max_capacity")
                 beach.nearby_stop_ids = data.get("nearby_stop_ids", [])
                 beach.flags_available = data.get("flags_available", True)
+                beach.cover_photo_url = data.get("cover_photo_url")
                 print(f"  update: {data['slug']}")
                 continue
 
@@ -321,6 +340,7 @@ async def seed():
                 max_capacity=data.get("max_capacity"),
                 nearby_stop_ids=data.get("nearby_stop_ids", []),
                 flags_available=data.get("flags_available", True),
+                cover_photo_url=data.get("cover_photo_url"),
             )
             db.add(beach)
             print(f"  insert: {data['slug']}")

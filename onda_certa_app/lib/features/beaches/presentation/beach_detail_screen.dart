@@ -11,6 +11,7 @@ import '../../../features/community/presentation/flag_confirmation_sheet.dart';
 import '../../../features/community/presentation/flag_proposal_sheet.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../shared/widgets/beach_cover_image.dart';
 import '../../../shared/widgets/metric_cell.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/tide_chart.dart';
@@ -269,23 +270,21 @@ class _HeroAppBar extends StatelessWidget {
             ),
           ],
         ),
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            Container(decoration: BoxDecoration(gradient: AppColors.beachGradient(beach.flagColor))),
-            Positioned(
-              left: 0, right: 0, bottom: 0,
-              child: Container(
-                height: 150,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.72)],
-                  ),
+        background: BeachCoverImage(
+          flagColor: beach.flagColor,
+          photoUrl: beach.coverPhotoUrl,
+          child: Positioned(
+            left: 0, right: 0, bottom: 0,
+            child: Container(
+              height: 150,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.72)],
                 ),
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
