@@ -9,6 +9,9 @@ import 'auth_interceptor.dart';
 const _kApiHost = String.fromEnvironment('API_HOST', defaultValue: '10.0.2.2');
 const _kBaseUrl = 'http://$_kApiHost:8000/api/v1';
 
+/// Root of the server — use this to resolve root-relative paths like /static/...
+const kServerBaseUrl = 'http://$_kApiHost:8000';
+
 Dio createDio(
   SecureStorage storage, {
   void Function(DateTime)? onPendingDeletion,

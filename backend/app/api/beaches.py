@@ -168,6 +168,7 @@ async def list_beaches(
             activity_label=params["label"],
             distance_km=round(distance_km, 1) if distance_km is not None else None,
             recommendation_score=round(score, 3) if score is not None else None,
+            cover_photo_url=beach.cover_photo_url,
         ))
 
     if lat is not None and lon is not None:
@@ -280,6 +281,7 @@ async def get_beach(
         "max_capacity": beach.max_capacity,
         "flags_available": beach.flags_available,
         "nearby_stop_ids": beach.nearby_stop_ids or [],
+        "cover_photo_url": beach.cover_photo_url,
     }
 
     return BeachFullResponse(

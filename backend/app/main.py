@@ -1,8 +1,10 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.firebase import init_firebase
@@ -50,6 +52,11 @@ app.include_router(favourites.router,     prefix="/api/v1")
 app.include_router(notifications.router,  prefix="/api/v1")
 app.include_router(privacy.router,        prefix="/api/v1")
 app.include_router(map.router,            prefix="/api/v1")
+
+
+_static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+os.makedirs(_static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=_static_dir), name="static")
 
 
 @app.get("/health")

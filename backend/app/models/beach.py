@@ -35,4 +35,6 @@ class Beach(Base):
     # Feature flags
     flags_available = Column(Boolean, default=True)
 
+    cover_photo_url = Column(Text, nullable=True)
+
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
