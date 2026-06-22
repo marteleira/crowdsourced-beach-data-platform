@@ -21,6 +21,7 @@ class NotificationSettingsPatch(BaseModel):
     alert_types: Optional[dict] = None
     min_severity: Optional[Literal[1, 2, 3]] = None
     flag_change_alerts: Optional[bool] = None
+    red_flag_favourite_alerts: Optional[bool] = None
     tide_alerts: Optional[bool] = None
     report_confirmed: Optional[bool] = None
     report_rejected: Optional[bool] = None
