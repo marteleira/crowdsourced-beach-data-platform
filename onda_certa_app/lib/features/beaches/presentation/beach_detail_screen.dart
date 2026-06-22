@@ -1044,7 +1044,13 @@ class _PresenceSection extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.07),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: hasVisible
                   ? _PresenceWithAvatars(shown: shown, overflow: overflow, total: presence.userCount)
@@ -1069,8 +1075,8 @@ class _PresenceWithAvatars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const avatarSize = 40.0;
-    const step = 28.0; // overlap: each avatar starts 28px after the previous
+    const avatarSize = 45.0;
+    const step = 30.0; // overlap: each avatar starts 30px after the previous
     final itemCount = shown.length + (overflow > 0 ? 1 : 0);
     final stackWidth = itemCount <= 1
         ? avatarSize
@@ -1146,7 +1152,7 @@ class _PresenceAllPrivate extends StatelessWidget {
               Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary)),
               const SizedBox(height: 2),
               const Text(
-                'Localização não partilhada pelos utilizadores',
+                'Nenhuma pessoa decidiu partilhar a localização.',
                 style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
             ],
@@ -1164,16 +1170,20 @@ class _AvatarBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initials = _presenceInitials(user.displayName);
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2.5),
-      ),
-      child: UserAvatarWidget(
-        size: 40,
-        avatarId: user.avatarId,
-        initials: initials.isNotEmpty ? initials : '?',
-      ),
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: 45,
+          height: 45,
+          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+        ),
+        UserAvatarWidget(
+          size: 40,
+          avatarId: user.avatarId,
+          initials: initials.isNotEmpty ? initials : '?',
+        ),
+      ],
     );
   }
 }
@@ -1183,21 +1193,31 @@ class _OverflowBubble extends StatelessWidget {
   final int count;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: 40, height: 40,
-    decoration: BoxDecoration(
-      color: AppColors.primary.withValues(alpha: 0.07),
-      shape: BoxShape.circle,
-      border: Border.all(color: Colors.white, width: 2.5),
-    ),
-    child: Center(
-      child: Text(
-        '+$count',
-        style: const TextStyle(
-          color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w800,
+  Widget build(BuildContext context) => Stack(
+    alignment: Alignment.center,
+    children: [
+      Container(
+        width: 45,
+        height: 45,
+        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      ),
+      Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.09),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Text(
+            '+$count',
+            style: const TextStyle(
+              color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w800,
+            ),
+          ),
         ),
       ),
-    ),
+    ],
   );
 }
 
@@ -1416,7 +1436,7 @@ class _PresenceSheetEmpty extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Todos preferiram não partilhar\na sua localização.',
+            'Nenhuma pessoa decidiu partilhar\na sua localização.',
             style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
             textAlign: TextAlign.center,
           ),
