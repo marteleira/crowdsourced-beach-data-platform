@@ -171,6 +171,8 @@ class _HomeDashboard extends ConsumerWidget {
               const SizedBox(height: AppSpacing.xxl),
               _ExploreGrid(beachCount: beaches.value?.length ?? 0, onTabChange: onTabChange, bestBeach: bestBeach.value),
               const SizedBox(height: AppSpacing.xxl),
+              const _FavouritesSection(),
+              const SizedBox(height: AppSpacing.xxl),
               _CommunitySection(
                 totalReports: totalAlerts,
                 beachCount: beaches.value?.length ?? 0,
@@ -649,6 +651,219 @@ class _StatCard extends StatelessWidget {
           Text(value, style: AppTextStyles.titleLg),
           Text(label, style: AppTextStyles.secondaryXs, textAlign: TextAlign.center),
         ],
+      ),
+    );
+  }
+}
+
+// Favourites section
+
+class _FavouritesSection extends ConsumerWidget {
+  const _FavouritesSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final favAsync = ref.watch(favouritesProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.favorite_border, color: AppColors.coral, size: 16),
+            const SizedBox(width: 6),
+            const Text(
+              'FAVORITAS',
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8),
+            ),
+            const SizedBox(width: 6),
+            favAsync.maybeWhen(
+              data: (beaches) => beaches.isNotEmpty
+                  ? Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                      decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(10)),
+                      child: Text('${beaches.length}', style: AppTextStyles.whiteLabel),
+                    )
+                  : const SizedBox.shrink(),
+              orElse: () => const SizedBox.shrink(),
+            ),
+            const Spacer(),
+            GestureDetector(
+              onTap: () => context.push('/favourites'),
+              child: const Text('Ver todas →', style: AppTextStyles.tealLabel),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 118,
+          child: favAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2)),
+            error: (_, _) => const SizedBox.shrink(),
+            data: (beaches) => beaches.isEmpty
+                ? const _FavouritesNudgeCard()
+                : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.zero,
+                    itemCount: beaches.length + 1,
+                    separatorBuilder: (_, _) => const SizedBox(width: 10),
+                    itemBuilder: (context, i) {
+                      if (i == beaches.length) return const _FavouritesViewAllCard();
+                      return _FavouriteBeachCard(beach: beaches[i]);
+                    },
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FavouriteBeachCard extends StatelessWidget {
+  const _FavouriteBeachCard({required this.beach});
+  final BeachSummary beach;
+
+  @override
+  Widget build(BuildContext context) {
+    final flagColor = AppColors.forFlag(beach.flagColor);
+
+    return GestureDetector(
+      onTap: () => context.push('/beach/${beach.slug}', extra: beach),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: SizedBox(
+          width: 148,
+          child: BeachCoverImage(
+            flagColor: beach.flagColor,
+            photoUrl: beach.coverPhotoUrl,
+            height: 118,
+            dimOpacity: beach.coverPhotoUrl != null ? 0.40 : 0.0,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(width: 5, height: 5, decoration: BoxDecoration(color: flagColor, shape: BoxShape.circle)),
+                            const SizedBox(width: 4),
+                            Text(_flagLabel(beach.flagColor), style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                      const Spacer(),
+                      if (beach.activeAlertsCount > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(7)),
+                          child: Text('${beach.activeAlertsCount}⚠', style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700)),
+                        ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text(
+                    beach.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                      shadows: [Shadow(blurRadius: 4, color: Colors.black38)],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _flagLabel(String flag) => switch (flag) {
+    'green'  => 'Segura',
+    'yellow' => 'Cuidado',
+    'red'    => 'Perigo',
+    'purple' => 'Fechada',
+    _        => 'Desconhecida',
+  };
+}
+
+class _FavouritesViewAllCard extends StatelessWidget {
+  const _FavouritesViewAllCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/favourites'),
+      child: Container(
+        width: 76,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.borderLight),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(color: AppColors.teal.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: const Icon(Icons.arrow_forward, color: AppColors.teal, size: 17),
+            ),
+            const SizedBox(height: 7),
+            const Text('Ver\ntodas', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.tealDark, height: 1.3)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FavouritesNudgeCard extends StatelessWidget {
+  const _FavouritesNudgeCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/favourites'),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.coral.withValues(alpha: 0.22), width: 1.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.favorite_border, color: AppColors.coral.withValues(alpha: 0.45), size: 30),
+            const SizedBox(width: 14),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Sem favoritas ainda', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                const SizedBox(height: 3),
+                Text(
+                  'Abre uma praia e guarda-a\npara acesso rápido aqui.',
+                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

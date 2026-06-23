@@ -317,6 +317,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Images on beaches
 - [x] Red flag notification for favorite beaches
 - [x] List the users on the beach (respecting the privacy settings) (Now by default this is disabled, but can be enabled by the user)
+- [x] Widget/Shortcut for the favorite beaches
 ---
 
 ### 🔜 Planned
@@ -327,9 +328,7 @@ ver nomes
 
 - [ ] Support more than one language 
 
-- [ ] Notifications for flag changes on favorite beaches
 - [ ] Review the points system and requirements for certain tasks
-- [ ] Widget/Shortcut for the favorite beaches
 
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] Share button (on beach_detail)

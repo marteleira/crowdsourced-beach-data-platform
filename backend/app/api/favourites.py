@@ -44,6 +44,7 @@ async def _beach_summary(db: AsyncSession, beach: Beach) -> BeachSummary:
         name=beach.name,
         lat=beach.lat,
         lon=beach.lon,
+        cover_photo_url=beach.cover_photo_url,
         flag_color=status.flag_color if status else "unknown",
         flag_confidence=status.flag_confidence if status else 0.0,
         occupancy_level=occupancy.level,
