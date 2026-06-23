@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/beach_cover_image.dart';
 
 class FavouritesScreen extends ConsumerWidget {
   const FavouritesScreen({super.key});
@@ -11,158 +13,304 @@ class FavouritesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favourites = ref.watch(favouritesProvider);
+    final count = favourites.value?.length;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        title: const Text('Praias Favoritas', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Praias Favoritas', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+              if (count != null && count > 0)
+                Text(
+                  count == 1 ? '1 praia guardada' : '$count praias guardadas',
+                  style: const TextStyle(fontSize: 11, color: Colors.white54, fontWeight: FontWeight.w400),
+                ),
+            ],
+          ),
         ),
-      ),
-      body: favourites.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5)),
-        error: (_, _) => _ErrorView(onRetry: () => ref.invalidate(favouritesProvider)),
-        data: (beaches) {
-          if (beaches.isEmpty) return const _EmptyView();
-          return RefreshIndicator(
+        body: favourites.when(
+          loading: () => const Center(child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5)),
+          error: (_, _) => _ErrorView(onRetry: () => ref.invalidate(favouritesProvider)),
+          data: (beaches) => RefreshIndicator(
             onRefresh: () async => ref.invalidate(favouritesProvider),
             color: AppColors.teal,
             backgroundColor: Colors.white,
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              itemCount: beaches.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (_, i) => _FavouriteCard(beach: beaches[i]),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                if (beaches.isEmpty)
+                  const SliverFillRemaining(hasScrollBody: false, child: _EmptyView())
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+                    sliver: SliverList.separated(
+                      itemCount: beaches.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 14),
+                      itemBuilder: (_, i) => _BeachFavCard(beach: beaches[i]),
+                    ),
+                  ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 }
 
-class _FavouriteCard extends ConsumerWidget {
-  const _FavouriteCard({required this.beach});
+// Beach card 
+
+class _BeachFavCard extends ConsumerWidget {
+  const _BeachFavCard({required this.beach});
   final BeachSummary beach;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final flagColor = AppColors.forFlag(beach.flagColor);
+    //On dark card backgrounds, the gray "unknown" colour is invisible — use white instead.
+    final pillColor = beach.flagColor == 'unknown' || beach.flagColor.isEmpty ? Colors.white : flagColor;
 
     return GestureDetector(
       onTap: () => context.push('/beach/${beach.slug}', extra: beach),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
+              color: Colors.black.withValues(alpha: 0.13),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              Container(
-                width: 4,
-                decoration: BoxDecoration(
-                  color: flagColor,
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: SizedBox(
+            height: 195,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                BeachCoverImage(
+                  flagColor: beach.flagColor,
+                  photoUrl: beach.coverPhotoUrl,
+                  height: 195,
+                  dimOpacity: 0,
                 ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 13, 8, 13),
-                  child: Row(
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.38),
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.68),
+                      ],
+                      stops: const [0.0, 0.38, 1.0],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              beach.name,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
-                              ),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: pillColor.withValues(alpha: 0.22),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: pillColor.withValues(alpha: 0.65), width: 1),
                             ),
-                            const SizedBox(height: 5),
-                            Row(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(color: flagColor, shape: BoxShape.circle),
-                                ),
+                                Container(width: 6, height: 6, decoration: BoxDecoration(color: pillColor, shape: BoxShape.circle)),
                                 const SizedBox(width: 5),
-                                Text(
-                                  _flagLabel(beach.flagColor),
-                                  style: AppTextStyles.secondary,
-                                ),
-                                if (beach.activeAlertsCount > 0) ...[
-                                  const SizedBox(width: 10),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.coral.withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      '${beach.activeAlertsCount} alertas',
-                                      style: const TextStyle(fontSize: 11, color: AppColors.coral, fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                ],
+                                Text(_flagLabel(beach.flagColor), style: TextStyle(color: pillColor, fontSize: 11, fontWeight: FontWeight.w700)),
                               ],
                             ),
+                          ),
+                          const Spacer(),
+                          if (beach.activeAlertsCount > 0) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: AppColors.coral.withValues(alpha: 0.9),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 11),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    '${beach.activeAlertsCount} ${beach.activeAlertsCount == 1 ? 'alerta' : 'alertas'}',
+                                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
                           ],
-                        ),
+                          GestureDetector(
+                            onTap: () => _confirmRemove(context, ref),
+                            child: Container(
+                              width: 34, height: 34,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+                              ),
+                              child: const Icon(Icons.favorite, color: AppColors.coral, size: 17),
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.favorite, color: AppColors.coral, size: 22),
-                        tooltip: 'Remover favorito',
-                        onPressed: () => _removeFavourite(context, ref),
+                      const Spacer(),
+                      Text(
+                        beach.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 21,
+                          fontWeight: FontWeight.w700,
+                          height: 1.2,
+                          shadows: [Shadow(blurRadius: 8, color: Colors.black45)],
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          if (beach.activityLabel != null) ...[
+                            const Icon(Icons.people_outline, color: Colors.white70, size: 13),
+                            const SizedBox(width: 4),
+                            Text(beach.activityLabel!, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                            const SizedBox(width: 12),
+                          ],
+                          if (beach.distanceKm != null) ...[
+                            const Icon(Icons.near_me_outlined, color: Colors.white60, size: 13),
+                            const SizedBox(width: 4),
+                            Text('${beach.distanceKm!.toStringAsFixed(1)} km', style: const TextStyle(color: Colors.white60, fontSize: 12)),
+                          ],
+                          const Spacer(),
+                          const Icon(Icons.arrow_outward, color: Colors.white60, size: 15),
+                        ],
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Future<void> _removeFavourite(BuildContext context, WidgetRef ref) async {
-    try {
-      await ref.read(favouritesProvider.notifier).toggle(beach);
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao remover favorito'), backgroundColor: AppColors.coral),
-        );
+  Future<void> _confirmRemove(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(color: AppColors.borderMedium, borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              width: 60, height: 60,
+              decoration: BoxDecoration(color: AppColors.coral.withValues(alpha: 0.10), shape: BoxShape.circle),
+              child: const Icon(Icons.favorite_border, color: AppColors.coral, size: 28),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'Remover "${beach.name}"?',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Esta praia será removida das tuas favoritas.',
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: const BorderSide(color: AppColors.borderMedium),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                    ),
+                    child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.coral,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                    ),
+                    child: const Text('Remover', style: TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      try {
+        await ref.read(favouritesProvider.notifier).toggle(beach);
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Erro ao remover favorito'), backgroundColor: AppColors.coral),
+          );
+        }
       }
     }
   }
 
   String _flagLabel(String flag) => switch (flag) {
-    'green' => 'Segura',
+    'green'  => 'Segura',
     'yellow' => 'Cuidado',
-    'red' => 'Perigo',
+    'red'    => 'Perigo',
     'purple' => 'Fechada',
-    _ => 'Desconhecida',
+    _        => 'Desconhecida',
   };
 }
+
+// Empty 
 
 class _EmptyView extends StatelessWidget {
   const _EmptyView();
@@ -170,26 +318,32 @@ class _EmptyView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.favorite_border, size: 64, color: AppColors.textHint),
-          const SizedBox(height: AppSpacing.lg),
-          const Text(
-            'Sem praias favoritas',
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.primary),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          const Text(
-            'Abre uma praia e toca no coração\npara a guardar aqui.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 88, height: 88,
+              decoration: BoxDecoration(color: AppColors.coral.withValues(alpha: 0.09), shape: BoxShape.circle),
+              child: const Icon(Icons.favorite_border, size: 40, color: AppColors.coral),
+            ),
+            const SizedBox(height: 22),
+            const Text('Sem praias favoritas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary)),
+            const SizedBox(height: 8),
+            const Text(
+              'Abre uma praia e toca no coração\npara a guardar aqui.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
+//  Error 
 
 class _ErrorView extends StatelessWidget {
   const _ErrorView({required this.onRetry});
@@ -202,10 +356,13 @@ class _ErrorView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.cloud_off_outlined, size: 48, color: AppColors.textHint),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: 16),
           const Text('Erro ao carregar favoritos', style: TextStyle(color: AppColors.textSecondary)),
-          const SizedBox(height: AppSpacing.md),
-          TextButton(onPressed: onRetry, child: const Text('Tentar novamente')),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: onRetry,
+            child: const Text('Tentar novamente', style: TextStyle(color: AppColors.tealDark, fontWeight: FontWeight.w600)),
+          ),
         ],
       ),
     );
