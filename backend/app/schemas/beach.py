@@ -18,6 +18,7 @@ class BeachSummary(BaseModel):
     distance_km: Optional[float] = None         # only when lat/lon provided
     recommendation_score: Optional[float] = None
     cover_photo_url: Optional[str] = None
+    municipality: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -33,6 +34,7 @@ class BeachDetail(BaseModel):
     flags_available: bool
     nearby_stop_ids: List[str] = []
     cover_photo_url: Optional[str] = None
+    municipality: Optional[str] = None
 
     model_config = {"from_attributes": True}
 
@@ -41,9 +43,15 @@ class WeatherForecast(BaseModel):
     date: str
     min_temp: Optional[float] = None
     max_temp: Optional[float] = None
+    current_temp: Optional[float] = None
+    apparent_temp: Optional[float] = None
+    humidity: Optional[float] = None
+    uv_index: Optional[float] = None
     precipitation_prob: Optional[float] = None
     wind_speed: Optional[float] = None
     wind_direction: Optional[str] = None
+    wind_direction_deg: Optional[float] = None
+    wind_gusts: Optional[float] = None
     weather_type_id: Optional[int] = None
     weather_type_desc: Optional[str] = None
     data_source: str = "live"

@@ -38,6 +38,7 @@ BEACHES = [
         "nearby_stop_ids": ['162842', '160802'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/portinho_arrabida.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-de-galapinhos",
@@ -53,6 +54,7 @@ BEACHES = [
         "nearby_stop_ids": ['160817', '160818'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/galapinhos.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-de-galapos",
@@ -68,6 +70,7 @@ BEACHES = [
         "nearby_stop_ids": ['168562', '168137'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/galapos.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-do-creiro",
@@ -83,6 +86,7 @@ BEACHES = [
         "nearby_stop_ids": ['162842', '160802'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/creiro.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-da-figuerinha",
@@ -98,6 +102,7 @@ BEACHES = [
         "nearby_stop_ids": ['160819', '160975', '160976'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/figueirinha.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-do-outao",
@@ -113,6 +118,7 @@ BEACHES = [
         "nearby_stop_ids": ['160331', '160332', '160334', '160333'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/outao.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-de-sesimbra",
@@ -128,6 +134,7 @@ BEACHES = [
         "nearby_stop_ids": ['150463', '150477', '150453'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/sesimbra.jpg",
+        "municipality": "Sesimbra",
     },
     {
         "slug": "praia-do-ouro",
@@ -143,6 +150,7 @@ BEACHES = [
         "nearby_stop_ids": ['150463', '150477'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/ouro.jpg",
+        "municipality": "Sesimbra",
     },
     {
         "slug": "praia-da-california",
@@ -158,6 +166,7 @@ BEACHES = [
         "nearby_stop_ids": ['150463', '150477'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/california.jpg",
+        "municipality": "Sesimbra",
     },
     {
         "slug": "praia-da-ribeira-do-cavalo",
@@ -173,6 +182,7 @@ BEACHES = [
         "nearby_stop_ids": ['150415', '150437'],  # Porto Abrigo + Sesimbra Parque Campismo
         "flags_available": True,
         "cover_photo_url": "/static/beaches/ribeira_cavalo.jpg",
+        "municipality": "Sesimbra",
     },
     {
         "slug": "praia-de-alpertucho",
@@ -188,6 +198,7 @@ BEACHES = [
         "nearby_stop_ids": ['160800', '160799'],  # X Arrábida, 0.36/0.41km
         "flags_available": True,
         "cover_photo_url": "/static/beaches/alpertuche.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-da-anixa",
@@ -203,6 +214,7 @@ BEACHES = [
         "nearby_stop_ids": ['160802', '160799', '160800'],  # Creiro parking + X Arrábida
         "flags_available": True,
         "cover_photo_url": "/static/beaches/anixa.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-dos-coelhos",
@@ -218,6 +230,7 @@ BEACHES = [
         "nearby_stop_ids": ['160802', '160819'],  # Creiro parking + Figueirinha
         "flags_available": True,
         "cover_photo_url": "/static/beaches/coelhos.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-do-monte-branco",
@@ -233,6 +246,7 @@ BEACHES = [
         "nearby_stop_ids": ['160802', '160799', '160800'],
         "flags_available": True,
         "cover_photo_url": "/static/beaches/monte_branco.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-dos-pilotos",
@@ -248,6 +262,7 @@ BEACHES = [
         "nearby_stop_ids": ['160799', '160800', '160802'],  # X Arrábida 0.64km
         "flags_available": True,
         "cover_photo_url": "/static/beaches/pilotos.jpg",
+        "municipality": "Setúbal",
     },
     {
         "slug": "praia-dos-penedos",
@@ -263,6 +278,7 @@ BEACHES = [
         "nearby_stop_ids": ['150359', '150360'],  # Pedreiras ~2.8km (road access)
         "flags_available": True,
         "cover_photo_url": "/static/beaches/penedos.jpg",
+        "municipality": "Sesimbra",
     },
     {
         "slug": "praia-da-cova",
@@ -278,6 +294,7 @@ BEACHES = [
         "nearby_stop_ids": ['150361', '150362'],  # Pedreiras ~2.1km
         "flags_available": True,
         "cover_photo_url": "/static/beaches/cova.jpg",
+        "municipality": "Sesimbra",
     },
     {
         "slug": "praia-da-mijona",
@@ -293,6 +310,7 @@ BEACHES = [
         "nearby_stop_ids": ['150190', '150189'],  # Facho Azóia ~1.5km
         "flags_available": True,
         "cover_photo_url": "/static/beaches/mijona.jpg",
+        "municipality": "Sesimbra",
     },
 ]
 """
@@ -323,6 +341,7 @@ async def seed():
                 beach.nearby_stop_ids = data.get("nearby_stop_ids", [])
                 beach.flags_available = data.get("flags_available", True)
                 beach.cover_photo_url = data.get("cover_photo_url")
+                beach.municipality = data.get("municipality")
                 print(f"  update: {data['slug']}")
                 continue
 
@@ -341,6 +360,7 @@ async def seed():
                 nearby_stop_ids=data.get("nearby_stop_ids", []),
                 flags_available=data.get("flags_available", True),
                 cover_photo_url=data.get("cover_photo_url"),
+                municipality=data.get("municipality"),
             )
             db.add(beach)
             print(f"  insert: {data['slug']}")

@@ -10,7 +10,7 @@ class BeachSummary {
     this.flagConfidence, required this.occupancyLevel,
     required this.activeAlertsCount, required this.activityLevel,
     this.activityLabel, this.distanceKm, this.recommendationScore,
-    this.coverPhotoUrl,
+    this.coverPhotoUrl, this.municipality,
   });
   final int id;
   final String slug;
@@ -26,6 +26,7 @@ class BeachSummary {
   final double? distanceKm;
   final double? recommendationScore;
   final String? coverPhotoUrl;
+  final String? municipality;
 
   factory BeachSummary.fromJson(Map<String, dynamic> j) => BeachSummary(
     id: j['id'] as int,
@@ -42,28 +43,41 @@ class BeachSummary {
     distanceKm: (j['distance_km'] as num?)?.toDouble(),
     recommendationScore: (j['recommendation_score'] as num?)?.toDouble(),
     coverPhotoUrl: _resolvePhotoUrl(j['cover_photo_url'] as String?),
+    municipality: j['municipality'] as String?,
   );
 }
 
-// Backend: WeatherForecast { date, min_temp, max_temp, precipitation_prob,
-//                            wind_speed, wind_direction, weather_type_desc }
+// Backend: WeatherForecast (today's entry is enriched with Open-Meteo current data)
 class WeatherPoint {
   const WeatherPoint({
-    this.minTemp, this.maxTemp, this.windSpeed, this.windDir,
-    this.precipitationProb, this.weatherDesc,
+    this.minTemp, this.maxTemp, this.currentTemp, this.apparentTemp,
+    this.humidity, this.uvIndex, this.windSpeed, this.windDir,
+    this.windDirDeg, this.windGusts, this.precipitationProb, this.weatherDesc,
   });
   final double? minTemp;
   final double? maxTemp;
+  final double? currentTemp;
+  final double? apparentTemp;
+  final double? humidity;
+  final double? uvIndex;
   final double? windSpeed;
   final String? windDir;
+  final double? windDirDeg;
+  final double? windGusts;
   final double? precipitationProb;
   final String? weatherDesc;
 
   factory WeatherPoint.fromJson(Map<String, dynamic> j) => WeatherPoint(
     minTemp: (j['min_temp'] as num?)?.toDouble(),
     maxTemp: (j['max_temp'] as num?)?.toDouble(),
+    currentTemp: (j['current_temp'] as num?)?.toDouble(),
+    apparentTemp: (j['apparent_temp'] as num?)?.toDouble(),
+    humidity: (j['humidity'] as num?)?.toDouble(),
+    uvIndex: (j['uv_index'] as num?)?.toDouble(),
     windSpeed: (j['wind_speed'] as num?)?.toDouble(),
     windDir: j['wind_direction'] as String?,
+    windDirDeg: (j['wind_direction_deg'] as num?)?.toDouble(),
+    windGusts: (j['wind_gusts'] as num?)?.toDouble(),
     precipitationProb: (j['precipitation_prob'] as num?)?.toDouble(),
     weatherDesc: j['weather_type_desc'] as String?,
   );
@@ -246,13 +260,13 @@ class BeachStatus {
   );
 }
 
-// Backend: BeachDetail { id, slug, name, lat, lon, max_capacity, flags_available }
+// Backend: BeachDetail { id, slug, name, lat, lon, max_capacity, flags_available, municipality }
 class BeachDetailInfo {
   const BeachDetailInfo({
     required this.id, required this.slug, required this.name,
     required this.lat, required this.lon,
     this.maxCapacity, required this.flagsAvailable,
-    this.coverPhotoUrl,
+    this.coverPhotoUrl, this.municipality,
   });
   final int id;
   final String slug;
@@ -262,6 +276,7 @@ class BeachDetailInfo {
   final int? maxCapacity;
   final bool flagsAvailable;
   final String? coverPhotoUrl;
+  final String? municipality;
 
   factory BeachDetailInfo.fromJson(Map<String, dynamic> j) => BeachDetailInfo(
     id: j['id'] as int,
@@ -272,6 +287,7 @@ class BeachDetailInfo {
     maxCapacity: j['max_capacity'] as int?,
     flagsAvailable: j['flags_available'] as bool? ?? false,
     coverPhotoUrl: _resolvePhotoUrl(j['cover_photo_url'] as String?),
+    municipality: j['municipality'] as String?,
   );
 }
 

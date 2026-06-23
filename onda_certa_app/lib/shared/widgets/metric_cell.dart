@@ -8,12 +8,14 @@ class MetricCell extends StatelessWidget {
     required this.value,
     required this.label,
     required this.iconColor,
+    this.subLabel,
   });
 
   final IconData icon;
   final String value;
   final String label;
   final Color iconColor;
+  final String? subLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,8 @@ class MetricCell extends StatelessWidget {
         Icon(icon, color: iconColor, size: 22),
         const SizedBox(height: 6),
         Text(value, style: AppTextStyles.titleMd),
+        if (subLabel != null)
+          Text(subLabel!, style: AppTextStyles.secondarySm.copyWith(fontSize: 10)),
         Text(label, style: AppTextStyles.secondarySm),
       ],
     );
