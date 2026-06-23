@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
@@ -16,7 +17,8 @@ from app.models.user import User
 from app.schemas.beach import BeachSummary, BeachFullResponse, BeachStatusResponse, OccupancyData
 from app.services.activity import get_activity_level, get_params
 from app.services.snapshot import fetch_with_fallback
-from app.services import ipma, hidrografico, eea, carris
+from app.services import ipma, hidrografico, eea, carris, open_meteo
+from app.api.weather import _open_meteo_overrides
 
 router = APIRouter(prefix="/beaches", tags=["beaches"])
 
@@ -169,6 +171,7 @@ async def list_beaches(
             distance_km=round(distance_km, 1) if distance_km is not None else None,
             recommendation_score=round(score, 3) if score is not None else None,
             cover_photo_url=beach.cover_photo_url,
+            municipality=beach.municipality,
         ))
 
     if lat is not None and lon is not None:
@@ -201,15 +204,25 @@ async def get_beach(
 
     if beach.ipma_global_id:
         try:
-            raw, source, snap_at = await fetch_with_fallback(
-                db, "ipma_weather",
-                lambda: ipma.fetch_weather_forecast(beach.ipma_global_id),
-                beach_id=beach.id,
+            ipma_result, om_result = await asyncio.gather(
+                fetch_with_fallback(
+                    db, "ipma_weather",
+                    lambda: ipma.fetch_weather_forecast(beach.ipma_global_id),
+                    beach_id=beach.id,
+                ),
+                open_meteo.fetch_weather(beach.lat, beach.lon),
+                return_exceptions=True,
             )
-            weather = [
-                {**f, "data_source": source, "snapshot_at": snap_at}
-                for f in raw.get("forecasts", [])
-            ]
+            if isinstance(ipma_result, BaseException):
+                raise ipma_result
+            raw, source, snap_at = ipma_result
+            today_overrides = _open_meteo_overrides(
+                om_result if not isinstance(om_result, BaseException) else None
+            )
+            weather = []
+            for i, f in enumerate(raw.get("forecasts", [])):
+                extra = today_overrides if i == 0 else {}
+                weather.append({**f, **extra, "data_source": source, "snapshot_at": snap_at})
         except Exception:
             pass
 
@@ -282,6 +295,7 @@ async def get_beach(
         "flags_available": beach.flags_available,
         "nearby_stop_ids": beach.nearby_stop_ids or [],
         "cover_photo_url": beach.cover_photo_url,
+        "municipality": beach.municipality,
     }
 
     return BeachFullResponse(

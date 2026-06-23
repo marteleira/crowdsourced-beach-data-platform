@@ -265,7 +265,7 @@ class _HeroAppBar extends StatelessWidget {
               ),
             ),
             Text(
-              'Parque Natural da Arrábida',
+              beach.municipality ?? 'Arrábida',
               style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w400),
             ),
           ],
@@ -543,15 +543,21 @@ class _WeatherCard extends StatelessWidget {
           metricRow([
             MetricCell(
               icon: Icons.thermostat_outlined,
-              value: weather?.maxTemp != null ? '${weather!.minTemp!.round()}-${weather!.maxTemp!.round()}°C' : '--',
+              value: weather?.currentTemp != null
+                  ? '${weather!.currentTemp!.round()}°C'
+                  : weather?.maxTemp != null
+                      ? '${weather!.minTemp!.round()}-${weather!.maxTemp!.round()}°C'
+                      : '--',
+              subLabel: weather?.currentTemp != null && weather?.maxTemp != null
+                  ? '${weather!.minTemp!.round()}-${weather!.maxTemp!.round()}°C'
+                  : null,
               label: 'Temperatura', iconColor: AppColors.coral,
             ),
-            MetricCell(
-              icon: Icons.air,
-              value: weather?.windSpeed != null
-                  ? '${weather!.windSpeed!.round()} km/h\n${weather!.windDir != null ? "${weather!.windDir}" : ""}'
-                  : '--',
-              label: 'Vento', iconColor: AppColors.teal,
+            _WindCell(
+              speedKmh: weather?.windSpeed,
+              dirDeg: weather?.windDirDeg,
+              dirCardinal: weather?.windDir,
+              gusts: weather?.windGusts,
             ),
             MetricCell(
               icon: Icons.umbrella_outlined,
@@ -559,11 +565,63 @@ class _WeatherCard extends StatelessWidget {
               label: 'Chuva', iconColor: const Color(0xFF3B82F6),
             ),
           ]),
+          if (weather?.apparentTemp != null || weather?.humidity != null || weather?.uvIndex != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            metricRow([
+              if (weather?.apparentTemp != null)
+                MetricCell(
+                  icon: Icons.thermostat,
+                  value: '${weather!.apparentTemp!.round()}°C',
+                  label: 'Sensação', iconColor: AppColors.coral,
+                ),
+              if (weather?.humidity != null)
+                MetricCell(
+                  icon: Icons.water_drop_outlined,
+                  value: '${weather!.humidity!.round()}%',
+                  label: 'Humidade', iconColor: const Color(0xFF3B82F6),
+                ),
+              if (weather?.uvIndex != null)
+                MetricCell(
+                  icon: Icons.wb_sunny_outlined,
+                  value: '${weather!.uvIndex!.round()}',
+                  label: 'UV', iconColor: const Color(0xFFF59E0B),
+                ),
+            ]),
+          ],
         ],
       ),
     );
   }
 }
+
+class _WindCell extends StatelessWidget {
+  const _WindCell({this.speedKmh, this.dirDeg, this.dirCardinal, this.gusts});
+  final double? speedKmh;
+  final double? dirDeg;
+  final String? dirCardinal;
+  final double? gusts;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.air, color: AppColors.teal, size: 22),
+        const SizedBox(height: 6),
+        Text(
+          speedKmh != null ? '${speedKmh!.round()} km/h' : '--',
+          style: AppTextStyles.titleMd,
+        ),
+        if (dirCardinal != null)
+          Text(dirCardinal!, style: AppTextStyles.secondarySm),
+        if (gusts != null)
+          Text('raj. ${gusts!.round()} km/h', style: AppTextStyles.secondarySm.copyWith(fontSize: 10)),
+        Text('Vento', style: AppTextStyles.secondarySm),
+      ],
+    );
+  }
+}
+
 
 class _SeaCard extends StatelessWidget {
   const _SeaCard({this.sea});

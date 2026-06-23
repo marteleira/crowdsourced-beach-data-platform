@@ -37,4 +37,6 @@ class Beach(Base):
 
     cover_photo_url = Column(Text, nullable=True)
 
+    municipality = Column(Text, nullable=True)
+
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
