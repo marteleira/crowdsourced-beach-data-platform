@@ -101,15 +101,7 @@ async def process_report_outcomes(db: AsyncSession) -> None:
         net = report.upvotes - report.downvotes
 
         if net >= 3:
-            already = await db.scalar(
-                select(exists(
-                    select(ReputationEvent.id).where(
-                        ReputationEvent.event == "report_confirmed",
-                        ReputationEvent.ref_id == report.id,
-                    )
-                ))
-            )
-            if already:
+            if await db.scalar(select(_already_scored("report_confirmed", report.id))):
                 continue
             await apply_delta(
                 db, report.user_id,
@@ -124,15 +116,7 @@ async def process_report_outcomes(db: AsyncSession) -> None:
                 .values(confirmed_reports=User.confirmed_reports + 1)
             )
         elif report.downvotes >= 3 and net <= -2:
-            already = await db.scalar(
-                select(exists(
-                    select(ReputationEvent.id).where(
-                        ReputationEvent.event == "report_contradicted",
-                        ReputationEvent.ref_id == report.id,
-                    )
-                ))
-            )
-            if already:
+            if await db.scalar(select(_already_scored("report_contradicted", report.id))):
                 continue
             await apply_delta(
                 db, report.user_id,

@@ -8,10 +8,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2.functions import ST_Distance, ST_GeogFromText
 
 from app.api.transport import _group_by_direction
+from app.core.constants import (
+    OCCUPANCY_WINDOW_MINUTES,
+    OCCUPANCY_LOW_RATIO, OCCUPANCY_MEDIUM_RATIO,
+    OCCUPANCY_LOW_THRESHOLD, OCCUPANCY_MEDIUM_THRESHOLD,
+    REPORT_VERIFIED_NET_VOTES,
+)
 from app.core.database import get_db
+from app.core.db_helpers import get_beach_flag_status, count_active_alerts
 from app.core.deps import get_beach_or_404, get_current_user
 from app.models.beach import Beach
-from app.models.beach_status import BeachStatus, OccupancyHeartbeat
+from app.models.beach_status import OccupancyHeartbeat
 from app.models.report import Report
 from app.models.user import User
 from app.schemas.beach import BeachSummary, BeachFullResponse, BeachStatusResponse, OccupancyData
@@ -41,7 +48,7 @@ def _recommendation_score(distance_km: float, flag_color: str,
 
 
 async def _compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=20)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
     stmt = (
         select(func.count(func.distinct(OccupancyHeartbeat.user_id)))
         .where(
@@ -54,9 +61,9 @@ async def _compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
 
     if beach.max_capacity:
         ratio = count / beach.max_capacity
-        level = "low" if ratio < 0.4 else "medium" if ratio < 0.75 else "high"
+        level = "low" if ratio < OCCUPANCY_LOW_RATIO else "medium" if ratio < OCCUPANCY_MEDIUM_RATIO else "high"
     else:
-        level = "low" if count < 10 else "medium" if count < 40 else "high"
+        level = "low" if count < OCCUPANCY_LOW_THRESHOLD else "medium" if count < OCCUPANCY_MEDIUM_THRESHOLD else "high"
 
     if count == 0 and not beach.has_capacity_data:
         level = "unknown"
@@ -95,7 +102,7 @@ async def _get_active_alerts(db: AsyncSession, beach_id: int, activity_level: st
             "created_at": r.created_at,
             "expires_at": r.expires_at,
             "note": r.note,
-            "verified": (r.upvotes - r.downvotes) >= 3,
+            "verified": (r.upvotes - r.downvotes) >= REPORT_VERIFIED_NET_VOTES,
             "activity_label": label,
         })
     return alerts
@@ -131,21 +138,8 @@ async def list_beaches(
         distance_km: Optional[float] = row[1]
 
         activity_level = await get_activity_level(db, beach.id)
-
-        status_result = await db.execute(
-            select(BeachStatus).where(BeachStatus.beach_id == beach.id)
-        )
-        status = status_result.scalar_one_or_none()
-        flag_color      = status.flag_color      if status else "unknown"
-        flag_confidence = status.flag_confidence if status else 0.0
-
-        alerts_count = (await db.execute(
-            select(func.count(Report.id)).where(
-                Report.beach_id == beach.id,
-                Report.is_expired == False,
-                Report.expires_at > now,
-            )
-        )).scalar_one() or 0
+        flag_color, flag_confidence = await get_beach_flag_status(db, beach.id)
+        alerts_count = await count_active_alerts(db, beach.id, now)
 
         occupancy = await _compute_occupancy(db, beach)
         params    = get_params(activity_level)
@@ -180,6 +174,100 @@ async def list_beaches(
     return summaries
 
 
+async def _fetch_weather_safe(db: AsyncSession, beach: Beach):
+    if not beach.ipma_global_id:
+        return None
+    try:
+        ipma_result, om_result = await asyncio.gather(
+            fetch_with_fallback(
+                db, "ipma_weather",
+                lambda: ipma.fetch_weather_forecast(beach.ipma_global_id),
+                beach_id=beach.id,
+            ),
+            open_meteo.fetch_weather(beach.lat, beach.lon),
+            return_exceptions=True,
+        )
+        if isinstance(ipma_result, BaseException):
+            raise ipma_result
+        raw, source, snap_at = ipma_result
+        today_overrides = _open_meteo_overrides(
+            om_result if not isinstance(om_result, BaseException) else None
+        )
+        return [
+            {**f, **(today_overrides if i == 0 else {}), "data_source": source, "snapshot_at": snap_at}
+            for i, f in enumerate(raw.get("forecasts", []))
+        ]
+    except Exception:
+        return None
+
+
+async def _fetch_sea_safe(db: AsyncSession, beach: Beach):
+    if not beach.ipma_sea_global_id:
+        return None
+    try:
+        raw, source, snap_at = await fetch_with_fallback(
+            db, "ipma_sea",
+            lambda: ipma.fetch_sea_forecast(beach.ipma_sea_global_id),
+            beach_id=beach.id,
+        )
+        return [{**f, "data_source": source, "snapshot_at": snap_at} for f in raw.get("forecasts", [])]
+    except Exception:
+        return None
+
+
+async def _fetch_tides_safe(db: AsyncSession, beach: Beach):
+    if not beach.tide_station_id:
+        return None
+    try:
+        raw, source, snap_at = await fetch_with_fallback(
+            db, "tides",
+            lambda: hidrografico.fetch_tides_for_station(beach.tide_station_id),
+            beach_id=beach.id,
+        )
+        return {**raw, "data_source": source, "snapshot_at": snap_at}
+    except Exception:
+        return None
+
+
+async def _fetch_water_quality_safe(db: AsyncSession, beach: Beach):
+    if not beach.eea_station_id:
+        return None
+    try:
+        raw, source, snap_at = await fetch_with_fallback(
+            db, "water_quality",
+            lambda: eea.fetch_water_quality(beach.eea_station_id),
+            beach_id=beach.id,
+        )
+        return {**raw, "data_source": source, "snapshot_at": snap_at}
+    except Exception:
+        return None
+
+
+async def _fetch_transport_safe(db: AsyncSession, beach: Beach):
+    if not beach.nearby_stop_ids:
+        return None
+    try:
+        raw, source, snap_at = await fetch_with_fallback(
+            db, "carris_stops",
+            lambda: carris.fetch_multiple_stops_departures(beach.nearby_stop_ids),
+            beach_id=beach.id,
+        )
+        stops_info = [
+            info
+            for sid in beach.nearby_stop_ids
+            if (info := await carris.fetch_stop(sid)) is not None
+        ]
+        trips = raw if isinstance(raw, list) else []
+        return {
+            "stops": stops_info,
+            "directions": [d.model_dump() for d in _group_by_direction(trips)],
+            "data_source": source,
+            "snapshot_at": snap_at,
+        }
+    except Exception:
+        return None
+
+
 @router.get("/{slug}", response_model=BeachFullResponse)
 async def get_beach(
     slug: str,
@@ -189,100 +277,17 @@ async def get_beach(
     beach = await get_beach_or_404(slug, db)
     activity_level = await get_activity_level(db, beach.id)
     params = get_params(activity_level)
-
-    # Status
-    status_result = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach.id))
-    status = status_result.scalar_one_or_none()
-    flag_color = status.flag_color if status else "unknown"
-    flag_confidence = status.flag_confidence if status else 0.0
-
+    flag_color, flag_confidence = await get_beach_flag_status(db, beach.id)
     occupancy = await _compute_occupancy(db, beach)
     alerts = await _get_active_alerts(db, beach.id, activity_level)
 
-    # External data — weather
-    weather = sea = tides = water_quality = transport = None
-
-    if beach.ipma_global_id:
-        try:
-            ipma_result, om_result = await asyncio.gather(
-                fetch_with_fallback(
-                    db, "ipma_weather",
-                    lambda: ipma.fetch_weather_forecast(beach.ipma_global_id),
-                    beach_id=beach.id,
-                ),
-                open_meteo.fetch_weather(beach.lat, beach.lon),
-                return_exceptions=True,
-            )
-            if isinstance(ipma_result, BaseException):
-                raise ipma_result
-            raw, source, snap_at = ipma_result
-            today_overrides = _open_meteo_overrides(
-                om_result if not isinstance(om_result, BaseException) else None
-            )
-            weather = []
-            for i, f in enumerate(raw.get("forecasts", [])):
-                extra = today_overrides if i == 0 else {}
-                weather.append({**f, **extra, "data_source": source, "snapshot_at": snap_at})
-        except Exception:
-            pass
-
-    if beach.ipma_sea_global_id:
-        try:
-            raw, source, snap_at = await fetch_with_fallback(
-                db, "ipma_sea",
-                lambda: ipma.fetch_sea_forecast(beach.ipma_sea_global_id),
-                beach_id=beach.id,
-            )
-            sea = [
-                {**f, "data_source": source, "snapshot_at": snap_at}
-                for f in raw.get("forecasts", [])
-            ]
-        except Exception:
-            pass
-
-    if beach.tide_station_id:
-        try:
-            raw, source, snap_at = await fetch_with_fallback(
-                db, "tides",
-                lambda: hidrografico.fetch_tides_for_station(beach.tide_station_id),
-                beach_id=beach.id,
-            )
-            tides = {**raw, "data_source": source, "snapshot_at": snap_at}
-        except Exception:
-            pass
-
-    if beach.eea_station_id:
-        try:
-            raw, source, snap_at = await fetch_with_fallback(
-                db, "water_quality",
-                lambda: eea.fetch_water_quality(beach.eea_station_id),
-                beach_id=beach.id,
-            )
-            water_quality = {**raw, "data_source": source, "snapshot_at": snap_at}
-        except Exception:
-            pass
-
-    if beach.nearby_stop_ids:
-        try:
-            raw, source, snap_at = await fetch_with_fallback(
-                db, "carris_stops",
-                lambda: carris.fetch_multiple_stops_departures(beach.nearby_stop_ids),
-                beach_id=beach.id,
-            )
-            stops_info = []
-            for sid in beach.nearby_stop_ids:
-                info = await carris.fetch_stop(sid)
-                if info:
-                    stops_info.append(info)
-            trips = raw if isinstance(raw, list) else []
-            transport = {
-                "stops": stops_info,
-                "directions": [d.model_dump() for d in _group_by_direction(trips)],
-                "data_source": source,
-                "snapshot_at": snap_at,
-            }
-        except Exception:
-            pass
+    # fetch_with_fallback writes to DB (snapshots) so all calls must be sequential
+    # on the same AsyncSession — asyncio.gather would corrupt the session
+    weather = await _fetch_weather_safe(db, beach)
+    sea = await _fetch_sea_safe(db, beach)
+    tides = await _fetch_tides_safe(db, beach)
+    water_quality = await _fetch_water_quality_safe(db, beach)
+    transport = await _fetch_transport_safe(db, beach)
 
     beach_detail = {
         "id": beach.id,

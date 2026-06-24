@@ -6,7 +6,10 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/format_helpers.dart';
+import '../../../shared/utils/ui_helpers.dart';
 import '../../../shared/widgets/alert_item.dart';
+import '../../../shared/widgets/severity_dots.dart';
 import 'report_condition_sheet.dart';
 
 class CommunityAlertsScreen extends ConsumerStatefulWidget {
@@ -111,24 +114,11 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
     );
   }
 
-  bool get _isGuest {
-    final auth = ref.read(authProvider).value;
-    return auth is AuthAuthenticated && auth.isAnonymous;
-  }
-
-  void _showGuestSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+  bool get _isGuest => ref.read(authProvider).isGuest;
 
   Future<void> _vote(int reportId, String vote) async {
     if (_isGuest) {
-      _showGuestSnackbar('Cria uma conta para votar nos alertas');
+      showGuestSnackbar(context,'Cria uma conta para votar nos alertas');
       return;
     }
     try {
@@ -147,7 +137,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
 
   void _openReportSheet() {
     if (_isGuest) {
-      _showGuestSnackbar('Cria uma conta para submeter avisos');
+      showGuestSnackbar(context,'Cria uma conta para submeter avisos');
       return;
     }
     showModalBottomSheet(
@@ -260,7 +250,7 @@ class _ReportCard extends StatelessWidget {
                             const SizedBox(height: AppSpacing.xs),
                             Row(
                               children: [
-                                _SeverityDots(severity: report.severity ?? 0, color: severityColor),
+                                SeverityDotsIndicator(filled: report.severity ?? 0, color: severityColor),
                                 const SizedBox(width: 6),
                                 Text(
                                   severityLabel,
@@ -272,7 +262,7 @@ class _ReportCard extends StatelessWidget {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  timeAgo(report.createdAt),
+                                  timeAgoFromString(report.createdAt),
                                   style: AppTextStyles.hint,
                                 ),
                               ],
@@ -340,27 +330,6 @@ class _ReportCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SeverityDots extends StatelessWidget {
-  const _SeverityDots({required this.severity, required this.color});
-  final int severity;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(3, (i) => Container(
-        width: 7, height: 7,
-        margin: const EdgeInsets.only(right: 3),
-        decoration: BoxDecoration(
-          color: i < severity ? color : AppColors.borderLight,
-          shape: BoxShape.circle,
-        ),
-      )),
     );
   }
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/format_helpers.dart';
+import '../widgets/severity_dots.dart';
 import '../../features/beaches/domain/beach_models.dart';
 
 (IconData, Color, String) alertMeta(String type) {
   switch (type) {
-    case 'jellyfish':       return (Icons.bubble_chart,   const Color(0xFF3B82F6), 'Medusas');
-    case 'strong_current':  return (Icons.electric_bolt,  const Color(0xFFF59E0B), 'Corrente Forte');
+    case 'jellyfish':       return (Icons.bubble_chart,   AppColors.waterIcon, 'Medusas');
+    case 'strong_current':  return (Icons.electric_bolt,  AppColors.uvIcon,    'Corrente Forte');
     case 'pollution':       return (Icons.delete_outline,  const Color(0xFF10B981), 'Poluição');
     case 'rough_sea':       return (Icons.waves,           AppColors.teal,          'Mar Agitado');
     default:                return (Icons.warning_amber,   AppColors.textSecondary, 'Alerta');
@@ -19,18 +21,6 @@ import '../../features/beaches/domain/beach_models.dart';
   _ => (AppColors.textHint,   ''),
 };
 
-String timeAgo(String createdAt) {
-  try {
-    final dt = DateTime.parse(createdAt);
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-    if (diff.inHours < 24)   return '${diff.inHours}h ago';
-    return '${diff.inDays}d ago';
-  } catch (_) {
-    return '';
-  }
-}
-
 /// Reusable alert row — default trailing is the coral ··· icon.
 /// Pass a custom [trailing] widget to override (e.g. vote dots on detail screen).
 class AlertItem extends StatelessWidget {
@@ -42,7 +32,7 @@ class AlertItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final (icon, typeColor, label) = alertMeta(report.type);
     final (sevColor, sevLabel) = severityMeta(report.severity);
-    final ago = timeAgo(report.createdAt);
+    final ago = timeAgoFromString(report.createdAt);
 
     return Container(
       decoration: BoxDecoration(
@@ -85,17 +75,12 @@ class AlertItem extends StatelessWidget {
                             const SizedBox(height: 3),
                             Row(
                               children: [
-                                // Severity dots
-                                ...List.generate(3, (i) => Container(
-                                  width: 6, height: 6,
-                                  margin: const EdgeInsets.only(right: 2),
-                                  decoration: BoxDecoration(
-                                    color: i < (report.severity ?? 0)
-                                        ? sevColor
-                                        : AppColors.borderLight,
-                                    shape: BoxShape.circle,
-                                  ),
-                                )),
+                                SeverityDotsIndicator(
+                                  filled: report.severity ?? 0,
+                                  color: sevColor,
+                                  dotSize: 6,
+                                  spacing: 2,
+                                ),
                                 if (sevLabel.isNotEmpty) ...[
                                   const SizedBox(width: AppSpacing.xs),
                                   Text(sevLabel,

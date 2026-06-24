@@ -324,11 +324,11 @@ Detailed docs for each part live in their respective directories:
 
 ### 🔜 Planned
 
+- [ ] Support more than one language 
 ver nomes
 - [ ] Review the points system and requirements for certain tasks
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 
-- [ ] Support more than one language 
 
 - [ ] Share button (on beach_detail)
 - [ ] End-to-end tests & more

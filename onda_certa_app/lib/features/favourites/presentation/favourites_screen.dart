@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/widgets/beach_cover_image.dart';
 
 class FavouritesScreen extends ConsumerWidget {
@@ -140,7 +141,7 @@ class _BeachFavCard extends ConsumerWidget {
                               children: [
                                 Container(width: 6, height: 6, decoration: BoxDecoration(color: pillColor, shape: BoxShape.circle)),
                                 const SizedBox(width: 5),
-                                Text(_flagLabel(beach.flagColor), style: TextStyle(color: pillColor, fontSize: 11, fontWeight: FontWeight.w700)),
+                                Text(flagLabel(beach.flagColor), style: TextStyle(color: pillColor, fontSize: 11, fontWeight: FontWeight.w700)),
                               ],
                             ),
                           ),
@@ -301,13 +302,6 @@ class _BeachFavCard extends ConsumerWidget {
     }
   }
 
-  String _flagLabel(String flag) => switch (flag) {
-    'green'  => 'Segura',
-    'yellow' => 'Cuidado',
-    'red'    => 'Perigo',
-    'purple' => 'Fechada',
-    _        => 'Desconhecida',
-  };
 }
 
 // Empty 

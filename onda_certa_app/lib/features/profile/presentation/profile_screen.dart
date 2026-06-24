@@ -5,6 +5,7 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/format_helpers.dart';
 import '../../../shared/widgets/user_avatar.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -90,7 +91,7 @@ class _ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final name = profile.displayName ?? (profile.isAnonymous ? 'Convidado' : 'Utilizador');
-    final initials = _initials(name);
+    final initials = getInitials(name);
     final lvlColor = _levelColor(profile.level);
 
     return Stack(
@@ -176,13 +177,6 @@ class _ProfileHeader extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _initials(String name) {
-    final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();
-    if (parts.length >= 2) return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-    if (parts.isNotEmpty && parts[0].isNotEmpty) return parts[0][0].toUpperCase();
-    return '?';
   }
 
   String _levelLabel(String level) => switch (level) {
@@ -698,7 +692,7 @@ class _EventRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  _timeAgo(event.createdAt),
+                  timeAgoFromString(event.createdAt),
                   style: AppTextStyles.hint,
                 ),
               ],
@@ -709,21 +703,6 @@ class _EventRow extends StatelessWidget {
     );
   }
 
-  String _timeAgo(String iso) {
-    try {
-      final dt = DateTime.parse(iso).toUtc();
-      final diff = DateTime.now().toUtc().difference(dt);
-      if (diff.inMinutes < 1) return 'agora mesmo';
-      if (diff.inMinutes < 60) return 'há ${diff.inMinutes} min';
-      if (diff.inHours < 24) return 'há ${diff.inHours}h';
-      if (diff.inDays == 1) return 'ontem';
-      if (diff.inDays < 7) return 'há ${diff.inDays} dias';
-      if (diff.inDays < 30) return 'há ${(diff.inDays / 7).round()} sem.';
-      return 'há ${(diff.inDays / 30).round()} meses';
-    } catch (_) {
-      return '';
-    }
-  }
 }
 
 class _SettingsSection extends StatelessWidget {

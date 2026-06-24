@@ -49,7 +49,10 @@ FAKE_WATER = {
 
 class TestWeatherEndpoint:
     async def test_returns_live_forecast(self, client: AsyncClient, beach: Beach):
-        with patch("app.api.weather.ipma.fetch_weather_forecast", return_value=FAKE_WEATHER):
+        with (
+            patch("app.api.weather.ipma.fetch_weather_forecast", return_value=FAKE_WEATHER),
+            patch("app.api.weather.open_meteo.fetch_weather", return_value=None),
+        ):
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/weather")
         assert r.status_code == 200
         data = r.json()

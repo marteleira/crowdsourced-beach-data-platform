@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.constants import MIN_REPUTATION_TO_PROPOSE, FLAG_PROPOSAL_WINDOW_MINUTES
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_user, require_registered_user, get_beach_or_404, was_recently_present
 from app.models.beach_status import BeachStatus, FlagProposal, FlagConfirmation
@@ -18,9 +19,6 @@ from app.services.reputation import apply_delta, proposal_weight, DELTA_FLAG_CON
 from app.services.push_notifications import dispatch_flag_notification, dispatch_red_flag_favourite_notification
 
 router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
-
-MIN_REPUTATION_TO_PROPOSE = 25
-
 
 async def _ensure_beach_status(db: AsyncSession, beach_id: int) -> BeachStatus:
     result = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach_id))
@@ -61,7 +59,7 @@ async def propose_flag(
     if not beach.flags_available:
         raise HTTPException(400, "Esta praia não tem sistema de bandeiras")
 
-    present = await was_recently_present(db, user.id, beach.id, window=timedelta(minutes=10))
+    present = await was_recently_present(db, user.id, beach.id, window=timedelta(minutes=FLAG_PROPOSAL_WINDOW_MINUTES))
     if not present:
         raise HTTPException(403, "Tens de estar na praia para propor uma bandeira")
 

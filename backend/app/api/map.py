@@ -17,6 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 
+from app.core.constants import MAP_PRESENCE_WINDOW_MINUTES, JITTER_DEGREES
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.beach import Beach
@@ -25,9 +26,6 @@ from app.models.user import User
 from app.models.user_extended import effective_privacy_settings
 
 router = APIRouter(prefix="/map", tags=["map"])
-
-PRESENCE_WINDOW_MINUTES = 20
-JITTER_DEGREES = 0.003   # ~300m at Arrábida latitude
 
 
 class MapUser(BaseModel):
@@ -62,7 +60,7 @@ async def get_map_users(
     Each user is shown only if their privacy settings allow it.
     Position is jittered or omitted based on location_accuracy.
     """
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=PRESENCE_WINDOW_MINUTES)
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=MAP_PRESENCE_WINDOW_MINUTES)
 
     # Load all beaches
     beaches_r = await db.execute(select(Beach))

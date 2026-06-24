@@ -7,7 +7,8 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import require_user
+from app.core.deps import require_user, raise_if_account_locked
+from app.core.utils import ensure_utc
 from app.core.security import (
     hash_password, verify_password, create_access_token,
     generate_refresh_token, hash_refresh_token, verify_google_id_token,
@@ -101,21 +102,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     if not user or not user.password_hash or not verify_password(body.password, user.password_hash):
         raise HTTPException(401, "Credenciais inválidas")
 
-    if user.is_banned:
-        raise HTTPException(403, detail={
-            "code": "account_banned",
-            "ban_reason": user.ban_reason,
-            "message": "Conta permanentemente banida.",
-        })
-
-    now = datetime.now(timezone.utc)
-    if user.suspended_until and user.suspended_until > now:
-        raise HTTPException(403, detail={
-            "code": "account_suspended",
-            "suspended_until": user.suspended_until.isoformat(),
-            "message": "Conta suspensa temporariamente.",
-        })
-
+    raise_if_account_locked(user)
     return await _issue_tokens(user, db)
 
 
@@ -156,21 +143,7 @@ async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
 
     await db.commit()
 
-    if user.is_banned:
-        raise HTTPException(403, detail={
-            "code": "account_banned",
-            "ban_reason": user.ban_reason,
-            "message": "Conta permanentemente banida.",
-        })
-
-    now = datetime.now(timezone.utc)
-    if user.suspended_until and user.suspended_until > now:
-        raise HTTPException(403, detail={
-            "code": "account_suspended",
-            "suspended_until": user.suspended_until.isoformat(),
-            "message": "Conta suspensa temporariamente.",
-        })
-
+    raise_if_account_locked(user)
     return await _issue_tokens(user, db)
 
 
@@ -198,21 +171,7 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
     if not user:
         raise HTTPException(401, "Utilizador não encontrado")
 
-    if user.is_banned:
-        raise HTTPException(403, detail={
-            "code": "account_banned",
-            "ban_reason": user.ban_reason,
-            "message": "Conta permanentemente banida.",
-        })
-
-    now = datetime.now(timezone.utc)
-    if user.suspended_until and user.suspended_until > now:
-        raise HTTPException(403, detail={
-            "code": "account_suspended",
-            "suspended_until": user.suspended_until.isoformat(),
-            "message": "Conta suspensa temporariamente.",
-        })
-
+    raise_if_account_locked(user)
     return await _issue_tokens(user, db)
 
 
@@ -267,10 +226,7 @@ async def verify_email(
         raise HTTPException(400, "Nenhum código de verificação pendente")
 
     now = datetime.now(timezone.utc)
-    expires = user.email_verification_expires_at
-    if expires.tzinfo is None:
-        expires = expires.replace(tzinfo=timezone.utc)
-    if expires < now:
+    if ensure_utc(user.email_verification_expires_at) < now:
         raise HTTPException(400, "Código expirado. Solicita um novo.")
 
     if hash_verification_code(body.code) != user.email_verification_code_hash:
@@ -327,10 +283,7 @@ async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(
         raise HTTPException(400, "Pedido de recuperação inválido ou expirado")
 
     now = datetime.now(timezone.utc)
-    expires = user.password_reset_expires_at
-    if expires.tzinfo is None:
-        expires = expires.replace(tzinfo=timezone.utc)
-    if expires < now:
+    if ensure_utc(user.password_reset_expires_at) < now:
         raise HTTPException(400, "Código expirado. Solicita um novo.")
 
     if hash_verification_code(body.code) != user.password_reset_code_hash:

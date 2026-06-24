@@ -16,6 +16,33 @@ from app.models.user import User
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
+def raise_if_account_locked(user: "User") -> None:
+    """Raise HTTPException 403 if the user is banned or currently suspended.
+
+    Called during token issuance (login / google / refresh) where the normal
+    dependency chain hasn't run yet and we must block proactively.
+    """
+    if user.is_banned:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "account_banned",
+                "ban_reason": user.ban_reason,
+                "message": "Conta permanentemente banida.",
+            },
+        )
+    now = datetime.now(timezone.utc)
+    if user.suspended_until and user.suspended_until > now:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "account_suspended",
+                "suspended_until": user.suspended_until.isoformat(),
+                "message": "Conta suspensa temporariamente.",
+            },
+        )
+
+
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db),
@@ -34,16 +61,7 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="Utilizador não encontrado")
 
-    if user.is_banned:
-        raise HTTPException(
-            status_code=403,
-            detail={
-                "code": "account_banned",
-                "ban_reason": user.ban_reason,
-                "message": "Conta permanentemente banida.",
-            },
-        )
-
+    raise_if_account_locked(user)
     return user
 
 
