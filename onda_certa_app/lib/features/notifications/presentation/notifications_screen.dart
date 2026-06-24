@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/notifications/notification_model.dart';
 import '../../../core/notifications/notification_provider.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/format_helpers.dart';
 import '../../../shared/widgets/empty_state.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
@@ -86,7 +87,7 @@ class _NotificationTile extends StatelessWidget {
                   Text(notif.body, style: AppTextStyles.secondary),
                 ],
                 const SizedBox(height: 4),
-                Text(_relativeTime(notif.receivedAt), style: AppTextStyles.hintXs),
+                Text(timeAgo(notif.receivedAt), style: AppTextStyles.hintXs),
               ],
             ),
           ),
@@ -104,13 +105,4 @@ class _NotificationTile extends StatelessWidget {
     );
   }
 
-  String _relativeTime(DateTime dt) {
-    final diff = DateTime.now().difference(dt);
-    if (diff.inMinutes < 1) return 'agora mesmo';
-    if (diff.inMinutes < 60) return 'há ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'há ${diff.inHours}h';
-    if (diff.inDays == 1) return 'ontem';
-    if (diff.inDays < 7) return 'há ${diff.inDays} dias';
-    return '${dt.day}/${dt.month}/${dt.year}';
-  }
 }

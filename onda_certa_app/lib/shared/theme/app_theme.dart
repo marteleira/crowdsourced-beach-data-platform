@@ -24,6 +24,10 @@ class AppColors {
   static const textSecondary = Color(0xFF6B7280);
   static const textHint = Color(0xFF9CA3AF);
 
+  // Extra icon/accent colours used across screens
+  static const waterIcon = Color(0xFF3B82F6);
+  static const uvIcon = Color(0xFFF59E0B); // same as amber, aliased for clarity
+
   static Color forFlag(String flag) => switch (flag) {
     'green'  => flagGreen,
     'yellow' => flagYellow,
@@ -68,6 +72,39 @@ class AppTextStyles {
 
   // White small label
   static const whiteLabel = TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Colors.white);
+}
+
+class AppRadii {
+  static const double xs = 6.0;
+  static const double sm = 8.0;
+  static const double md = 12.0;
+  static const double lg = 16.0;
+  static const double xl = 20.0;
+  static const double xxl = 24.0;
+
+  static BorderRadius get cardSm => BorderRadius.circular(sm);
+  static BorderRadius get cardMd => BorderRadius.circular(md);
+  static BorderRadius get cardLg => BorderRadius.circular(lg);
+  static BorderRadius get cardXl => BorderRadius.circular(xl);
+  static BorderRadius get cardXxl => BorderRadius.circular(xxl);
+}
+
+class AppShadows {
+  static const BoxShadow light = BoxShadow(
+    color: Color(0x0F000000),
+    blurRadius: 8,
+    offset: Offset(0, 2),
+  );
+  static const BoxShadow medium = BoxShadow(
+    color: Color(0x1A000000),
+    blurRadius: 16,
+    offset: Offset(0, 4),
+  );
+  static const BoxShadow strong = BoxShadow(
+    color: Color(0x26000000),
+    blurRadius: 24,
+    offset: Offset(0, 8),
+  );
 }
 
 class AppSpacing {

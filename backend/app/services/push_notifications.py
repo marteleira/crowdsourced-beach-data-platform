@@ -15,13 +15,12 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.constants import CHECKIN_WINDOW_MINUTES, REPORT_TYPE_EMOJIS, FLAG_COLOR_EMOJIS, SEVERITY_LABELS
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
 from app.models.user_extended import PushToken, UserFavourite, effective_notification_settings
 
 logger = logging.getLogger(__name__)
-
-CHECKIN_WINDOW_MINUTES = 180  #lasts 3h active
 
 
 def _in_quiet_hours(settings: dict) -> bool:
@@ -47,6 +46,19 @@ def _severity_allowed(settings: dict, severity: int) -> bool:
 async def _get_tokens(db: AsyncSession, user_id) -> list[str]:
     r = await db.execute(select(PushToken.token).where(PushToken.user_id == user_id))
     return [row[0] for row in r.all()]
+
+
+async def _fetch_eligible_user(db: AsyncSession, user_id) -> tuple["User | None", dict]:
+    """Load a candidate user and their notification settings.
+    Returns (None, {}) if the user is missing, banned, or has global notifications off."""
+    user_r = await db.execute(select(User).where(User.id == user_id))
+    user = user_r.scalar_one_or_none()
+    if not user or user.is_banned:
+        return None, {}
+    settings = effective_notification_settings(user)
+    if not settings.get("global_enabled"):
+        return None, {}
+    return user, settings
 
 
 async def _checkin_and_fav_candidates(
@@ -100,23 +112,13 @@ async def dispatch_report_notification(
     candidate_ids = checkin_users | fav_users
     notified = 0
 
-    type_emojis = {
-        "jellyfish": "🪼", "strong_current": "⚡",
-        "pollution": "🗑️", "rough_sea": "🌊", "other_alert": "⚠️",
-    }
-    severity_labels = {1: "Ligeiro", 2: "Moderado", 3: "Grave"}
-    emoji = type_emojis.get(alert_type, "⚠️")
+    emoji = REPORT_TYPE_EMOJIS.get(alert_type, "⚠️")
     title = f"{emoji} {alert_type.replace('_', ' ').title()} · {beach_name}"
-    body = note or f"Aviso reportado. Severidade: {severity_labels.get(severity, str(severity))}."
+    body = note or f"Aviso reportado. Severidade: {SEVERITY_LABELS.get(severity, str(severity))}."
 
     for user_id in candidate_ids:
-        user_r = await db.execute(select(User).where(User.id == user_id))
-        user = user_r.scalar_one_or_none()
-        if not user or user.is_banned:
-            continue
-
-        settings = effective_notification_settings(user)
-        if not settings.get("global_enabled"):
+        user, settings = await _fetch_eligible_user(db, user_id)
+        if user is None:
             continue
 
         is_checkin = user_id in checkin_users
@@ -167,21 +169,13 @@ async def dispatch_flag_notification(
     candidate_ids = checkin_users | fav_users
     notified = 0
 
-    color_emojis = {
-        "green": "🟢", "yellow": "🟡", "red": "🔴", "purple": "🟣", "unknown": "⚪",
-    }
-    emoji = color_emojis.get(new_color, "🏖️")
+    emoji = FLAG_COLOR_EMOJIS.get(new_color, "🏖️")
     title = f"{emoji} Bandeira alterada · {beach_name}"
     body = f"A bandeira mudou de {old_color} para {new_color}."
 
     for user_id in candidate_ids:
-        user_r = await db.execute(select(User).where(User.id == user_id))
-        user = user_r.scalar_one_or_none()
-        if not user or user.is_banned:
-            continue
-
-        settings = effective_notification_settings(user)
-        if not settings.get("global_enabled"):
+        user, settings = await _fetch_eligible_user(db, user_id)
+        if user is None:
             continue
         if not settings.get("flag_change_alerts", True):
             continue
@@ -237,13 +231,8 @@ async def dispatch_red_flag_favourite_notification(
     body = "A bandeira desta praia favorita ficou vermelha. Evita entrar na água."
 
     for user_id in fav_users:
-        user_r = await db.execute(select(User).where(User.id == user_id))
-        user = user_r.scalar_one_or_none()
-        if not user or user.is_banned:
-            continue
-
-        settings = effective_notification_settings(user)
-        if not settings.get("global_enabled"):
+        user, settings = await _fetch_eligible_user(db, user_id)
+        if user is None:
             continue
         if not settings.get("favourite_alerts_enabled", True):
             continue

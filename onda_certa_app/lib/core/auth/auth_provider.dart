@@ -267,3 +267,11 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
 
 final authProvider =
     AsyncNotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
+
+extension AuthStateX on AsyncValue<AuthState> {
+  /// True when the current user is a logged-in anonymous (guest) account.
+  bool get isGuest {
+    final auth = value;
+    return auth is AuthAuthenticated && auth.isAnonymous;
+  }
+}

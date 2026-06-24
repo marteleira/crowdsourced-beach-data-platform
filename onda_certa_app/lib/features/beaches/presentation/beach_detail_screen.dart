@@ -12,9 +12,12 @@ import '../../../features/community/presentation/flag_confirmation_sheet.dart';
 import '../../../features/community/presentation/flag_proposal_sheet.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../shared/utils/format_helpers.dart';
+import '../../../shared/utils/ui_helpers.dart';
 import '../../../shared/widgets/beach_cover_image.dart';
 import '../../../shared/widgets/metric_cell.dart';
 import '../../../shared/widgets/alert_item.dart';
+import '../../../shared/widgets/severity_dots.dart';
 import '../../../shared/widgets/tide_chart.dart';
 import '../../../shared/widgets/user_avatar.dart';
 
@@ -57,20 +60,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
   @override
   void didPopNext() => _refresh();
 
-  bool get _isGuest {
-    final auth = ref.read(authProvider).value;
-    return auth is AuthAuthenticated && auth.isAnonymous;
-  }
-
-  void _showGuestSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+  bool get _isGuest => ref.read(authProvider).isGuest;
 
   Future<void> _refresh() async {
     final slug = widget.beach.slug;
@@ -146,7 +136,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         onTap: flagColor != 'unknown'
             ? () {
                 if (_isGuest) {
-                  _showGuestSnackbar('Cria uma conta para confirmar bandeiras');
+                  showGuestSnackbar(context,'Cria uma conta para confirmar bandeiras');
                   return;
                 }
                 showFlagConfirmationSheet(
@@ -158,7 +148,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
               }
             : () {
                 if (_isGuest) {
-                  _showGuestSnackbar('Cria uma conta para propor bandeiras');
+                  showGuestSnackbar(context,'Cria uma conta para propor bandeiras');
                   return;
                 }
                 showFlagProposalSheet(context, widget.beach);
@@ -590,7 +580,7 @@ class _WeatherCard extends StatelessWidget {
             MetricCell(
               icon: Icons.umbrella_outlined,
               value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--',
-              label: 'Chuva', iconColor: const Color(0xFF3B82F6),
+              label: 'Chuva', iconColor: AppColors.waterIcon,
             ),
           ]),
           if (weather?.apparentTemp != null || weather?.humidity != null || weather?.uvIndex != null) ...[
@@ -606,13 +596,13 @@ class _WeatherCard extends StatelessWidget {
                 MetricCell(
                   icon: Icons.water_drop_outlined,
                   value: '${weather!.humidity!.round()}%',
-                  label: 'Humidade', iconColor: const Color(0xFF3B82F6),
+                  label: 'Humidade', iconColor: AppColors.waterIcon,
                 ),
               if (weather?.uvIndex != null)
                 MetricCell(
                   icon: Icons.wb_sunny_outlined,
                   value: '${weather!.uvIndex!.round()}',
-                  label: 'UV', iconColor: const Color(0xFFF59E0B),
+                  label: 'UV', iconColor: AppColors.uvIcon,
                 ),
             ]),
           ],
@@ -1046,7 +1036,10 @@ class _CommunityAlertsCard extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8),
             child: AlertItem(
               report: r,
-              trailing: _VoteDots(upvotes: r.upvotes, downvotes: r.downvotes),
+              trailing: SeverityDotsIndicator(
+                filled: ((r.upvotes / (r.upvotes + r.downvotes).clamp(1, 999)) * 3).round().clamp(0, 3),
+                color: AppColors.flagGreen,
+              ),
             ),
           )),
       ],
@@ -1054,28 +1047,6 @@ class _CommunityAlertsCard extends StatelessWidget {
   }
 }
 
-class _VoteDots extends StatelessWidget {
-  const _VoteDots({required this.upvotes, required this.downvotes});
-  final int upvotes;
-  final int downvotes;
-
-  @override
-  Widget build(BuildContext context) {
-    final total = (upvotes + downvotes).clamp(1, 999);
-    final filled = ((upvotes / total) * 3).round().clamp(0, 3);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(3, (i) => Container(
-        width: 7, height: 7,
-        margin: const EdgeInsets.only(left: 3),
-        decoration: BoxDecoration(
-          color: i < filled ? AppColors.flagGreen : AppColors.borderLight,
-          shape: BoxShape.circle,
-        ),
-      )),
-    );
-  }
-}
 
 // Presence section
 
@@ -1255,7 +1226,7 @@ class _AvatarBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initials = _presenceInitials(user.displayName);
+    final initials = getInitials(user.displayName);
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -1307,13 +1278,6 @@ class _OverflowBubble extends StatelessWidget {
   );
 }
 
-
-String _presenceInitials(String? name) {
-  if (name == null || name.trim().isEmpty) return '';
-  final parts = name.trim().split(RegExp(r'\s+'));
-  if (parts.length == 1) return parts[0][0].toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
 
 // Presence people sheet
 

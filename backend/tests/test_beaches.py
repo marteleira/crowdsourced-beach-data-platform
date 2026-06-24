@@ -81,7 +81,10 @@ class TestBeachDetail:
                                         "wind_direction": "Norte", "weather_type_id": 2,
                                         "weather_type_desc": "Poucas nuvens"}],
                          "global_id_local": 1151200}
-        with patch("app.api.beaches.ipma.fetch_weather_forecast", return_value=fake_weather):
+        with (
+            patch("app.api.beaches.ipma.fetch_weather_forecast", return_value=fake_weather),
+            patch("app.api.beaches.open_meteo.fetch_weather", return_value=None),
+        ):
             r = await client.get("/api/v1/beaches/portinho-da-arrabida")
         assert r.status_code == 200
         weather = r.json()["weather"]

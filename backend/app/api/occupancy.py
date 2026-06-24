@@ -5,6 +5,7 @@ from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.beaches import _compute_occupancy
+from app.core.constants import OCCUPANCY_WINDOW_MINUTES
 from app.core.database import get_db
 from app.core.deps import require_user, get_beach_or_404
 from app.models.beach_status import OccupancyHeartbeat
@@ -24,8 +25,8 @@ async def send_heartbeat(
 ):
     beach = await get_beach_or_404(slug, db)
 
-    # invalidade heartbeats from this user at other beaches (last 20 minutes)
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=20)
+    # invalidate heartbeats from this user at other beaches
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
     await db.execute(
         delete(OccupancyHeartbeat).where(
             OccupancyHeartbeat.user_id == user.id,

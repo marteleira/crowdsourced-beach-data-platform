@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'app.dart';
 import 'core/auth/auth_provider.dart';
+import 'core/constants/app_config.dart';
 
 /// Background message handler
 @pragma('vm:entry-point')
@@ -20,8 +21,7 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await GoogleSignIn.instance.initialize(
-    serverClientId:
-        '690249877915-a70cee3ioodj4tv4nqm8ge0mnrs4mmh0.apps.googleusercontent.com',
+    serverClientId: AppConfig.googleServerClientId,
   );
 
   final container = ProviderContainer();

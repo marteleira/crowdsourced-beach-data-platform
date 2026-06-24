@@ -8,10 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.beaches import _compute_occupancy
 from app.core.database import get_db
+from app.core.db_helpers import get_beach_flag_status, count_active_alerts
 from app.core.deps import require_user
 from app.models.beach import Beach
-from app.models.beach_status import BeachStatus
-from app.models.report import Report
 from app.models.user import User
 from app.models.user_extended import UserFavourite
 from app.schemas.beach import BeachSummary
@@ -26,16 +25,9 @@ class FavouriteOrderRequest(BaseModel):
 
 async def _beach_summary(db: AsyncSession, beach: Beach) -> BeachSummary:
     activity_level = await get_activity_level(db, beach.id)
-    status_r = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach.id))
-    status = status_r.scalar_one_or_none()
+    flag_color, flag_confidence = await get_beach_flag_status(db, beach.id)
     now = datetime.now(timezone.utc)
-    alerts_r = await db.execute(
-        select(func.count(Report.id)).where(
-            Report.beach_id == beach.id,
-            Report.is_expired == False,
-            Report.expires_at > now,
-        )
-    )
+    alerts_count = await count_active_alerts(db, beach.id, now)
     occupancy = await _compute_occupancy(db, beach)
 
     return BeachSummary(
@@ -45,10 +37,10 @@ async def _beach_summary(db: AsyncSession, beach: Beach) -> BeachSummary:
         lat=beach.lat,
         lon=beach.lon,
         cover_photo_url=beach.cover_photo_url,
-        flag_color=status.flag_color if status else "unknown",
-        flag_confidence=status.flag_confidence if status else 0.0,
+        flag_color=flag_color,
+        flag_confidence=flag_confidence,
         occupancy_level=occupancy.level,
-        active_alerts_count=alerts_r.scalar_one() or 0,
+        active_alerts_count=alerts_count,
         activity_level=activity_level,
         activity_label=get_params(activity_level)["label"],
     )

@@ -756,7 +756,7 @@ class _FavouriteBeachCard extends StatelessWidget {
                           children: [
                             Container(width: 5, height: 5, decoration: BoxDecoration(color: flagColor, shape: BoxShape.circle)),
                             const SizedBox(width: 4),
-                            Text(_flagLabel(beach.flagColor), style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600)),
+                            Text(flagLabel(beach.flagColor), style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600)),
                           ],
                         ),
                       ),
@@ -791,13 +791,6 @@ class _FavouriteBeachCard extends StatelessWidget {
     );
   }
 
-  String _flagLabel(String flag) => switch (flag) {
-    'green'  => 'Segura',
-    'yellow' => 'Cuidado',
-    'red'    => 'Perigo',
-    'purple' => 'Fechada',
-    _        => 'Desconhecida',
-  };
 }
 
 class _FavouritesViewAllCard extends StatelessWidget {

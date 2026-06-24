@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.constants import REPORT_PRESENCE_WINDOW_HOURS, VOTE_PRESENCE_WINDOW_HOURS, REPORT_VERIFIED_NET_VOTES
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_user, require_registered_user, get_beach_or_404, was_recently_present
 from app.models.report import Report, ReportVote
@@ -29,7 +30,7 @@ def _to_response(r: Report, my_vote: Optional[int], activity_label: Optional[str
         created_at=r.created_at,
         expires_at=r.expires_at,
         is_expired=r.is_expired,
-        verified=(r.upvotes - r.downvotes) >= 3,
+        verified=(r.upvotes - r.downvotes) >= REPORT_VERIFIED_NET_VOTES,
         my_vote=my_vote,
         activity_label=activity_label,
     )
@@ -81,7 +82,7 @@ async def create_report(
     beach = await get_beach_or_404(slug, db)
 
     # Only users physically at the beach can submit reports
-    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=1))
+    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS))
     if not present:
         raise HTTPException(403, "Tens de estar na praia para submeter um aviso")
 
@@ -171,7 +172,7 @@ async def vote_report(
 
     # Presence required for all votes:
     vote_value = 1 if body.vote == "up" else -1
-    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=2))
+    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS))
     if not present:
         raise HTTPException(403, "Tens de estar na praia para votar neste aviso")
 

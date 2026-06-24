@@ -3,11 +3,13 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../core/constants/app_config.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../shared/utils/format_helpers.dart';
 import '../../../shared/widgets/empty_state.dart';
 
 class BeachListScreen extends ConsumerStatefulWidget {
@@ -32,8 +34,8 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
   static const _kMidSize = 0.30;
   static const _kMaxSize = 0.90;
 
-  static const _kCenter = LatLng(38.465, -8.94);
-  static const _kInitialZoom = 11.0;
+  static const _kCenter = LatLng(AppConfig.mapCenterLat, AppConfig.mapCenterLon);
+  static const _kInitialZoom = AppConfig.mapInitialZoom;
 
   static const _filters = [
     ('all', 'Todas', null),
@@ -603,13 +605,7 @@ class _SelectedBeachBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final flagColor = AppColors.forFlag(beach.flagColor);
-    final flagLabel = switch (beach.flagColor) {
-      'green' => 'Segura',
-      'yellow' => 'Cuidado',
-      'red' => 'Perigo',
-      'purple' => 'Encerrada',
-      _ => 'Sem dados',
-    };
+    final flagLabelText = flagLabel(beach.flagColor);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -656,7 +652,7 @@ class _SelectedBeachBanner extends StatelessWidget {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        flagLabel,
+                        flagLabelText,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -846,7 +842,7 @@ class _BeachCard extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 3),
                                   Text(
-                                    _formatDist(beach.distanceKm!),
+                                    formatDistance(beach.distanceKm!),
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
@@ -945,8 +941,6 @@ class _BeachCard extends StatelessWidget {
     );
   }
 
-  String _formatDist(double km) =>
-      km < 1 ? '${(km * 1000).round()} m' : '${km.toStringAsFixed(1)} km';
 
 }
 
