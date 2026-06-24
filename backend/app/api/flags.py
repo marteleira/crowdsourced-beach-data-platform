@@ -5,7 +5,7 @@ from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_user, get_beach_or_404, was_recently_present
+from app.core.deps import get_current_user, require_user, require_registered_user, get_beach_or_404, was_recently_present
 from app.models.beach_status import BeachStatus, FlagProposal, FlagConfirmation
 from app.models.user import User
 from app.schemas.flag import (
@@ -52,7 +52,7 @@ async def propose_flag(
     slug: str,
     body: FlagProposalRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_user),
+    user: User = Depends(require_registered_user),
 ):
     if user.reputation < MIN_REPUTATION_TO_PROPOSE:
         raise HTTPException(403, f"Reputação mínima necessária: {MIN_REPUTATION_TO_PROPOSE}")
@@ -131,7 +131,7 @@ async def confirm_flag(
     slug: str,
     body: FlagConfirmRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_user),
+    user: User = Depends(require_registered_user),
 ):
     beach = await get_beach_or_404(slug, db)
     status = await _ensure_beach_status(db, beach.id)

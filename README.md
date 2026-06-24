@@ -318,19 +318,18 @@ Detailed docs for each part live in their respective directories:
 - [x] Red flag notification for favorite beaches
 - [x] List the users on the beach (respecting the privacy settings) (Now by default this is disabled, but can be enabled by the user)
 - [x] Widget/Shortcut for the favorite beaches
+- [x] Display current temps (prob requires another api), and remove the "Parque nacional..." for every one
+- [x] Disable the interaction with the social/community layer for guests
 ---
 
 ### 🔜 Planned
 
 ver nomes
-- [ ] Display current temps (prob requires another api), and remove the "Parque nacional..." for every one
-- [ ] Disable votes and reports for guests, right now the guest can do everything (the only limitation is the data related with the device_id)
+- [ ] Review the points system and requirements for certain tasks
+- [ ] Final legal pages (Terms of Service, Privacy Policy)
 
 - [ ] Support more than one language 
 
-- [ ] Review the points system and requirements for certain tasks
-
-- [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] Share button (on beach_detail)
 - [ ] End-to-end tests & more
 

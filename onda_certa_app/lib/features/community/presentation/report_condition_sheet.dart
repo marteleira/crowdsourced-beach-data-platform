@@ -36,8 +36,6 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = ref.watch(userProfileProvider).value;
-    final isAnonymous = profile?.isAnonymous ?? false;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
 
     return DraggableScrollableSheet(
@@ -110,10 +108,6 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                     _buildNoteSection(),
                     const SizedBox(height: 14),
                     _buildLocationNote(),
-                    if (isAnonymous) ...[
-                      const SizedBox(height: 10),
-                      _buildGuestNote(),
-                    ],
                     const SizedBox(height: AppSpacing.xxl),
                     _buildSubmitButton(),
                   ],
@@ -310,30 +304,6 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
             child: Text(
               'A tua localização aproximada será partilhada com este aviso.',
               style: AppTextStyles.secondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGuestNote() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFBBF7D0)),
-      ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('🌿', style: TextStyle(fontSize: 15)),
-          SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              'Modo convidado: os avisos funcionam, mas criar uma conta dá-te reputação e ajuda a acompanhar a precisão.',
-              style: TextStyle(color: Color(0xFF166534), fontSize: 12, height: 1.4),
             ),
           ),
         ],

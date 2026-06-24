@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
@@ -55,6 +56,21 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
 
   @override
   void didPopNext() => _refresh();
+
+  bool get _isGuest {
+    final auth = ref.read(authProvider).value;
+    return auth is AuthAuthenticated && auth.isAnonymous;
+  }
+
+  void _showGuestSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   Future<void> _refresh() async {
     final slug = widget.beach.slug;
@@ -128,13 +144,25 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         flagColor: flagColor,
         flagConfidence: flagConfidence,
         onTap: flagColor != 'unknown'
-            ? () => showFlagConfirmationSheet(
-                context,
-                widget.beach,
-                flagColor: flagColor,
-                flagConfidence: flagConfidence ?? 0.7,
-              )
-            : () => showFlagProposalSheet(context, widget.beach),
+            ? () {
+                if (_isGuest) {
+                  _showGuestSnackbar('Cria uma conta para confirmar bandeiras');
+                  return;
+                }
+                showFlagConfirmationSheet(
+                  context,
+                  widget.beach,
+                  flagColor: flagColor,
+                  flagConfidence: flagConfidence ?? 0.7,
+                );
+              }
+            : () {
+                if (_isGuest) {
+                  _showGuestSnackbar('Cria uma conta para propor bandeiras');
+                  return;
+                }
+                showFlagProposalSheet(context, widget.beach);
+              },
       ),
       const SizedBox(height: AppSpacing.md),
       _OccupancyCard(

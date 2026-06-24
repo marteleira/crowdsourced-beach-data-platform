@@ -77,6 +77,21 @@ async def require_user(
     return user
 
 
+async def require_registered_user(
+    user: User = Depends(require_user),
+) -> User:
+    """Like require_user but also rejects anonymous/guest accounts."""
+    if user.is_anonymous:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "code": "guest_not_allowed",
+                "message": "Cria uma conta para realizar esta ação.",
+            },
+        )
+    return user
+
+
 async def require_user_or_pending(
     user: Optional[User] = Depends(get_current_user),
 ) -> User:

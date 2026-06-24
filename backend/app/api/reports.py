@@ -6,7 +6,7 @@ from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_user, get_beach_or_404, was_recently_present
+from app.core.deps import get_current_user, require_user, require_registered_user, get_beach_or_404, was_recently_present
 from app.models.report import Report, ReportVote
 from app.models.user import User, ReputationEvent
 from app.schemas.report import ReportCreate, ReportResponse, VoteRequest, ReportListResponse
@@ -76,7 +76,7 @@ async def create_report(
     slug: str,
     body: ReportCreate,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_user),
+    user: User = Depends(require_registered_user),
 ):
     beach = await get_beach_or_404(slug, db)
 
@@ -158,7 +158,7 @@ async def vote_report(
     report_id: int,
     body: VoteRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_user),
+    user: User = Depends(require_registered_user),
 ):
     beach = await get_beach_or_404(slug, db)
 

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/auth/auth_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -110,7 +111,26 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
     );
   }
 
+  bool get _isGuest {
+    final auth = ref.read(authProvider).value;
+    return auth is AuthAuthenticated && auth.isAnonymous;
+  }
+
+  void _showGuestSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Future<void> _vote(int reportId, String vote) async {
+    if (_isGuest) {
+      _showGuestSnackbar('Cria uma conta para votar nos alertas');
+      return;
+    }
     try {
       await ref.read(communityReportsProvider(widget.beach.slug).notifier).vote(reportId, vote);
     } on DioException catch (e) {
@@ -126,6 +146,10 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
   }
 
   void _openReportSheet() {
+    if (_isGuest) {
+      _showGuestSnackbar('Cria uma conta para submeter avisos');
+      return;
+    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
