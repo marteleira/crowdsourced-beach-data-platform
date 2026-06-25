@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import require_user, raise_if_account_locked
-from app.core.utils import ensure_utc
+from app.core.utils import ensure_utc, now_utc
 from app.core.security import (
     hash_password, verify_password, create_access_token,
     generate_refresh_token, hash_refresh_token, verify_google_id_token,
@@ -20,6 +20,7 @@ from app.schemas.auth import (
     RefreshRequest, LogoutRequest, PromoteRequest, TokenResponse,
     VerifyEmailRequest, ForgotPasswordRequest, ResetPasswordRequest,
 )
+from app.core.messages import Msg
 from app.services.email import send_verification_email, send_password_reset_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -33,7 +34,7 @@ async def _issue_tokens(user: User, db: AsyncSession) -> TokenResponse:
     )
     raw_refresh, token_hash = generate_refresh_token()
 
-    expires = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
+    expires = now_utc() + timedelta(days=settings.JWT_REFRESH_EXPIRE_DAYS)
     db.add(RefreshToken(user_id=user.id, token_hash=token_hash, expires_at=expires))
     await db.commit()
 
@@ -50,7 +51,7 @@ async def _send_verification(user: User, db: AsyncSession) -> None:
     code, code_hash = generate_verification_code()
     user.email_verification_code_hash = code_hash
     user.email_verification_expires_at = (
-        datetime.now(timezone.utc)
+        now_utc()
         + timedelta(minutes=settings.EMAIL_VERIFICATION_EXPIRE_MINUTES)
     )
     await db.commit()
@@ -76,7 +77,7 @@ async def create_guest(body: GuestRequest, db: AsyncSession = Depends(get_db)):
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
-        raise HTTPException(409, "Email já registado")
+        raise HTTPException(409, Msg.EMAIL_TAKEN)
 
     user = User(
         email=body.email,
@@ -99,7 +100,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
 
     if not user or not user.password_hash or not verify_password(body.password, user.password_hash):
-        raise HTTPException(401, "Credenciais inválidas")
+        raise HTTPException(401, Msg.INVALID_CREDENTIALS)
 
     raise_if_account_locked(user)
     return await _issue_tokens(user, db)
@@ -111,7 +112,7 @@ async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
         payload = await verify_google_id_token(body.id_token)
     except Exception as e:
         logger.error("Google token error: %s: %s", type(e).__name__, e)
-        raise HTTPException(401, "Token Google inválido")
+        raise HTTPException(401, Msg.INVALID_GOOGLE_TOKEN)
 
     google_sub = payload["sub"]
     email = payload.get("email", "")
@@ -155,9 +156,9 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
     )
     record = result.scalar_one_or_none()
 
-    now = datetime.now(timezone.utc)
-    if not record or record.revoked_at or record.expires_at.replace(tzinfo=timezone.utc) < now:
-        raise HTTPException(401, "Refresh token inválido ou expirado")
+    now = now_utc()
+    if not record or record.revoked_at or ensure_utc(record.expires_at) < now:
+        raise HTTPException(401, Msg.INVALID_REFRESH_TOKEN)
 
     await db.execute(
         update(RefreshToken)
@@ -168,7 +169,7 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
     user_result = await db.execute(select(User).where(User.id == record.user_id))
     user = user_result.scalar_one_or_none()
     if not user:
-        raise HTTPException(401, "Utilizador não encontrado")
+        raise HTTPException(401, Msg.USER_NOT_FOUND)
 
     raise_if_account_locked(user)
     return await _issue_tokens(user, db)
@@ -180,7 +181,7 @@ async def logout(body: LogoutRequest, db: AsyncSession = Depends(get_db)):
     await db.execute(
         update(RefreshToken)
         .where(RefreshToken.token_hash == token_hash)
-        .values(revoked_at=datetime.now(timezone.utc))
+        .values(revoked_at=now_utc())
     )
     await db.commit()
     return {"status": "ok"}
@@ -193,11 +194,11 @@ async def promote_guest(
     db: AsyncSession = Depends(get_db),
 ):
     if not user.is_anonymous:
-        raise HTTPException(400, "Utilizador já registado")
+        raise HTTPException(400, Msg.USER_ALREADY_REGISTERED)
 
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
-        raise HTTPException(409, "Email já registado")
+        raise HTTPException(409, Msg.EMAIL_TAKEN)
 
     user.email = body.email
     user.display_name = body.display_name
@@ -222,14 +223,14 @@ async def verify_email(
         return {"status": "already_verified"}
 
     if not user.email_verification_code_hash or not user.email_verification_expires_at:
-        raise HTTPException(400, "Nenhum código de verificação pendente")
+        raise HTTPException(400, Msg.NO_PENDING_VERIFICATION)
 
-    now = datetime.now(timezone.utc)
+    now = now_utc()
     if ensure_utc(user.email_verification_expires_at) < now:
-        raise HTTPException(400, "Código expirado. Solicita um novo.")
+        raise HTTPException(400, Msg.CODE_EXPIRED)
 
     if hash_verification_code(body.code) != user.email_verification_code_hash:
-        raise HTTPException(400, "Código inválido")
+        raise HTTPException(400, Msg.CODE_INVALID)
 
     user.is_email_verified = True
     user.email_verification_code_hash = None
@@ -245,10 +246,10 @@ async def resend_verification(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_email_verified:
-        raise HTTPException(400, "Email já verificado")
+        raise HTTPException(400, Msg.EMAIL_ALREADY_VERIFIED)
 
     if not user.email:
-        raise HTTPException(400, "Utilizador sem email associado")
+        raise HTTPException(400, Msg.USER_NO_EMAIL)
 
     await _send_verification(user, db)
     return {"status": "sent"}
@@ -264,7 +265,7 @@ async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depend
         code, code_hash = generate_verification_code()
         user.password_reset_code_hash = code_hash
         user.password_reset_expires_at = (
-            datetime.now(timezone.utc)
+            now_utc()
             + timedelta(minutes=settings.EMAIL_VERIFICATION_EXPIRE_MINUTES)
         )
         await db.commit()
@@ -279,14 +280,14 @@ async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(
     user = result.scalar_one_or_none()
 
     if not user or not user.password_reset_code_hash or not user.password_reset_expires_at:
-        raise HTTPException(400, "Pedido de recuperação inválido ou expirado")
+        raise HTTPException(400, Msg.INVALID_RESET_REQUEST)
 
-    now = datetime.now(timezone.utc)
+    now = now_utc()
     if ensure_utc(user.password_reset_expires_at) < now:
-        raise HTTPException(400, "Código expirado. Solicita um novo.")
+        raise HTTPException(400, Msg.CODE_EXPIRED)
 
     if hash_verification_code(body.code) != user.password_reset_code_hash:
-        raise HTTPException(400, "Código inválido")
+        raise HTTPException(400, Msg.CODE_INVALID)
 
     user.password_hash = hash_password(body.new_password)
     user.password_reset_code_hash = None

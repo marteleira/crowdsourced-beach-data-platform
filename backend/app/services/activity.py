@@ -4,12 +4,13 @@ Determines whether a beach is in low/normal/high activity mode,
 which adjusts TTLs, confirmation thresholds, and confidence decay.
 """
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from typing import Optional
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.utils import now_utc
 from app.models.beach_status import OccupancyHeartbeat
 
 
@@ -56,7 +57,7 @@ BASE_TTL_MINUTES = {
 
 
 async def get_activity_level(db: AsyncSession, beach_id: int) -> str:
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
+    cutoff = now_utc() - timedelta(hours=1)
     stmt = (
         select(func.count(func.distinct(OccupancyHeartbeat.user_id)))
         .where(

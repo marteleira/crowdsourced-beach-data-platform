@@ -14,9 +14,10 @@ from app.schemas.flag import (
     FlagProposalRequest, FlagProposalResponse,
     FlagConfirmRequest, FlagConfirmResponse, BeachFlagStatus,
 )
-from app.services.activity import get_activity_level, get_params
+from app.services.activity import get_activity_params
 from app.services.flag_confidence import recalculate_beach_confidence
 from app.services.reputation import apply_delta, proposal_weight, DELTA_FLAG_CONFIRMED
+from app.core.messages import Msg
 from app.services.push_notifications import dispatch_flag_notification, dispatch_red_flag_favourite_notification
 
 router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
@@ -35,14 +36,13 @@ async def _ensure_beach_status(db: AsyncSession, beach_id: int) -> BeachStatus:
 async def get_flag_status(slug: str, db: AsyncSession = Depends(get_db)):
     beach = await get_beach_or_404(slug, db)
     status = await _ensure_beach_status(db, beach.id)
-    activity_level = await get_activity_level(db, beach.id)
-    label = get_params(activity_level)["label"]
+    params = await get_activity_params(db, beach.id)
     return BeachFlagStatus(
         flag_color=status.flag_color,
         flag_confidence=status.flag_confidence,
         flag_source=status.flag_source,
         updated_at=status.updated_at,
-        activity_label=label,
+        activity_label=params.label,
     )
 
 
@@ -54,15 +54,15 @@ async def propose_flag(
     user: User = Depends(require_registered_user),
 ):
     if user.reputation < MIN_REPUTATION_TO_PROPOSE:
-        raise HTTPException(403, f"Reputação mínima necessária: {MIN_REPUTATION_TO_PROPOSE}")
+        raise HTTPException(403, Msg.min_reputation(MIN_REPUTATION_TO_PROPOSE))
 
     beach = await get_beach_or_404(slug, db)
     if not beach.flags_available:
-        raise HTTPException(400, "Esta praia não tem sistema de bandeiras")
+        raise HTTPException(400, Msg.BEACH_NO_FLAG_SYSTEM)
 
     present = await was_recently_present(db, user.id, beach.id, window=timedelta(minutes=FLAG_PROPOSAL_WINDOW_MINUTES))
     if not present:
-        raise HTTPException(403, "Tens de estar na praia para propor uma bandeira")
+        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_FLAG)
 
     weight = proposal_weight(user.reputation)
     proposal = FlagProposal(
@@ -76,8 +76,8 @@ async def propose_flag(
     await db.flush()
 
     # Auto-apply if weight is high enough (reputation ≥ 100) or if it's the only proposal
-    activity_level = await get_activity_level(db, beach.id)
-    min_confirmations = get_params(activity_level)["flag_confirmation_min"]
+    flag_params = await get_activity_params(db, beach.id)
+    min_confirmations = flag_params.flag_confirmation_min
 
     if weight >= min_confirmations:
         old_status = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach.id))
@@ -136,7 +136,7 @@ async def confirm_flag(
     status = await _ensure_beach_status(db, beach.id)
 
     if status.flag_color == "unknown":
-        raise HTTPException(400, "Não há bandeira para confirmar nesta praia")
+        raise HTTPException(400, Msg.NO_FLAG_TO_CONFIRM)
 
     # One confirmation vote per user per beach per FLAG_CONFIRM_WINDOW_HOURS
     one_hour_ago = now_utc() - timedelta(hours=FLAG_CONFIRM_WINDOW_HOURS)
@@ -148,7 +148,7 @@ async def confirm_flag(
         ).limit(1)
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(429, "Já confirmaste a bandeira desta praia na última hora")
+        raise HTTPException(429, Msg.FLAG_ALREADY_CONFIRMED)
 
     confirmation = FlagConfirmation(
         beach_id=beach.id,
@@ -160,9 +160,9 @@ async def confirm_flag(
     await db.flush()
 
     # Recalculate confidence
-    activity_level = await get_activity_level(db, beach.id)
+    confirm_params = await get_activity_params(db, beach.id)
     new_confidence = await recalculate_beach_confidence(
-        db, beach.id, status.flag_color, status.updated_at, activity_level
+        db, beach.id, status.flag_color, status.updated_at, confirm_params.level
     )
     status.flag_confidence = new_confidence
 

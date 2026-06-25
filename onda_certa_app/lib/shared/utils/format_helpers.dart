@@ -1,18 +1,18 @@
 /// Shared formatting helpers — measurements, time, strings.
-///
-/// All user-facing strings are in Portuguese.
 library;
+
+import '../../core/constants/app_strings.dart';
 
 /// Relative time from a [DateTime]. Returns e.g. "há 5 min", "ontem".
 String timeAgo(DateTime dt) {
   final diff = DateTime.now().toUtc().difference(dt.toUtc());
-  if (diff.inMinutes < 1) return 'agora mesmo';
-  if (diff.inMinutes < 60) return 'há ${diff.inMinutes} min';
-  if (diff.inHours < 24) return 'há ${diff.inHours}h';
-  if (diff.inDays == 1) return 'ontem';
-  if (diff.inDays < 7) return 'há ${diff.inDays} dias';
-  if (diff.inDays < 30) return 'há ${(diff.inDays / 7).round()} sem.';
-  return 'há ${(diff.inDays / 30).round()} meses';
+  if (diff.inMinutes < 1) return AppStrings.timeJustNow;
+  if (diff.inMinutes < 60) return AppStrings.timeMinutes(diff.inMinutes);
+  if (diff.inHours < 24) return AppStrings.timeHours(diff.inHours);
+  if (diff.inDays == 1) return AppStrings.timeYesterday;
+  if (diff.inDays < 7) return AppStrings.timeDays(diff.inDays);
+  if (diff.inDays < 30) return AppStrings.timeWeeks((diff.inDays / 7).round());
+  return AppStrings.timeMonths((diff.inDays / 30).round());
 }
 
 /// Relative time from an ISO 8601 string. Returns '' on parse failure.
