@@ -470,7 +470,7 @@ class _HeroContent extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.30),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: AppRadii.cardXxl,
               border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -522,7 +522,7 @@ class _DetailSheet extends StatelessWidget {
       target = sheetCtrl.size > 0.46 ? 0.72 : 0.22;
     }
     sheetCtrl.animateTo(target,
-      duration: const Duration(milliseconds: 280),
+      duration: AppDurations.slow,
       curve: Curves.easeOutCubic,
     );
   }
@@ -531,7 +531,7 @@ class _DetailSheet extends StatelessWidget {
     if (!sheetCtrl.isAttached) return;
     final target = sheetCtrl.size < 0.46 ? 0.72 : 0.22;
     sheetCtrl.animateTo(target,
-      duration: const Duration(milliseconds: 280),
+      duration: AppDurations.slow,
       curve: Curves.easeOutCubic,
     );
   }
@@ -614,7 +614,7 @@ class _TodayTidesSection extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
         child: const Center(child: Text('Sem dados de marés disponíveis', style: AppTextStyles.secondaryMd)),
@@ -626,7 +626,7 @@ class _TodayTidesSection extends StatelessWidget {
       Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
         child: Column(children: [
@@ -707,7 +707,7 @@ class _SeaMini extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.cardLg,
         border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
       ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -740,7 +740,7 @@ class _TideChartCard extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(8, 10, 8, 8),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
         child: CustomPaint(
@@ -800,8 +800,8 @@ class _FullTideChartPainter extends CustomPainter {
     // Normalise now into the same time-space as eMins
     final now = DateTime.now();
     double nowM = now.hour * 60.0 + now.minute + now.second / 60.0;
-    while (nowM < eMins.first - 720) nowM += 1440;
-    while (nowM > eMins.first + 720) nowM -= 1440;
+    while (nowM < eMins.first - 720) { nowM += 1440; }
+    while (nowM > eMins.first + 720) { nowM -= 1440; }
 
     // Window
     final wS = min(nowM, eMins.first) - 30.0;

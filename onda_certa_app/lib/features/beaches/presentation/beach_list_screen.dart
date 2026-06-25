@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/constants/app_config.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
@@ -109,7 +110,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
     if (_sheetCtrl.isAttached) {
       _sheetCtrl.animateTo(
         _kMidSize,
-        duration: const Duration(milliseconds: 280),
+        duration: AppDurations.slow,
         curve: Curves.easeOutCubic,
       );
     }
@@ -142,7 +143,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
     }
     _sheetCtrl.animateTo(
       target,
-      duration: const Duration(milliseconds: 280),
+      duration: AppDurations.slow,
       curve: Curves.easeOutCubic,
     );
   }
@@ -160,7 +161,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
     }
     _sheetCtrl.animateTo(
       target,
-      duration: const Duration(milliseconds: 280),
+      duration: AppDurations.slow,
       curve: Curves.easeOutCubic,
     );
   }
@@ -365,7 +366,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                     _SelectedBeachBanner(
                       beach: _selectedBeach!,
                       onNavigate: () => context.push(
-                        '/beach/${_selectedBeach!.slug}',
+                        AppRoutes.beach(_selectedBeach!.slug),
                         extra: _selectedBeach,
                       ),
                       onClose: () => setState(() => _selectedBeach = null),
@@ -377,7 +378,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                       height: 44,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadii.cardMd,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.05),
@@ -509,7 +510,7 @@ class _BeachMarker extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedScale(
       scale: selected ? 1.2 : 1.0,
-      duration: const Duration(milliseconds: 180),
+      duration: AppDurations.fast,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -545,7 +546,7 @@ class _BeachMarker extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadii.cardSm,
                       border: Border.all(color: Colors.white, width: 1),
                     ),
                     child: Text(
@@ -611,7 +612,7 @@ class _SelectedBeachBanner extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
         border: Border(left: BorderSide(color: flagColor, width: 4)),
         boxShadow: [
           BoxShadow(
@@ -723,11 +724,11 @@ class _FilterChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: AppDurations.fast,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: selected ? activeColor : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadii.cardXl,
           border: Border.all(
             color: selected ? activeColor : AppColors.borderLight,
           ),
@@ -776,12 +777,12 @@ class _BeachCard extends StatelessWidget {
     final flagColor = AppColors.forFlag(beach.flagColor);
 
     return GestureDetector(
-      onTap: () => context.push('/beach/${beach.slug}', extra: beach),
+      onTap: () => context.push(AppRoutes.beach(beach.slug), extra: beach),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: AppDurations.medium,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.cardButton,
           border: selected ? Border.all(color: AppColors.teal, width: 1.5) : null,
           boxShadow: [
             BoxShadow(
@@ -830,7 +831,7 @@ class _BeachCard extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: AppColors.teal.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: AppRadii.cardSm,
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,

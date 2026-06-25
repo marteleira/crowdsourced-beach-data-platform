@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../settings/data/settings_provider.dart';
 
@@ -26,7 +27,7 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
     try {
       await ref.read(settingsRepositoryProvider).cancelDeletion();
       ref.read(pendingDeletionProvider.notifier).set(null);
-      if (mounted) context.go('/home');
+      if (mounted) context.go(AppRoutes.home);
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -41,7 +42,7 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
 
   Future<void> _logout() async {
     await ref.read(authProvider.notifier).logout();
-    if (mounted) context.go('/login');
+    if (mounted) context.go(AppRoutes.login);
   }
 
   @override
@@ -100,7 +101,7 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
                     backgroundColor: AppColors.teal,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: AppRadii.cardButton,
                     ),
                   ),
                   icon: _cancelling
@@ -131,7 +132,7 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
                       color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: AppRadii.cardButton,
                     ),
                   ),
                   child: const Text('Terminar sessão', style: TextStyle(fontSize: 15)),

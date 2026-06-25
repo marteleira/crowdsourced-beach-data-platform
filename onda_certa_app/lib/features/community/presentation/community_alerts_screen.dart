@@ -79,7 +79,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.coral,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadii.cardXl,
             ),
             child: Text(
               '$activeCount activos',
@@ -166,14 +166,14 @@ class _ReportCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.cardLg,
         border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.cardLg,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -194,7 +194,7 @@ class _ReportCard extends StatelessWidget {
                         height: 44,
                         decoration: BoxDecoration(
                           color: typeColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.cardMd,
                         ),
                         child: Icon(icon, color: typeColor, size: 22),
                       ),
@@ -220,7 +220,7 @@ class _ReportCard extends StatelessWidget {
                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                                     decoration: BoxDecoration(
                                       color: AppColors.flagGreen.withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(6),
+                                      borderRadius: AppRadii.cardXs,
                                     ),
                                     child: const Row(
                                       mainAxisSize: MainAxisSize.min,
@@ -267,7 +267,7 @@ class _ReportCard extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       decoration: BoxDecoration(
                         color: AppColors.background,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: AppRadii.cardChip,
                       ),
                       child: Text(
                         '"${report.note!}"',
@@ -338,11 +338,11 @@ class _VoteButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: AppDurations.fast,
         padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
         decoration: BoxDecoration(
           color: isActive ? color.withValues(alpha: 0.12) : AppColors.backgroundLight,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadii.cardXl,
           border: Border.all(
             color: isActive ? color.withValues(alpha: 0.35) : Colors.transparent,
           ),
@@ -413,7 +413,7 @@ class _EmptyState extends StatelessWidget {
                 foregroundColor: AppColors.teal,
                 side: const BorderSide(color: AppColors.teal),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
               ),
             ),
           ],

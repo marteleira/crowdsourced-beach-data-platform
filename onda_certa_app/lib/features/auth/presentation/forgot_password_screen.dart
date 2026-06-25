@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_input_decoration.dart';
 
@@ -43,7 +44,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     try {
       await ref.read(authRepositoryProvider).forgotPassword(_emailCtrl.text.trim());
       if (mounted) {
-        context.push('/login/reset-password', extra: _emailCtrl.text.trim());
+        context.push(AppRoutes.resetPassword, extra: _emailCtrl.text.trim());
       }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) return;
@@ -184,7 +185,7 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.coral.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
       ),
       child: Row(
         children: [

@@ -115,7 +115,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
             color: AppColors.teal.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: AppRadii.cardMd,
             border: Border.all(color: AppColors.teal.withValues(alpha: 0.2)),
           ),
           child: const Row(
@@ -204,12 +204,12 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
     return SizedBox(
       width: double.infinity,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: AppDurations.medium,
         decoration: BoxDecoration(
           color: isLoading
               ? selected.color.withValues(alpha: 0.5)
               : selected.color,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           boxShadow: [
             BoxShadow(
               color: selected.color.withValues(alpha: 0.35),
@@ -220,10 +220,10 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
         ),
         child: Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           child: InkWell(
             onTap: isLoading ? null : _submit,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadii.cardLg,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 17),
               child: Center(
@@ -297,7 +297,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
             color: selected.color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadii.cardXl,
             border: Border.all(color: selected.color.withValues(alpha: 0.28)),
           ),
           child: Row(
@@ -337,7 +337,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
             ),
             child: const Text(
               'Fechar',
@@ -405,7 +405,7 @@ class _FlagOptionCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: AppDurations.fast,
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         decoration: BoxDecoration(
           color: isSelected ? color.withValues(alpha: 0.08) : Colors.white,
@@ -472,7 +472,7 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.coral.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
         border: Border.all(color: AppColors.coral.withValues(alpha: 0.25)),
       ),
       child: Row(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -83,10 +84,10 @@ class _BeachFavCard extends ConsumerWidget {
     final pillColor = beach.flagColor == 'unknown' || beach.flagColor.isEmpty ? Colors.white : flagColor;
 
     return GestureDetector(
-      onTap: () => context.push('/beach/${beach.slug}', extra: beach),
+      onTap: () => context.push(AppRoutes.beach(beach.slug), extra: beach),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadii.cardXl,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.13),
@@ -96,7 +97,7 @@ class _BeachFavCard extends ConsumerWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadii.cardXl,
           child: SizedBox(
             height: 195,
             child: Stack(
@@ -133,7 +134,7 @@ class _BeachFavCard extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: pillColor.withValues(alpha: 0.22),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: AppRadii.cardXl,
                               border: Border.all(color: pillColor.withValues(alpha: 0.65), width: 1),
                             ),
                             child: Row(
@@ -151,7 +152,7 @@ class _BeachFavCard extends ConsumerWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                               decoration: BoxDecoration(
                                 color: AppColors.coral.withValues(alpha: 0.9),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: AppRadii.cardXl,
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -227,7 +228,7 @@ class _BeachFavCard extends ConsumerWidget {
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xxl))),
       builder: (_) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
         child: Column(
@@ -264,7 +265,7 @@ class _BeachFavCard extends ConsumerWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.borderMedium),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
                     child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
@@ -276,7 +277,7 @@ class _BeachFavCard extends ConsumerWidget {
                     onPressed: () => Navigator.pop(context, true),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.coral,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
                     child: const Text('Remover', style: TextStyle(fontWeight: FontWeight.w600)),

@@ -317,7 +317,7 @@ class _Section extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadii.cardLg,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -506,7 +506,7 @@ class _SegmentTile extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: AppColors.backgroundLight,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadii.cardSm,
             ),
             padding: const EdgeInsets.all(2),
             child: Row(
@@ -521,7 +521,7 @@ class _SegmentTile extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: active ? Colors.white : Colors.transparent,
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: AppRadii.cardXs,
                       boxShadow: active
                           ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 3)]
                           : [],

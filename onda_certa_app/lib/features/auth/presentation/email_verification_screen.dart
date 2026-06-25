@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_code_input.dart';
 
@@ -61,7 +62,7 @@ class _EmailVerificationScreenState
     });
     try {
       await ref.read(authProvider.notifier).verifyEmail(code);
-      if (mounted) context.go('/home');
+      if (mounted) context.go(AppRoutes.home);
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) return;
       final detail = e.response?.data?['detail'];
@@ -109,7 +110,7 @@ class _EmailVerificationScreenState
 
   Future<void> _logout() async {
     await ref.read(authProvider.notifier).logout();
-    if (mounted) context.go('/login');
+    if (mounted) context.go(AppRoutes.login);
   }
 
   @override
@@ -238,7 +239,7 @@ class _EmailVerificationScreenState
                       color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                        borderRadius: AppRadii.cardButton),
                   ),
                   child:
                       const Text('Terminar sessão', style: TextStyle(fontSize: 15)),
@@ -257,7 +258,7 @@ class _EmailVerificationScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.coral.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
       ),
       child: Row(
         children: [

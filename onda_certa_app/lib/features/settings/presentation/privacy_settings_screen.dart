@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../data/settings_provider.dart';
 import '../domain/settings_models.dart';
@@ -308,7 +309,7 @@ class _PrivacyForm extends ConsumerWidget {
     try {
       await ref.read(settingsRepositoryProvider).deleteAccount();
       await ref.read(authProvider.notifier).logout();
-      if (context.mounted) context.go('/login');
+      if (context.mounted) context.go(AppRoutes.login);
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -408,7 +409,7 @@ class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.teal,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
                 ),
                 icon: _cancelling
                     ? const SizedBox(
@@ -424,11 +425,11 @@ class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () => ref.read(authProvider.notifier).logout().then((_) {
-                  if (context.mounted) context.go('/login');
+                  if (context.mounted) context.go(AppRoutes.login);
                 }),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
                 ),
                 child: const Text('Terminar sessão'),
               ),
@@ -467,7 +468,7 @@ class _Section extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadii.cardLg,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -649,7 +650,7 @@ class _SegmentedPicker extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.backgroundLight,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadii.cardChip,
       ),
       padding: const EdgeInsets.all(3),
       child: Row(
@@ -660,11 +661,11 @@ class _SegmentedPicker extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onChanged(value),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
+                duration: AppDurations.fast,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color: active ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppRadii.cardSm,
                   boxShadow: active
                       ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
                       : [],

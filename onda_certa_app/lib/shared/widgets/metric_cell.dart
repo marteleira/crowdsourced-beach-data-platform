@@ -42,7 +42,7 @@ Widget metricRow(List<Widget> cells) {
   }
   return Container(
     padding: const EdgeInsets.symmetric(vertical: 14),
-    decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12)),
+    decoration: BoxDecoration(color: AppColors.background, borderRadius: AppRadii.cardMd),
     child: Row(children: items),
   );
 }

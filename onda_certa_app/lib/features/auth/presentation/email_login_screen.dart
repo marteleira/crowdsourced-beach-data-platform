@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_input_decoration.dart';
 import '../../../shared/widgets/password_strength_field.dart';
@@ -36,7 +37,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<AuthState>>(authProvider, (_, next) {
       if (next case AsyncData(value: AuthAuthenticated())) {
-        context.go('/home');
+        context.go(AppRoutes.home);
       }
     });
 
@@ -117,7 +118,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () => context.push(
-                        '/login/forgot-password',
+                        AppRoutes.forgotPassword,
                         extra: _emailCtrl.text.trim(),
                       ),
                       style: TextButton.styleFrom(
@@ -299,7 +300,7 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.coral.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
       ),
       child: Row(
         children: [

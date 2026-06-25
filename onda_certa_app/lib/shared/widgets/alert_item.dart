@@ -37,11 +37,11 @@ class AlertItem extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
         border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
         child: IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -57,7 +57,7 @@ class AlertItem extends StatelessWidget {
                         width: 40, height: 40,
                         decoration: BoxDecoration(
                           color: typeColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppRadii.cardMd,
                         ),
                         child: Icon(icon, color: typeColor, size: 20),
                       ),

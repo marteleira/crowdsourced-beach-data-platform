@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'core/auth/auth_provider.dart';
+import 'core/constants/app_routes.dart';
 import 'core/notifications/notification_provider.dart';
 import 'core/presence/heartbeat_provider.dart';
 import 'features/notifications/presentation/notifications_screen.dart';
@@ -55,60 +56,60 @@ final _routerProvider = Provider<GoRouter>((ref) {
       // Return null (not a redirect) when already on the target screen so we
       // don't loop through the unauthenticated guard below.
       if (ref.read(accountBannedProvider) != null) {
-        return loc == '/account-banned' ? null : '/account-banned';
+        return loc == AppRoutes.accountBanned ? null : AppRoutes.accountBanned;
       }
       if (ref.read(accountSuspendedProvider) != null) {
-        return loc == '/account-suspended' ? null : '/account-suspended';
+        return loc == AppRoutes.accountSuspended ? null : AppRoutes.accountSuspended;
       }
 
       // Splash and auth routes manage their own navigation
-      if (loc == '/' || loc.startsWith('/login')) return null;
+      if (loc == '/' || loc.startsWith(AppRoutes.login)) return null;
 
       // Protect app routes
       final authState = ref.read(authProvider).value;
-      if (authState is! AuthAuthenticated) return '/login';
+      if (authState is! AuthAuthenticated) return AppRoutes.login;
 
       // Redirect to pending-deletion screen for any app route when account is flagged
       final pendingDeletion = ref.read(pendingDeletionProvider);
-      if (pendingDeletion != null && loc != '/pending-deletion') {
-        return '/pending-deletion';
+      if (pendingDeletion != null && loc != AppRoutes.pendingDeletion) {
+        return AppRoutes.pendingDeletion;
       }
 
       // Force email verification for registered (non-guest) accounts
       if (!authState.isAnonymous &&
           !authState.isEmailVerified &&
-          loc != '/verify-email') {
-        return '/verify-email';
+          loc != AppRoutes.verifyEmail) {
+        return AppRoutes.verifyEmail;
       }
 
       return null;
     },
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
-      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
-      GoRoute(path: '/login/email', builder: (_, _) => const EmailLoginScreen()),
+      GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(path: AppRoutes.loginEmail, builder: (_, _) => const EmailLoginScreen()),
       GoRoute(
-        path: '/login/forgot-password',
+        path: AppRoutes.forgotPassword,
         builder: (_, state) => ForgotPasswordScreen(
           prefillEmail: state.extra as String?,
         ),
       ),
       GoRoute(
-        path: '/login/reset-password',
+        path: AppRoutes.resetPassword,
         builder: (_, state) => ResetPasswordScreen(
           email: state.extra as String,
         ),
       ),
-      GoRoute(path: '/pending-deletion', builder: (_, _) => const PendingDeletionScreen()),
-      GoRoute(path: '/account-banned', builder: (_, _) => const AccountBannedScreen()),
-      GoRoute(path: '/account-suspended', builder: (_, _) => const AccountSuspendedScreen()),
-      GoRoute(path: '/verify-email', builder: (_, _) => const EmailVerificationScreen()),
-      GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
-      GoRoute(path: '/terms', builder: (_, _) => const TermsScreen()),
-      GoRoute(path: '/privacy', builder: (_, _) => const PrivacyScreen()),
-      GoRoute(path: '/settings/account', builder: (_, _) => const AccountSettingsScreen()),
-      GoRoute(path: '/settings/privacy', builder: (_, _) => const PrivacySettingsScreen()),
-      GoRoute(path: '/settings/notifications', builder: (_, _) => const NotificationSettingsScreen()),
+      GoRoute(path: AppRoutes.pendingDeletion, builder: (_, _) => const PendingDeletionScreen()),
+      GoRoute(path: AppRoutes.accountBanned, builder: (_, _) => const AccountBannedScreen()),
+      GoRoute(path: AppRoutes.accountSuspended, builder: (_, _) => const AccountSuspendedScreen()),
+      GoRoute(path: AppRoutes.verifyEmail, builder: (_, _) => const EmailVerificationScreen()),
+      GoRoute(path: AppRoutes.home, builder: (_, _) => const HomeScreen()),
+      GoRoute(path: AppRoutes.terms, builder: (_, _) => const TermsScreen()),
+      GoRoute(path: AppRoutes.privacy, builder: (_, _) => const PrivacyScreen()),
+      GoRoute(path: AppRoutes.settingsAccount, builder: (_, _) => const AccountSettingsScreen()),
+      GoRoute(path: AppRoutes.settingsPrivacy, builder: (_, _) => const PrivacySettingsScreen()),
+      GoRoute(path: AppRoutes.settingsNotifications, builder: (_, _) => const NotificationSettingsScreen()),
       GoRoute(
         path: '/beach/:slug',
         builder: (_, state) => BeachDetailScreen(beach: state.extra as BeachSummary),
@@ -117,12 +118,12 @@ final _routerProvider = Provider<GoRouter>((ref) {
         path: '/beach/:slug/alerts',
         builder: (_, state) => CommunityAlertsScreen(beach: state.extra as BeachSummary),
       ),
-      GoRoute(path: '/favourites', builder: (_, _) => const FavouritesScreen()),
+      GoRoute(path: AppRoutes.favourites, builder: (_, _) => const FavouritesScreen()),
       GoRoute(
         path: '/beach/:slug/transport',
         builder: (_, state) => TransportScreen(beach: state.extra as BeachSummary),
       ),
-      GoRoute(path: '/notifications', builder: (_, _) => const NotificationsScreen()),
+      GoRoute(path: AppRoutes.notifications, builder: (_, _) => const NotificationsScreen()),
     ],
   );
 });
