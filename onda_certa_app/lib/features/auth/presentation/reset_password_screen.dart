@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_code_input.dart';
 import '../../../shared/widgets/auth_input_decoration.dart';
@@ -186,7 +187,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               ),
         body: SafeArea(
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 280),
+            duration: AppDurations.slow,
             transitionBuilder: (child, animation) {
               final offset = Tween<Offset>(
                 begin: const Offset(1, 0),
@@ -450,7 +451,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           SizedBox(
             height: 54,
             child: ElevatedButton(
-              onPressed: () => context.go('/login/email'),
+              onPressed: () => context.go(AppRoutes.loginEmail),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
@@ -479,7 +480,7 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.coral.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
       ),
       child: Row(
         children: [

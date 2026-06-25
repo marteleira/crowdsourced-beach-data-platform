@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../core/notifications/notification_provider.dart';
 import '../../../core/presence/heartbeat_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
@@ -314,8 +315,8 @@ class _Header extends ConsumerWidget {
       decoration: const BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+          bottomLeft: Radius.circular(AppRadii.xxl),
+          bottomRight: Radius.circular(AppRadii.xxl),
         ),
       ),
       child: SafeArea(
@@ -343,7 +344,7 @@ class _Header extends ConsumerWidget {
                         ),
                         child: IconButton(
                           icon: const Icon(Icons.notifications_outlined, color: Colors.white, size: 18),
-                          onPressed: () => context.push('/notifications'),
+                          onPressed: () => context.push(AppRoutes.notifications),
                           padding: EdgeInsets.zero,
                         ),
                       ),
@@ -381,7 +382,7 @@ class _Header extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadii.cardXl,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -438,7 +439,7 @@ class _StatusPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadii.cardXl,
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Row(
@@ -466,7 +467,7 @@ class _BestBeachCard extends StatelessWidget {
       return _cardShell(
         child: Container(height: 180, decoration: BoxDecoration(
           gradient: LinearGradient(colors: [AppColors.teal.withValues(alpha: 0.3), AppColors.primary.withValues(alpha: 0.3)]),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
         )),
       );
     }
@@ -477,10 +478,10 @@ class _BestBeachCard extends StatelessWidget {
         ? AppColors.teal : AppColors.sand;
 
     return GestureDetector(
-      onTap: () => context.push('/beach/${beach!.slug}', extra: beach),
+      onTap: () => context.push(AppRoutes.beach(beach!.slug), extra: beach),
       child: Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.cardLg,
         border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
       ),
       child: Column(
@@ -514,7 +515,7 @@ class _BestBeachCard extends StatelessWidget {
                   top: 12, right: 12,
                   child: Container(
                     width: 32, height: 32,
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: AppRadii.cardSm),
                     child: const Icon(Icons.arrow_outward, color: Colors.white, size: 16),
                   ),
                 ),
@@ -526,7 +527,7 @@ class _BestBeachCard extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(color: AppColors.sand, borderRadius: BorderRadius.circular(20)),
+                        decoration: BoxDecoration(color: AppColors.sand, borderRadius: AppRadii.cardXl),
                         child: const Text('Recomendada', style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w700)),
                       ),
                       const SizedBox(height: 6),
@@ -562,7 +563,7 @@ class _BestBeachCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: qualityColor.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadii.cardXl,
                     border: Border.all(color: qualityColor.withValues(alpha: 0.4)),
                   ),
                   child: Text(qualityLabel, style: TextStyle(color: qualityColor == AppColors.teal ? AppColors.tealDark : AppColors.primary, fontSize: 12, fontWeight: FontWeight.w700)),
@@ -577,8 +578,8 @@ class _BestBeachCard extends StatelessWidget {
   }
 
   Widget _cardShell({required Widget child}) => Container(
-    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
-    child: ClipRRect(borderRadius: BorderRadius.circular(16), child: child),
+    decoration: BoxDecoration(borderRadius: AppRadii.cardLg, border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
+    child: ClipRRect(borderRadius: AppRadii.cardLg, child: child),
   );
 
 }
@@ -641,7 +642,7 @@ class _StatCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
         border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
       ),
       child: Column(
@@ -681,7 +682,7 @@ class _FavouritesSection extends ConsumerWidget {
               data: (beaches) => beaches.isNotEmpty
                   ? Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                      decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(color: AppColors.coral, borderRadius: AppRadii.cardChip),
                       child: Text('${beaches.length}', style: AppTextStyles.whiteLabel),
                     )
                   : const SizedBox.shrink(),
@@ -689,7 +690,7 @@ class _FavouritesSection extends ConsumerWidget {
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () => context.push('/favourites'),
+              onTap: () => context.push(AppRoutes.favourites),
               child: const Text('Ver todas →', style: AppTextStyles.tealLabel),
             ),
           ],
@@ -728,9 +729,9 @@ class _FavouriteBeachCard extends StatelessWidget {
     final flagColor = AppColors.forFlag(beach.flagColor);
 
     return GestureDetector(
-      onTap: () => context.push('/beach/${beach.slug}', extra: beach),
+      onTap: () => context.push(AppRoutes.beach(beach.slug), extra: beach),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.cardButton,
         child: SizedBox(
           width: 148,
           child: BeachCoverImage(
@@ -749,7 +750,7 @@ class _FavouriteBeachCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.18),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppRadii.cardSm,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -799,12 +800,12 @@ class _FavouritesViewAllCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/favourites'),
+      onTap: () => context.push(AppRoutes.favourites),
       child: Container(
         width: 76,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.cardButton,
           border: Border.all(color: AppColors.borderLight),
         ),
         child: Column(
@@ -830,12 +831,12 @@ class _FavouritesNudgeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/favourites'),
+      onTap: () => context.push(AppRoutes.favourites),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.cardButton,
           border: Border.all(color: AppColors.coral.withValues(alpha: 0.22), width: 1.5),
         ),
         child: Row(
@@ -883,13 +884,13 @@ class _AlertsSection extends StatelessWidget {
             if (reports.isNotEmpty)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: AppColors.coral, borderRadius: AppRadii.cardChip),
                 child: Text('${reports.length}', style: AppTextStyles.whiteLabel),
               ),
             const Spacer(),
             if (beach != null)
               GestureDetector(
-                onTap: () => context.push('/beach/${beach!.slug}/alerts', extra: beach),
+                onTap: () => context.push(AppRoutes.beachAlerts(beach!.slug), extra: beach),
                 child: const Text('Ver tudo →', style: AppTextStyles.tealLabel),
               ),
           ],
@@ -898,7 +899,7 @@ class _AlertsSection extends StatelessWidget {
         if (visible.isEmpty)
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: AppRadii.cardMd, border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
             child: const Center(child: Text('Sem alertas activos', style: AppTextStyles.secondaryMd)),
           )
         else
@@ -963,7 +964,7 @@ class _TidesSection extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadii.cardLg,
             border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
           ),
           child: Column(
@@ -1060,7 +1061,7 @@ class _ExploreGrid extends StatelessWidget {
               title: 'Submeter reporte',
               subtitle: 'Ajuda a comunidade',
               onTap: bestBeach != null
-                  ? () => context.push('/beach/${bestBeach!.slug}/alerts', extra: bestBeach)
+                  ? () => context.push(AppRoutes.beachAlerts(bestBeach!.slug), extra: bestBeach)
                   : () => onTabChange(1),
             ),
           ],
@@ -1085,7 +1086,7 @@ class _ExploreCard extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
         ),
         child: Column(
@@ -1122,7 +1123,7 @@ class _CommunitySection extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadii.cardLg,
             border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
           ),
           child: Column(
@@ -1131,7 +1132,7 @@ class _CommunitySection extends StatelessWidget {
                 children: [
                   Container(
                     width: 40, height: 40,
-                    decoration: BoxDecoration(color: AppColors.teal.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: AppColors.teal.withValues(alpha: 0.12), borderRadius: AppRadii.cardMd),
                     child: const Icon(Icons.waves, color: AppColors.teal, size: 20),
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -1152,7 +1153,7 @@ class _CommunitySection extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   child: const Text('Ver todas as praias >', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),

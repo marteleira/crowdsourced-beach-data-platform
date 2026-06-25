@@ -45,7 +45,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       builder: (_, controller) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xxl)),
         ),
         child: Column(
           children: [
@@ -143,7 +143,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: isSelected ? typeColor.withValues(alpha: 0.1) : Colors.white,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadii.cardMd,
                   border: Border.all(
                     color: isSelected ? typeColor : AppColors.borderLight,
                     width: isSelected ? 1.5 : 1,
@@ -201,7 +201,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
                   decoration: BoxDecoration(
                     color: isSelected ? color : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadii.cardMd,
                     border: Border.all(
                       color: isSelected ? color : AppColors.borderLight,
                       width: isSelected ? 1.5 : 1,
@@ -278,7 +278,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
             filled: true,
             fillColor: AppColors.background,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadii.cardMd,
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.all(14),
@@ -294,7 +294,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.background,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadii.cardChip,
       ),
       child: const Row(
         children: [
@@ -330,7 +330,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
           disabledBackgroundColor: AppColors.borderLight,
           disabledForegroundColor: AppColors.textHint,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
         ),
       ),
     );

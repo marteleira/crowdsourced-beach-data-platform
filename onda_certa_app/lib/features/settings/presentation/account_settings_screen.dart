@@ -278,7 +278,7 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
                     side: BorderSide(color: AppColors.teal.withValues(alpha: 0.5)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: AppRadii.cardMd),
                   ),
                 ),
               ),
@@ -472,7 +472,7 @@ class _Card extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.cardLg,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -496,7 +496,7 @@ class _InfoBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.cardButton,
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.12)),
       ),
       child: Row(
@@ -567,7 +567,7 @@ class _AvatarPickerSheet extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xxl)),
       ),
       padding: EdgeInsets.fromLTRB(
         24, 16, 24, MediaQuery.paddingOf(context).bottom + 24,
@@ -656,13 +656,13 @@ class _DefaultAvatarTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: AppDurations.fast,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: selected
               ? AppColors.teal.withValues(alpha: 0.08)
               : Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.cardButton,
           border: Border.all(
             color: selected
                 ? AppColors.teal
@@ -737,7 +737,7 @@ class _SaveButton extends StatelessWidget {
           backgroundColor: AppColors.teal,
           disabledBackgroundColor: AppColors.teal.withValues(alpha: 0.5),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
         ),
         child: busy
             ? const SizedBox(

@@ -173,7 +173,7 @@ class _StatusStrip extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.cardButton,
         border: Border.all(color: AppColors.borderLight),
       ),
       child: Row(
@@ -246,7 +246,7 @@ class _DirectionCardState extends State<_DirectionCard>
     _expanded = widget.initiallyExpanded;
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: AppDurations.medium,
       value: _expanded ? 1.0 : 0.0,
     );
     _anim = CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut);
@@ -290,7 +290,7 @@ class _DirectionCardState extends State<_DirectionCard>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppRadii.cardButton,
         border: Border.all(color: AppColors.borderLight),
       ),
       clipBehavior: Clip.hardEdge,
@@ -326,7 +326,7 @@ class _DirectionCardState extends State<_DirectionCard>
                               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                               decoration: BoxDecoration(
                                 color: AppColors.coral,
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: AppRadii.cardXs,
                               ),
                               child: Text(
                                 firstDep?.routeShortName ?? '',
@@ -381,7 +381,7 @@ class _DirectionCardState extends State<_DirectionCard>
                       const SizedBox(height: AppSpacing.xs),
                       AnimatedRotation(
                         turns: _expanded ? 0.5 : 0,
-                        duration: const Duration(milliseconds: 200),
+                        duration: AppDurations.medium,
                         child: const Icon(
                           Icons.keyboard_arrow_down,
                           size: 20, color: AppColors.textSecondary,
@@ -481,7 +481,7 @@ class _DepartureRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
               decoration: BoxDecoration(
                 color: AppColors.teal.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadii.cardXl,
                 border: Border.all(color: AppColors.teal.withValues(alpha: 0.30)),
               ),
               child: const Text(
@@ -629,7 +629,7 @@ class _WalkButtonState extends State<_WalkButton> {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: AppSpacing.lg),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
           textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
         ),
       ),

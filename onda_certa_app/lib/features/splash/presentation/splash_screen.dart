@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/animated_waves.dart';
 
@@ -50,9 +51,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void _maybeNavigate() {
     if (!_animDone || !_authReady || !mounted || _pendingState == null) return;
     if (_pendingState is AuthAuthenticated) {
-      context.go('/home');
+      context.go(AppRoutes.home);
     } else {
-      context.go('/login');
+      context.go(AppRoutes.login);
     }
   }
 

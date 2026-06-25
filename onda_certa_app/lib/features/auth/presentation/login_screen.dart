@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -23,7 +24,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     ref.listen<AsyncValue<AuthState>>(authProvider, (_, next) {
       if (next case AsyncData(value: AuthAuthenticated())) {
-        context.go('/home');
+        context.go(AppRoutes.home);
       }
       if (next case AsyncError(:final error)) {
         if (error is DioException && error.type == DioExceptionType.cancel) return;
@@ -79,7 +80,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               _EmailButton(
-                onTap: () => context.push('/login/email'),
+                onTap: () => context.push(AppRoutes.loginEmail),
               ),
               const SizedBox(height: AppSpacing.xl),
               GestureDetector(
@@ -286,14 +287,14 @@ class _Footer extends StatelessWidget {
             text: 'Termos de Serviço',
             style: linkStyle,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => context.push('/terms'),
+              ..onTap = () => context.push(AppRoutes.terms),
           ),
           const TextSpan(text: ' e\n'),
           TextSpan(
             text: 'Política de Privacidade',
             style: linkStyle,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => context.push('/privacy'),
+              ..onTap = () => context.push(AppRoutes.privacy),
           ),
         ],
       ),

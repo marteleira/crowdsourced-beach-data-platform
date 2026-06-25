@@ -112,7 +112,7 @@ class _PasswordStrengthFieldState extends State<PasswordStrengthField> {
     };
 
     return AnimatedSize(
-      duration: const Duration(milliseconds: 200),
+      duration: AppDurations.medium,
       curve: Curves.easeOut,
       child: Padding(
         padding: const EdgeInsets.only(top: 10),
@@ -139,7 +139,7 @@ class _PasswordStrengthFieldState extends State<PasswordStrengthField> {
                 ),
                 const SizedBox(width: 10),
                 AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
+                  duration: AppDurations.medium,
                   child: Text(
                     label,
                     key: ValueKey(label),
@@ -169,7 +169,7 @@ class _PasswordStrengthFieldState extends State<PasswordStrengthField> {
       child: Row(
         children: [
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
+            duration: AppDurations.medium,
             child: Icon(
               met ? Icons.check_circle_outline : Icons.radio_button_unchecked,
               key: ValueKey(met),

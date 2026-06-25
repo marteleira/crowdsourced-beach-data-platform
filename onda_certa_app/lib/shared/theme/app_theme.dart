@@ -75,18 +75,23 @@ class AppTextStyles {
 }
 
 class AppRadii {
-  static const double xs = 6.0;
-  static const double sm = 8.0;
-  static const double md = 12.0;
-  static const double lg = 16.0;
-  static const double xl = 20.0;
+  static const double xs  = 6.0;
+  static const double sm  = 8.0;
+  static const double chip = 10.0;  // small badges / chips
+  static const double md  = 12.0;
+  static const double button = 14.0; // form inputs, buttons
+  static const double lg  = 16.0;
+  static const double xl  = 20.0;
   static const double xxl = 24.0;
 
-  static BorderRadius get cardSm => BorderRadius.circular(sm);
-  static BorderRadius get cardMd => BorderRadius.circular(md);
-  static BorderRadius get cardLg => BorderRadius.circular(lg);
-  static BorderRadius get cardXl => BorderRadius.circular(xl);
-  static BorderRadius get cardXxl => BorderRadius.circular(xxl);
+  static BorderRadius get cardXs     => BorderRadius.circular(xs);
+  static BorderRadius get cardSm     => BorderRadius.circular(sm);
+  static BorderRadius get cardChip   => BorderRadius.circular(chip);
+  static BorderRadius get cardMd     => BorderRadius.circular(md);
+  static BorderRadius get cardButton => BorderRadius.circular(button);
+  static BorderRadius get cardLg     => BorderRadius.circular(lg);
+  static BorderRadius get cardXl     => BorderRadius.circular(xl);
+  static BorderRadius get cardXxl    => BorderRadius.circular(xxl);
 }
 
 class AppShadows {

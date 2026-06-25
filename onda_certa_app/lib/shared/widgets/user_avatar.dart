@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/theme/app_theme.dart';
 
 class AvatarDef {
   const AvatarDef({
@@ -197,7 +198,7 @@ class AvatarPickerTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
+        duration: AppDurations.fast,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(

@@ -51,7 +51,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
     super.initState();
     _pulseCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2400),
+      duration: AppDurations.pulse,
     )..repeat();
   }
 
@@ -382,7 +382,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
             ),
             child: const Text(
               'Fechar',
@@ -484,7 +484,7 @@ class _AnimatedConfidenceBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: confidence),
-      duration: const Duration(milliseconds: 900),
+      duration: AppDurations.splash,
       curve: Curves.easeOut,
       builder: (_, value, _) => Column(
         children: [
@@ -505,7 +505,7 @@ class _AnimatedConfidenceBar extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           ClipRRect(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: AppRadii.cardXs,
             child: LinearProgressIndicator(
               value: value,
               backgroundColor: color.withValues(alpha: 0.15),
@@ -530,7 +530,7 @@ class _FlagChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadii.cardXl,
         border: Border.all(color: color.withValues(alpha: 0.28)),
       ),
       child: Row(
@@ -578,7 +578,7 @@ class _ConfirmButton extends StatelessWidget {
           color: disabled
               ? backgroundColor.withValues(alpha: 0.45)
               : backgroundColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           border: hasBorder ? Border.all(color: AppColors.borderMedium) : null,
         ),
         child: Center(child: child),
@@ -605,7 +605,7 @@ class _InfoBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadii.cardMd,
       ),
       child: Row(
         children: [

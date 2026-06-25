@@ -114,19 +114,19 @@ class AuthCodeInputState extends State<AuthCodeInput> {
           fillColor: Colors.white,
           contentPadding: EdgeInsets.zero,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.cardButton,
             borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.15)),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.cardButton,
             borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.15)),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.cardButton,
             borderSide: const BorderSide(color: AppColors.teal, width: 1.5),
           ),
           disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadii.cardButton,
             borderSide: BorderSide(color: AppColors.primary.withValues(alpha: 0.08)),
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -140,7 +141,7 @@ class _ProfileHeader extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                 decoration: BoxDecoration(
                   color: lvlColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppRadii.cardXl,
                   border: Border.all(color: lvlColor.withValues(alpha: 0.6), width: 1.5),
                 ),
                 child: Row(
@@ -274,7 +275,7 @@ class _ReputationCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.teal.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadii.cardSm,
                   ),
                   child: const Text(
                     '🏄 Nível máximo!',
@@ -289,7 +290,7 @@ class _ReputationCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           ClipRRect(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: AppRadii.cardXs,
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0, end: progress),
               duration: const Duration(milliseconds: 800),
@@ -391,7 +392,7 @@ class _StatTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 18),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.cardButton,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -444,7 +445,7 @@ class _GuestBanner extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AppColors.teal.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadii.cardButton,
           border: Border.all(color: AppColors.teal.withValues(alpha: 0.25)),
         ),
         child: Row(
@@ -518,7 +519,7 @@ class _AchievementsSection extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppColors.teal.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: AppRadii.cardMd,
                 ),
                 child: Text(
                   '$earned/${profile.achievements.length}',
@@ -555,11 +556,11 @@ class _AchievementChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final earned = achievement.earned;
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+      duration: AppDurations.medium,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: earned ? AppColors.teal.withValues(alpha: 0.1) : AppColors.backgroundLight,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadii.cardXl,
         border: Border.all(
           color: earned ? AppColors.teal.withValues(alpha: 0.4) : AppColors.borderLight,
         ),
@@ -662,7 +663,7 @@ class _EventRow extends StatelessWidget {
             height: 34,
             decoration: BoxDecoration(
               color: positive ? _positiveBg : _negativeBg,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppRadii.cardSm,
             ),
             child: Center(
               child: Text(
@@ -719,35 +720,35 @@ class _SettingsSection extends StatelessWidget {
             icon: Icons.manage_accounts_outlined,
             iconColor: AppColors.teal,
             label: 'Definições da Conta',
-            onTap: () => context.push('/settings/account'),
+            onTap: () => context.push(AppRoutes.settingsAccount),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.star_outline_rounded,
             iconColor: AppColors.amber,
             label: 'Praias Favoritas',
-            onTap: () => context.push('/favourites'),
+            onTap: () => context.push(AppRoutes.favourites),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.notifications_outlined,
             iconColor: AppColors.teal,
             label: 'Notificações',
-            onTap: () => context.push('/settings/notifications'),
+            onTap: () => context.push(AppRoutes.settingsNotifications),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.lock_outline_rounded,
             iconColor: AppColors.textSecondary,
             label: 'Privacidade & Dados',
-            onTap: () => context.push('/settings/privacy'),
+            onTap: () => context.push(AppRoutes.settingsPrivacy),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.info_outline_rounded,
             iconColor: AppColors.primary,
             label: 'Sobre OndaCerta',
-            onTap: () => context.push('/terms'),
+            onTap: () => context.push(AppRoutes.terms),
             isLast: true,
           ),
         ],
@@ -786,7 +787,7 @@ class _SettingsTile extends StatelessWidget {
               height: 38,
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppRadii.cardChip,
               ),
               child: Icon(icon, color: iconColor, size: 19),
             ),
@@ -821,7 +822,7 @@ class _SignOutButton extends ConsumerWidget {
             side: BorderSide(color: AppColors.coral.withValues(alpha: 0.5)),
             backgroundColor: AppColors.coral.withValues(alpha: 0.05),
             padding: const EdgeInsets.symmetric(vertical: 15),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
           ),
           child: const Text(
             'Terminar Sessão',
@@ -853,7 +854,7 @@ class _SignOutButton extends ConsumerWidget {
     );
     if (confirmed == true && context.mounted) {
       await ref.read(authProvider.notifier).logout();
-      if (context.mounted) context.go('/login');
+      if (context.mounted) context.go(AppRoutes.login);
     }
   }
 }
@@ -899,7 +900,7 @@ class _Card extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.cardLg,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),

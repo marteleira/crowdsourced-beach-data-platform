@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
@@ -16,6 +17,7 @@ import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/utils/format_helpers.dart';
 import '../../../shared/utils/ui_helpers.dart';
 import '../../../shared/widgets/beach_cover_image.dart';
+import '../../../shared/widgets/overlay_icon_button.dart';
 import '../../../shared/widgets/metric_cell.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/severity_dots.dart';
@@ -236,37 +238,26 @@ class _HeroAppBar extends StatelessWidget {
       automaticallyImplyLeading: false,
       leading: Padding(
         padding: const EdgeInsets.all(8),
-        child: GestureDetector(
+        child: OverlayIconButton(
           onTap: () => context.pop(),
-          child: Container(
-            width: 36, height: 36,
-            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.35), shape: BoxShape.circle),
-            child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-          ),
+          icon: Icons.arrow_back,
         ),
       ),
       actions: [
         Padding(
           padding: const EdgeInsets.all(8),
-          child: GestureDetector(
+          child: OverlayIconButton(
             onTap: onFavourite,
-            child: Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.35), shape: BoxShape.circle),
-              child: Icon(
-                isFavourite ? Icons.favorite : Icons.favorite_border,
-                color: isFavourite ? AppColors.coral : Colors.white,
-                size: 18,
-              ),
-            ),
+            icon: isFavourite ? Icons.favorite : Icons.favorite_border,
+            iconColor: isFavourite ? AppColors.coral : Colors.white,
+            iconSize: 18,
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 8, bottom: 8, right: 12),
-          child: Container(
-            width: 36, height: 36,
-            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.35), shape: BoxShape.circle),
-            child: const Icon(Icons.ios_share, color: Colors.white, size: 18),
+          child: OverlayIconButton(
+            icon: Icons.ios_share,
+            iconSize: 18,
           ),
         ),
       ],
@@ -320,7 +311,7 @@ class _SectionCard extends StatelessWidget {
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadii.cardLg,
       border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
     ),
     child: child,
@@ -362,10 +353,10 @@ class _FlagCard extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadii.cardLg,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadii.cardLg,
         child: _SectionCard(
           child: Row(
         children: [
@@ -476,7 +467,7 @@ class _OccupancyCard extends StatelessWidget {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        shape: RoundedRectangleBorder(borderRadius: AppRadii.cardXl),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                       ),
@@ -775,7 +766,7 @@ class _WaterQualityCard extends StatelessWidget {
         children: [
           Container(
             width: 44, height: 44,
-            decoration: BoxDecoration(color: AppColors.teal.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: AppColors.teal.withValues(alpha: 0.12), borderRadius: AppRadii.cardMd),
             child: const Icon(Icons.water_drop_outlined, color: AppColors.teal, size: 22),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -809,7 +800,7 @@ class _WaterQualityCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppRadii.cardXl,
               border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Row(
@@ -936,7 +927,7 @@ class _DepartureChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: dep.isRealtime ? AppColors.teal.withValues(alpha: 0.10) : AppColors.background,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadii.cardSm,
         border: Border.all(
           color: dep.isRealtime ? AppColors.teal.withValues(alpha: 0.35) : Colors.black.withValues(alpha: 0.06),
         ),
@@ -971,14 +962,14 @@ class _PlanTripButton extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: () => context.push('/beach/${beach.slug}/transport', extra: beach),
+        onPressed: () => context.push(AppRoutes.beachTransport(beach.slug), extra: beach),
         icon: const Icon(Icons.directions_bus, size: 18),
         label: const Text('Ver horários completos →'),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
           textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
         ),
       ),
@@ -1006,12 +997,12 @@ class _CommunityAlertsCard extends StatelessWidget {
             if (reports.isNotEmpty)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(color: AppColors.coral, borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(color: AppColors.coral, borderRadius: AppRadii.cardChip),
                 child: Text('${reports.length}', style: AppTextStyles.whiteLabel),
               ),
             const Spacer(),
             GestureDetector(
-              onTap: () => context.push('/beach/${beach.slug}/alerts', extra: beach),
+              onTap: () => context.push(AppRoutes.beachAlerts(beach.slug), extra: beach),
               child: const Text('Ver tudo →', style: AppTextStyles.tealLabel),
             ),
           ],
@@ -1020,7 +1011,7 @@ class _CommunityAlertsCard extends StatelessWidget {
         if (visible.isEmpty)
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: AppRadii.cardMd, border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
             child: const Center(child: Text('Sem alertas activos', style: AppTextStyles.secondaryMd)),
           )
         else
@@ -1083,16 +1074,16 @@ class _PresenceSection extends ConsumerWidget {
         const SizedBox(height: 10),
         Material(
           color: Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadii.cardLg,
           child: InkWell(
             onTap: () => _showPresencePeople(context, presence),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadii.cardLg,
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadii.cardLg,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.07),
@@ -1308,7 +1299,7 @@ class _PresencePeopleSheet extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.background,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xxl)),
       ),
       child: Column(
         children: [
@@ -1345,7 +1336,7 @@ class _PresencePeopleSheet extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     color: AppColors.teal.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadii.cardXl,
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -1436,7 +1427,7 @@ class _PresencePrivateFooter extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     decoration: BoxDecoration(
       color: AppColors.primary.withValues(alpha: 0.05),
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: AppRadii.cardMd,
     ),
     child: Row(
       children: [

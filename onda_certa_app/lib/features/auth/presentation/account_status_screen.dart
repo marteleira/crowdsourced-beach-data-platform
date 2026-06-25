@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class AccountBannedScreen extends ConsumerWidget {
@@ -21,7 +22,7 @@ class AccountBannedScreen extends ConsumerWidget {
       onLogout: () async {
         ref.read(accountBannedProvider.notifier).set(null);
         await ref.read(authProvider.notifier).logout();
-        if (context.mounted) context.go('/login');
+        if (context.mounted) context.go(AppRoutes.login);
       },
     );
   }
@@ -53,7 +54,7 @@ class AccountSuspendedScreen extends ConsumerWidget {
       onLogout: () async {
         ref.read(accountSuspendedProvider.notifier).set(null);
         await ref.read(authProvider.notifier).logout();
-        if (context.mounted) context.go('/login');
+        if (context.mounted) context.go(AppRoutes.login);
       },
     );
   }
@@ -125,7 +126,7 @@ class _AccountStatusLayout extends StatelessWidget {
                       color: AppColors.textSecondary.withValues(alpha: 0.3),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: AppRadii.cardButton,
                     ),
                   ),
                   child: const Text(
