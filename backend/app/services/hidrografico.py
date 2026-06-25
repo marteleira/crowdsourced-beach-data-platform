@@ -20,7 +20,6 @@ Station IDs (eu_lau_code):
   PT_150505_2  Setúbal - Tróia   (Arrábida beaches)
   PT_151101_1  Sesimbra
 """
-import json
 import logging
 import warnings
 from typing import Optional
@@ -87,7 +86,6 @@ def coef_to_dict(coef) -> dict:
 def coef_from_dict(d: dict):
     """Deserialise and rebuild a minimal utide coef Bunch from stored dict."""
     coef = _bootstrap_coef()          # get the full structure
-    import numpy as np
     names_stored = d["name"]
     for i, name in enumerate(coef["name"]):
         if name in names_stored:
@@ -262,7 +260,7 @@ async def store_observation(station_id: str) -> bool:
         )
         result = await db.execute(stmt)
         await db.commit()
-        return result.rowcount > 0
+        return result.rowcount > 0  # type: ignore[attr-defined]
 
 
 async def fit_model_from_observations(station_id: str) -> Optional[int]:

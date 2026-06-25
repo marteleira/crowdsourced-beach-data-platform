@@ -9,7 +9,6 @@ Privacy rules (per user's privacy_settings):
   name_public = False             → display_name replaced with "Anonymous"
 """
 import random
-import math
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from fastapi import APIRouter, Depends

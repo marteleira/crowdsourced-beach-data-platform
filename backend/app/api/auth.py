@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update
@@ -61,7 +60,7 @@ async def _send_verification(user: User, db: AsyncSession) -> None:
 @router.post("/guest", response_model=TokenResponse)
 async def create_guest(body: GuestRequest, db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(User).where(User.device_id == body.device_id, User.is_anonymous == True)
+        select(User).where(User.device_id == body.device_id, User.is_anonymous.is_(True))
     )
     user = result.scalar_one_or_none()
 
@@ -166,8 +165,8 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
         .values(revoked_at=now)
     )
 
-    result = await db.execute(select(User).where(User.id == record.user_id))
-    user = result.scalar_one_or_none()
+    user_result = await db.execute(select(User).where(User.id == record.user_id))
+    user = user_result.scalar_one_or_none()
     if not user:
         raise HTTPException(401, "Utilizador não encontrado")
 

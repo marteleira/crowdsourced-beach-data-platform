@@ -3,7 +3,7 @@ Snapshot helpers — fetch from external API with automatic fallback to DB cache
 Every successful fetch is saved to api_snapshots. On failure, the latest
 snapshot is returned along with its age so the response can be flagged.
 """
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional, Callable, Awaitable, Any
 
 from sqlalchemy import select, desc

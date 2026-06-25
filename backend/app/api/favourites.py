@@ -114,7 +114,7 @@ async def remove_favourite(
             UserFavourite.beach_id == beach.id,
         )
     )
-    if result.rowcount == 0:
+    if result.rowcount == 0:  # type: ignore[attr-defined]
         raise HTTPException(404, "Praia não está nos favoritos")
     await db.commit()
 

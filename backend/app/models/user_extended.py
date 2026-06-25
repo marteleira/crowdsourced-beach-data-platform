@@ -4,11 +4,11 @@ Additional user-related models:
   PushToken       — FCM/APNs device tokens for push notifications
   UserAchievement — unlocked achievements
 """
-from sqlalchemy import (
-    Column, Integer, Text, Boolean, TIMESTAMP, ForeignKey,
-    UniqueConstraint, Index, Date,
-)
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from datetime import datetime
+import uuid
+from sqlalchemy import Integer, Text, TIMESTAMP, ForeignKey, UniqueConstraint, Index
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -64,11 +64,11 @@ def effective_privacy_settings(user) -> dict:
 class UserFavourite(Base):
     __tablename__ = "user_favourites"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    beach_id = Column(Integer, ForeignKey("beaches.id", ondelete="CASCADE"), nullable=False)
-    position = Column(Integer, default=0)  # ordering index
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    beach_id: Mapped[int] = mapped_column(Integer, ForeignKey("beaches.id", ondelete="CASCADE"), nullable=False)
+    position: Mapped[int] = mapped_column(Integer, default=0)  # ordering index
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
     __table_args__ = (
         UniqueConstraint("user_id", "beach_id", name="uq_user_favourite_beach"),
@@ -79,11 +79,11 @@ class UserFavourite(Base):
 class PushToken(Base):
     __tablename__ = "push_tokens"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    token = Column(Text, nullable=False, unique=True)
-    platform = Column(Text, nullable=False)   # ios | android
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    token: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    platform: Mapped[str] = mapped_column(Text, nullable=False)  # ios | android
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
     __table_args__ = (
         Index("ix_push_tokens_user", "user_id"),
@@ -93,10 +93,10 @@ class PushToken(Base):
 class UserAchievement(Base):
     __tablename__ = "user_achievements"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    achievement_id = Column(Text, nullable=False)
-    earned_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    achievement_id: Mapped[str] = mapped_column(Text, nullable=False)
+    earned_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
     __table_args__ = (
         UniqueConstraint("user_id", "achievement_id", name="uq_user_achievement"),

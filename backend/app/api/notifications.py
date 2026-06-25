@@ -88,6 +88,6 @@ async def remove_push_token(
     result = await db.execute(
         delete(PushToken).where(PushToken.token == token, PushToken.user_id == user.id)
     )
-    if result.rowcount == 0:
+    if result.rowcount == 0:  # type: ignore[attr-defined]
         raise HTTPException(404, "Token não encontrado")
     await db.commit()

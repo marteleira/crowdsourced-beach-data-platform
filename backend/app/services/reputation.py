@@ -91,8 +91,8 @@ async def process_report_outcomes(db: AsyncSession) -> None:
     deltas when net votes cross thresholds.
     """
     stmt = select(Report).where(
-        Report.is_expired == False,
-        Report.user_id != None,
+        Report.is_expired.is_(False),
+        Report.user_id.isnot(None),
     )
     result = await db.execute(stmt)
     reports = result.scalars().all()
@@ -269,7 +269,7 @@ async def sync_account_status(db: AsyncSession) -> None:
         update(User)
         .where(
             User.reputation <= AUTO_BAN_THRESHOLD,
-            User.is_banned == False,
+            User.is_banned.is_(False),
         )
         .values(is_banned=True, ban_reason="Reputação abaixo de −50")
     )
@@ -280,8 +280,8 @@ async def sync_account_status(db: AsyncSession) -> None:
         .where(
             User.reputation <= SUSPENSION_THRESHOLD,
             User.reputation > AUTO_BAN_THRESHOLD,
-            User.is_banned == False,
-            User.suspended_until == None,
+            User.is_banned.is_(False),
+            User.suspended_until.is_(None),
         )
         .values(suspended_until=suspended_until)
     )
@@ -294,7 +294,6 @@ async def detect_spam(db: AsyncSession) -> None:
     Apply DELTA_SPAM_PENALTY when a user submits >= 4 reports at the same beach
     in one hour AND >= 3 of those reports have net_votes <= -2 within 2 hours.
     """
-    from sqlalchemy import and_
 
     now = datetime.now(timezone.utc)
     one_hour_ago = now - timedelta(hours=1)
@@ -305,7 +304,7 @@ async def detect_spam(db: AsyncSession) -> None:
         select(Report.user_id, Report.beach_id, func.count().label("cnt"))
         .where(
             Report.created_at >= one_hour_ago,
-            Report.user_id != None,
+            Report.user_id.isnot(None),
         )
         .group_by(Report.user_id, Report.beach_id)
         .having(func.count() >= 4)
