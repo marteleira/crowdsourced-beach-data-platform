@@ -117,6 +117,14 @@ class AppSpacing {
   static const double xxxl = 32;
 }
 
+class AppDurations {
+  static const Duration fast = Duration(milliseconds: 180);
+  static const Duration medium = Duration(milliseconds: 200);
+  static const Duration slow = Duration(milliseconds: 280);
+  static const Duration splash = Duration(milliseconds: 900);
+  static const Duration pulse = Duration(milliseconds: 2400);
+}
+
 class AppTheme {
   static ThemeData get light {
     final base = GoogleFonts.interTextTheme();

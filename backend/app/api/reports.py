@@ -1,13 +1,14 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import REPORT_PRESENCE_WINDOW_HOURS, VOTE_PRESENCE_WINDOW_HOURS, REPORT_VERIFIED_NET_VOTES
+from app.core.constants import REPORT_PRESENCE_WINDOW_HOURS, VOTE_PRESENCE_WINDOW_HOURS
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_user, require_registered_user, get_beach_or_404, was_recently_present
+from app.core.utils import now_utc
 from app.models.report import Report, ReportVote
 from app.models.user import User, ReputationEvent
 from app.schemas.report import ReportCreate, ReportResponse, VoteRequest, ReportListResponse
@@ -30,7 +31,7 @@ def _to_response(r: Report, my_vote: Optional[int], activity_label: Optional[str
         created_at=r.created_at,
         expires_at=r.expires_at,
         is_expired=r.is_expired,
-        verified=(r.upvotes - r.downvotes) >= REPORT_VERIFIED_NET_VOTES,
+        verified=r.is_verified,
         my_vote=my_vote,
         activity_label=activity_label,
     )
@@ -46,11 +47,11 @@ async def list_reports(
     beach = await get_beach_or_404(slug, db)
     activity_level = await get_activity_level(db, beach.id)
     label = get_params(activity_level)["label"]
-    now = datetime.now(timezone.utc)
+    now = now_utc()
 
     stmt = select(Report).where(Report.beach_id == beach.id)
     if not include_expired:
-        stmt = stmt.where(Report.is_expired == False, Report.expires_at > now)
+        stmt = stmt.where(~Report.is_expired, Report.expires_at > now)
     stmt = stmt.order_by(Report.created_at.desc())
 
     result = await db.execute(stmt)
@@ -90,7 +91,7 @@ async def create_report(
     label = get_params(activity_level)["label"]
 
     ttl = report_ttl_minutes(body.type, activity_level)
-    expires = datetime.now(timezone.utc) + timedelta(minutes=ttl)
+    expires = now_utc() + timedelta(minutes=ttl)
 
     geom = None
     if body.lat is not None and body.lon is not None:
@@ -117,7 +118,7 @@ async def create_report(
         )
 
     # +1 por report submetido (máx. 3 por dia)
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = now_utc().replace(hour=0, minute=0, second=0, microsecond=0)
     count_today = await db.scalar(
         select(func.count()).select_from(ReputationEvent).where(
             ReputationEvent.user_id == user.id,

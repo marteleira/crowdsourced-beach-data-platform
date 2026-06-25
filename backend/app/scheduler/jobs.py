@@ -3,12 +3,16 @@ APScheduler jobs — periodic data fetching and lifecycle management.
 All jobs are async and use a fresh DB session per execution.
 """
 import logging
-from datetime import datetime, timedelta, timezone
+from collections.abc import Callable, Coroutine
+from datetime import timedelta
+from typing import Any, Optional
 
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.constants import HEARTBEAT_CLEANUP_HOURS
 from app.core.database import AsyncSessionLocal
+from app.core.utils import now_utc
 from app.models.beach import Beach
 from app.models.beach_status import BeachStatus, FlagProposal, OccupancyHeartbeat
 from app.models.report import Report
@@ -34,40 +38,50 @@ async def _all_beaches(db: AsyncSession) -> list[Beach]:
     return result.scalars().all()
 
 
+async def _run_snapshot_job(
+    source: str,
+    condition: Callable[[Beach], Any],
+    fetch_fn: Callable[[Beach], Coroutine],
+    data_transform: Optional[Callable[[Any], Any]] = None,
+) -> None:
+    """Generic runner for the repeating fetch-and-snapshot pattern.
+
+    Iterates all beaches, skips those where condition(beach) is falsy,
+    calls fetch_fn(beach), and saves an ApiSnapshot. data_transform, if
+    provided, wraps the returned data before storing (e.g. Carris departures).
+    """
+    async with AsyncSessionLocal() as db:
+        beaches = await _all_beaches(db)
+        for beach in beaches:
+            if not condition(beach):
+                continue
+            try:
+                data = await fetch_fn(beach)
+                if data is not None:
+                    payload = data_transform(data) if data_transform else data
+                    db.add(ApiSnapshot(source=source, beach_id=beach.id, data=payload))
+            except Exception as e:
+                logger.warning("%s fetch failed for beach %d: %s", source, beach.id, e)
+        await db.commit()
+        logger.info("%s snapshots updated", source)
+
+
 # ── External API fetch jobs ────────────────────────────────────────────────────
 
 async def fetch_ipma_weather() -> None:
-    async with AsyncSessionLocal() as db:
-        beaches = await _all_beaches(db)
-        for beach in beaches:
-            if not beach.ipma_global_id:
-                continue
-            try:
-                data = await ipma.fetch_weather_forecast(beach.ipma_global_id)
-                if data:
-                    snap = ApiSnapshot(source="ipma_weather", beach_id=beach.id, data=data)
-                    db.add(snap)
-            except Exception as e:
-                logger.warning("IPMA weather fetch failed for beach %d: %s", beach.id, e)
-        await db.commit()
-        logger.info("IPMA weather snapshots updated")
+    await _run_snapshot_job(
+        source="ipma_weather",
+        condition=lambda b: b.ipma_global_id,
+        fetch_fn=lambda b: ipma.fetch_weather_forecast(b.ipma_global_id),
+    )
 
 
 async def fetch_ipma_sea() -> None:
-    async with AsyncSessionLocal() as db:
-        beaches = await _all_beaches(db)
-        for beach in beaches:
-            if not beach.ipma_sea_global_id:
-                continue
-            try:
-                data = await ipma.fetch_sea_forecast(beach.ipma_sea_global_id)
-                if data:
-                    snap = ApiSnapshot(source="ipma_sea", beach_id=beach.id, data=data)
-                    db.add(snap)
-            except Exception as e:
-                logger.warning("IPMA sea fetch failed for beach %d: %s", beach.id, e)
-        await db.commit()
-        logger.info("IPMA sea snapshots updated")
+    await _run_snapshot_job(
+        source="ipma_sea",
+        condition=lambda b: b.ipma_sea_global_id,
+        fetch_fn=lambda b: ipma.fetch_sea_forecast(b.ipma_sea_global_id),
+    )
 
 
 async def collect_tide_observations() -> None:
@@ -109,54 +123,28 @@ async def fit_tide_models() -> None:
 
 
 async def fetch_tides() -> None:
-    async with AsyncSessionLocal() as db:
-        beaches = await _all_beaches(db)
-        for beach in beaches:
-            if not beach.tide_station_id:
-                continue
-            try:
-                data = await hidrografico.fetch_current_tide(beach.tide_station_id)
-                if data:
-                    snap = ApiSnapshot(source="tides", beach_id=beach.id, data=data)
-                    db.add(snap)
-            except Exception as e:
-                logger.warning("Tides fetch failed for beach %d: %s", beach.id, e)
-        await db.commit()
-        logger.info("Tide snapshots updated")
+    await _run_snapshot_job(
+        source="tides",
+        condition=lambda b: b.tide_station_id,
+        fetch_fn=lambda b: hidrografico.fetch_current_tide(b.tide_station_id),
+    )
 
 
 async def fetch_water_quality() -> None:
-    async with AsyncSessionLocal() as db:
-        beaches = await _all_beaches(db)
-        for beach in beaches:
-            if not beach.eea_station_id:
-                continue
-            try:
-                data = await eea.fetch_water_quality(beach.eea_station_id)
-                if data:
-                    snap = ApiSnapshot(source="water_quality", beach_id=beach.id, data=data)
-                    db.add(snap)
-            except Exception as e:
-                logger.warning("EEA water quality fetch failed for beach %d: %s", beach.id, e)
-        await db.commit()
-        logger.info("Water quality snapshots updated")
+    await _run_snapshot_job(
+        source="water_quality",
+        condition=lambda b: b.eea_station_id,
+        fetch_fn=lambda b: eea.fetch_water_quality(b.eea_station_id),
+    )
 
 
 async def fetch_carris_stops() -> None:
-    async with AsyncSessionLocal() as db:
-        beaches = await _all_beaches(db)
-        for beach in beaches:
-            if not beach.nearby_stop_ids:
-                continue
-            try:
-                data = await carris.fetch_multiple_stops_departures(beach.nearby_stop_ids)
-                if data is not None:
-                    snap = ApiSnapshot(source="carris_stops", beach_id=beach.id, data={"departures": data})
-                    db.add(snap)
-            except Exception as e:
-                logger.warning("Carris fetch failed for beach %d: %s", beach.id, e)
-        await db.commit()
-        logger.info("Carris snapshots updated")
+    await _run_snapshot_job(
+        source="carris_stops",
+        condition=lambda b: b.nearby_stop_ids,
+        fetch_fn=lambda b: carris.fetch_multiple_stops_departures(b.nearby_stop_ids),
+        data_transform=lambda data: {"departures": data},
+    )
 
 
 # ── Lifecycle management jobs ──────────────────────────────────────────────────
@@ -164,7 +152,7 @@ async def fetch_carris_stops() -> None:
 async def expire_stale_reports() -> None:
     """Mark reports past their expires_at as expired."""
     async with AsyncSessionLocal() as db:
-        now = datetime.now(timezone.utc)
+        now = now_utc()
         await db.execute(
             update(Report)
             .where(Report.is_expired == False, Report.expires_at <= now)
@@ -238,9 +226,9 @@ async def lift_expired_suspensions() -> None:
 
 
 async def cleanup_old_heartbeats() -> None:
-    """Keep only the last 2 hours of heartbeats."""
+    """Keep only the last HEARTBEAT_CLEANUP_HOURS of heartbeats."""
     async with AsyncSessionLocal() as db:
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=2)
+        cutoff = now_utc() - timedelta(hours=HEARTBEAT_CLEANUP_HOURS)
         await db.execute(
             delete(OccupancyHeartbeat).where(OccupancyHeartbeat.created_at < cutoff)
         )
@@ -251,7 +239,7 @@ async def cleanup_old_heartbeats() -> None:
 async def purge_scheduled_deletions() -> None:
     """Hard-delete user accounts whose 30-day grace period has elapsed."""
     async with AsyncSessionLocal() as db:
-        now = datetime.now(timezone.utc)
+        now = now_utc()
         result = await db.execute(
             select(User).where(
                 User.scheduled_deletion_at.is_not(None),
