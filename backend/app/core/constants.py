@@ -28,7 +28,33 @@ REPORT_VERIFIED_NET_VOTES = 3        # upvotes - downvotes >= this -> verified
 # Map privacy 
 JITTER_DEGREES = 0.003               # ~300m latitude
 
-# Push notification labels / emojis 
+# Reputation thresholds (all in one place)
+AUTO_BAN_REPUTATION_THRESHOLD = -50
+SUSPENSION_REPUTATION_THRESHOLD = -30
+SUSPENSION_DURATION_HOURS = 48
+
+# Flag confirmation cooldown
+FLAG_CONFIRM_WINDOW_HOURS = 1        # one confirmation vote per user per beach per hour
+
+# Heartbeat retention
+HEARTBEAT_CLEANUP_HOURS = 2          # keep only the last N hours of heartbeats
+
+# Beach recommendation scoring weights
+RECOMMENDATION_WEIGHT_PROXIMITY  = 0.40
+RECOMMENDATION_WEIGHT_FLAG       = 0.30
+RECOMMENDATION_WEIGHT_OCCUPANCY  = 0.20
+RECOMMENDATION_WEIGHT_ALERTS     = 0.10
+RECOMMENDATION_PROXIMITY_RANGE_KM = 50.0   # distance at which proximity score reaches 0
+RECOMMENDATION_ALERT_PENALTY_DIV  = 5.0    # alerts / this = penalty (capped at 1.0)
+
+FLAG_RECOMMENDATION_SCORES: dict[str, float] = {
+    "green": 1.0, "yellow": 0.6, "unknown": 0.4, "red": 0.1, "purple": 0.1,
+}
+OCCUPANCY_RECOMMENDATION_SCORES: dict[str, float] = {
+    "low": 1.0, "medium": 0.6, "high": 0.2, "unknown": 0.5,
+}
+
+# Push notification labels / emojis
 REPORT_TYPE_EMOJIS: dict[str, str] = {
     "jellyfish": "🪼",
     "strong_current": "⚡",

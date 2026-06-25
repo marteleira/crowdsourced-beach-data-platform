@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../beaches/data/beach_provider.dart';
 import '../../beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/beach_helpers.dart';
 
 // Scene configuration
 // Derived from current time + weather data, Drives all visual decisions
@@ -412,22 +413,12 @@ class _HeroContent extends StatelessWidget {
     final isRising = tidesData.direction == 'rising';
     final currentH = tidesData.currentHeight;
 
-    TideEntry? next;
-    final nowMins = DateTime.now().hour * 60 + DateTime.now().minute;
-    for (final t in entries) {
-      final p = t.time.split(':');
-      if (p.length == 2) {
-        if ((int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0) > nowMins) {
-          next = t; break;
-        }
-      }
-    }
-    next ??= entries.isNotEmpty ? entries.last : null;
+    final next = findNextTide(entries);
 
     final displayH = currentH?.toStringAsFixed(2) ?? next?.height.toStringAsFixed(1) ?? '--';
     final dirLabel = isRising ? 'subindo' : tidesData.direction == 'falling' ? 'descendo' : 'estável';
     final nextStr  = next != null
-        ? '${next.type == 'alta' ? 'maré alta' : 'maré baixa'} às ${next.time}'
+        ? '${tideTypeLabel(next.type, prefix: true)} às ${next.time}'
         : '';
     final pillText = nextStr.isNotEmpty ? '$dirLabel · $nextStr' : dirLabel;
     final dotColor = isRising ? AppColors.teal : AppColors.sand;

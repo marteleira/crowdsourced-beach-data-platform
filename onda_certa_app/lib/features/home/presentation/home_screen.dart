@@ -931,17 +931,7 @@ class _TidesSection extends StatelessWidget {
     final directionLabel = apiDirection == 'rising' ? 'Subindo' : apiDirection == 'falling' ? 'Descendo' : 'Estável';
     final isRising = apiDirection == 'rising';
 
-    // Next upcoming extremum (first entry with time > now)
-    TideEntry? nextTide;
-    final nowMins = DateTime.now().hour * 60 + DateTime.now().minute;
-    for (final t in tides) {
-      final parts = t.time.split(':');
-      if (parts.length == 2) {
-        final tMins = (int.tryParse(parts[0]) ?? 0) * 60 + (int.tryParse(parts[1]) ?? 0);
-        if (tMins > nowMins) { nextTide = t; break; }
-      }
-    }
-    nextTide ??= tides.isNotEmpty ? tides.last : null;
+    final nextTide = findNextTide(tides);
 
     // Current height: prefer live observation, fall back to next extremum height
     final currentH = tidesData.currentHeight;
@@ -1001,7 +991,7 @@ class _TidesSection extends StatelessWidget {
                           style: AppTextStyles.titleXl),
                       if (nextTide != null)
                         Text(
-                          '${nextTide.type == 'alta' ? 'Alta' : 'Baixa'} às ${nextTide.time}',
+                          '${tideTypeLabel(nextTide.type, capitalize: true)} às ${nextTide.time}',
                           style: AppTextStyles.secondary,
                         ),
                     ],

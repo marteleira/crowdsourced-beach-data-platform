@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -118,7 +119,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
 
   Future<void> _vote(int reportId, String vote) async {
     if (_isGuest) {
-      showGuestSnackbar(context,'Cria uma conta para votar nos alertas');
+      showGuestSnackbar(context, AppStrings.guestVoteAlerts);
       return;
     }
     try {
@@ -137,7 +138,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
 
   void _openReportSheet() {
     if (_isGuest) {
-      showGuestSnackbar(context,'Cria uma conta para submeter avisos');
+      showGuestSnackbar(context, AppStrings.guestSubmitReport);
       return;
     }
     showModalBottomSheet(
@@ -156,25 +157,10 @@ class _ReportCard extends StatelessWidget {
   final BeachReport report;
   final void Function(String) onVote;
 
-  Color get _severityColor => switch (report.severity) {
-    1 => AppColors.flagGreen,
-    2 => AppColors.flagYellow,
-    3 => AppColors.flagRed,
-    _ => AppColors.textHint,
-  };
-
-  String get _severityLabel => switch (report.severity) {
-    1 => 'Baixo',
-    2 => 'Moderado',
-    3 => 'Grave',
-    _ => '',
-  };
-
   @override
   Widget build(BuildContext context) {
     final (icon, typeColor, typeLabel) = alertMeta(report.type);
-    final severityColor = _severityColor;
-    final severityLabel = _severityLabel;
+    final (severityColor, severityLabel) = severityMeta(report.severity);
     final totalVotes = report.upvotes + report.downvotes;
 
     return Container(

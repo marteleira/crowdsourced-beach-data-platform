@@ -3,6 +3,7 @@ Beach activity level helpers.
 Determines whether a beach is in low/normal/high activity mode,
 which adjusts TTLs, confirmation thresholds, and confidence decay.
 """
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -10,6 +11,16 @@ from sqlalchemy import select, func, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.beach_status import OccupancyHeartbeat
+
+
+@dataclass(frozen=True)
+class ActivityParams:
+    level: str
+    ttl_multiplier: float
+    contradiction_threshold: dict[str, int]
+    flag_confirmation_min: int
+    confidence_decay_per_minute: float
+    label: Optional[str]
 
 ACTIVITY_PARAMS = {
     "high": {
@@ -65,6 +76,20 @@ async def get_activity_level(db: AsyncSession, beach_id: int) -> str:
 
 def get_params(level: str) -> dict:
     return ACTIVITY_PARAMS.get(level, ACTIVITY_PARAMS["low"])
+
+
+async def get_activity_params(db: AsyncSession, beach_id: int) -> ActivityParams:
+    """Single call: fetch activity level + return typed params — avoids double-lookup."""
+    level = await get_activity_level(db, beach_id)
+    p = get_params(level)
+    return ActivityParams(
+        level=level,
+        ttl_multiplier=p["ttl_multiplier"],
+        contradiction_threshold=p["contradiction_threshold"],
+        flag_confirmation_min=p["flag_confirmation_min"],
+        confidence_decay_per_minute=p["confidence_decay_per_minute"],
+        label=p["label"],
+    )
 
 
 def report_ttl_minutes(report_type: str, level: str) -> int:

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
@@ -136,7 +137,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         onTap: flagColor != 'unknown'
             ? () {
                 if (_isGuest) {
-                  showGuestSnackbar(context,'Cria uma conta para confirmar bandeiras');
+                  showGuestSnackbar(context, AppStrings.guestConfirmFlag);
                   return;
                 }
                 showFlagConfirmationSheet(
@@ -148,7 +149,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
               }
             : () {
                 if (_isGuest) {
-                  showGuestSnackbar(context,'Cria uma conta para propor bandeiras');
+                  showGuestSnackbar(context, AppStrings.guestProposeFlag);
                   return;
                 }
                 showFlagProposalSheet(context, widget.beach);
@@ -688,16 +689,7 @@ class _TidesCard extends StatelessWidget {
     final isRising = apiDirection == 'rising';
     final directionLabel = isRising ? 'Subindo' : apiDirection == 'falling' ? 'Descendo' : 'Estável';
 
-    TideEntry? nextTide;
-    final nowMins = DateTime.now().hour * 60 + DateTime.now().minute;
-    for (final t in tides) {
-      final p = t.time.split(':');
-      if (p.length == 2) {
-        final tMins = (int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0);
-        if (tMins > nowMins) { nextTide = t; break; }
-      }
-    }
-    nextTide ??= tides.isNotEmpty ? tides.last : null;
+    final nextTide = findNextTide(tides);
 
     final currentH = tidesData.currentHeight;
     final displayH = currentH != null
@@ -737,7 +729,7 @@ class _TidesCard extends StatelessWidget {
                   Text(displayH, style: AppTextStyles.titleXl),
                   if (nextTide != null)
                     Text(
-                      '${nextTide.type == 'alta' ? 'alta' : 'baixa'} às ${nextTide.time}',
+                      '${tideTypeLabel(nextTide.type)} às ${nextTide.time}',
                       style: AppTextStyles.secondary,
                     ),
                 ],

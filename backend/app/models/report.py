@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from geoalchemy2 import Geography
 from app.core.database import Base
+from app.core.constants import REPORT_VERIFIED_NET_VOTES
 
 REPORT_TYPES = (
     "jellyfish",
@@ -41,6 +42,10 @@ class Report(Base):
         CheckConstraint("severity BETWEEN 1 AND 3", name="ck_report_severity"),
         Index("ix_reports_beach_active", "beach_id", "is_expired", "expires_at"),
     )
+
+    @property
+    def is_verified(self) -> bool:
+        return (self.upvotes - self.downvotes) >= REPORT_VERIFIED_NET_VOTES
 
 
 class ReportVote(Base):

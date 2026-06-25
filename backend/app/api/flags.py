@@ -1,12 +1,13 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import MIN_REPUTATION_TO_PROPOSE, FLAG_PROPOSAL_WINDOW_MINUTES
+from app.core.constants import MIN_REPUTATION_TO_PROPOSE, FLAG_PROPOSAL_WINDOW_MINUTES, FLAG_CONFIRM_WINDOW_HOURS
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_user, require_registered_user, get_beach_or_404, was_recently_present
+from app.core.utils import now_utc
 from app.models.beach_status import BeachStatus, FlagProposal, FlagConfirmation
 from app.models.user import User
 from app.schemas.flag import (
@@ -111,7 +112,7 @@ async def _apply_proposal(db: AsyncSession, proposal: FlagProposal, beach_id: in
     status.flag_color = color
     status.flag_source = "community"
     status.flag_confidence = 1.0
-    status.updated_at = datetime.now(timezone.utc)
+    status.updated_at = now_utc()
 
     proposal.status = "applied"
 
@@ -137,8 +138,8 @@ async def confirm_flag(
     if status.flag_color == "unknown":
         raise HTTPException(400, "Não há bandeira para confirmar nesta praia")
 
-    # One vote per user per beach per hour
-    one_hour_ago = datetime.now(timezone.utc) - timedelta(hours=1)
+    # One confirmation vote per user per beach per FLAG_CONFIRM_WINDOW_HOURS
+    one_hour_ago = now_utc() - timedelta(hours=FLAG_CONFIRM_WINDOW_HOURS)
     existing = await db.execute(
         select(FlagConfirmation).where(
             FlagConfirmation.user_id == user.id,

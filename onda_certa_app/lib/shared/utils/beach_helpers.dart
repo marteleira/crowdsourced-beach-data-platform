@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../../features/beaches/domain/beach_models.dart';
 
 // Short label for a flag color - used in pills, list items,...
 String flagLabel(String flag) => switch (flag) {
@@ -53,6 +54,28 @@ String occupancyLabel(String level) => switch (level) {
   'má'        || 'poor'         => (AppColors.flagRed,       'Má'),
   _                              => (AppColors.textSecondary, 'Desconhecida'),
 };
+
+// Find the next upcoming tide extremum (first entry with time > now).
+// Falls back to the last entry when all are in the past.
+TideEntry? findNextTide(List<TideEntry> tides) {
+  final nowMins = DateTime.now().hour * 60 + DateTime.now().minute;
+  for (final t in tides) {
+    final p = t.time.split(':');
+    if (p.length == 2) {
+      final tMins = (int.tryParse(p[0]) ?? 0) * 60 + (int.tryParse(p[1]) ?? 0);
+      if (tMins > nowMins) return t;
+    }
+  }
+  return tides.isNotEmpty ? tides.last : null;
+}
+
+// Tide type label for display. Default: 'alta'/'baixa'.
+// capitalize: 'Alta'/'Baixa'. prefix: 'maré alta'/'maré baixa'.
+String tideTypeLabel(String type, {bool capitalize = false, bool prefix = false}) {
+  final base = type == 'alta' ? 'alta' : 'baixa';
+  final text = prefix ? 'maré $base' : base;
+  return capitalize ? '${text[0].toUpperCase()}${text.substring(1)}' : text;
+}
 
 // Recommendation quality label based on flag + score - used in home screen cards
 String beachQualityLabel(String flag, double? score) {

@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -12,11 +12,15 @@ from app.core.constants import (
     OCCUPANCY_WINDOW_MINUTES,
     OCCUPANCY_LOW_RATIO, OCCUPANCY_MEDIUM_RATIO,
     OCCUPANCY_LOW_THRESHOLD, OCCUPANCY_MEDIUM_THRESHOLD,
-    REPORT_VERIFIED_NET_VOTES,
+    FLAG_RECOMMENDATION_SCORES, OCCUPANCY_RECOMMENDATION_SCORES,
+    RECOMMENDATION_WEIGHT_PROXIMITY, RECOMMENDATION_WEIGHT_FLAG,
+    RECOMMENDATION_WEIGHT_OCCUPANCY, RECOMMENDATION_WEIGHT_ALERTS,
+    RECOMMENDATION_PROXIMITY_RANGE_KM, RECOMMENDATION_ALERT_PENALTY_DIV,
 )
 from app.core.database import get_db
 from app.core.db_helpers import get_beach_flag_status, count_active_alerts
 from app.core.deps import get_beach_or_404, get_current_user
+from app.core.utils import now_utc
 from app.models.beach import Beach
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.report import Report
@@ -29,26 +33,23 @@ from app.api.weather import _open_meteo_overrides
 
 router = APIRouter(prefix="/beaches", tags=["beaches"])
 
-FLAG_SCORE     = {"green": 1.0, "yellow": 0.6, "unknown": 0.4, "red": 0.1, "purple": 0.1}
-OCCUPANCY_SCORE = {"low": 1.0, "medium": 0.6, "high": 0.2, "unknown": 0.5}
-
 
 def _recommendation_score(distance_km: float, flag_color: str,
                            occupancy_level: str, alerts_count: int) -> float:
-    proximity     = max(0.0, 1.0 - distance_km / 50.0)
-    flag          = FLAG_SCORE.get(flag_color, 0.4)
-    occupancy     = OCCUPANCY_SCORE.get(occupancy_level, 0.5)
-    alert_penalty = min(1.0, alerts_count / 5.0)
+    proximity     = max(0.0, 1.0 - distance_km / RECOMMENDATION_PROXIMITY_RANGE_KM)
+    flag          = FLAG_RECOMMENDATION_SCORES.get(flag_color, 0.4)
+    occupancy     = OCCUPANCY_RECOMMENDATION_SCORES.get(occupancy_level, 0.5)
+    alert_penalty = min(1.0, alerts_count / RECOMMENDATION_ALERT_PENALTY_DIV)
     return (
-        0.40 * proximity
-        + 0.30 * flag
-        + 0.20 * occupancy
-        + 0.10 * (1.0 - alert_penalty)
+        RECOMMENDATION_WEIGHT_PROXIMITY * proximity
+        + RECOMMENDATION_WEIGHT_FLAG     * flag
+        + RECOMMENDATION_WEIGHT_OCCUPANCY * occupancy
+        + RECOMMENDATION_WEIGHT_ALERTS   * (1.0 - alert_penalty)
     )
 
 
 async def _compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
+    cutoff = now_utc() - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
     stmt = (
         select(func.count(func.distinct(OccupancyHeartbeat.user_id)))
         .where(
@@ -72,17 +73,17 @@ async def _compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
         level=level,
         user_count=count,
         is_estimate=True,
-        last_updated=datetime.now(timezone.utc),
+        last_updated=now_utc(),
     )
 
 
 async def _get_active_alerts(db: AsyncSession, beach_id: int, activity_level: str):
-    now = datetime.now(timezone.utc)
+    now = now_utc()
     stmt = (
         select(Report)
         .where(
             Report.beach_id == beach_id,
-            Report.is_expired == False,
+            ~Report.is_expired,
             Report.expires_at > now,
         )
         .order_by(Report.created_at.desc())
@@ -102,7 +103,7 @@ async def _get_active_alerts(db: AsyncSession, beach_id: int, activity_level: st
             "created_at": r.created_at,
             "expires_at": r.expires_at,
             "note": r.note,
-            "verified": (r.upvotes - r.downvotes) >= REPORT_VERIFIED_NET_VOTES,
+            "verified": r.is_verified,
             "activity_label": label,
         })
     return alerts
@@ -131,7 +132,7 @@ async def list_beaches(
     rows = (await db.execute(stmt)).all()
 
     summaries = []
-    now = datetime.now(timezone.utc)
+    now = now_utc()
 
     for row in rows:
         beach: Beach = row[0]
