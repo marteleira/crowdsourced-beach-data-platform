@@ -57,7 +57,7 @@ async def fetch_weather(lat: float, lon: float) -> Optional[dict]:
         "wind_speed_unit": "kmh",
     }
     async with httpx.AsyncClient(timeout=8) as client:
-        resp = await client.get(OPEN_METEO_BASE, params=params)
+        resp = await client.get(OPEN_METEO_BASE, params=params)  # type: ignore[arg-type]
         resp.raise_for_status()
         data = resp.json()
 

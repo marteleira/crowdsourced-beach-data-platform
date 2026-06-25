@@ -2,7 +2,7 @@
 Shared async database query helpers.
 These patterns appear in multiple routers and are extracted here to avoid duplication.
 """
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -23,7 +23,7 @@ async def count_active_alerts(db: AsyncSession, beach_id: int, now: datetime) ->
     result = await db.execute(
         select(func.count(Report.id)).where(
             Report.beach_id == beach_id,
-            Report.is_expired == False,
+            Report.is_expired.is_(False),
             Report.expires_at > now,
         )
     )

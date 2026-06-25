@@ -3,7 +3,6 @@ Flag confidence calculation.
 Confidence decays over time without confirmations and is boosted by community responses.
 """
 from datetime import datetime, timezone
-from typing import Optional
 
 
 def calculate_confidence(

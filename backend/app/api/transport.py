@@ -52,7 +52,7 @@ async def get_transport(slug: str, db: AsyncSession = Depends(get_db)):
     trips = departures_raw if isinstance(departures_raw, list) else []
 
     return TransportResponse(
-        stops=stops_info,
+        stops=stops_info,  # type: ignore[arg-type]
         directions=_group_by_direction(trips),
         data_source=source,
         snapshot_at=snap_at,

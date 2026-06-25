@@ -1,9 +1,7 @@
-from sqlalchemy import (
-    Column, Integer, String, Boolean, Float, Text,
-    ARRAY, TIMESTAMP, ForeignKey, SmallInteger, BigInteger,
-    UniqueConstraint, Index, Computed,
-)
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from datetime import datetime
+from typing import Any
+from sqlalchemy import Integer, Boolean, Float, Text, ARRAY, TIMESTAMP
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from geoalchemy2 import Geography
 from app.core.database import Base
@@ -12,31 +10,30 @@ from app.core.database import Base
 class Beach(Base):
     __tablename__ = "beaches"
 
-    id = Column(Integer, primary_key=True)
-    slug = Column(Text, unique=True, nullable=False)
-    name = Column(Text, nullable=False)
-    lat = Column(Float, nullable=False)
-    lon = Column(Float, nullable=False)
-    geom = Column(Geography("Point", srid=4326))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    slug: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    lat: Mapped[float] = mapped_column(Float, nullable=False)
+    lon: Mapped[float] = mapped_column(Float, nullable=False)
+    geom: Mapped[Any] = mapped_column(Geography("Point", srid=4326), nullable=True)
 
     # External API identifiers (nullable – not all APIs cover every beach)
-    ipma_global_id = Column(Integer)
-    ipma_sea_global_id = Column(Integer)
-    eea_station_id = Column(Text)
-    tide_station_id = Column(Text)
+    ipma_global_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    ipma_sea_global_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    eea_station_id: Mapped[str | None] = mapped_column(Text, nullable=True)
+    tide_station_id: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Capacity
-    has_capacity_data = Column(Boolean, default=False)
-    max_capacity = Column(Integer)
+    has_capacity_data: Mapped[bool] = mapped_column(Boolean, default=False)
+    max_capacity: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Carris stop IDs near this beach
-    nearby_stop_ids = Column(ARRAY(Text), default=[])
+    nearby_stop_ids: Mapped[list[str] | None] = mapped_column(ARRAY(Text), default=[], nullable=True)
 
     # Feature flags
-    flags_available = Column(Boolean, default=True)
+    flags_available: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    cover_photo_url = Column(Text, nullable=True)
+    cover_photo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    municipality: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    municipality = Column(Text, nullable=True)
-
-    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())

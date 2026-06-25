@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 async def _all_beaches(db: AsyncSession) -> list[Beach]:
     result = await db.execute(select(Beach))
-    return result.scalars().all()
+    return list(result.scalars().all())
 
 
 async def _run_snapshot_job(
@@ -89,7 +89,7 @@ async def collect_tide_observations() -> None:
     async with AsyncSessionLocal() as db:
         result = await db.execute(
             select(Beach.tide_station_id)
-            .where(Beach.tide_station_id != None)
+            .where(Beach.tide_station_id.isnot(None))
             .distinct()
         )
         station_ids = [row[0] for row in result.all()]
@@ -108,7 +108,7 @@ async def fit_tide_models() -> None:
     async with AsyncSessionLocal() as db:
         result = await db.execute(
             select(Beach.tide_station_id)
-            .where(Beach.tide_station_id != None)
+            .where(Beach.tide_station_id.isnot(None))
             .distinct()
         )
         station_ids = [row[0] for row in result.all()]
@@ -155,7 +155,7 @@ async def expire_stale_reports() -> None:
         now = now_utc()
         await db.execute(
             update(Report)
-            .where(Report.is_expired == False, Report.expires_at <= now)
+            .where(Report.is_expired.is_(False), Report.expires_at <= now)
             .values(is_expired=True)
         )
         await db.commit()
@@ -171,7 +171,6 @@ async def process_reputation() -> None:
 
 
 async def recalculate_flag_confidences() -> None:
-    from sqlalchemy import func
     from app.models.beach_status import FlagConfirmation
 
     async with AsyncSessionLocal() as db:

@@ -74,7 +74,7 @@ async def _checkin_and_fav_candidates(
         .where(
             OccupancyHeartbeat.beach_id == beach_id,
             OccupancyHeartbeat.created_at > cutoff,
-            OccupancyHeartbeat.user_id != None,
+            OccupancyHeartbeat.user_id.isnot(None),
         )
         .distinct()
     )
