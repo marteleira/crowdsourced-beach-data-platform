@@ -101,7 +101,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
                   await ref.read(favouritesProvider.notifier).toggle(widget.beach);
                 } catch (_) {
                   messenger.showSnackBar(
-                    const SnackBar(content: Text('Erro ao actualizar favorito'), backgroundColor: Colors.red),
+                    SnackBar(content: const Text(AppStrings.errorFavourite), backgroundColor: Colors.red),
                   );
                 }
               },
@@ -200,7 +200,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
       if (nearest == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Estás demasiado longe de uma praia para registar presença.'),
+            content: Text(AppStrings.tooFarToCheckin),
             duration: Duration(seconds: 2),
             backgroundColor: AppColors.coral,
           ));
@@ -209,7 +209,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Presença registada!'),
+          content: Text(AppStrings.presenceRegistered),
           duration: Duration(seconds: 2),
           backgroundColor: AppColors.teal,
         ));
@@ -275,7 +275,7 @@ class _HeroAppBar extends StatelessWidget {
               ),
             ),
             Text(
-              beach.municipality ?? 'Arrábida',
+              beach.municipality ?? AppStrings.municipality,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w400),
             ),
           ],
@@ -376,8 +376,8 @@ class _FlagCard extends StatelessWidget {
                     ],
                     Text(
                       flagColor != 'unknown'
-                          ? 'live · Toca para confirmar'
-                          : 'Toca para propor a bandeira',
+                          ? AppStrings.flagLiveTap
+                          : AppStrings.flagProposeTap,
                       style: AppTextStyles.secondary,
                     ),
                   ],
@@ -434,7 +434,7 @@ class _OccupancyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(title: 'Ocupação', isLive: true),
+          _CardHeader(title: AppStrings.labelOccupancy, isLive: true),
           const SizedBox(height: 14),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -450,10 +450,10 @@ class _OccupancyCard extends StatelessWidget {
                         style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
                         children: [
                           TextSpan(
-                            text: userCount > 0 ? '$userCount pessoas ' : 'Poucos utilizadores ',
+                            text: userCount > 0 ? '${AppStrings.usersAtBeach(userCount)} ' : '${AppStrings.fewUsersNote} ',
                             style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
                           ),
-                          const TextSpan(text: 'a usar a app nesta praia nos últimos 20 min. Estimativa aproximada.'),
+                          const TextSpan(text: AppStrings.occupancyNote),
                         ],
                       ),
                     ),
@@ -463,7 +463,7 @@ class _OccupancyCard extends StatelessWidget {
                       icon: sending
                           ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
                           : const Text('📍', style: TextStyle(fontSize: 14)),
-                      label: Text(sending ? 'A atualizar...' : 'Atualizar presença'),
+                      label: Text(sending ? AppStrings.updating : AppStrings.updatePresence),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
@@ -548,7 +548,7 @@ class _WeatherCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(title: 'Meteorologia', isLive: true),
+          _CardHeader(title: AppStrings.sectionWeather, isLive: true),
           const SizedBox(height: AppSpacing.md),
           metricRow([
             MetricCell(
@@ -561,7 +561,7 @@ class _WeatherCard extends StatelessWidget {
               subLabel: weather?.currentTemp != null && weather?.maxTemp != null
                   ? '${weather!.minTemp!.round()}-${weather!.maxTemp!.round()}°C'
                   : null,
-              label: 'Temperatura', iconColor: AppColors.coral,
+              label: AppStrings.labelTemperature, iconColor: AppColors.coral,
             ),
             _WindCell(
               speedKmh: weather?.windSpeed,
@@ -572,7 +572,7 @@ class _WeatherCard extends StatelessWidget {
             MetricCell(
               icon: Icons.umbrella_outlined,
               value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--',
-              label: 'Chuva', iconColor: AppColors.waterIcon,
+              label: AppStrings.labelRain, iconColor: AppColors.waterIcon,
             ),
           ]),
           if (weather?.apparentTemp != null || weather?.humidity != null || weather?.uvIndex != null) ...[

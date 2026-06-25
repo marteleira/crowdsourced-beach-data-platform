@@ -1,12 +1,15 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
+from typing import Optional, Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional, Literal
 
 from app.core.database import get_db
 from app.core.deps import require_user, require_user_or_pending
+from app.core.messages import Msg
+from app.core.utils import now_utc
 from app.models.user import User, ReputationEvent, RefreshToken
 from app.models.report import Report
 from app.models.user_extended import effective_privacy_settings
@@ -65,7 +68,7 @@ async def export_data(
     events = events_r.scalars().all()
 
     return {
-        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "exported_at": now_utc().isoformat(),
         "user": {
             "id": str(user.id),
             "email": user.email,
@@ -124,7 +127,7 @@ async def delete_account(
     db: AsyncSession = Depends(get_db),
 ):
     if body.confirmation != "APAGAR":
-        raise HTTPException(400, "Confirmação inválida — escreve 'APAGAR' para confirmar")
+        raise HTTPException(400, Msg.DELETE_CONFIRMATION_INVALID)
 
     if user.scheduled_deletion_at:
         return {
@@ -132,14 +135,14 @@ async def delete_account(
             "message": "A conta já está agendada para eliminação.",
         }
 
-    deletion_at = datetime.now(timezone.utc) + timedelta(days=DELETION_GRACE_DAYS)
+    deletion_at = now_utc() + timedelta(days=DELETION_GRACE_DAYS)
     user.scheduled_deletion_at = deletion_at
 
     # Revoke all active refresh tokens so the session ends
     await db.execute(
         update(RefreshToken)
         .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))
-        .values(revoked_at=datetime.now(timezone.utc))
+        .values(revoked_at=now_utc())
     )
     db.add(user)
     await db.commit()
@@ -156,7 +159,7 @@ async def cancel_deletion(
     db: AsyncSession = Depends(get_db),
 ):
     if not user.scheduled_deletion_at:
-        raise HTTPException(400, "A conta não está agendada para eliminação.")
+        raise HTTPException(400, Msg.ACCOUNT_NOT_PENDING_DELETION)
 
     user.scheduled_deletion_at = None
     db.add(user)

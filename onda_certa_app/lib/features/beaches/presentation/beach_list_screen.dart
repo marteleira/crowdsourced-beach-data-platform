@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/constants/app_config.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
@@ -39,11 +40,11 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
   static const _kInitialZoom = AppConfig.mapInitialZoom;
 
   static const _filters = [
-    ('all', 'Todas', null),
-    ('green', 'Seguras', AppColors.flagGreen),
-    ('yellow', 'Cuidado', AppColors.flagYellow),
-    ('red', 'Perigo', AppColors.flagRed),
-    ('unknown', 'Sem dados', AppColors.textHint),
+    ('all', AppStrings.filterAll, null),
+    ('green', AppStrings.filterSafe, AppColors.flagGreen),
+    ('yellow', AppStrings.filterCaution, AppColors.flagYellow),
+    ('red', AppStrings.filterDanger, AppColors.flagRed),
+    ('unknown', AppStrings.filterNoData, AppColors.textHint),
   ];
 
   @override
@@ -271,7 +272,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
           top: top + 10,
           left: 16,
           child: const Text(
-            'Praias',
+            AppStrings.beachListTitle,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -392,7 +393,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                         onChanged: (q) => setState(() => _search = q),
                         style: const TextStyle(fontSize: 14, color: AppColors.primary),
                         decoration: InputDecoration(
-                          hintText: 'Pesquisar praia...',
+                          hintText: AppStrings.searchHint,
                           hintStyle: const TextStyle(
                             color: AppColors.textHint,
                             fontSize: 14,
@@ -453,8 +454,8 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                       ),
                       error: (_, _) => EmptyState(
                         icon: Icons.cloud_off_rounded,
-                        message: 'Não foi possível carregar as praias',
-                        actionLabel: 'Tentar de novo',
+                        message: AppStrings.errorLoadBeaches,
+                        actionLabel: AppStrings.tryAgain,
                         onAction: _refresh,
                       ),
                       data: (_) {
@@ -462,8 +463,8 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                           return EmptyState(
                             icon: Icons.search_off_rounded,
                             message: _search.isNotEmpty
-                                ? 'Nenhuma praia encontrada para "$_search"'
-                                : 'Nenhuma praia com este filtro',
+                                ? AppStrings.noBeachesForSearch(_search)
+                                : AppStrings.noBeachesForFilter,
                           );
                         }
                         return RefreshIndicator(
@@ -686,7 +687,7 @@ class _SelectedBeachBanner extends StatelessWidget {
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: const Text(
-              'Ver →',
+              AppStrings.beachCardView,
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
             ),
           ),

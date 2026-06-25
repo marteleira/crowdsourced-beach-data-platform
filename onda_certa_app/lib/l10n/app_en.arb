@@ -1,0 +1,255 @@
+{
+  "@@locale": "en",
+
+  "appName": "OndaCerta",
+  "appTagline": "Real beaches. Real conditions.",
+  "appLocation": "Arrábida Natural Park · Portugal",
+
+  "navHome": "Home",
+  "navBeaches": "Beaches",
+  "navTides": "Tides",
+  "navProfile": "Profile",
+
+  "continueAsGuest": "Continue as guest",
+  "createAccount": "Create account",
+  "signIn": "Sign in",
+  "registerSubtitle": "Register to contribute to the community",
+  "loginWelcomeBack": "Welcome back",
+  "fieldName": "Name",
+  "fieldNameHint": "Your name",
+  "fieldEmail": "Email",
+  "fieldEmailHint": "your@email.com",
+  "forgotPassword": "Forgot password",
+  "termsOfService": "Terms of Service",
+  "privacyPolicy": "Privacy Policy",
+  "authConsentPrefix": "By continuing, you accept our ",
+  "authConsentAnd": " and our ",
+  "errorGoogleToken": "Could not obtain Google token",
+  "errorGoogleSignIn": "Failed to sign in with Google",
+
+  "loading": "Loading data...",
+  "comingSoon": "Coming soon",
+  "settings": "Settings",
+  "close": "Close",
+  "viewAll": "View all →",
+  "viewDetails": "View details →",
+  "viewBeaches": "View all →",
+  "tryAgain": "Try again",
+  "liveLabel": "live",
+  "recommended": "Recommended",
+  "updating": "Updating...",
+  "updatePresence": "Update presence",
+  "seeAllBeaches": "See all beaches >",
+
+  "noLocationBanner": "Without location access you cannot report conditions or vote.",
+
+  "sectionFavourites": "FAVOURITES",
+  "sectionAlerts": "ACTIVE ALERTS",
+  "noFavourites": "No favourites yet",
+  "noFavouritesHint": "Open a beach and save it\nfor quick access here.",
+  "noAlerts": "No active alerts",
+  "bestBeachNow": "Best Beach Now",
+  "tidesSection": "TIDES · {beach}",
+  "@tidesSection": {
+    "placeholders": {
+      "beach": { "type": "String" }
+    }
+  },
+
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+
+  "weatherAir": "Air",
+  "weatherWind": "Wind",
+  "weatherWaves": "Waves",
+  "weatherRain": "Rain",
+
+  "flagStatusSafe": "Safe",
+  "flagStatusCaution": "Caution",
+  "flagStatusDanger": "Danger",
+
+  "exploreTitle": "Explore",
+  "exploreMap": "Beach map",
+  "exploreMapSub": "View all on map",
+  "exploreTransport": "Transport",
+  "exploreTransportSub": "Carris Metropolitana",
+  "exploreBeaches": "Beaches",
+  "exploreReport": "Submit report",
+  "exploreReportSub": "Help the community",
+
+  "communityTitle": "Community",
+  "communityReports": "{count} active reports",
+  "@communityReports": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "communityFooter": "at {beaches} beaches · {users} users online",
+  "@communityFooter": {
+    "placeholders": {
+      "beaches": { "type": "int" },
+      "users": { "type": "int" }
+    }
+  },
+
+  "beachListTitle": "Beaches",
+  "searchHint": "Search beach...",
+  "filterAll": "All",
+  "filterSafe": "Safe",
+  "filterCaution": "Caution",
+  "filterDanger": "Danger",
+  "filterNoData": "No data",
+  "beachCardView": "View →",
+  "errorLoadBeaches": "Could not load beaches",
+  "noBeachesForSearch": "No beach found for \"{query}\"",
+  "@noBeachesForSearch": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "noBeachesForFilter": "No beach with this filter",
+
+  "municipality": "Arrábida",
+  "sectionWeather": "Weather",
+  "labelTemperature": "Temperature",
+  "labelRain": "Rain",
+  "labelOccupancy": "Occupancy",
+  "labelConfidence": "% conf.",
+  "flagLiveTap": "live · Tap to confirm",
+  "flagProposeTap": "Tap to propose a flag",
+  "errorFavourite": "Could not update favourite",
+  "tooFarToCheckin": "You are too far from a beach to register presence.",
+  "presenceRegistered": "Presence registered!",
+  "fewUsersNote": "Few users",
+  "usersAtBeach": "{count} people",
+  "@usersAtBeach": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "occupancyNote": "using the app at this beach in the last 20 min. Approximate estimate.",
+
+  "alertsTitle": "Community Alerts",
+  "alertsActive": "{count} active",
+  "@alertsActive": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mustBeAtBeachVote": "You must be at the beach to vote",
+  "errorVoting": "Error voting. Try again.",
+
+  "notificationsTitle": "Notifications",
+  "errorLoadNotifications": "Error loading notifications",
+  "notificationsEmpty": "Beach notifications appear here.",
+
+  "settingsGeneral": "General",
+  "settingsNotifsEnabled": "Notifications enabled",
+  "settingsNotifsEnabledSub": "Turn all notifications on or off",
+  "settingsCommunityAlerts": "Community alerts",
+  "settingsCheckinAlerts": "Check-in alerts",
+  "settingsCheckinAlertsSub": "Notify when you arrive at a beach with alerts",
+  "settingsProximityAlerts": "Proximity alerts",
+  "settingsProximityAlertsSub": "Alerts when you are near a beach",
+  "settingsProximityRadius": "Proximity radius",
+  "settingsAlertTypes": "Alert types",
+  "settingsJellyfish": "Jellyfish",
+  "settingsStrongCurrent": "Strong current",
+  "settingsPollution": "Pollution",
+  "settingsRoughSea": "Rough sea",
+  "settingsMinSeverity": "Minimum severity",
+  "errorLoadSettings": "Could not load notifications",
+  "proximityRadiusValue": "{meters} m",
+  "@proximityRadiusValue": {
+    "placeholders": {
+      "meters": { "type": "int" }
+    }
+  },
+
+  "accountTitle": "Account",
+  "errorLoadProfile": "Could not load profile",
+
+  "guestUser": "Guest",
+  "registeredUser": "User",
+  "guestMode": "Guest mode",
+  "reputationPoints": "{count} reputation points",
+  "@reputationPoints": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "flagLabelGreen": "Safe",
+  "flagLabelYellow": "Caution",
+  "flagLabelRed": "Danger",
+  "flagLabelPurple": "Closed",
+  "flagLabelUnknown": "Unknown",
+  "flagDescGreen": "Safe to swim",
+  "flagDescYellow": "Swim with caution",
+  "flagDescRed": "Dangerous conditions",
+  "flagDescPurple": "Beach closed",
+  "flagDescUnknown": "Unknown status",
+
+  "occupancyLow": "Quiet",
+  "occupancyMedium": "Moderate",
+  "occupancyHigh": "Crowded",
+  "occupancyAnimated": "Lively",
+  "occupancyFull": "Full",
+  "occupancyUnknown": "Unknown",
+
+  "qualityExcellent": "Excellent",
+  "qualityGood": "Good",
+  "qualitySufficient": "Sufficient",
+  "qualityPoor": "Poor",
+  "qualityUnknown": "Unknown",
+
+  "beachQualityExcellent": "Excellent",
+  "beachQualityGood": "Good condition",
+  "beachQualityFair": "Fair condition",
+  "beachQualityPoor": "Poor condition",
+
+  "tideHigh": "high",
+  "tideLow": "low",
+  "tidePrefixHigh": "high tide",
+  "tidePrefixLow": "low tide",
+
+  "timeJustNow": "just now",
+  "timeYesterday": "yesterday",
+  "timeMinutes": "{minutes} min ago",
+  "@timeMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "timeHours": "{hours}h ago",
+  "@timeHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "timeDays": "{days} days ago",
+  "@timeDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "timeWeeks": "{weeks} wk ago",
+  "@timeWeeks": {
+    "placeholders": {
+      "weeks": { "type": "int" }
+    }
+  },
+  "timeMonths": "{months} months ago",
+  "@timeMonths": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+
+  "guestVoteAlerts": "Create an account to vote on alerts",
+  "guestSubmitReport": "Create an account to submit reports",
+  "guestConfirmFlag": "Create an account to confirm flags",
+  "guestProposeFlag": "Create an account to propose flags",
+  "guestSaveContribs": "Create an account to save your contributions."
+}

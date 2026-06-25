@@ -1,13 +1,14 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.beaches import _compute_occupancy
 from app.core.constants import OCCUPANCY_WINDOW_MINUTES
 from app.core.database import get_db
+from app.core.db_helpers import compute_occupancy
 from app.core.deps import require_user, get_beach_or_404
+from app.core.utils import now_utc
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
 from app.schemas.user import HeartbeatRequest, HeartbeatResponse
@@ -25,8 +26,7 @@ async def send_heartbeat(
 ):
     beach = await get_beach_or_404(slug, db)
 
-    # invalidate heartbeats from this user at other beaches
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
+    cutoff = now_utc() - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
     await db.execute(
         delete(OccupancyHeartbeat).where(
             OccupancyHeartbeat.user_id == user.id,
@@ -40,7 +40,7 @@ async def send_heartbeat(
     await db.commit()
     await update_streak(db, user)
 
-    occupancy = await _compute_occupancy(db, beach)
+    occupancy = await compute_occupancy(db, beach)
     return HeartbeatResponse(
         status="ok",
         beach_id=beach.id,

@@ -9,16 +9,18 @@ Privacy rules (per user's privacy_settings):
   name_public = False             → display_name replaced with "Anonymous"
 """
 import random
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from typing import List, Optional
+
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel
 
 from app.core.constants import MAP_PRESENCE_WINDOW_MINUTES, JITTER_DEGREES
 from app.core.database import get_db
 from app.core.deps import get_current_user
+from app.core.utils import now_utc
 from app.models.beach import Beach
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
@@ -59,7 +61,7 @@ async def get_map_users(
     Each user is shown only if their privacy settings allow it.
     Position is jittered or omitted based on location_accuracy.
     """
-    cutoff = datetime.now(timezone.utc) - timedelta(minutes=MAP_PRESENCE_WINDOW_MINUTES)
+    cutoff = now_utc() - timedelta(minutes=MAP_PRESENCE_WINDOW_MINUTES)
 
     # Load all beaches
     beaches_r = await db.execute(select(Beach))

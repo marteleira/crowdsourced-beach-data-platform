@@ -1,0 +1,255 @@
+{
+  "@@locale": "pt",
+
+  "appName": "OndaCerta",
+  "appTagline": "Real beaches. Real conditions.",
+  "appLocation": "Arrábida Natural Park · Portugal",
+
+  "navHome": "Início",
+  "navBeaches": "Praias",
+  "navTides": "Marés",
+  "navProfile": "Perfil",
+
+  "continueAsGuest": "Continuar como visitante",
+  "createAccount": "Criar conta",
+  "signIn": "Entrar",
+  "registerSubtitle": "Regista-te para contribuíres com a comunidade",
+  "loginWelcomeBack": "Bem-vindo de volta",
+  "fieldName": "Nome",
+  "fieldNameHint": "O teu nome",
+  "fieldEmail": "Email",
+  "fieldEmailHint": "o.teu@email.com",
+  "forgotPassword": "Esqueci a password",
+  "termsOfService": "Termos de Serviço",
+  "privacyPolicy": "Política de Privacidade",
+  "authConsentPrefix": "Ao continuar, aceitas os nossos ",
+  "authConsentAnd": " e a nossa ",
+  "errorGoogleToken": "Não foi possível obter o token Google",
+  "errorGoogleSignIn": "Falha ao entrar com Google",
+
+  "loading": "A carregar dados...",
+  "comingSoon": "Em breve",
+  "settings": "Definições",
+  "close": "Fechar",
+  "viewAll": "Ver tudo →",
+  "viewDetails": "Ver detalhes →",
+  "viewBeaches": "Ver todas →",
+  "tryAgain": "Tentar de novo",
+  "liveLabel": "live",
+  "recommended": "Recomendada",
+  "updating": "A atualizar...",
+  "updatePresence": "Atualizar presença",
+  "seeAllBeaches": "Ver todas as praias >",
+
+  "noLocationBanner": "Sem acesso à localização não podes reportar condições nem votar.",
+
+  "sectionFavourites": "FAVORITAS",
+  "sectionAlerts": "ALERTAS ACTIVOS",
+  "noFavourites": "Sem favoritas ainda",
+  "noFavouritesHint": "Abre uma praia e guarda-a\npara acesso rápido aqui.",
+  "noAlerts": "Sem alertas activos",
+  "bestBeachNow": "Melhor Praia Agora",
+  "tidesSection": "MARÉS · {beach}",
+  "@tidesSection": {
+    "placeholders": {
+      "beach": { "type": "String" }
+    }
+  },
+
+  "greetingMorning": "Bom dia",
+  "greetingAfternoon": "Boa tarde",
+  "greetingEvening": "Boa noite",
+
+  "weatherAir": "Ar",
+  "weatherWind": "Vento",
+  "weatherWaves": "Ondas",
+  "weatherRain": "Chuva",
+
+  "flagStatusSafe": "Seguras",
+  "flagStatusCaution": "Cuidado",
+  "flagStatusDanger": "Perigo",
+
+  "exploreTitle": "Explorar",
+  "exploreMap": "Mapa de praias",
+  "exploreMapSub": "Ver todas no mapa",
+  "exploreTransport": "Transportes",
+  "exploreTransportSub": "Carris Metropolitana",
+  "exploreBeaches": "Praias",
+  "exploreReport": "Submeter reporte",
+  "exploreReportSub": "Ajuda a comunidade",
+
+  "communityTitle": "Comunidade",
+  "communityReports": "{count} reportes activos",
+  "@communityReports": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "communityFooter": "em {beaches} praias · {users} utilizadores online",
+  "@communityFooter": {
+    "placeholders": {
+      "beaches": { "type": "int" },
+      "users": { "type": "int" }
+    }
+  },
+
+  "beachListTitle": "Praias",
+  "searchHint": "Pesquisar praia...",
+  "filterAll": "Todas",
+  "filterSafe": "Seguras",
+  "filterCaution": "Cuidado",
+  "filterDanger": "Perigo",
+  "filterNoData": "Sem dados",
+  "beachCardView": "Ver →",
+  "errorLoadBeaches": "Não foi possível carregar as praias",
+  "noBeachesForSearch": "Nenhuma praia encontrada para \"{query}\"",
+  "@noBeachesForSearch": {
+    "placeholders": {
+      "query": { "type": "String" }
+    }
+  },
+  "noBeachesForFilter": "Nenhuma praia com este filtro",
+
+  "municipality": "Arrábida",
+  "sectionWeather": "Meteorologia",
+  "labelTemperature": "Temperatura",
+  "labelRain": "Chuva",
+  "labelOccupancy": "Ocupação",
+  "labelConfidence": "% conf.",
+  "flagLiveTap": "live · Toca para confirmar",
+  "flagProposeTap": "Toca para propor a bandeira",
+  "errorFavourite": "Erro ao actualizar favorito",
+  "tooFarToCheckin": "Estás demasiado longe de uma praia para registar presença.",
+  "presenceRegistered": "Presença registada!",
+  "fewUsersNote": "Poucos utilizadores",
+  "usersAtBeach": "{count} pessoas",
+  "@usersAtBeach": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "occupancyNote": "a usar a app nesta praia nos últimos 20 min. Estimativa aproximada.",
+
+  "alertsTitle": "Alertas da Comunidade",
+  "alertsActive": "{count} activos",
+  "@alertsActive": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "mustBeAtBeachVote": "Tens de estar na praia para votar",
+  "errorVoting": "Erro ao votar. Tenta de novo.",
+
+  "notificationsTitle": "Notificações",
+  "errorLoadNotifications": "Erro ao carregar notificações",
+  "notificationsEmpty": "As notificações sobre as praias aparecem aqui.",
+
+  "settingsGeneral": "Geral",
+  "settingsNotifsEnabled": "Notificações ativadas",
+  "settingsNotifsEnabledSub": "Liga ou desliga todas as notificações",
+  "settingsCommunityAlerts": "Alertas de comunidade",
+  "settingsCheckinAlerts": "Alertas ao fazer check-in",
+  "settingsCheckinAlertsSub": "Notifica quando chegares a uma praia com alertas",
+  "settingsProximityAlerts": "Alertas de proximidade",
+  "settingsProximityAlertsSub": "Alertas quando estás perto de uma praia",
+  "settingsProximityRadius": "Raio de proximidade",
+  "settingsAlertTypes": "Tipos de alerta",
+  "settingsJellyfish": "Medusas",
+  "settingsStrongCurrent": "Corrente forte",
+  "settingsPollution": "Poluição",
+  "settingsRoughSea": "Mar agitado",
+  "settingsMinSeverity": "Severidade mínima",
+  "errorLoadSettings": "Não foi possível carregar as notificações",
+  "proximityRadiusValue": "{meters} m",
+  "@proximityRadiusValue": {
+    "placeholders": {
+      "meters": { "type": "int" }
+    }
+  },
+
+  "accountTitle": "Conta",
+  "errorLoadProfile": "Não foi possível carregar o perfil",
+
+  "guestUser": "Convidado",
+  "registeredUser": "Utilizador",
+  "guestMode": "Modo convidado",
+  "reputationPoints": "{count} pontos de reputação",
+  "@reputationPoints": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
+  "flagLabelGreen": "Segura",
+  "flagLabelYellow": "Cuidado",
+  "flagLabelRed": "Perigo",
+  "flagLabelPurple": "Fechada",
+  "flagLabelUnknown": "Desconhecida",
+  "flagDescGreen": "Segura para nadar",
+  "flagDescYellow": "Cuidado ao nadar",
+  "flagDescRed": "Condições perigosas",
+  "flagDescPurple": "Praia fechada",
+  "flagDescUnknown": "Estado desconhecido",
+
+  "occupancyLow": "Tranquila",
+  "occupancyMedium": "Moderada",
+  "occupancyHigh": "Lotada",
+  "occupancyAnimated": "Animada",
+  "occupancyFull": "Cheia",
+  "occupancyUnknown": "Desconhecida",
+
+  "qualityExcellent": "Excelente",
+  "qualityGood": "Boa",
+  "qualitySufficient": "Suficiente",
+  "qualityPoor": "Má",
+  "qualityUnknown": "Desconhecida",
+
+  "beachQualityExcellent": "Excelente",
+  "beachQualityGood": "Boa condição",
+  "beachQualityFair": "Condição razoável",
+  "beachQualityPoor": "Má condição",
+
+  "tideHigh": "alta",
+  "tideLow": "baixa",
+  "tidePrefixHigh": "maré alta",
+  "tidePrefixLow": "maré baixa",
+
+  "timeJustNow": "agora mesmo",
+  "timeYesterday": "ontem",
+  "timeMinutes": "há {minutes} min",
+  "@timeMinutes": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "timeHours": "há {hours}h",
+  "@timeHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "timeDays": "há {days} dias",
+  "@timeDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "timeWeeks": "há {weeks} sem.",
+  "@timeWeeks": {
+    "placeholders": {
+      "weeks": { "type": "int" }
+    }
+  },
+  "timeMonths": "há {months} meses",
+  "@timeMonths": {
+    "placeholders": {
+      "months": { "type": "int" }
+    }
+  },
+
+  "guestVoteAlerts": "Cria uma conta para votar nos alertas",
+  "guestSubmitReport": "Cria uma conta para submeter avisos",
+  "guestConfirmFlag": "Cria uma conta para confirmar bandeiras",
+  "guestProposeFlag": "Cria uma conta para propor bandeiras",
+  "guestSaveContribs": "Cria uma conta para guardar as tuas contribuições."
+}

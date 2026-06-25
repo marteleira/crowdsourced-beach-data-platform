@@ -1,24 +1,24 @@
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import require_user
+from app.core.messages import Msg
 from app.core.security import (
     hash_password, verify_password,
     generate_verification_code,
 )
+from app.core.utils import now_utc
 from app.models.user import User, ReputationEvent, RefreshToken
 from app.models.user_extended import UserAchievement
 from app.schemas.user import (
     UserProfile, ReputationEventOut,
     UpdateProfileRequest, ChangePasswordRequest,
 )
-from app.services.reputation import reputation_level
 from app.services.achievements import get_all_achievements_status
 from app.services.email import send_verification_email
+from app.services.reputation import reputation_level
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -77,7 +77,7 @@ async def _send_new_verification(user: User, db: AsyncSession) -> None:
     from datetime import timedelta
     user.email_verification_code_hash = code_hash
     user.email_verification_expires_at = (
-        datetime.now(timezone.utc)
+        now_utc()
         + timedelta(minutes=settings.EMAIL_VERIFICATION_EXPIRE_MINUTES)
     )
     await db.flush()
@@ -101,10 +101,10 @@ async def update_profile(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_anonymous:
-        raise HTTPException(403, "Convidados não podem alterar o perfil")
+        raise HTTPException(403, Msg.GUESTS_CANNOT_EDIT_PROFILE)
 
     if body.display_name is None and body.email is None and body.avatar_id is None:
-        raise HTTPException(400, "Nenhuma alteração fornecida")
+        raise HTTPException(400, Msg.NO_CHANGES_PROVIDED)
 
     if body.display_name is not None:
         user.display_name = body.display_name
@@ -115,19 +115,19 @@ async def update_profile(
     if body.email is not None and body.email != user.email:
         # Google-only accounts cannot change email
         if not user.password_hash:
-            raise HTTPException(400, "Contas Google não podem alterar o email")
+            raise HTTPException(400, Msg.GOOGLE_CANNOT_CHANGE_EMAIL)
 
         if not body.current_password:
-            raise HTTPException(400, "A password atual é necessária para alterar o email")
+            raise HTTPException(400, Msg.PASSWORD_REQUIRED_FOR_EMAIL_CHANGE)
 
         if not verify_password(body.current_password, user.password_hash):
-            raise HTTPException(401, "Password atual incorreta")
+            raise HTTPException(401, Msg.PASSWORD_INCORRECT)
 
         conflict = await db.execute(
             select(User).where(User.email == body.email, User.id != user.id)
         )
         if conflict.scalar_one_or_none():
-            raise HTTPException(409, "Email já em uso")
+            raise HTTPException(409, Msg.EMAIL_IN_USE)
 
         user.email = body.email
         user.is_email_verified = False
@@ -145,21 +145,21 @@ async def change_password(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_anonymous:
-        raise HTTPException(403, "Convidados não podem alterar a password")
+        raise HTTPException(403, Msg.GUESTS_CANNOT_CHANGE_PASSWORD)
 
     if not user.password_hash:
-        raise HTTPException(400, "Contas Google não têm password para alterar")
+        raise HTTPException(400, Msg.GOOGLE_NO_PASSWORD)
 
     if not verify_password(body.current_password, user.password_hash):
-        raise HTTPException(401, "Password atual incorreta")
+        raise HTTPException(401, Msg.PASSWORD_INCORRECT)
 
     if body.new_password == body.current_password:
-        raise HTTPException(400, "A nova password deve ser diferente da atual")
+        raise HTTPException(400, Msg.PASSWORD_SAME_AS_CURRENT)
 
     user.password_hash = hash_password(body.new_password)
 
     # Revoke all active refresh tokens → forces re-login on every device
-    now = datetime.now(timezone.utc)
+    now = now_utc()
     await db.execute(
         update(RefreshToken)
         .where(RefreshToken.user_id == user.id, RefreshToken.revoked_at.is_(None))

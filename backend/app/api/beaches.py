@@ -1,32 +1,27 @@
 import asyncio
-from datetime import timedelta
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select, func, literal
+from sqlalchemy import select, literal
 from sqlalchemy.ext.asyncio import AsyncSession
 from geoalchemy2.functions import ST_Distance, ST_GeogFromText
 
 from app.api.transport import _group_by_direction
 from app.core.constants import (
-    OCCUPANCY_WINDOW_MINUTES,
-    OCCUPANCY_LOW_RATIO, OCCUPANCY_MEDIUM_RATIO,
-    OCCUPANCY_LOW_THRESHOLD, OCCUPANCY_MEDIUM_THRESHOLD,
     FLAG_RECOMMENDATION_SCORES, OCCUPANCY_RECOMMENDATION_SCORES,
     RECOMMENDATION_WEIGHT_PROXIMITY, RECOMMENDATION_WEIGHT_FLAG,
     RECOMMENDATION_WEIGHT_OCCUPANCY, RECOMMENDATION_WEIGHT_ALERTS,
     RECOMMENDATION_PROXIMITY_RANGE_KM, RECOMMENDATION_ALERT_PENALTY_DIV,
 )
 from app.core.database import get_db
-from app.core.db_helpers import get_beach_flag_status, count_active_alerts
+from app.core.db_helpers import get_beach_flag_status, count_active_alerts, compute_occupancy, build_beach_summary
 from app.core.deps import get_beach_or_404, get_current_user
 from app.core.utils import now_utc
 from app.models.beach import Beach
-from app.models.beach_status import OccupancyHeartbeat
 from app.models.report import Report
 from app.models.user import User
-from app.schemas.beach import BeachSummary, BeachFullResponse, BeachStatusResponse, OccupancyData
-from app.services.activity import get_activity_level, get_params
+from app.schemas.beach import BeachSummary, BeachFullResponse, BeachStatusResponse
+from app.services.activity import get_params, get_activity_params
 from app.services.snapshot import fetch_with_fallback
 from app.services import ipma, hidrografico, eea, carris, open_meteo
 from app.api.weather import _open_meteo_overrides
@@ -47,34 +42,6 @@ def _recommendation_score(distance_km: float, flag_color: str,
         + RECOMMENDATION_WEIGHT_ALERTS   * (1.0 - alert_penalty)
     )
 
-
-async def _compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
-    cutoff = now_utc() - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
-    stmt = (
-        select(func.count(func.distinct(OccupancyHeartbeat.user_id)))
-        .where(
-            OccupancyHeartbeat.beach_id == beach.id,
-            OccupancyHeartbeat.created_at > cutoff,
-        )
-    )
-    result = await db.execute(stmt)
-    count = result.scalar_one() or 0
-
-    if beach.max_capacity:
-        ratio = count / beach.max_capacity
-        level = "low" if ratio < OCCUPANCY_LOW_RATIO else "medium" if ratio < OCCUPANCY_MEDIUM_RATIO else "high"
-    else:
-        level = "low" if count < OCCUPANCY_LOW_THRESHOLD else "medium" if count < OCCUPANCY_MEDIUM_THRESHOLD else "high"
-
-    if count == 0 and not beach.has_capacity_data:
-        level = "unknown"
-
-    return OccupancyData(
-        level=level,
-        user_count=count,
-        is_estimate=True,
-        last_updated=now_utc(),
-    )
 
 
 async def _get_active_alerts(db: AsyncSession, beach_id: int, activity_level: str):
@@ -138,36 +105,15 @@ async def list_beaches(
         beach: Beach = row[0]
         distance_km: Optional[float] = row[1]
 
-        activity_level = await get_activity_level(db, beach.id)
-        flag_color, flag_confidence = await get_beach_flag_status(db, beach.id)
-        alerts_count = await count_active_alerts(db, beach.id, now)
+        summary = await build_beach_summary(db, beach, now, distance_km=distance_km)
 
-        occupancy = await _compute_occupancy(db, beach)
-        params    = get_params(activity_level)
+        if distance_km is not None:
+            score = _recommendation_score(
+                distance_km, summary.flag_color, summary.occupancy_level, summary.active_alerts_count
+            )
+            summary = summary.model_copy(update={"recommendation_score": round(score, 3)})
 
-        score = (
-            _recommendation_score(distance_km, flag_color, occupancy.level, alerts_count)
-            if distance_km is not None
-            else None
-        )
-
-        summaries.append(BeachSummary(
-            id=beach.id,
-            slug=beach.slug,
-            name=beach.name,
-            lat=beach.lat,
-            lon=beach.lon,
-            flag_color=flag_color,
-            flag_confidence=flag_confidence,
-            occupancy_level=occupancy.level,
-            active_alerts_count=alerts_count,
-            activity_level=activity_level,
-            activity_label=params["label"],
-            distance_km=round(distance_km, 1) if distance_km is not None else None,
-            recommendation_score=round(score, 3) if score is not None else None,
-            cover_photo_url=beach.cover_photo_url,
-            municipality=beach.municipality,
-        ))
+        summaries.append(summary)
 
     if lat is not None and lon is not None:
         summaries.sort(key=lambda s: s.recommendation_score or 0, reverse=True)
@@ -216,32 +162,35 @@ async def _fetch_sea_safe(db: AsyncSession, beach: Beach):
         return None
 
 
-async def _fetch_tides_safe(db: AsyncSession, beach: Beach):
-    if not beach.tide_station_id:
+async def _fetch_simple_safe(
+    db: AsyncSession,
+    beach: Beach,
+    beach_field: str,
+    source_key: str,
+    fetcher,
+) -> dict | None:
+    """Generic helper for fetchers that return a single dict enriched with source metadata."""
+    if not getattr(beach, beach_field):
         return None
     try:
-        raw, source, snap_at = await fetch_with_fallback(
-            db, "tides",
-            lambda: hidrografico.fetch_current_tide(beach.tide_station_id),
-            beach_id=beach.id,
-        )
+        raw, source, snap_at = await fetch_with_fallback(db, source_key, fetcher, beach_id=beach.id)
         return {**raw, "data_source": source, "snapshot_at": snap_at}
     except Exception:
         return None
+
+
+async def _fetch_tides_safe(db: AsyncSession, beach: Beach):
+    return await _fetch_simple_safe(
+        db, beach, "tide_station_id", "tides",
+        lambda: hidrografico.fetch_current_tide(beach.tide_station_id),
+    )
 
 
 async def _fetch_water_quality_safe(db: AsyncSession, beach: Beach):
-    if not beach.eea_station_id:
-        return None
-    try:
-        raw, source, snap_at = await fetch_with_fallback(
-            db, "water_quality",
-            lambda: eea.fetch_water_quality(beach.eea_station_id),
-            beach_id=beach.id,
-        )
-        return {**raw, "data_source": source, "snapshot_at": snap_at}
-    except Exception:
-        return None
+    return await _fetch_simple_safe(
+        db, beach, "eea_station_id", "water_quality",
+        lambda: eea.fetch_water_quality(beach.eea_station_id),
+    )
 
 
 async def _fetch_transport_safe(db: AsyncSession, beach: Beach):
@@ -276,11 +225,10 @@ async def get_beach(
     _user: Optional[User] = Depends(get_current_user),
 ):
     beach = await get_beach_or_404(slug, db)
-    activity_level = await get_activity_level(db, beach.id)
-    params = get_params(activity_level)
+    params = await get_activity_params(db, beach.id)
     flag_color, flag_confidence = await get_beach_flag_status(db, beach.id)
-    occupancy = await _compute_occupancy(db, beach)
-    alerts = await _get_active_alerts(db, beach.id, activity_level)
+    occupancy = await compute_occupancy(db, beach)
+    alerts = await _get_active_alerts(db, beach.id, params.level)
 
     # fetch_with_fallback writes to DB (snapshots) so all calls must be sequential
     # on the same AsyncSession — asyncio.gather would corrupt the session
@@ -309,8 +257,8 @@ async def get_beach(
         status=BeachStatusResponse(
             flag_color=flag_color,
             flag_confidence=flag_confidence,
-            activity_level=activity_level,
-            activity_label=params["label"],
+            activity_level=params.level,
+            activity_label=params.label,
             occupancy=occupancy,
         ),
         active_alerts=alerts,

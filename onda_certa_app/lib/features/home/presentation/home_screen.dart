@@ -8,6 +8,7 @@ import '../../../core/notifications/notification_provider.dart';
 import '../../../core/presence/heartbeat_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/widgets/alert_item.dart';
@@ -41,7 +42,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           MaterialBanner(
             backgroundColor: AppColors.primary,
             content: const Text(
-              'Sem acesso à localização não podes reportar condições nem votar.',
+              AppStrings.noLocationBanner,
               style: TextStyle(color: Colors.white),
             ),
             actions: [
@@ -50,11 +51,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   messenger.clearMaterialBanners();
                   Geolocator.openAppSettings();
                 },
-                child: const Text('Definições', style: TextStyle(color: AppColors.teal)),
+                child: const Text(AppStrings.settings, style: TextStyle(color: AppColors.teal)),
               ),
               TextButton(
                 onPressed: messenger.clearMaterialBanners,
-                child: const Text('Fechar', style: TextStyle(color: Colors.white54)),
+                child: const Text(AppStrings.close, style: TextStyle(color: Colors.white54)),
               ),
             ],
           ),
@@ -82,10 +83,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           indicatorColor: AppColors.teal.withValues(alpha: 0.15),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Início'),
-            NavigationDestination(icon: Icon(Icons.location_on_outlined), selectedIcon: Icon(Icons.location_on), label: 'Praias'),
-            NavigationDestination(icon: Icon(Icons.waves_outlined), selectedIcon: Icon(Icons.waves), label: 'Marés'),
-            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Perfil'),
+            NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: AppStrings.navHome),
+            NavigationDestination(icon: Icon(Icons.location_on_outlined), selectedIcon: Icon(Icons.location_on), label: AppStrings.navBeaches),
+            NavigationDestination(icon: Icon(Icons.waves_outlined), selectedIcon: Icon(Icons.waves), label: AppStrings.navTides),
+            NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: AppStrings.navProfile),
           ],
         ),
       ),
@@ -100,7 +101,7 @@ class _PlaceholderTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text('Em breve', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
+      child: Text(AppStrings.comingSoon, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
     );
   }
 }
@@ -156,7 +157,7 @@ class _HomeDashboard extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
-              _SectionLabelWithTime(label: 'Melhor Praia Agora', updatedAt: lastUpdated),
+              _SectionLabelWithTime(label: AppStrings.bestBeachNow, updatedAt: lastUpdated),
               const SizedBox(height: 10),
               _BestBeachCard(beach: bestBeach.value, sea: sea.value),
               const SizedBox(height: AppSpacing.md),
@@ -239,7 +240,7 @@ class _HomeLoadingView extends StatelessWidget {
               children: [
                 const CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5),
                 const SizedBox(height: AppSpacing.xl),
-                Text('A carregar dados...', style: AppTextStyles.secondaryMd),
+                Text(AppStrings.loading, style: AppTextStyles.secondaryMd),
               ],
             ),
           ),
@@ -277,7 +278,7 @@ class _Header extends ConsumerWidget {
     final hasUnread = ref.watch(hasUnreadProvider);
     final now = DateTime.now();
     final hour = now.hour;
-    final greeting = hour < 5 ? 'Boa noite' : hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+    final greeting = hour < 5 ? AppStrings.greetingEvening : hour < 12 ? AppStrings.greetingMorning : hour < 18 ? AppStrings.greetingAfternoon : AppStrings.greetingEvening;
     final precip = weather?.precipitationProb ?? 0;
     final wind = weather?.windSpeed ?? 0;
     final minTemp = weather?.minTemp ?? 0;
@@ -303,8 +304,8 @@ class _Header extends ConsumerWidget {
       emoji = '🌙';
     }
     final name = profile?.displayName ?? 'explorador';
-    final dayNames = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
-    final monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const dayNames = AppStrings.dayNames;
+    const monthNames = AppStrings.monthNames;
     final dateStr = '${dayNames[now.weekday - 1]}, ${now.day} ${monthNames[now.month - 1]}';
 
     final safe = beaches.where((b) => b.flagColor == 'green').length;
@@ -331,7 +332,7 @@ class _Header extends ConsumerWidget {
                 children: [
                   Image.asset("assets/icon/icon.png", width: 24,),
                   const SizedBox(width: AppSpacing.sm),
-                  const Text('OndaCerta', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
+                  const Text(AppStrings.appName, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
                   const Spacer(),
                   Stack(
                     children: [
@@ -368,10 +369,10 @@ class _Header extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.currentTemp != null ? '${weather!.currentTemp!.round()}°C' : weather?.maxTemp != null ? '${weather!.minTemp!.round()}°-${weather!.maxTemp!.round()}°' : '--', label: 'Ar'),
-                  _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDir ?? 'Vento'),
-                  _WeatherCell(icon: Icons.waves, value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--', label: 'Ondas'),
-                  _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: 'Chuva'),
+                  _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.currentTemp != null ? '${weather!.currentTemp!.round()}°C' : weather?.maxTemp != null ? '${weather!.minTemp!.round()}°-${weather!.maxTemp!.round()}°' : '--', label: AppStrings.weatherAir),
+                  _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDir ?? AppStrings.weatherWind),
+                  _WeatherCell(icon: Icons.waves, value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--', label: AppStrings.weatherWaves),
+                  _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: AppStrings.weatherRain),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -389,16 +390,16 @@ class _Header extends ConsumerWidget {
                       children: [
                         Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
                         const SizedBox(width: AppSpacing.xs),
-                        const Text('live', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                        const Text(AppStrings.liveLabel, style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
-                  if (safe > 0) _StatusPill('$safe Seguras', AppColors.flagGreen),
+                  if (safe > 0) _StatusPill('$safe ${AppStrings.flagStatusSafe}', AppColors.flagGreen),
                   if (safe > 0) const SizedBox(width: 6),
-                  if (caution > 0) _StatusPill('$caution Cuidado', AppColors.flagYellow),
+                  if (caution > 0) _StatusPill('$caution ${AppStrings.flagStatusCaution}', AppColors.flagYellow),
                   if (caution > 0) const SizedBox(width: 6),
-                  if (danger > 0) _StatusPill('$danger Perigo', AppColors.flagRed),
+                  if (danger > 0) _StatusPill('$danger ${AppStrings.flagStatusDanger}', AppColors.flagRed),
                 ],
               ),
             ],
@@ -674,7 +675,7 @@ class _FavouritesSection extends ConsumerWidget {
             const Icon(Icons.favorite_border, color: AppColors.coral, size: 16),
             const SizedBox(width: 6),
             const Text(
-              'FAVORITAS',
+              AppStrings.sectionFavourites,
               style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8),
             ),
             const SizedBox(width: 6),
@@ -691,7 +692,7 @@ class _FavouritesSection extends ConsumerWidget {
             const Spacer(),
             GestureDetector(
               onTap: () => context.push(AppRoutes.favourites),
-              child: const Text('Ver todas →', style: AppTextStyles.tealLabel),
+              child: const Text(AppStrings.viewBeaches, style: AppTextStyles.tealLabel),
             ),
           ],
         ),
@@ -848,11 +849,11 @@ class _FavouritesNudgeCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Sem favoritas ainda', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary)),
+                const Text(AppStrings.noFavourites, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.primary)),
                 const SizedBox(height: 3),
-                Text(
-                  'Abre uma praia e guarda-a\npara acesso rápido aqui.',
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
+                const Text(
+                  AppStrings.noFavouritesHint,
+                  style: TextStyle(fontSize: 11, color: AppColors.textSecondary, height: 1.4),
                 ),
               ],
             ),
@@ -879,7 +880,7 @@ class _AlertsSection extends StatelessWidget {
           children: [
             const Icon(Icons.warning_amber_outlined, color: AppColors.coral, size: 18),
             const SizedBox(width: 6),
-            const Text('ALERTAS ACTIVOS', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8)),
+            const Text(AppStrings.sectionAlerts, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8)),
             const SizedBox(width: 6),
             if (reports.isNotEmpty)
               Container(
@@ -891,7 +892,7 @@ class _AlertsSection extends StatelessWidget {
             if (beach != null)
               GestureDetector(
                 onTap: () => context.push(AppRoutes.beachAlerts(beach!.slug), extra: beach),
-                child: const Text('Ver tudo →', style: AppTextStyles.tealLabel),
+                child: const Text(AppStrings.viewAll, style: AppTextStyles.tealLabel),
               ),
           ],
         ),
@@ -900,7 +901,7 @@ class _AlertsSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(color: Colors.white, borderRadius: AppRadii.cardMd, border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
-            child: const Center(child: Text('Sem alertas activos', style: AppTextStyles.secondaryMd)),
+            child: const Center(child: Text(AppStrings.noAlerts, style: AppTextStyles.secondaryMd)),
           )
         else
           ...visible.map((r) => Padding(
@@ -951,11 +952,11 @@ class _TidesSection extends StatelessWidget {
           children: [
             const Icon(Icons.waves, color: AppColors.teal, size: 16),
             const SizedBox(width: 6),
-            Text('MARÉS · ${beachShort.toUpperCase()}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8)),
+            Text(AppStrings.tidesSection(beachShort), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8)),
             const Spacer(),
             GestureDetector(
               onTap: onViewAll,
-              child: const Text('Ver detalhes →', style: AppTextStyles.tealLabel),
+              child: const Text(AppStrings.viewDetails, style: AppTextStyles.tealLabel),
             ),
           ],
         ),
@@ -1043,7 +1044,7 @@ class _ExploreGrid extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel('Explorar'),
+        _sectionLabel(AppStrings.exploreTitle),
         const SizedBox(height: 10),
         GridView.count(
           crossAxisCount: 2,
@@ -1053,13 +1054,13 @@ class _ExploreGrid extends StatelessWidget {
           crossAxisSpacing: 10,
           childAspectRatio: 1.3,
           children: [
-            _ExploreCard(emoji: '🗺️', title: 'Mapa de praias', subtitle: 'Ver todas no mapa', onTap: () => onTabChange(1)),
-            _ExploreCard(emoji: '🚌', title: 'Transportes', subtitle: 'Carris Metropolitana', onTap: () => onTabChange(1)),
-            _ExploreCard(emoji: '🌊', title: 'Praias', subtitle: '$beachCount praias da Arrábida', onTap: () => onTabChange(1)),
+            _ExploreCard(emoji: '🗺️', title: AppStrings.exploreMap, subtitle: AppStrings.exploreMapSub, onTap: () => onTabChange(1)),
+            _ExploreCard(emoji: '🚌', title: AppStrings.exploreTransport, subtitle: AppStrings.exploreTransportSub, onTap: () => onTabChange(1)),
+            _ExploreCard(emoji: '🌊', title: AppStrings.exploreBeaches, subtitle: '$beachCount praias da Arrábida', onTap: () => onTabChange(1)),
             _ExploreCard(
               emoji: '📋',
-              title: 'Submeter reporte',
-              subtitle: 'Ajuda a comunidade',
+              title: AppStrings.exploreReport,
+              subtitle: AppStrings.exploreReportSub,
               onTap: bestBeach != null
                   ? () => context.push(AppRoutes.beachAlerts(bestBeach!.slug), extra: bestBeach)
                   : () => onTabChange(1),
@@ -1117,7 +1118,7 @@ class _CommunitySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionLabel('Comunidade'),
+        _sectionLabel(AppStrings.communityTitle),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(16),
@@ -1139,8 +1140,8 @@ class _CommunitySection extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('$totalReports reportes activos', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.primary)),
-                      Text('em $beachCount praias · $activeUsers utilizadores online', style: AppTextStyles.secondary),
+                      Text(AppStrings.communityReports(totalReports), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.primary)),
+                      Text(AppStrings.communityFooter(beachCount, activeUsers), style: AppTextStyles.secondary),
                     ],
                   ),
                 ],
@@ -1156,7 +1157,7 @@ class _CommunitySection extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('Ver todas as praias >', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  child: const Text(AppStrings.seeAllBeaches, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                 ),
               ),
             ],

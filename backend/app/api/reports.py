@@ -12,8 +12,9 @@ from app.core.utils import now_utc
 from app.models.report import Report, ReportVote
 from app.models.user import User, ReputationEvent
 from app.schemas.report import ReportCreate, ReportResponse, VoteRequest, ReportListResponse
-from app.services.activity import get_activity_level, get_params, report_ttl_minutes
+from app.services.activity import get_activity_params, report_ttl_minutes
 from app.services.push_notifications import dispatch_report_notification
+from app.core.messages import Msg
 from app.services.reputation import apply_delta, DELTA_REPORT_SUBMITTED, DELTA_FIRST_REPORT_BONUS
 
 router = APIRouter(prefix="/beaches/{slug}/reports", tags=["reports"])
@@ -45,8 +46,7 @@ async def list_reports(
     user: Optional[User] = Depends(get_current_user),
 ):
     beach = await get_beach_or_404(slug, db)
-    activity_level = await get_activity_level(db, beach.id)
-    label = get_params(activity_level)["label"]
+    activity_params = await get_activity_params(db, beach.id)
     now = now_utc()
 
     stmt = select(Report).where(Report.beach_id == beach.id)
@@ -69,7 +69,7 @@ async def list_reports(
         for v in vote_result.scalars().all():
             my_votes[v.report_id] = v.vote
 
-    items = [_to_response(r, my_votes.get(r.id), label) for r in reports]
+    items = [_to_response(r, my_votes.get(r.id), activity_params.label) for r in reports]
     return ReportListResponse(reports=items, total=len(items))
 
 
@@ -85,12 +85,11 @@ async def create_report(
     # Only users physically at the beach can submit reports
     present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS))
     if not present:
-        raise HTTPException(403, "Tens de estar na praia para submeter um aviso")
+        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_REPORT)
 
-    activity_level = await get_activity_level(db, beach.id)
-    label = get_params(activity_level)["label"]
+    activity_params = await get_activity_params(db, beach.id)
 
-    ttl = report_ttl_minutes(body.type, activity_level)
+    ttl = report_ttl_minutes(body.type, activity_params.level)
     expires = now_utc() + timedelta(minutes=ttl)
 
     geom = None
@@ -151,7 +150,7 @@ async def create_report(
         exclude_user_id=user.id,
     )
 
-    return _to_response(report, None, label)
+    return _to_response(report, None, activity_params.label)
 
 
 @router.post("/{report_id}/vote", response_model=dict)
@@ -169,13 +168,13 @@ async def vote_report(
     )
     report = result.scalar_one_or_none()
     if not report or report.is_expired:
-        raise HTTPException(404, "Aviso não encontrado ou expirado")
+        raise HTTPException(404, Msg.REPORT_NOT_FOUND_OR_EXPIRED)
 
     # Presence required for all votes:
     vote_value = 1 if body.vote == "up" else -1
     present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS))
     if not present:
-        raise HTTPException(403, "Tens de estar na praia para votar neste aviso")
+        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_VOTE)
 
     # Upsert vote
     existing = await db.execute(
@@ -211,8 +210,8 @@ async def vote_report(
             report.downvotes += 1
 
     # Check for early expiry by downvotes
-    activity_level = await get_activity_level(db, beach.id)
-    thresholds = get_params(activity_level)["contradiction_threshold"]
+    vote_params = await get_activity_params(db, beach.id)
+    thresholds = vote_params.contradiction_threshold
     threshold = thresholds.get(report.type, 5)
     if report.downvotes >= threshold and (report.downvotes - report.upvotes) >= 2:
         report.is_expired = True
@@ -234,9 +233,9 @@ async def delete_report(
     )
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(404, "Aviso não encontrado")
+        raise HTTPException(404, Msg.REPORT_NOT_FOUND)
     if report.user_id != user.id:
-        raise HTTPException(403, "Não podes apagar avisos de outros utilizadores")
+        raise HTTPException(403, Msg.REPORT_NOT_YOURS)
 
     report.is_expired = True
     await db.commit()

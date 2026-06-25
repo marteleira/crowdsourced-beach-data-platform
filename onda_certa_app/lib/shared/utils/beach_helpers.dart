@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../../core/constants/app_strings.dart';
 import '../../features/beaches/domain/beach_models.dart';
 
 // Short label for a flag color - used in pills, list items,...
 String flagLabel(String flag) => switch (flag) {
-  'green'  => 'Segura',
-  'yellow' => 'Cuidado',
-  'red'    => 'Perigo',
-  'purple' => 'Fechada',
-  _        => 'Desconhecida',
+  'green'  => AppStrings.flagLabelGreen,
+  'yellow' => AppStrings.flagLabelYellow,
+  'red'    => AppStrings.flagLabelRed,
+  'purple' => AppStrings.flagLabelPurple,
+  _        => AppStrings.flagLabelUnknown,
 };
 
 // Color + longer description for a flag - used in detail cards,...
 (Color, String) flagInfo(String flag) => switch (flag) {
-  'green'  => (AppColors.flagGreen,     'Segura para nadar'),
-  'yellow' => (AppColors.flagYellow,    'Cuidado ao nadar'),
-  'red'    => (AppColors.flagRed,       'Condições perigosas'),
-  'purple' => (AppColors.flagPurple,    'Praia fechada'),
-  _        => (AppColors.textSecondary, 'Estado desconhecido'),
+  'green'  => (AppColors.flagGreen,     AppStrings.flagDescGreen),
+  'yellow' => (AppColors.flagYellow,    AppStrings.flagDescYellow),
+  'red'    => (AppColors.flagRed,       AppStrings.flagDescRed),
+  'purple' => (AppColors.flagPurple,    AppStrings.flagDescPurple),
+  _        => (AppColors.textSecondary, AppStrings.flagDescUnknown),
 };
 
-// Short occupancy label, ithandles both 'medium' and 'normal' which different
+// Short occupancy label, handles both 'medium' and 'normal' which different
 // API endpoints use for the same mid-level state
 String occupancyLabel(String level) => switch (level) {
-  'low'                  => 'Tranquila',
-  'medium' || 'normal'   => 'Moderada',
-  'high'                 => 'Lotada',
+  'low'                  => AppStrings.occupancyLow,
+  'medium' || 'normal'   => AppStrings.occupancyMedium,
+  'high'                 => AppStrings.occupancyHigh,
   _                      => '',
 };
 
@@ -34,25 +35,25 @@ String occupancyLabel(String level) => switch (level) {
 (double, String, Color) occupancyInfo(String level, int userCount, {int? maxCapacity}) {
   if (maxCapacity != null && maxCapacity > 0) {
     final pct = (userCount / maxCapacity).clamp(0.0, 1.0);
-    final label = pct < 0.35 ? 'Tranquila' : pct < 0.70 ? 'Animada' : 'Cheia';
+    final label = pct < 0.35 ? AppStrings.occupancyLow : pct < 0.70 ? AppStrings.occupancyAnimated : AppStrings.occupancyFull;
     final color = pct < 0.35 ? AppColors.flagGreen : pct < 0.70 ? AppColors.sand : AppColors.coral;
     return (pct, label, color);
   }
   return switch (level) {
-    'low'                => (0.22, 'Tranquila',    AppColors.flagGreen),
-    'medium' || 'normal' => (0.55, 'Animada',      AppColors.sand),
-    'high'               => (0.85, 'Cheia',         AppColors.coral),
-    _                    => (0.0,  'Desconhecida',  AppColors.textHint),
+    'low'                => (0.22, AppStrings.occupancyLow,      AppColors.flagGreen),
+    'medium' || 'normal' => (0.55, AppStrings.occupancyAnimated, AppColors.sand),
+    'high'               => (0.85, AppStrings.occupancyFull,     AppColors.coral),
+    _                    => (0.0,  AppStrings.occupancyUnknown,  AppColors.textHint),
   };
 }
 
 // Water quality classification string (EN or PT from EEA) - color + PT label
 (Color, String) waterQualityInfo(String? raw) => switch ((raw ?? '').toLowerCase()) {
-  'excelente' || 'excellent'    => (AppColors.flagGreen,     'Excelente'),
-  'boa'       || 'good'         => (AppColors.teal,          'Boa'),
-  'suficiente' || 'sufficient'  => (AppColors.flagYellow,    'Suficiente'),
-  'má'        || 'poor'         => (AppColors.flagRed,       'Má'),
-  _                              => (AppColors.textSecondary, 'Desconhecida'),
+  'excelente' || 'excellent'    => (AppColors.flagGreen,     AppStrings.qualityExcellent),
+  'boa'       || 'good'         => (AppColors.teal,          AppStrings.qualityGood),
+  'suficiente' || 'sufficient'  => (AppColors.flagYellow,    AppStrings.qualitySufficient),
+  'má'        || 'poor'         => (AppColors.flagRed,       AppStrings.qualityPoor),
+  _                              => (AppColors.textSecondary, AppStrings.qualityUnknown),
 };
 
 // Find the next upcoming tide extremum (first entry with time > now).
@@ -72,15 +73,19 @@ TideEntry? findNextTide(List<TideEntry> tides) {
 // Tide type label for display. Default: 'alta'/'baixa'.
 // capitalize: 'Alta'/'Baixa'. prefix: 'maré alta'/'maré baixa'.
 String tideTypeLabel(String type, {bool capitalize = false, bool prefix = false}) {
-  final base = type == 'alta' ? 'alta' : 'baixa';
-  final text = prefix ? 'maré $base' : base;
+  final String text;
+  if (prefix) {
+    text = type == 'alta' ? AppStrings.tidePrefixHigh : AppStrings.tidePrefixLow;
+  } else {
+    text = type == 'alta' ? AppStrings.tideHigh : AppStrings.tideLow;
+  }
   return capitalize ? '${text[0].toUpperCase()}${text.substring(1)}' : text;
 }
 
 // Recommendation quality label based on flag + score - used in home screen cards
 String beachQualityLabel(String flag, double? score) {
-  if (flag == 'green' && (score ?? 0) > 0.7) return 'Excellent';
-  if (flag == 'green') return 'Good';
-  if (flag == 'yellow') return 'Fair';
-  return 'Poor';
+  if (flag == 'green' && (score ?? 0) > 0.7) return AppStrings.beachQualityExcellent;
+  if (flag == 'green') return AppStrings.beachQualityGood;
+  if (flag == 'yellow') return AppStrings.beachQualityFair;
+  return AppStrings.beachQualityPoor;
 }
