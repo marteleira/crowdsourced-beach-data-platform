@@ -82,6 +82,13 @@ String tideTypeLabel(AppLocalizations l10n, String type, {bool capitalize = fals
   return capitalize ? '${text[0].toUpperCase()}${text.substring(1)}' : text;
 }
 
+// Translate an activity_label key from the backend (e.g. "unverified") to a localized string.
+// Returns null if the key is not recognized, so callers can skip display.
+String? activityLabelText(AppLocalizations l10n, String? key) => switch (key) {
+  'unverified' => l10n.activityLabelUnverified,
+  _ => null,
+};
+
 // Recommendation quality label based on flag + score - used in home screen cards
 String beachQualityLabel(AppLocalizations l10n, String flag, double? score) {
   if (flag == 'green' && (score ?? 0) > 0.7) return l10n.beachQualityExcellent;

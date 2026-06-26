@@ -568,6 +568,7 @@
   "occupancyAnimated": "Lively",
   "occupancyFull": "Full",
   "occupancyUnknown": "Unknown",
+  "activityLabelUnverified": "Unverified",
 
   "qualityExcellent": "Excellent",
   "qualityGood": "Good",
