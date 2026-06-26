@@ -5,6 +5,7 @@ import '../../beaches/data/beach_provider.dart';
 import '../../beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../core/l10n/l10n.dart';
 
 // Scene configuration
 // Derived from current time + weather data, Drives all visual decisions
@@ -418,7 +419,7 @@ class _HeroContent extends StatelessWidget {
     final displayH = currentH?.toStringAsFixed(2) ?? next?.height.toStringAsFixed(1) ?? '--';
     final dirLabel = isRising ? 'subindo' : tidesData.direction == 'falling' ? 'descendo' : 'estável';
     final nextStr  = next != null
-        ? '${tideTypeLabel(next.type, prefix: true)} às ${next.time}'
+        ? '${tideTypeLabel(context.l10n, next.type, prefix: true)} às ${next.time}'
         : '';
     final pillText = nextStr.isNotEmpty ? '$dirLabel · $nextStr' : dirLabel;
     final dotColor = isRising ? AppColors.teal : AppColors.sand;

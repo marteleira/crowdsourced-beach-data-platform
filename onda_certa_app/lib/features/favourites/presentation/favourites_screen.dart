@@ -8,6 +8,7 @@ import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/widgets/beach_cover_image.dart';
+import '../../../core/l10n/l10n.dart';
 
 class FavouritesScreen extends ConsumerWidget {
   const FavouritesScreen({super.key});
@@ -79,6 +80,7 @@ class _BeachFavCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final flagColor = AppColors.forFlag(beach.flagColor);
     //On dark card backgrounds, the gray "unknown" colour is invisible — use white instead.
     final pillColor = beach.flagColor == 'unknown' || beach.flagColor.isEmpty ? Colors.white : flagColor;
@@ -142,7 +144,7 @@ class _BeachFavCard extends ConsumerWidget {
                               children: [
                                 Container(width: 6, height: 6, decoration: BoxDecoration(color: pillColor, shape: BoxShape.circle)),
                                 const SizedBox(width: 5),
-                                Text(flagLabel(beach.flagColor), style: TextStyle(color: pillColor, fontSize: 11, fontWeight: FontWeight.w700)),
+                                Text(flagLabel(l10n, beach.flagColor), style: TextStyle(color: pillColor, fontSize: 11, fontWeight: FontWeight.w700)),
                               ],
                             ),
                           ),

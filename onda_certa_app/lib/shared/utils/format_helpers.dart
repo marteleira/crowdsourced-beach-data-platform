@@ -1,24 +1,24 @@
 /// Shared formatting helpers — measurements, time, strings.
 library;
 
-import '../../core/constants/app_strings.dart';
+import '../../core/l10n/l10n.dart';
 
 /// Relative time from a [DateTime]. Returns e.g. "há 5 min", "ontem".
-String timeAgo(DateTime dt) {
+String timeAgo(AppLocalizations l10n, DateTime dt) {
   final diff = DateTime.now().toUtc().difference(dt.toUtc());
-  if (diff.inMinutes < 1) return AppStrings.timeJustNow;
-  if (diff.inMinutes < 60) return AppStrings.timeMinutes(diff.inMinutes);
-  if (diff.inHours < 24) return AppStrings.timeHours(diff.inHours);
-  if (diff.inDays == 1) return AppStrings.timeYesterday;
-  if (diff.inDays < 7) return AppStrings.timeDays(diff.inDays);
-  if (diff.inDays < 30) return AppStrings.timeWeeks((diff.inDays / 7).round());
-  return AppStrings.timeMonths((diff.inDays / 30).round());
+  if (diff.inMinutes < 1) return l10n.timeJustNow;
+  if (diff.inMinutes < 60) return l10n.timeMinutes(diff.inMinutes);
+  if (diff.inHours < 24) return l10n.timeHours(diff.inHours);
+  if (diff.inDays == 1) return l10n.timeYesterday;
+  if (diff.inDays < 7) return l10n.timeDays(diff.inDays);
+  if (diff.inDays < 30) return l10n.timeWeeks((diff.inDays / 7).round());
+  return l10n.timeMonths((diff.inDays / 30).round());
 }
 
 /// Relative time from an ISO 8601 string. Returns '' on parse failure.
-String timeAgoFromString(String iso) {
+String timeAgoFromString(AppLocalizations l10n, String iso) {
   try {
-    return timeAgo(DateTime.parse(iso));
+    return timeAgo(l10n, DateTime.parse(iso));
   } catch (_) {
     return '';
   }
