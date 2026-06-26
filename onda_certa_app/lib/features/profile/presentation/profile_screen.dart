@@ -92,7 +92,8 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = profile.displayName ?? (profile.isAnonymous ? 'Convidado' : 'Utilizador');
+    final l10n = context.l10n;
+    final name = profile.displayName ?? (profile.isAnonymous ? l10n.guestUser : l10n.registeredUser);
     final initials = getInitials(name);
     final lvlColor = _levelColor(profile.level);
 
@@ -129,8 +130,8 @@ class _ProfileHeader extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 profile.isAnonymous
-                    ? 'Modo convidado'
-                    : '${profile.reputation} pontos de reputação',
+                    ? l10n.guestMode
+                    : l10n.reputationPoints(profile.reputation),
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.55),
                   fontSize: 13,
@@ -151,7 +152,7 @@ class _ProfileHeader extends StatelessWidget {
                     Icon(_levelIcon(profile.level), color: lvlColor, size: 15),
                     const SizedBox(width: 6),
                     Text(
-                      _levelLabel(profile.level),
+                      _levelLabel(l10n, profile.level),
                       style: TextStyle(
                         color: lvlColor,
                         fontWeight: FontWeight.w700,
@@ -181,11 +182,11 @@ class _ProfileHeader extends StatelessWidget {
     );
   }
 
-  String _levelLabel(String level) => switch (level) {
-    'novo'         => 'Novo',
-    'regular'      => 'Regular',
-    'contribuidor' => 'Contribuidor',
-    'veterano'     => 'Veterano',
+  String _levelLabel(AppLocalizations l10n, String level) => switch (level) {
+    'novo'         => l10n.levelNew,
+    'regular'      => l10n.levelRegular,
+    'contribuidor' => l10n.levelContributor,
+    'veterano'     => l10n.levelVeteran,
     _              => level,
   };
 
@@ -211,7 +212,8 @@ class _ReputationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final info = _levelInfo(profile.level);
+    final l10n = context.l10n;
+    final info = _levelInfo(l10n, profile.level);
     final progress = info.range == 0
         ? 1.0
         : ((profile.reputation - info.min) / info.range).clamp(0.0, 1.0);
@@ -254,7 +256,7 @@ class _ReputationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Próximo nível',
+                      l10n.levelNextLabel,
                       style: AppTextStyles.hintSm,
                     ),
                     Text(
@@ -266,7 +268,7 @@ class _ReputationCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '$ptsToGo pts restantes',
+                      l10n.levelPointsLeft(ptsToGo),
                       style: AppTextStyles.secondary,
                     ),
                   ],
@@ -278,8 +280,8 @@ class _ReputationCard extends StatelessWidget {
                     color: AppColors.teal.withValues(alpha: 0.1),
                     borderRadius: AppRadii.cardSm,
                   ),
-                  child: const Text(
-                    '🏄 Nível máximo!',
+                  child: Text(
+                    l10n.levelMaxReached,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -324,12 +326,12 @@ class _ReputationCard extends StatelessWidget {
     );
   }
 
-  ({String label, String? next, int min, int max, int range}) _levelInfo(String level) =>
+  ({String label, String? next, int min, int max, int range}) _levelInfo(AppLocalizations l10n, String level) =>
       switch (level) {
-        'novo'         => (label: 'Novo',         next: 'Regular',      min: 0,   max: 10,  range: 10),
-        'regular'      => (label: 'Regular',       next: 'Contribuidor', min: 10,  max: 50,  range: 40),
-        'contribuidor' => (label: 'Contribuidor',  next: 'Veterano',     min: 50,  max: 150, range: 100),
-        _              => (label: 'Veterano',       next: null,           min: 150, max: 150, range: 0),
+        'novo'         => (label: l10n.levelNew,         next: l10n.levelRegular,      min: 0,   max: 10,  range: 10),
+        'regular'      => (label: l10n.levelRegular,     next: l10n.levelContributor,  min: 10,  max: 50,  range: 40),
+        'contribuidor' => (label: l10n.levelContributor, next: l10n.levelVeteran,      min: 50,  max: 150, range: 100),
+        _              => (label: l10n.levelVeteran,     next: null,                    min: 150, max: 150, range: 0),
       };
 }
 
@@ -339,6 +341,7 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final stats = profile.stats;
     final accuracy = (stats?.totalReports ?? 0) > 0
         ? '${(stats!.accuracyRate * 100).round()}%'
@@ -352,21 +355,21 @@ class _StatsRow extends StatelessWidget {
             icon: Icons.description_outlined,
             iconColor: AppColors.coral,
             value: '${stats?.totalReports ?? 0}',
-            label: 'Avisos',
+            label: l10n.statReports,
           ),
           const SizedBox(width: AppSpacing.sm),
           _StatTile(
             icon: Icons.local_fire_department_outlined,
             iconColor: AppColors.amber,
             value: profile.streak > 0 ? '${profile.streak}d' : 'N/A',
-            label: 'Streak',
+            label: l10n.statStreak,
           ),
           const SizedBox(width: AppSpacing.sm),
           _StatTile(
             icon: Icons.gps_fixed,
             iconColor: AppColors.teal,
             value: accuracy,
-            label: 'Precisão',
+            label: l10n.statAccuracy,
           ),
         ],
       ),
@@ -457,17 +460,17 @@ class _GuestBanner extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Estás em modo convidado',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.guestBannerTitle,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                       color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
-                    'Cria uma conta para guardar as tuas contribuições.',
+                  Text(
+                    context.l10n.guestSaveContribs,
                     style: AppTextStyles.secondary,
                   ),
                 ],
@@ -484,19 +487,19 @@ class _AchievementsSection extends StatelessWidget {
   const _AchievementsSection({required this.profile});
   final UserProfile profile;
 
-  static const _ptLabels = {
-    'first_report': 'Primeira Onda',
-    'tide_watcher': 'Guardião das Marés',
-    '10_reports':   '10 Avisos',
-    'accurate':     'Preciso',
-    'streak_10':    '10 Dias',
-    'regular':      'Regular',
-    'contributor':  'Contribuidor',
-    'veteran':      'Veterano',
-  };
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final labels = {
+      'first_report': l10n.achievementFirstReport,
+      'tide_watcher': l10n.achievementTideWatcher,
+      '10_reports':   l10n.achievement10Reports,
+      'accurate':     l10n.achievementAccurate,
+      'streak_10':    l10n.achievementStreak10,
+      'regular':      l10n.achievementRegular,
+      'contributor':  l10n.achievementContributor,
+      'veteran':      l10n.achievementVeteran,
+    };
     final earned = profile.achievements.where((a) => a.earned).length;
     return _Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -507,8 +510,8 @@ class _AchievementsSection extends StatelessWidget {
             children: [
               const Icon(Icons.emoji_events_outlined, size: 18, color: AppColors.primary),
               const SizedBox(width: AppSpacing.sm),
-              const Text(
-                'Conquistas',
+              Text(
+                l10n.achievementsTitle,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -538,7 +541,7 @@ class _AchievementsSection extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: profile.achievements.map((a) {
-              final label = _ptLabels[a.id] ?? a.label;
+              final label = labels[a.id] ?? a.label;
               return _AchievementChip(achievement: a, label: label);
             }).toList(),
           ),
@@ -592,28 +595,28 @@ class _RecentActivity extends StatelessWidget {
   const _RecentActivity({required this.profile});
   final UserProfile profile;
 
-  static const _fallbackLabels = {
-    'report_confirmed':      'Aviso confirmado pela comunidade',
-    'report_contradicted':   'Aviso rejeitado pela comunidade',
-    'flag_confirmed':        'Proposta de bandeira confirmada',
-    'flag_contradicted':     'Proposta de bandeira rejeitada',
-    'confirmation_accurate': 'Confirmação correta',
-    'spam_penalty':          'Penalidade por spam',
-  };
-
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final fallbackLabels = {
+      'report_confirmed':      l10n.eventReportConfirmed,
+      'report_contradicted':   l10n.eventReportContradicted,
+      'flag_confirmed':        l10n.eventFlagConfirmed,
+      'flag_contradicted':     l10n.eventFlagContradicted,
+      'confirmation_accurate': l10n.eventConfirmationAccurate,
+      'spam_penalty':          l10n.eventSpamPenalty,
+    };
     return _Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.history_rounded, size: 18, color: AppColors.primary),
-              SizedBox(width: AppSpacing.sm),
+              const Icon(Icons.history_rounded, size: 18, color: AppColors.primary),
+              const SizedBox(width: AppSpacing.sm),
               Text(
-                'Atividade Recente',
+                l10n.recentActivityTitle,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -629,7 +632,7 @@ class _RecentActivity extends StatelessWidget {
             return Column(
               children: [
                 if (i > 0) const _Divider(),
-                _EventRow(event: e, fallback: _fallbackLabels),
+                _EventRow(event: e, fallback: fallbackLabels),
               ],
             );
           }),
@@ -649,12 +652,25 @@ class _EventRow extends StatelessWidget {
   static const _negativeBg   = Color(0xFFFEE2E2);
   static const _negativeText = Color(0xFFDC2626);
 
+  String _normalizeLabel(AppLocalizations l10n, String raw) {
+    return raw
+        .replaceAll('green', l10n.flagColorGreen)
+        .replaceAll('yellow', l10n.flagColorYellow)
+        .replaceAll('red', l10n.flagColorRed)
+        .replaceAll('purple', l10n.flagColorPurple)
+        .replaceAll('Green', l10n.flagColorGreenCap)
+        .replaceAll('Yellow', l10n.flagColorYellowCap)
+        .replaceAll('Red', l10n.flagColorRedCap)
+        .replaceAll('Purple', l10n.flagColorPurpleCap);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final positive = event.delta > 0;
     final deltaText = positive ? '+${event.delta}' : '${event.delta}';
-    final label = event.reason ?? fallback[event.event] ?? event.event;
+    final rawLabel = event.reason ?? fallback[event.event] ?? event.event;
+    final label = _normalizeLabel(l10n, rawLabel);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 11),
@@ -713,6 +729,7 @@ class _SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       padding: EdgeInsets.zero,
@@ -721,35 +738,35 @@ class _SettingsSection extends StatelessWidget {
           _SettingsTile(
             icon: Icons.manage_accounts_outlined,
             iconColor: AppColors.teal,
-            label: 'Definições da Conta',
+            label: l10n.settingsAccountTitle,
             onTap: () => context.push(AppRoutes.settingsAccount),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.star_outline_rounded,
             iconColor: AppColors.amber,
-            label: 'Praias Favoritas',
+            label: l10n.settingsFavouritesTitle,
             onTap: () => context.push(AppRoutes.favourites),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.notifications_outlined,
             iconColor: AppColors.teal,
-            label: 'Notificações',
+            label: l10n.notificationsTitle,
             onTap: () => context.push(AppRoutes.settingsNotifications),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.lock_outline_rounded,
             iconColor: AppColors.textSecondary,
-            label: 'Privacidade & Dados',
+            label: l10n.settingsPrivacyTitle,
             onTap: () => context.push(AppRoutes.settingsPrivacy),
           ),
           const _Divider(indent: 58),
           _SettingsTile(
             icon: Icons.info_outline_rounded,
             iconColor: AppColors.primary,
-            label: 'Sobre OndaCerta',
+            label: l10n.settingsAboutTitle,
             onTap: () => context.push(AppRoutes.terms),
             isLast: true,
           ),
@@ -826,9 +843,9 @@ class _SignOutButton extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 15),
             shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
           ),
-          child: const Text(
-            'Terminar Sessão',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+          child: Text(
+            context.l10n.signOut,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
           ),
         ),
       ),
@@ -836,20 +853,21 @@ class _SignOutButton extends ConsumerWidget {
   }
 
   Future<void> _confirmSignOut(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Terminar sessão?'),
-        content: const Text('Tens a certeza que queres sair da tua conta?'),
+        title: Text(l10n.signOutTitle),
+        content: Text(l10n.signOutBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.signOutCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.coral),
-            child: const Text('Sair'),
+            child: Text(l10n.signOutConfirm),
           ),
         ],
       ),
@@ -873,15 +891,15 @@ class _ErrorView extends StatelessWidget {
         children: [
           const Icon(Icons.cloud_off_rounded, size: 52, color: AppColors.textHint),
           const SizedBox(height: AppSpacing.lg),
-          const Text(
-            'Não foi possível carregar o perfil',
-            style: TextStyle(color: AppColors.textSecondary),
+          Text(
+            context.l10n.errorLoadProfile,
+            style: const TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.xl),
           FilledButton(
             onPressed: onRetry,
             style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
-            child: const Text('Tentar de novo'),
+            child: Text(context.l10n.tryAgain),
           ),
         ],
       ),

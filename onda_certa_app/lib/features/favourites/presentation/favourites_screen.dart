@@ -33,10 +33,10 @@ class FavouritesScreen extends ConsumerWidget {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Praias Favoritas', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
+              Text(context.l10n.favouritesScreenTitle, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
               if (count != null && count > 0)
                 Text(
-                  count == 1 ? '1 praia guardada' : '$count praias guardadas',
+                  count == 1 ? context.l10n.favouritesSaved1 : context.l10n.favouritesSavedN(count),
                   style: const TextStyle(fontSize: 11, color: Colors.white54, fontWeight: FontWeight.w400),
                 ),
             ],
@@ -162,7 +162,7 @@ class _BeachFavCard extends ConsumerWidget {
                                   const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 11),
                                   const SizedBox(width: 3),
                                   Text(
-                                    '${beach.activeAlertsCount} ${beach.activeAlertsCount == 1 ? 'alerta' : 'alertas'}',
+                                    '${beach.activeAlertsCount} ${beach.activeAlertsCount == 1 ? l10n.favouriteAlertSingular : l10n.favouriteAlertPlural}',
                                     style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                                   ),
                                 ],
@@ -248,14 +248,14 @@ class _BeachFavCard extends ConsumerWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              'Remover "${beach.name}"?',
+              context.l10n.favouriteRemoveTitle(beach.name),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.primary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Esta praia será removida das tuas favoritas.',
-              style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+            Text(
+              context.l10n.favouriteRemoveBody,
+              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),
@@ -270,7 +270,7 @@ class _BeachFavCard extends ConsumerWidget {
                       shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
-                    child: const Text('Cancelar', style: TextStyle(fontWeight: FontWeight.w600)),
+                    child: Text(context.l10n.cancelLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -282,7 +282,7 @@ class _BeachFavCard extends ConsumerWidget {
                       shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
                       padding: const EdgeInsets.symmetric(vertical: 15),
                     ),
-                    child: const Text('Remover', style: TextStyle(fontWeight: FontWeight.w600)),
+                    child: Text(context.l10n.removeLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],
@@ -298,7 +298,7 @@ class _BeachFavCard extends ConsumerWidget {
       } catch (_) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Erro ao remover favorito'), backgroundColor: AppColors.coral),
+            SnackBar(content: Text(context.l10n.errorRemoveFavourite), backgroundColor: AppColors.coral),
           );
         }
       }
@@ -326,12 +326,12 @@ class _EmptyView extends StatelessWidget {
               child: const Icon(Icons.favorite_border, size: 40, color: AppColors.coral),
             ),
             const SizedBox(height: 22),
-            const Text('Sem praias favoritas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary)),
+            Text(context.l10n.favouritesEmptyTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.primary)),
             const SizedBox(height: 8),
-            const Text(
-              'Abre uma praia e toca no coração\npara a guardar aqui.',
+            Text(
+              context.l10n.favouritesEmptyHint,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5),
+              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, height: 1.5),
             ),
           ],
         ),
@@ -354,11 +354,11 @@ class _ErrorView extends StatelessWidget {
         children: [
           const Icon(Icons.cloud_off_outlined, size: 48, color: AppColors.textHint),
           const SizedBox(height: 16),
-          const Text('Erro ao carregar favoritos', style: TextStyle(color: AppColors.textSecondary)),
+          Text(context.l10n.errorLoadFavourites, style: const TextStyle(color: AppColors.textSecondary)),
           const SizedBox(height: 12),
           TextButton(
             onPressed: onRetry,
-            child: const Text('Tentar novamente', style: TextStyle(color: AppColors.tealDark, fontWeight: FontWeight.w600)),
+            child: Text(context.l10n.retryAgain, style: const TextStyle(color: AppColors.tealDark, fontWeight: FontWeight.w600)),
           ),
         ],
       ),

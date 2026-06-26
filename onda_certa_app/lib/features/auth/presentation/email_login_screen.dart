@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_input_decoration.dart';
 import '../../../shared/widgets/password_strength_field.dart';
@@ -35,6 +36,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     ref.listen<AsyncValue<AuthState>>(authProvider, (_, next) {
       if (next case AsyncData(value: AuthAuthenticated())) {
         context.go(AppRoutes.home);
@@ -62,7 +65,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
               children: [
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  _isRegister ? 'Criar conta' : 'Entrar',
+                  _isRegister ? l10n.createAccount : l10n.signIn,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w700,
@@ -70,9 +73,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  _isRegister
-                      ? 'Regista-te para contribuíres com a comunidade'
-                      : 'Bem-vindo de volta',
+                  _isRegister ? l10n.registerSubtitle : l10n.loginWelcomeBack,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -82,11 +83,11 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                   TextFormField(
                     controller: _nameCtrl,
                     validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Introduz o teu nome' : null,
+                        (v == null || v.trim().isEmpty) ? l10n.emailNameEmpty : null,
                     style: const TextStyle(color: AppColors.primary),
                     decoration: authInputDecoration(
-                      label: 'Nome',
-                      hint: 'O teu nome',
+                      label: l10n.fieldName,
+                      hint: l10n.fieldNameHint,
                       icon: Icons.person_outline,
                     ),
                   ),
@@ -96,14 +97,14 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Introduz o email';
-                    if (!v.contains('@')) return 'Email inválido';
+                    if (v == null || v.trim().isEmpty) return l10n.emailEmpty;
+                    if (!v.contains('@')) return l10n.emailInvalidSimple;
                     return null;
                   },
                   style: const TextStyle(color: AppColors.primary),
                   decoration: authInputDecoration(
-                    label: 'Email',
-                    hint: 'o.teu@email.com',
+                    label: l10n.fieldEmail,
+                    hint: l10n.fieldEmailHint,
                     icon: Icons.email_outlined,
                   ),
                 ),
@@ -126,9 +127,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text(
-                        'Esqueci a password',
-                        style: TextStyle(
+                      child: Text(
+                        l10n.forgotPassword,
+                        style: const TextStyle(
                           color: AppColors.tealDark,
                           fontWeight: FontWeight.w500,
                           fontSize: 13,
@@ -164,7 +165,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                             ),
                           )
                         : Text(
-                            _isRegister ? 'Criar conta' : 'Entrar',
+                            _isRegister ? l10n.createAccount : l10n.signIn,
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -187,11 +188,11 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                         children: [
                           TextSpan(
                             text: _isRegister
-                                ? 'Já tens conta? '
-                                : 'Ainda não tens conta? ',
+                                ? l10n.emailAlreadyHaveAccount
+                                : l10n.emailNoAccountYet,
                           ),
                           TextSpan(
-                            text: _isRegister ? 'Entrar' : 'Criar conta',
+                            text: _isRegister ? l10n.signIn : l10n.createAccount,
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
@@ -212,6 +213,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
   }
 
   Future<void> _submit() async {
+    final l10n = context.l10n;
+    final isRegister = _isRegister;
     if (!(_formKey.currentState?.validate() ?? false)) return;
     setState(() {
       _loading = true;
@@ -219,7 +222,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
     });
     try {
       final repo = ref.read(authRepositoryProvider);
-      final tokens = _isRegister
+      final tokens = isRegister
           ? await repo.registerWithEmail(
               _emailCtrl.text.trim(),
               _passwordCtrl.text,
@@ -257,33 +260,30 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
         showDialog<void>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Email já registado'),
-            content: Text(
-                msg ?? 'Este email já tem uma conta. Entra com a tua password.'),
+            title: Text(l10n.emailAlreadyRegisteredTitle),
+            content: Text(msg ?? l10n.emailAlreadyRegisteredBody),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(ctx);
                   setState(() => _isRegister = false);
                 },
-                child: const Text('Entrar'),
+                child: Text(l10n.signIn),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Fechar'),
+                child: Text(l10n.close),
               ),
             ],
           ),
         );
       } else {
         setState(() => _errorMessage = msg ??
-            (_isRegister
-                ? 'Erro ao criar conta. Verifica os dados.'
-                : 'Email ou password incorrectos.'));
+            (isRegister ? l10n.emailRegisterError : l10n.emailLoginError));
       }
     } catch (_) {
       if (!mounted) return;
-      setState(() => _errorMessage = 'Erro de ligação. Tenta novamente.');
+      setState(() => _errorMessage = l10n.connectionError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }

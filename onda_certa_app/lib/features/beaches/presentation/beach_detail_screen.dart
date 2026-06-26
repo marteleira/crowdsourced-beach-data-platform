@@ -332,7 +332,7 @@ class _CardHeader extends StatelessWidget {
         if (isLive) ...[
           Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
           const SizedBox(width: AppSpacing.xs),
-          const Text('live', style: TextStyle(color: AppColors.teal, fontSize: 11, fontWeight: FontWeight.w600)),
+          Text(context.l10n.liveLabel, style: const TextStyle(color: AppColors.teal, fontSize: 11, fontWeight: FontWeight.w600)),
         ],
       ],
     );
@@ -403,7 +403,7 @@ class _FlagCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.xs),
-              Text('${(confidence * 100).round()}% conf.', style: AppTextStyles.hintXs),
+              Text(context.l10n.confidencePct((confidence * 100).round()), style: AppTextStyles.hintXs),
             ],
           ),
         ],
@@ -585,19 +585,19 @@ class _WeatherCard extends StatelessWidget {
                 MetricCell(
                   icon: Icons.thermostat,
                   value: '${weather!.apparentTemp!.round()}°C',
-                  label: 'Sensação', iconColor: AppColors.coral,
+                  label: l10n.weatherFeelsLike, iconColor: AppColors.coral,
                 ),
               if (weather?.humidity != null)
                 MetricCell(
                   icon: Icons.water_drop_outlined,
                   value: '${weather!.humidity!.round()}%',
-                  label: 'Humidade', iconColor: AppColors.waterIcon,
+                  label: l10n.weatherHumidity, iconColor: AppColors.waterIcon,
                 ),
               if (weather?.uvIndex != null)
                 MetricCell(
                   icon: Icons.wb_sunny_outlined,
                   value: '${weather!.uvIndex!.round()}',
-                  label: 'UV', iconColor: AppColors.uvIcon,
+                  label: l10n.weatherUv, iconColor: AppColors.uvIcon,
                 ),
             ]),
           ],
@@ -628,8 +628,8 @@ class _WindCell extends StatelessWidget {
         if (dirCardinal != null)
           Text(dirCardinal!, style: AppTextStyles.secondarySm),
         if (gusts != null)
-          Text('raj. ${gusts!.round()} km/h', style: AppTextStyles.secondarySm.copyWith(fontSize: 10)),
-        Text('Vento', style: AppTextStyles.secondarySm),
+          Builder(builder: (ctx) => Text(ctx.l10n.windGusts(gusts!.round()), style: AppTextStyles.secondarySm.copyWith(fontSize: 10))),
+        Builder(builder: (ctx) => Text(ctx.l10n.weatherWind, style: AppTextStyles.secondarySm)),
       ],
     );
   }
@@ -642,27 +642,28 @@ class _SeaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(title: 'Condições do Mar', isLive: true),
+          _CardHeader(title: l10n.seaConditionsTitle, isLive: true),
           const SizedBox(height: AppSpacing.md),
           metricRow([
             MetricCell(
               icon: Icons.waves,
               value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--',
-              label: 'Ondas', iconColor: AppColors.teal,
+              label: l10n.weatherWaves, iconColor: AppColors.teal,
             ),
             MetricCell(
               icon: Icons.schedule,
               value: sea?.wavePeriodMax != null ? '${sea!.wavePeriodMax!.round()}s' : '--',
-              label: 'Período', iconColor: AppColors.primary,
+              label: l10n.seaWavePeriod, iconColor: AppColors.primary,
             ),
             MetricCell(
               icon: Icons.thermostat_outlined,
               value: sea?.seaTemp != null ? '${sea!.seaTemp!.round()}°C' : '--',
-              label: 'Temp. Mar', iconColor: AppColors.coral,
+              label: l10n.seaTempLabel, iconColor: AppColors.coral,
             ),
           ]),
         ],
@@ -679,9 +680,10 @@ class _TidesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tides = tidesData.entries;
+    final l10n = context.l10n;
     final apiDirection = tidesData.direction ?? 'steady';
     final isRising = apiDirection == 'rising';
-    final directionLabel = isRising ? 'Subindo' : apiDirection == 'falling' ? 'Descendo' : 'Estável';
+    final directionLabel = isRising ? l10n.tideDirRisingCap : apiDirection == 'falling' ? l10n.tideDirFallingCap : l10n.tideDirSteadyCap;
 
     final nextTide = findNextTide(tides);
 
@@ -699,11 +701,11 @@ class _TidesCard extends StatelessWidget {
             children: [
               const Icon(Icons.waves, color: AppColors.teal, size: 16),
               const SizedBox(width: 6),
-              const Text('Marés Hoje', style: AppTextStyles.titleSm),
+              Text(l10n.tidesCardTitle, style: AppTextStyles.titleSm),
               const Spacer(),
               GestureDetector(
                 onTap: onViewAll,
-                child: const Text('Vista completa →', style: AppTextStyles.tealLabel),
+                child: Text(l10n.tidesViewFull, style: AppTextStyles.tealLabel),
               ),
             ],
           ),
@@ -760,9 +762,10 @@ class _WaterQualityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, label) = waterQualityInfo(context.l10n, quality?.classification);
-    final cacheStr = _cacheStr(quality);
-    final eeaStr = _eeaStr(quality);
+    final l10n = context.l10n;
+    final (color, label) = waterQualityInfo(l10n, quality?.classification);
+    final cacheStr = _cacheStr(l10n, quality);
+    final eeaStr = _eeaStr(l10n, quality);
 
     return _SectionCard(
       child: Row(
@@ -777,7 +780,7 @@ class _WaterQualityCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Qualidade da Água', style: AppTextStyles.titleSm),
+                Text(context.l10n.waterQualityTitle, style: AppTextStyles.titleSm),
                 if (eeaStr != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
@@ -820,21 +823,21 @@ class _WaterQualityCard extends StatelessWidget {
     );
   }
 
-  String? _eeaStr(WaterQuality? q) {
+  String? _eeaStr(AppLocalizations l10n, WaterQuality? q) {
     if (q == null || q.sampledAt == null) return null;
-    return 'Ultima avaliação em ${q.sampledAt}';
+    return l10n.waterQualityLastSampled(q.sampledAt!);
   }
 
-  String? _cacheStr(WaterQuality? q) {
+  String? _cacheStr(AppLocalizations l10n, WaterQuality? q) {
     if (q == null || q.dataSource == 'live') return null;
-    if (q.snapshotAt == null) return 'dados em cache';
+    if (q.snapshotAt == null) return l10n.waterQualityCached;
     try {
       final dt = DateTime.parse(q.snapshotAt!);
       final diff = DateTime.now().difference(dt);
-      if (diff.inHours < 1)  return 'cache ${diff.inMinutes} min atrás';
-      if (diff.inHours < 48) return 'cache ${diff.inHours}h atrás';
-      return 'cache ${diff.inDays}d atrás';
-    } catch (_) { return 'dados em cache'; }
+      if (diff.inHours < 1)  return l10n.waterQualityCachedMins(diff.inMinutes);
+      if (diff.inHours < 48) return l10n.waterQualityCachedHours(diff.inHours);
+      return l10n.waterQualityCachedDays(diff.inDays);
+    } catch (_) { return l10n.waterQualityCached; }
   }
 }
 
@@ -845,29 +848,32 @@ class _TransportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(title: 'Próximas Partidas', isLive: !isLoading),
+          _CardHeader(title: l10n.transportCardTitle, isLive: !isLoading),
           if (isLoading) ...[
             const SizedBox(height: AppSpacing.lg),
             const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2))),
             const SizedBox(height: AppSpacing.lg),
           ] else if (transport.stops.isEmpty) ...[
             const SizedBox(height: AppSpacing.md),
-            const Center(child: Text('Sem informação de transportes para esta praia', style: AppTextStyles.secondaryMd)),
+            Center(child: Text(l10n.transportNoInfo, style: AppTextStyles.secondaryMd)),
           ] else if (!transport.hasDepartures) ...[
             const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               const Icon(Icons.schedule, size: 14, color: AppColors.textHint),
               const SizedBox(width: 6),
-              const Text('Sem partidas previstas', style: AppTextStyles.secondaryMd),
+              Text(l10n.transportNoDepartures, style: AppTextStyles.secondaryMd),
             ]),
             const SizedBox(height: AppSpacing.xs),
             Center(
               child: Text(
-                '${transport.stops.length} paragem${transport.stops.length > 1 ? 's' : ''} próxima${transport.stops.length > 1 ? 's' : ''}',
+                transport.stops.length == 1
+                    ? l10n.transportNearbyStop(1)
+                    : l10n.transportNearbyStops(transport.stops.length),
                 style: AppTextStyles.hintSm,
               ),
             ),
@@ -967,7 +973,7 @@ class _PlanTripButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: () => context.push(AppRoutes.beachTransport(beach.slug), extra: beach),
         icon: const Icon(Icons.directions_bus, size: 18),
-        label: const Text('Ver horários completos →'),
+        label: Text(context.l10n.transportViewSchedules),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
@@ -995,7 +1001,7 @@ class _CommunityAlertsCard extends StatelessWidget {
           children: [
             const Icon(Icons.warning_amber_outlined, color: AppColors.coral, size: 18),
             const SizedBox(width: 6),
-            const Text('ALERTAS DA COMUNIDADE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8)),
+            Text(context.l10n.communityAlertsSectionTitle, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.8)),
             const SizedBox(width: 6),
             if (reports.isNotEmpty)
               Container(
@@ -1006,7 +1012,7 @@ class _CommunityAlertsCard extends StatelessWidget {
             const Spacer(),
             GestureDetector(
               onTap: () => context.push(AppRoutes.beachAlerts(beach.slug), extra: beach),
-              child: const Text('Ver tudo →', style: AppTextStyles.tealLabel),
+              child: Text(context.l10n.viewAll, style: AppTextStyles.tealLabel),
             ),
           ],
         ),
@@ -1015,7 +1021,7 @@ class _CommunityAlertsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(color: Colors.white, borderRadius: AppRadii.cardMd, border: Border.all(color: Colors.black.withValues(alpha: 0.06))),
-            child: const Center(child: Text('Sem alertas activos', style: AppTextStyles.secondaryMd)),
+            child: Center(child: Text(context.l10n.noAlerts, style: AppTextStyles.secondaryMd)),
           )
         else
           ...visible.map((r) => Padding(
@@ -1056,9 +1062,9 @@ class _PresenceSection extends ConsumerWidget {
           children: [
             const Icon(Icons.people_alt_outlined, color: AppColors.teal, size: 18),
             const SizedBox(width: 6),
-            const Text(
-              'QUEM ESTÁ AQUI',
-              style: TextStyle(
+            Text(
+              context.l10n.presenceSectionTitle,
+              style: const TextStyle(
                 fontSize: 11, fontWeight: FontWeight.w700,
                 color: AppColors.textSecondary, letterSpacing: 0.8,
               ),
@@ -1066,11 +1072,11 @@ class _PresenceSection extends ConsumerWidget {
             const SizedBox(width: 8),
             Container(width: 6, height: 6, decoration: const BoxDecoration(color: AppColors.teal, shape: BoxShape.circle)),
             const SizedBox(width: 4),
-            const Text('live', style: TextStyle(color: AppColors.teal, fontSize: 11, fontWeight: FontWeight.w600)),
+            Text(context.l10n.liveLabel, style: const TextStyle(color: AppColors.teal, fontSize: 11, fontWeight: FontWeight.w600)),
             const Spacer(),
             GestureDetector(
               onTap: () => _showPresencePeople(context, presence),
-              child: const Text('Ver todos →', style: AppTextStyles.tealLabel),
+              child: Text(context.l10n.presenceViewAll, style: AppTextStyles.tealLabel),
             ),
           ],
         ),
@@ -1125,13 +1131,14 @@ class _PresenceWithAvatars extends StatelessWidget {
         ? avatarSize
         : (itemCount - 1) * step + avatarSize;
 
-    final countLabel = total == 1 ? '1 pessoa' : '$total pessoas';
+    final l10n = context.l10n;
+    final countLabel = total == 1 ? l10n.presencePerson : l10n.presencePeople(total);
     final sharedLabel = shown.length == 1
-        ? '1 partilha o perfil'
-        : '${shown.length} partilham o perfil';
+        ? l10n.presenceSharedProfile1
+        : l10n.presenceSharedProfiles(shown.length);
     final subtitle = overflow > 0
         ? '$countLabel · $sharedLabel'
-        : '$countLabel nesta praia agora';
+        : (total == 1 ? l10n.presencePersonHere : l10n.presencePeopleHere(total));
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1176,7 +1183,8 @@ class _PresenceAllPrivate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = total == 1 ? '1 pessoa está aqui' : '$total pessoas estão aqui';
+    final l10n = context.l10n;
+    final label = total == 1 ? l10n.presenceEmptyTitle1 : l10n.presenceEmptyTitleN(total);
     return Row(
       children: [
         Container(
@@ -1194,9 +1202,9 @@ class _PresenceAllPrivate extends StatelessWidget {
             children: [
               Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.primary)),
               const SizedBox(height: 2),
-              const Text(
-                'Nenhuma pessoa decidiu partilhar a localização.',
-                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              Text(
+                l10n.presencePrivateNote,
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -1329,7 +1337,7 @@ class _PresencePeopleSheet extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Quem está aqui', style: AppTextStyles.titleMd),
+                      Text(context.l10n.presenceSheetTitle, style: AppTextStyles.titleMd),
                       Text(presence.beachName, style: AppTextStyles.secondary),
                     ],
                   ),
@@ -1350,7 +1358,7 @@ class _PresencePeopleSheet extends StatelessWidget {
                       ),
                       const SizedBox(width: 5),
                       Text(
-                        '${presence.userCount} ${presence.userCount == 1 ? "pessoa" : "pessoas"}',
+                        presence.userCount == 1 ? context.l10n.presencePerson : context.l10n.presencePeople(presence.userCount),
                         style: const TextStyle(
                           color: AppColors.teal, fontWeight: FontWeight.w700, fontSize: 13,
                         ),
@@ -1404,7 +1412,7 @@ class _PresencePersonTile extends StatelessWidget {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              user.displayName ?? 'Utilizador Anónimo',
+              user.displayName ?? context.l10n.presenceAnonymousUser,
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: isNamed ? FontWeight.w500 : FontWeight.normal,
@@ -1437,7 +1445,7 @@ class _PresencePrivateFooter extends StatelessWidget {
         const Icon(Icons.lock_outline, size: 15, color: AppColors.textSecondary),
         const SizedBox(width: 10),
         Text(
-          '+$count ${count == 1 ? "pessoa em" : "pessoas em"} modo privado',
+          count == 1 ? context.l10n.presencePrivateFooter1(count) : context.l10n.presencePrivateFooterN(count),
           style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
         ),
       ],
@@ -1466,14 +1474,14 @@ class _PresenceSheetEmpty extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            '$total ${total == 1 ? "pessoa está" : "pessoas estão"} aqui',
+            total == 1 ? context.l10n.presenceEmptyTitle1 : context.l10n.presenceEmptyTitleN(total),
             style: AppTextStyles.titleSm,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Nenhuma pessoa decidiu partilhar\na sua localização.',
-            style: TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
+          Text(
+            context.l10n.presenceEmptyPrivate,
+            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.5),
             textAlign: TextAlign.center,
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -63,6 +64,30 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
 
   Color get _color => AppColors.forFlag(widget.flagColor);
 
+  String _flagName(AppLocalizations l10n, String c) => switch (c) {
+    'green'  => l10n.flagNameGreen,
+    'yellow' => l10n.flagNameYellow,
+    'red'    => l10n.flagNameRed,
+    'purple' => l10n.flagNamePurple,
+    _        => l10n.flagNameUnknown,
+  };
+
+  String _flagSafety(AppLocalizations l10n, String c) => switch (c) {
+    'green'  => l10n.flagSafetyGreen,
+    'yellow' => l10n.flagSafetyYellow,
+    'red'    => l10n.flagSafetyRed,
+    'purple' => l10n.flagSafetyPurple,
+    _        => l10n.flagSafetyUnknown,
+  };
+
+  String _flagColorWord(AppLocalizations l10n, String c) => switch (c) {
+    'green'  => l10n.flagColorGreen,
+    'yellow' => l10n.flagColorYellow,
+    'red'    => l10n.flagColorRed,
+    'purple' => l10n.flagColorPurple,
+    _        => l10n.flagColorGreen,
+  };
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -79,7 +104,6 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
             Column(
               children: [
                 const SizedBox(height: AppSpacing.md),
-                // Handle
                 Container(
                   width: 40, height: 4,
                   decoration: BoxDecoration(
@@ -93,13 +117,12 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
                     controller: controller,
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
                     child: _state == _ConfirmState.success
-                        ? _buildSuccess()
-                        : _buildMain(),
+                        ? _buildSuccess(context.l10n)
+                        : _buildMain(context.l10n),
                   ),
                 ),
               ],
             ),
-            // Close button
             Positioned(
               top: 14, right: 16,
               child: GestureDetector(
@@ -120,7 +143,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
     );
   }
 
-  Widget _buildMain() {
+  Widget _buildMain(AppLocalizations l10n) {
     final color = _color;
     final confidence = widget.flagConfidence;
 
@@ -128,19 +151,16 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
       children: [
         const SizedBox(height: AppSpacing.xl),
 
-        // Pulsing animated flag circle
         _PulsingFlagCircle(color: color, controller: _pulseCtrl),
 
         const SizedBox(height: 28),
 
-        // Flag name chip
-        _FlagChip(color: color, label: _flagName(widget.flagColor)),
+        _FlagChip(color: color, label: _flagName(l10n, widget.flagColor)),
 
         const SizedBox(height: 14),
 
-        // Safety label
         Text(
-          _flagSafety(widget.flagColor),
+          _flagSafety(l10n, widget.flagColor),
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 18,
@@ -151,20 +171,20 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
 
         const SizedBox(height: AppSpacing.xs),
 
-        // Beach name
         Text(
           widget.beach.name,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 13,
-            color: AppColors.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
         ),
 
         const SizedBox(height: AppSpacing.xxl),
 
-        // Animated confidence bar
-        _AnimatedConfidenceBar(color: color, confidence: confidence),
+        _AnimatedConfidenceBar(
+          color: color,
+          confidence: confidence,
+          communityLabel: l10n.communityConfidence,
+          pctLabel: (pct) => l10n.confidencePercentShort(pct),
+        ),
 
         const SizedBox(height: 30),
 
@@ -172,20 +192,17 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
 
         const SizedBox(height: 30),
 
-        // Question with highlighted color word
-        _buildQuestion(),
+        _buildQuestion(l10n),
 
         const SizedBox(height: 28),
 
-        // Action buttons
-        _buildButtons(),
+        _buildButtons(l10n),
 
-        // Error / rate limit feedback
         if (_state == _ConfirmState.rateLimited) ...[
           const SizedBox(height: AppSpacing.lg),
           _InfoBanner(
             icon: Icons.hourglass_top_rounded,
-            text: 'Já confirmaste a bandeira desta praia na última hora.',
+            text: l10n.flagConfirmRateLimited,
             color: AppColors.sand,
             textColor: AppColors.primary,
           ),
@@ -193,7 +210,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           const SizedBox(height: AppSpacing.lg),
           _InfoBanner(
             icon: Icons.error_outline_rounded,
-            text: 'Algo correu mal. Tenta de novo.',
+            text: l10n.flagConfirmError,
             color: AppColors.coral.withValues(alpha: 0.12),
             textColor: AppColors.coral,
           ),
@@ -202,8 +219,8 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
     );
   }
 
-  Widget _buildQuestion() {
-    final colorWord = _flagColorWord(widget.flagColor);
+  Widget _buildQuestion(AppLocalizations l10n) {
+    final colorWord = _flagColorWord(l10n, widget.flagColor);
     final color = _color;
 
     return RichText(
@@ -217,23 +234,18 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           fontFamily: 'Inter',
         ),
         children: [
-          const TextSpan(text: 'A bandeira ainda está '),
-          TextSpan(
-            text: colorWord,
-            style: TextStyle(color: color),
-          ),
-          const TextSpan(text: '?'),
+          TextSpan(text: l10n.flagConfirmQuestionPrefix),
+          TextSpan(text: colorWord, style: TextStyle(color: color)),
+          TextSpan(text: l10n.flagConfirmQuestionSuffix),
         ],
       ),
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(AppLocalizations l10n) {
     final color = _color;
     final isLoading = _state == _ConfirmState.loading;
-    final colorWord = _flagName(widget.flagColor)
-        .toLowerCase()
-        .replaceFirst('bandeira ', '');
+    final colorWord = _flagColorWord(l10n, widget.flagColor);
 
     return Column(
       children: [
@@ -251,7 +263,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
                     const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 20),
                     const SizedBox(width: 10),
                     Text(
-                      'Sim, ainda $colorWord',
+                      '${l10n.flagConfirmYesPrefix}$colorWord',
                       style: const TextStyle(
                         color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700,
                       ),
@@ -275,7 +287,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
               ),
               const SizedBox(width: 10),
               Text(
-                'Não, mudou',
+                l10n.flagConfirmNo,
                 style: TextStyle(
                   color: Colors.white.withValues(alpha: isLoading ? 0.45 : 1.0),
                   fontSize: 16, fontWeight: FontWeight.w700,
@@ -301,7 +313,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
               ),
               const SizedBox(width: 10),
               Text(
-                'Não tenho a certeza',
+                l10n.flagConfirmUnsure,
                 style: TextStyle(
                   color: AppColors.textSecondary.withValues(alpha: isLoading ? 0.45 : 1.0),
                   fontSize: 16, fontWeight: FontWeight.w600,
@@ -314,7 +326,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
     );
   }
 
-  Widget _buildSuccess() {
+  Widget _buildSuccess(AppLocalizations l10n) {
     final confidence = _newConfidence ?? widget.flagConfidence;
     final color = _color;
 
@@ -333,17 +345,17 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
 
         const SizedBox(height: 22),
 
-        const Text(
-          'Obrigado!',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.primary),
+        Text(
+          l10n.flagConfirmThankYou,
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.primary),
         ),
 
         const SizedBox(height: 10),
 
-        const Text(
-          'A tua confirmação ajuda a comunidade\na estar sempre bem informada.',
+        Text(
+          l10n.flagConfirmSuccessBody,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.5),
+          style: const TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.5),
         ),
 
         const SizedBox(height: AppSpacing.xxxl),
@@ -358,15 +370,17 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           ),
           child: Column(
             children: [
-              const Text(
-                'Confiança da comunidade',
-                style: AppTextStyles.secondaryMd,
-              ),
+              Text(l10n.communityConfidence, style: AppTextStyles.secondaryMd),
               const SizedBox(height: 14),
-              _AnimatedConfidenceBar(color: color, confidence: confidence),
+              _AnimatedConfidenceBar(
+                color: color,
+                confidence: confidence,
+                communityLabel: l10n.communityConfidence,
+                pctLabel: (pct) => l10n.confidencePercentShort(pct),
+              ),
               const SizedBox(height: 10),
               Text(
-                '${(confidence * 100).round()}% de confiança',
+                l10n.confidencePercent((confidence * 100).round()),
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: color),
               ),
             ],
@@ -384,9 +398,9 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
             ),
-            child: const Text(
-              'Fechar',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            child: Text(
+              l10n.close,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -434,7 +448,6 @@ class _PulsingFlagCircle extends StatelessWidget {
             children: [
               _pingRing(t1),
               _pingRing(t2),
-              // Soft inner halo
               Container(
                 width: 124, height: 124,
                 decoration: BoxDecoration(
@@ -442,7 +455,6 @@ class _PulsingFlagCircle extends StatelessWidget {
                   color: color.withValues(alpha: 0.18),
                 ),
               ),
-              // Core
               Container(
                 width: 92, height: 92,
                 decoration: BoxDecoration(
@@ -476,9 +488,16 @@ class _PulsingFlagCircle extends StatelessWidget {
 }
 
 class _AnimatedConfidenceBar extends StatelessWidget {
-  const _AnimatedConfidenceBar({required this.color, required this.confidence});
+  const _AnimatedConfidenceBar({
+    required this.color,
+    required this.confidence,
+    required this.communityLabel,
+    required this.pctLabel,
+  });
   final Color color;
   final double confidence;
+  final String communityLabel;
+  final String Function(int pct) pctLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -491,15 +510,10 @@ class _AnimatedConfidenceBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Confiança da comunidade',
-                style: AppTextStyles.secondaryMd,
-              ),
+              Text(communityLabel, style: AppTextStyles.secondaryMd),
               Text(
-                '${(value * 100).round()}% confiança',
-                style: TextStyle(
-                  fontSize: 13, fontWeight: FontWeight.w700, color: color,
-                ),
+                pctLabel((value * 100).round()),
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color),
               ),
             ],
           ),
@@ -543,9 +557,7 @@ class _FlagChip extends StatelessWidget {
           const SizedBox(width: 7),
           Text(
             label,
-            style: TextStyle(
-              color: color, fontSize: 13, fontWeight: FontWeight.w700,
-            ),
+            style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -575,9 +587,7 @@ class _ConfirmButton extends StatelessWidget {
         width: double.infinity,
         height: 56,
         decoration: BoxDecoration(
-          color: disabled
-              ? backgroundColor.withValues(alpha: 0.45)
-              : backgroundColor,
+          color: disabled ? backgroundColor.withValues(alpha: 0.45) : backgroundColor,
           borderRadius: AppRadii.cardLg,
           border: hasBorder ? Border.all(color: AppColors.borderMedium) : null,
         ),
@@ -622,27 +632,3 @@ class _InfoBanner extends StatelessWidget {
     );
   }
 }
-
-String _flagName(String c) => switch (c) {
-  'green'  => 'Bandeira Verde',
-  'yellow' => 'Bandeira Amarela',
-  'red'    => 'Bandeira Vermelha',
-  'purple' => 'Bandeira Roxa',
-  _        => 'Estado Desconhecido',
-};
-
-String _flagSafety(String c) => switch (c) {
-  'green'  => 'Seguro para nadar',
-  'yellow' => 'Nadar com precaução',
-  'red'    => 'Proibido nadar',
-  'purple' => 'Animais marinhos presentes',
-  _        => 'Estado desconhecido',
-};
-
-String _flagColorWord(String c) => switch (c) {
-  'green'  => 'verde',
-  'yellow' => 'amarela',
-  'red'    => 'vermelha',
-  'purple' => 'roxa',
-  _        => 'a mesma',
-};

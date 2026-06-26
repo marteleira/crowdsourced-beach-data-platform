@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../data/settings_provider.dart';
 import '../domain/settings_models.dart';
@@ -17,8 +18,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Notificações',
+        title: Text(
+          context.l10n.notificationsTitle,
           style: AppTextStyles.subtitle,
         ),
         leading: IconButton(
@@ -32,13 +33,13 @@ class NotificationSettingsScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Não foi possível carregar as notificações',
-                  style: TextStyle(color: AppColors.textSecondary)),
+              Text(context.l10n.errorLoadSettings,
+                  style: const TextStyle(color: AppColors.textSecondary)),
               const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => ref.invalidate(notificationSettingsProvider),
                 style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
-                child: const Text('Tentar de novo'),
+                child: Text(context.l10n.tryAgain),
               ),
             ],
           ),
@@ -57,6 +58,8 @@ class _NotificationForm extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final on = settings.globalEnabled;
 
+    final l10n = context.l10n;
+
     void patch(Map<String, dynamic> changes) =>
         ref.read(notificationSettingsProvider.notifier).patch(changes);
 
@@ -66,16 +69,14 @@ class _NotificationForm extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-
-        // Master switch
         _Section(
-          title: 'Geral',
+          title: l10n.settingsGeneral,
           children: [
             _SwitchTile(
               icon: Icons.notifications_outlined,
               iconColor: AppColors.teal,
-              label: 'Notificações ativadas',
-              subtitle: 'Liga ou desliga todas as notificações',
+              label: l10n.settingsNotifsEnabled,
+              subtitle: l10n.settingsNotifsEnabledSub,
               value: settings.globalEnabled,
               onChanged: (v) => patch({'global_enabled': v}),
             ),
@@ -84,15 +85,14 @@ class _NotificationForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Alertas de comunidade
         _Section(
-          title: 'Alertas de comunidade',
+          title: l10n.settingsCommunityAlerts,
           children: [
             _SwitchTile(
               icon: Icons.login_rounded,
               iconColor: AppColors.primary,
-              label: 'Alertas ao fazer check-in',
-              subtitle: 'Notifica quando chegares a uma praia com alertas',
+              label: l10n.settingsCheckinAlerts,
+              subtitle: l10n.settingsCheckinAlertsSub,
               value: settings.checkinAlerts,
               enabled: on,
               onChanged: (v) => patch({'checkin_alerts': v}),
@@ -101,8 +101,8 @@ class _NotificationForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.radar,
               iconColor: AppColors.primary,
-              label: 'Alertas de proximidade',
-              subtitle: 'Alertas quando estás perto de uma praia',
+              label: l10n.settingsProximityAlerts,
+              subtitle: l10n.settingsProximityAlertsSub,
               value: settings.proximityAlerts,
               enabled: on,
               onChanged: (v) => patch({'proximity_alerts': v}),
@@ -112,7 +112,7 @@ class _NotificationForm extends ConsumerWidget {
               _SliderTile(
                 icon: Icons.social_distance_outlined,
                 iconColor: AppColors.textSecondary,
-                label: 'Raio de proximidade',
+                label: l10n.settingsProximityRadius,
                 value: settings.proximityRadiusMeters.toDouble(),
                 min: 100,
                 max: 2000,
@@ -126,14 +126,13 @@ class _NotificationForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Tipos de alerta
         _Section(
-          title: 'Tipos de alerta',
+          title: l10n.settingsAlertTypes,
           children: [
             _SwitchTile(
               icon: Icons.warning_amber_rounded,
               iconColor: const Color(0xFF6366F1),
-              label: 'Medusas',
+              label: l10n.settingsJellyfish,
               value: settings.alertTypes.jellyfish,
               enabled: on,
               onChanged: (v) => patchAlertTypes(settings.alertTypes.copyWith(jellyfish: v)),
@@ -142,7 +141,7 @@ class _NotificationForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.waves,
               iconColor: AppColors.tealDark,
-              label: 'Corrente forte',
+              label: l10n.settingsStrongCurrent,
               value: settings.alertTypes.strongCurrent,
               enabled: on,
               onChanged: (v) => patchAlertTypes(settings.alertTypes.copyWith(strongCurrent: v)),
@@ -151,7 +150,7 @@ class _NotificationForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.science_outlined,
               iconColor: AppColors.coral,
-              label: 'Poluição',
+              label: l10n.settingsPollution,
               value: settings.alertTypes.pollution,
               enabled: on,
               onChanged: (v) => patchAlertTypes(settings.alertTypes.copyWith(pollution: v)),
@@ -160,7 +159,7 @@ class _NotificationForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.storm_outlined,
               iconColor: AppColors.primary,
-              label: 'Mar agitado',
+              label: l10n.settingsRoughSea,
               value: settings.alertTypes.roughSea,
               enabled: on,
               onChanged: (v) => patchAlertTypes(settings.alertTypes.copyWith(roughSea: v)),
@@ -169,8 +168,8 @@ class _NotificationForm extends ConsumerWidget {
             _SegmentTile(
               icon: Icons.low_priority_rounded,
               iconColor: AppColors.textSecondary,
-              label: 'Severidade mínima',
-              options: const [('1', 'Baixa'), ('2', 'Média'), ('3', 'Alta')],
+              label: l10n.settingsMinSeverity,
+              options: [('1', l10n.settingsSeverityLow), ('2', l10n.settingsSeverityMedium), ('3', l10n.settingsSeverityHigh)],
               selected: '${settings.minSeverity}',
               enabled: on,
               onChanged: (v) => patch({'min_severity': int.parse(v)}),
@@ -180,15 +179,14 @@ class _NotificationForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Praias favoritas
         _Section(
-          title: 'Praias favoritas',
+          title: l10n.settingsFavBeaches,
           children: [
             _SwitchTile(
               icon: Icons.star_outline_rounded,
               iconColor: AppColors.amber,
-              label: 'Alertas das minhas praias',
-              subtitle: 'Recebe alertas das praias que tens guardadas',
+              label: l10n.settingsFavAlertsEnabled,
+              subtitle: l10n.settingsFavAlertsEnabledSub,
               value: settings.favouriteAlertsEnabled,
               enabled: on,
               onChanged: (v) => patch({'favourite_alerts_enabled': v}),
@@ -198,15 +196,14 @@ class _NotificationForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Bandeira e marés
         _Section(
-          title: 'Estado da praia',
+          title: l10n.settingsBeachStatus,
           children: [
             _SwitchTile(
               icon: Icons.flag_outlined,
               iconColor: AppColors.flagGreen,
-              label: 'Mudança de bandeira',
-              subtitle: 'Notifica quando o estado de segurança muda',
+              label: l10n.settingsFlagChange,
+              subtitle: l10n.settingsFlagChangeSub,
               value: settings.flagChangeAlerts,
               enabled: on,
               onChanged: (v) => patch({'flag_change_alerts': v}),
@@ -215,8 +212,8 @@ class _NotificationForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.water_outlined,
               iconColor: AppColors.teal,
-              label: 'Alertas de maré',
-              subtitle: 'Aviso antes de preia-mar e baixa-mar',
+              label: l10n.settingsTideAlerts,
+              subtitle: l10n.settingsTideAlertsSub,
               value: settings.tideAlerts,
               enabled: on,
               onChanged: (v) => patch({'tide_alerts': v}),
@@ -226,15 +223,14 @@ class _NotificationForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Os meus avisos
         _Section(
-          title: 'Os meus avisos',
+          title: l10n.settingsMyReports,
           children: [
             _SwitchTile(
               icon: Icons.thumb_up_outlined,
               iconColor: const Color(0xFF059669),
-              label: 'Aviso confirmado',
-              subtitle: 'Quando a comunidade confirma um aviso teu',
+              label: l10n.settingsReportConfirmed,
+              subtitle: l10n.settingsReportConfirmedSub,
               value: settings.reportConfirmed,
               enabled: on,
               onChanged: (v) => patch({'report_confirmed': v}),
@@ -243,8 +239,8 @@ class _NotificationForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.thumb_down_outlined,
               iconColor: AppColors.coral,
-              label: 'Aviso rejeitado',
-              subtitle: 'Quando a comunidade rejeita um aviso teu',
+              label: l10n.settingsReportRejected,
+              subtitle: l10n.settingsReportRejectedSub,
               value: settings.reportRejected,
               enabled: on,
               onChanged: (v) => patch({'report_rejected': v}),
@@ -254,15 +250,14 @@ class _NotificationForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Horas de silêncio
         _Section(
-          title: 'Horas de silêncio',
+          title: l10n.settingsQuietHours,
           children: [
             _SwitchTile(
               icon: Icons.bedtime_outlined,
               iconColor: const Color(0xFF6366F1),
-              label: 'Ativar horas de silêncio',
-              subtitle: 'Sem notificações durante o período definido',
+              label: l10n.settingsQuietHoursEnabled,
+              subtitle: l10n.settingsQuietHoursEnabledSub,
               value: settings.quietHoursEnabled,
               enabled: on,
               onChanged: (v) => patch({'quiet_hours_enabled': v}),
@@ -272,7 +267,7 @@ class _NotificationForm extends ConsumerWidget {
               _TimeTile(
                 icon: Icons.nights_stay_outlined,
                 iconColor: AppColors.textSecondary,
-                label: 'Início',
+                label: l10n.settingsQuietStart,
                 time: settings.quietHoursStart,
                 onChanged: (v) => patch({'quiet_hours_start': v}),
               ),
@@ -280,7 +275,7 @@ class _NotificationForm extends ConsumerWidget {
               _TimeTile(
                 icon: Icons.wb_sunny_outlined,
                 iconColor: AppColors.amber,
-                label: 'Fim',
+                label: l10n.settingsQuietEnd,
                 time: settings.quietHoursEnd,
                 onChanged: (v) => patch({'quiet_hours_end': v}),
               ),

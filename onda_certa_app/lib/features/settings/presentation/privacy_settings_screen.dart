@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../data/settings_provider.dart';
 import '../domain/settings_models.dart';
@@ -24,8 +25,8 @@ class PrivacySettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Privacidade & Dados',
+        title: Text(
+          context.l10n.settingsPrivacyTitle,
           style: AppTextStyles.subtitle,
         ),
         leading: IconButton(
@@ -44,13 +45,13 @@ class PrivacySettingsScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('Não foi possível carregar as definições',
-                    style: TextStyle(color: AppColors.textSecondary)),
+                Text(context.l10n.errorLoadProfile,
+                    style: const TextStyle(color: AppColors.textSecondary)),
                 const SizedBox(height: AppSpacing.lg),
                 FilledButton(
                   onPressed: () => ref.invalidate(privacySettingsProvider),
                   style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
-                  child: const Text('Tentar de novo'),
+                  child: Text(context.l10n.tryAgain),
                 ),
               ],
             ),
@@ -68,31 +69,30 @@ class _PrivacyForm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     void patch(Map<String, dynamic> changes) =>
         ref.read(privacySettingsProvider.notifier).patch(changes);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
-
-        // Localização
         _Section(
-          title: 'Localização',
+          title: l10n.privacyLocation,
           children: [
             _LabelRow(
               icon: Icons.location_on_outlined,
               iconColor: AppColors.teal,
-              label: 'Precisão da localização',
-              subtitle: 'Controla a precisão partilhada com outros utilizadores',
+              label: l10n.privacyLocationAccuracy,
+              subtitle: l10n.privacyLocationAccuracySub,
             ),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: _SegmentedPicker(
-                options: const [
-                  ('exact',       'Exata'),
-                  ('approximate', 'Aprox.'),
-                  ('none',        'Nenhuma'),
+                options: [
+                  ('exact',       l10n.privacyLocationExact),
+                  ('approximate', l10n.privacyLocationApprox),
+                  ('none',        l10n.privacyLocationNone),
                 ],
                 selected: settings.locationAccuracy,
                 onChanged: (v) => patch({'location_accuracy': v}),
@@ -104,15 +104,14 @@ class _PrivacyForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Perfil público
         _Section(
-          title: 'Perfil público',
+          title: l10n.privacyPublicProfile,
           children: [
             _SwitchTile(
               icon: Icons.badge_outlined,
               iconColor: AppColors.primary,
-              label: 'Nome visível',
-              subtitle: 'Outros utilizadores podem ver o teu nome',
+              label: l10n.privacyNameVisible,
+              subtitle: l10n.privacyNameVisibleSub,
               value: settings.namePublic,
               onChanged: (v) => patch({'name_public': v}),
             ),
@@ -120,8 +119,8 @@ class _PrivacyForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.account_circle_outlined,
               iconColor: AppColors.primary,
-              label: 'Avatar visível',
-              subtitle: 'As tuas iniciais aparecem nos avisos',
+              label: l10n.privacyAvatarVisible,
+              subtitle: l10n.privacyAvatarVisibleSub,
               value: settings.avatarPublic,
               onChanged: (v) => patch({'avatar_public': v}),
             ),
@@ -130,15 +129,14 @@ class _PrivacyForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Presença
         _Section(
-          title: 'Presença & Atividade',
+          title: l10n.privacyPresence,
           children: [
             _SwitchTile(
               icon: Icons.map_outlined,
               iconColor: AppColors.tealDark,
-              label: 'Mostrar no mapa',
-              subtitle: 'A tua presença conta para a lotação da praia',
+              label: l10n.privacyShowOnMap,
+              subtitle: l10n.privacyShowOnMapSub,
               value: settings.sharePresence,
               onChanged: (v) => patch({'share_presence': v}),
             ),
@@ -146,8 +144,8 @@ class _PrivacyForm extends ConsumerWidget {
             _SwitchTile(
               icon: Icons.bar_chart_outlined,
               iconColor: AppColors.textSecondary,
-              label: 'Partilhar dados de utilização',
-              subtitle: 'Ajuda a melhorar a app de forma anónima',
+              label: l10n.privacyShareUsage,
+              subtitle: l10n.privacyShareUsageSub,
               value: settings.shareUsageData,
               onChanged: (v) => patch({'share_usage_data': v}),
             ),
@@ -156,23 +154,22 @@ class _PrivacyForm extends ConsumerWidget {
 
         const SizedBox(height: AppSpacing.md),
 
-        // Dados pessoais
         _Section(
-          title: 'Os meus dados',
+          title: l10n.privacyMyData,
           children: [
             _ActionTile(
               icon: Icons.download_outlined,
               iconColor: AppColors.teal,
-              label: 'Exportar os meus dados',
-              subtitle: 'Recebe uma cópia de tudo o que guardamos',
+              label: l10n.privacyExportData,
+              subtitle: l10n.privacyExportDataSub,
               onTap: () => _doExport(context, ref),
             ),
             _Divider(),
             _ActionTile(
               icon: Icons.delete_sweep_outlined,
               iconColor: AppColors.coral,
-              label: 'Apagar todos os avisos',
-              subtitle: 'Remove os teus avisos da plataforma',
+              label: l10n.privacyDeleteReports,
+              subtitle: l10n.privacyDeleteReportsSub,
               onTap: () => _confirmDeleteReports(context, ref),
               isDanger: true,
             ),
@@ -180,8 +177,8 @@ class _PrivacyForm extends ConsumerWidget {
             _ActionTile(
               icon: Icons.person_off_outlined,
               iconColor: AppColors.coral,
-              label: 'Apagar conta',
-              subtitle: 'Ação permanente e irreversível',
+              label: l10n.privacyDeleteAccount,
+              subtitle: l10n.privacyDeleteAccountSub,
               onTap: () => _confirmDeleteAccount(context, ref),
               isDanger: true,
             ),
@@ -192,9 +189,10 @@ class _PrivacyForm extends ConsumerWidget {
   }
 
   Future<void> _doExport(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(
-      const SnackBar(content: Text('A exportar dados…'), duration: Duration(seconds: 2)),
+      SnackBar(content: Text(l10n.privacyExporting), duration: const Duration(seconds: 2)),
     );
     try {
       final data = await ref.read(settingsRepositoryProvider).exportData();
@@ -207,7 +205,7 @@ class _PrivacyForm extends ConsumerWidget {
       if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(
-            content: Text('Guardado: $filename'),
+            content: Text(l10n.privacyExportSaved(filename)),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -216,30 +214,28 @@ class _PrivacyForm extends ConsumerWidget {
       debugPrint('exportData error: $e\n$st');
       if (context.mounted) {
         messenger.showSnackBar(
-          SnackBar(content: Text('Erro: $e')),
+          SnackBar(content: Text(l10n.privacyExportError(e.toString()))),
         );
       }
     }
   }
 
   Future<void> _confirmDeleteReports(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Apagar todos os avisos?'),
-        content: const Text(
-          'Todos os teus avisos serão removidos da plataforma. '
-          'Os teus pontos de reputação serão mantidos.',
-        ),
+        title: Text(l10n.privacyDeleteReportsConfirmTitle),
+        content: Text(l10n.privacyDeleteReportsConfirmBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancelLabel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.coral),
-            child: const Text('Apagar'),
+            child: Text(l10n.privacyDeleteLabel),
           ),
         ],
       ),
@@ -250,40 +246,38 @@ class _PrivacyForm extends ConsumerWidget {
       ref.invalidate(privacySettingsProvider);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Avisos apagados com sucesso')),
+          SnackBar(content: Text(context.l10n.privacyDeleteReportsSuccess)),
         );
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao apagar avisos')),
+          SnackBar(content: Text(context.l10n.privacyDeleteReportsError)),
         );
       }
     }
   }
 
   Future<void> _confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
+    final l10n = context.l10n;
     final controller = TextEditingController();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) => AlertDialog(
-          title: const Text('Apagar conta?'),
+          title: Text(l10n.privacyDeleteAccountConfirmTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Esta ação é permanente. Todos os teus dados serão eliminados.\n\n'
-                'Escreve APAGAR para confirmar:',
-              ),
+              Text(l10n.privacyDeleteAccountConfirmBody),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: controller,
                 onChanged: (_) => setState(() {}),
-                decoration: const InputDecoration(
-                  hintText: 'APAGAR',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: l10n.privacyDeleteAccountConfirmWord,
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
               ),
@@ -292,14 +286,14 @@ class _PrivacyForm extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar'),
+              child: Text(l10n.cancelLabel),
             ),
             TextButton(
-              onPressed: controller.text == 'APAGAR'
+              onPressed: controller.text == l10n.privacyDeleteAccountConfirmWord
                   ? () => Navigator.pop(ctx, true)
                   : null,
               style: TextButton.styleFrom(foregroundColor: AppColors.coral),
-              child: const Text('Apagar conta'),
+              child: Text(l10n.privacyDeleteAccountConfirmBtn),
             ),
           ],
         ),
@@ -313,7 +307,7 @@ class _PrivacyForm extends ConsumerWidget {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao apagar conta')),
+          SnackBar(content: Text(context.l10n.privacyDeleteAccountError)),
         );
       }
     }
@@ -357,7 +351,7 @@ class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao cancelar a eliminação. Tenta de novo.')),
+          SnackBar(content: Text(context.l10n.privacyCancelError)),
         );
         setState(() => _cancelling = false);
       }
@@ -382,8 +376,8 @@ class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
               child: const Icon(Icons.person_off_outlined, size: 36, color: AppColors.coral),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Conta agendada para eliminação',
+            Text(
+              context.l10n.privacyPendingTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -393,7 +387,7 @@ class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
             ),
             const SizedBox(height: 12),
             Text(
-              'A tua conta e todos os teus dados serão eliminados definitivamente a ${_formatDate(widget.scheduledAt)}.\n\nPodes cancelar esta ação até essa data.',
+              context.l10n.privacyPendingBody(_formatDate(widget.scheduledAt)),
               style: const TextStyle(
                 fontSize: 14,
                 color: AppColors.textSecondary,
@@ -417,7 +411,7 @@ class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
                     : const Icon(Icons.undo_rounded, size: 18),
-                label: Text(_cancelling ? 'A cancelar…' : 'Cancelar eliminação'),
+                label: Text(_cancelling ? context.l10n.privacyCancelling : context.l10n.privacyCancelDeletion),
               ),
             ),
             const SizedBox(height: 12),
@@ -431,7 +425,7 @@ class _PendingDeletionViewState extends ConsumerState<_PendingDeletionView> {
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
                 ),
-                child: const Text('Terminar sessão'),
+                child: Text(context.l10n.signOut),
               ),
             ),
           ],

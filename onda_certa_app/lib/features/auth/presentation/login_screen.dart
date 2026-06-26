@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -30,7 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (error is DioException && error.type == DioExceptionType.cancel) return;
         if (!context.mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao iniciar sessão. Tenta novamente.')),
+          SnackBar(content: Text(context.l10n.errorSignIn)),
         );
       }
     });
@@ -58,7 +59,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Real beaches. Real conditions.',
+                context.l10n.appTagline,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.textPrimary,
@@ -67,7 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Arrábida Natural Park · Portugal',
+                context.l10n.appLocation,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AppColors.textSecondary,
@@ -93,7 +94,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : Text(
-                          'Continuar como visitante',
+                          context.l10n.continueAsGuest,
                           style:
                               Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: AppColors.textSecondary,
@@ -121,7 +122,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (idToken == null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Não foi possível obter o token Google')),
+            SnackBar(content: Text(context.l10n.errorGoogleToken)),
           );
         }
         return;
@@ -130,7 +131,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on GoogleSignInException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.description ?? 'Falha ao entrar com Google')),
+          SnackBar(content: Text(e.description ?? context.l10n.errorGoogleSignIn)),
         );
       }
     } finally {
@@ -218,9 +219,9 @@ class _GoogleButton extends StatelessWidget {
                 children: [
                   _GoogleGLogo(),
                   const SizedBox(width: AppSpacing.md),
-                  const Text(
-                    'Entrar com Google',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.signInGoogle,
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
@@ -255,9 +256,9 @@ class _EmailButton extends StatelessWidget {
           side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
           shape: const StadiumBorder(),
         ),
-        child: const Text(
-          'Entrar com email',
-          style: TextStyle(
+        child: Text(
+          context.l10n.signInEmail,
+          style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w500,
           ),
@@ -278,20 +279,21 @@ class _Footer extends StatelessWidget {
       color: AppColors.textPrimary,
     );
 
+    final l10n = context.l10n;
     return Text.rich(
       TextSpan(
-        text: 'Ao continuar, aceitas os nossos ',
+        text: l10n.authConsentPrefix,
         style: style,
         children: [
           TextSpan(
-            text: 'Termos de Serviço',
+            text: l10n.termsOfService,
             style: linkStyle,
             recognizer: TapGestureRecognizer()
               ..onTap = () => context.push(AppRoutes.terms),
           ),
           const TextSpan(text: ' e\n'),
           TextSpan(
-            text: 'Política de Privacidade',
+            text: l10n.privacyPolicy,
             style: linkStyle,
             recognizer: TapGestureRecognizer()
               ..onTap = () => context.push(AppRoutes.privacy),

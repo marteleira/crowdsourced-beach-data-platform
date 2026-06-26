@@ -48,6 +48,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(int activeCount) {
+    final l10n = context.l10n;
     return AppBar(
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
@@ -62,9 +63,9 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Alertas da Comunidade',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+          Text(
+            l10n.alertsTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
           ),
           Text(
             widget.beach.name,
@@ -82,7 +83,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
               borderRadius: AppRadii.cardXl,
             ),
             child: Text(
-              '$activeCount activos',
+              l10n.alertsActive(activeCount),
               style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
             ),
           ),
@@ -98,6 +99,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
     if (reports.isEmpty) {
       return _EmptyState(onReport: _openReportSheet);
     }
+
 
     return RefreshIndicator(
       onRefresh: () => ref.refresh(communityReportsProvider(widget.beach.slug).future),
@@ -118,8 +120,9 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
   bool get _isGuest => ref.read(authProvider).isGuest;
 
   Future<void> _vote(int reportId, String vote) async {
+    final l10n = context.l10n;
     if (_isGuest) {
-      showGuestSnackbar(context, context.l10n.guestVoteAlerts);
+      showGuestSnackbar(context, l10n.guestVoteAlerts);
       return;
     }
     try {
@@ -128,8 +131,8 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
       if (e.type == DioExceptionType.cancel) return;
       if (!mounted) return;
       final msg = e.response?.statusCode == 403
-          ? 'Tens de estar na praia para votar'
-          : 'Erro ao votar. Tenta de novo.';
+          ? l10n.mustBeAtBeachVote
+          : l10n.errorVoting;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg), backgroundColor: AppColors.coral),
       );
@@ -160,8 +163,8 @@ class _ReportCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final (icon, typeColor, typeLabel) = alertMeta(report.type);
-    final (severityColor, severityLabel) = severityMeta(report.severity);
+    final (icon, typeColor, typeLabel) = alertMeta(l10n, report.type);
+    final (severityColor, severityLabel) = severityMeta(l10n, report.severity);
     final totalVotes = report.upvotes + report.downvotes;
 
     return Container(
@@ -223,12 +226,12 @@ class _ReportCard extends StatelessWidget {
                                       color: AppColors.flagGreen.withValues(alpha: 0.12),
                                       borderRadius: AppRadii.cardXs,
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.verified_outlined, size: 11, color: AppColors.flagGreen),
-                                        SizedBox(width: 3),
-                                        Text('Verificado', style: TextStyle(fontSize: 10, color: AppColors.flagGreen, fontWeight: FontWeight.w600)),
+                                        const Icon(Icons.verified_outlined, size: 11, color: AppColors.flagGreen),
+                                        const SizedBox(width: 3),
+                                        Text(l10n.reportVerified, style: const TextStyle(fontSize: 10, color: AppColors.flagGreen, fontWeight: FontWeight.w600)),
                                       ],
                                     ),
                                   ),
@@ -306,7 +309,7 @@ class _ReportCard extends StatelessWidget {
                       ),
                       const Spacer(),
                       Text(
-                        '$totalVotes ${totalVotes == 1 ? 'voto' : 'votos'}',
+                        '$totalVotes ${totalVotes == 1 ? l10n.reportVoteSingular : l10n.reportVotePlural}',
                         style: AppTextStyles.hint,
                       ),
                     ],
@@ -380,6 +383,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -395,21 +399,21 @@ class _EmptyState extends StatelessWidget {
               child: const Icon(Icons.check_circle_outline, color: AppColors.flagGreen, size: 40),
             ),
             const SizedBox(height: AppSpacing.xl),
-            const Text(
-              'Tudo calmo!',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.primary),
+            Text(
+              l10n.communityAlertsEmptyTitle,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.primary),
             ),
             const SizedBox(height: AppSpacing.sm),
-            const Text(
-              'Sem alertas activos nesta praia.\nSe vires algo, reporta!',
+            Text(
+              l10n.communityAlertsEmptyBody,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14, height: 1.5),
             ),
             const SizedBox(height: AppSpacing.xxl),
             OutlinedButton.icon(
               onPressed: onReport,
               icon: const Icon(Icons.add_circle_outline, size: 18),
-              label: const Text('Reportar condição'),
+              label: Text(l10n.communityAlertsReportBtn),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.teal,
                 side: const BorderSide(color: AppColors.teal),
@@ -433,15 +437,16 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Icon(Icons.cloud_off_outlined, color: AppColors.textHint, size: 48),
           const SizedBox(height: AppSpacing.lg),
-          const Text('Erro ao carregar alertas', style: AppTextStyles.secondaryLg),
+          Text(l10n.errorLoadAlerts, style: AppTextStyles.secondaryLg),
           const SizedBox(height: AppSpacing.lg),
-          TextButton(onPressed: onRetry, child: const Text('Tentar de novo')),
+          TextButton(onPressed: onRetry, child: Text(l10n.tryAgain)),
         ],
       ),
     );

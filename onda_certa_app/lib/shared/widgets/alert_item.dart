@@ -5,20 +5,20 @@ import '../widgets/severity_dots.dart';
 import '../../core/l10n/l10n.dart';
 import '../../features/beaches/domain/beach_models.dart';
 
-(IconData, Color, String) alertMeta(String type) {
+(IconData, Color, String) alertMeta(AppLocalizations l10n, String type) {
   switch (type) {
-    case 'jellyfish':       return (Icons.bubble_chart,   AppColors.waterIcon, 'Medusas');
-    case 'strong_current':  return (Icons.electric_bolt,  AppColors.uvIcon,    'Corrente Forte');
-    case 'pollution':       return (Icons.delete_outline,  const Color(0xFF10B981), 'Poluição');
-    case 'rough_sea':       return (Icons.waves,           AppColors.teal,          'Mar Agitado');
-    default:                return (Icons.warning_amber,   AppColors.textSecondary, 'Alerta');
+    case 'jellyfish':       return (Icons.bubble_chart,   AppColors.waterIcon, l10n.alertTypeJellyfish);
+    case 'strong_current':  return (Icons.electric_bolt,  AppColors.uvIcon,    l10n.alertTypeStrongCurrent);
+    case 'pollution':       return (Icons.delete_outline,  const Color(0xFF10B981), l10n.alertTypePollution);
+    case 'rough_sea':       return (Icons.waves,           AppColors.teal,          l10n.alertTypeRoughSea);
+    default:                return (Icons.warning_amber,   AppColors.textSecondary, l10n.alertTypeDefault);
   }
 }
 
-(Color, String) severityMeta(int? severity) => switch (severity) {
-  1 => (AppColors.flagGreen,  'Baixo'),
-  2 => (AppColors.flagYellow, 'Moderado'),
-  3 => (AppColors.flagRed,    'Grave'),
+(Color, String) severityMeta(AppLocalizations l10n, int? severity) => switch (severity) {
+  1 => (AppColors.flagGreen,  l10n.severityLow),
+  2 => (AppColors.flagYellow, l10n.severityModerate),
+  3 => (AppColors.flagRed,    l10n.severityHigh),
   _ => (AppColors.textHint,   ''),
 };
 
@@ -32,8 +32,8 @@ class AlertItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final (icon, typeColor, label) = alertMeta(report.type);
-    final (sevColor, sevLabel) = severityMeta(report.severity);
+    final (icon, typeColor, label) = alertMeta(l10n, report.type);
+    final (sevColor, sevLabel) = severityMeta(l10n, report.severity);
     final ago = timeAgoFromString(l10n, report.createdAt);
 
     return Container(
@@ -91,8 +91,8 @@ class AlertItem extends StatelessWidget {
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600)),
                                   const SizedBox(width: 6),
-                                  Text('·',
-                                      style: const TextStyle(
+                                  const Text('·',
+                                      style: TextStyle(
                                           color: AppColors.textHint, fontSize: 11)),
                                   const SizedBox(width: 6),
                                 ],

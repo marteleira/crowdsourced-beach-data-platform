@@ -7,6 +7,7 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/data/beach_repository.dart';
 import '../../../features/beaches/domain/beach_models.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_input_decoration.dart';
 import '../../../shared/widgets/password_strength_field.dart';
@@ -24,7 +25,7 @@ class AccountSettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
-        title: const Text('Conta', style: AppTextStyles.subtitle),
+        title: Text(context.l10n.accountTitle, style: AppTextStyles.subtitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: AppColors.primary),
           onPressed: () => context.pop(),
@@ -36,13 +37,13 @@ class AccountSettingsScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('Não foi possível carregar o perfil',
-                  style: TextStyle(color: AppColors.textSecondary)),
+              Text(context.l10n.errorLoadProfile,
+                  style: const TextStyle(color: AppColors.textSecondary)),
               const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => ref.invalidate(userProfileProvider),
                 style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
-                child: const Text('Tentar de novo'),
+                child: Text(context.l10n.tryAgain),
               ),
             ],
           ),
@@ -53,7 +54,7 @@ class AccountSettingsScreen extends ConsumerWidget {
               child: FilledButton(
                 onPressed: () => ref.invalidate(userProfileProvider),
                 style: FilledButton.styleFrom(backgroundColor: AppColors.teal),
-                child: const Text('Tentar de novo'),
+                child: Text(context.l10n.tryAgain),
               ),
             );
           }
@@ -124,77 +125,82 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
     );
   }
 
-  Future<void> _saveAvatar(String? id) async {
-    setState(() => _avatarBusy = true);
-    try {
-      await _repo.updateProfile(avatarId: id ?? 'default');
-      ref.invalidate(userProfileProvider);
-      _showSuccess('Avatar atualizado com sucesso');
-    } catch (e) {
-      _showError(_extractError(e) ?? 'Não foi possível atualizar o avatar');
-    } finally {
-      if (mounted) setState(() => _avatarBusy = false);
-    }
-  }
-
-  String? _extractError(Object e) {
+  String? _extractDioError(Object e) {
     if (e is DioException) {
       final detail = e.response?.data;
       if (detail is Map) return detail['detail'] as String?;
       if (detail is String) return detail;
     }
-    return 'Ocorreu um erro inesperado';
+    return null;
+  }
+
+  Future<void> _saveAvatar(String? id) async {
+    final l10n = context.l10n;
+    final successMsg = l10n.accountAvatarUpdated;
+    final errorMsg = l10n.accountAvatarUpdateError;
+    setState(() => _avatarBusy = true);
+    try {
+      await _repo.updateProfile(avatarId: id ?? 'default');
+      ref.invalidate(userProfileProvider);
+      _showSuccess(successMsg);
+    } catch (e) {
+      _showError(_extractDioError(e) ?? errorMsg);
+    } finally {
+      if (mounted) setState(() => _avatarBusy = false);
+    }
   }
 
   Future<void> _saveIdentity() async {
+    final l10n = context.l10n;
     if (!(_nameKey.currentState?.validate() ?? false)) return;
     final name = _nameCtrl.text.trim();
-
     if (name == (widget.profile.displayName ?? '')) {
-      _showInfo('Nenhuma alteração para guardar');
+      _showInfo(l10n.accountNoChanges);
       return;
     }
-
+    final successMsg = l10n.accountProfileUpdated;
+    final errorMsg = l10n.accountProfileUpdateError;
     setState(() => _nameBusy = true);
     try {
       await _repo.updateProfile(displayName: name);
       ref.invalidate(userProfileProvider);
-      _showSuccess('Perfil atualizado com sucesso');
+      _showSuccess(successMsg);
     } catch (e) {
-      _showError(_extractError(e) ?? 'Não foi possível atualizar o perfil');
+      _showError(_extractDioError(e) ?? errorMsg);
     } finally {
       if (mounted) setState(() => _nameBusy = false);
     }
   }
 
   Future<void> _saveEmail() async {
+    final l10n = context.l10n;
     if (!(_emailKey.currentState?.validate() ?? false)) return;
     final newEmail = _emailCtrl.text.trim();
     if (newEmail == widget.profile.email) {
-      _showInfo('O email não foi alterado');
+      _showInfo(l10n.accountEmailUnchanged);
       return;
     }
-
+    final errorMsg = l10n.accountProfileUpdateError;
     setState(() => _emailBusy = true);
     try {
       await _repo.updateProfile(
         email: newEmail,
         currentPassword: _emailPasswordCtrl.text,
       );
-      // Refresh JWT so is_email_verified=false triggers /verify-email redirect
       await ref.read(authProvider.notifier).refreshSession();
       ref.invalidate(userProfileProvider);
-      // Router redirect to /verify-email happens automatically via authProvider
     } catch (e) {
-      if (mounted) _showError(_extractError(e) ?? 'Não foi possível alterar o email');
+      if (mounted) _showError(_extractDioError(e) ?? errorMsg);
     } finally {
       if (mounted) setState(() => _emailBusy = false);
     }
   }
 
   Future<void> _savePassword() async {
+    final l10n = context.l10n;
     if (!(_passwordKey.currentState?.validate() ?? false)) return;
-
+    final successMsg = l10n.accountPasswordChanged;
+    final errorMsg = l10n.accountPasswordChangeError;
     setState(() => _passwordBusy = true);
     try {
       await _repo.changePassword(
@@ -204,9 +210,9 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
       _currentPasswordCtrl.clear();
       _newPasswordCtrl.clear();
       _confirmPasswordCtrl.clear();
-      _showSuccess('Password alterada. Inicia sessão novamente nos outros dispositivos.');
+      _showSuccess(successMsg);
     } catch (e) {
-      _showError(_extractError(e) ?? 'Não foi possível alterar a password');
+      _showError(_extractDioError(e) ?? errorMsg);
     } finally {
       if (mounted) setState(() => _passwordBusy = false);
     }
@@ -245,11 +251,11 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
     final canChangePassword = profile.hasPassword && !profile.isAnonymous;
     final currentAvatarId = widget.profile.avatarId;
 
+    final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
       children: [
-        // Avatar
-        _SectionHeader(title: 'Avatar', icon: Icons.face_outlined),
+        _SectionHeader(title: l10n.accountAvatarSection, icon: Icons.face_outlined),
         _Card(
           child: Column(
             children: [
@@ -262,7 +268,7 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
               const SizedBox(height: AppSpacing.md),
               Text(
                 currentAvatarId == null
-                    ? 'Avatar predefinido (iniciais)'
+                    ? l10n.accountAvatarDefault
                     : (avatarById(currentAvatarId)?.label ?? currentAvatarId),
                 style: AppTextStyles.secondary,
               ),
@@ -272,13 +278,12 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
                 child: OutlinedButton.icon(
                   onPressed: _avatarBusy ? null : () => _showAvatarPicker(context, currentAvatarId),
                   icon: const Icon(Icons.grid_view_rounded, size: 18),
-                  label: const Text('Escolher avatar'),
+                  label: Text(l10n.accountAvatarChoose),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.teal,
                     side: BorderSide(color: AppColors.teal.withValues(alpha: 0.5)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.cardMd),
+                    shape: RoundedRectangleBorder(borderRadius: AppRadii.cardMd),
                   ),
                 ),
               ),
@@ -286,8 +291,7 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
           ),
         ),
 
-        // Informação pessoal
-        _SectionHeader(title: 'Informação Pessoal', icon: Icons.person_outline_rounded),
+        _SectionHeader(title: l10n.accountPersonalSection, icon: Icons.person_outline_rounded),
         _Card(
           child: Form(
             key: _nameKey,
@@ -298,19 +302,19 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
                   style: const TextStyle(color: AppColors.primary),
                   validator: (v) {
                     final s = (v ?? '').trim();
-                    if (s.isEmpty) return 'O nome não pode estar vazio';
-                    if (s.length > 50) return 'Máximo 50 caracteres';
+                    if (s.isEmpty) return l10n.accountNameEmpty;
+                    if (s.length > 50) return l10n.accountNameTooLong;
                     return null;
                   },
                   decoration: authInputDecoration(
-                    label: 'Nome',
-                    hint: 'O teu nome',
+                    label: l10n.fieldName,
+                    hint: l10n.fieldNameHint,
                     icon: Icons.badge_outlined,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 _SaveButton(
-                  label: 'Guardar nome',
+                  label: l10n.accountSaveName,
                   busy: _nameBusy,
                   onPressed: _saveIdentity,
                 ),
@@ -319,13 +323,12 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
           ),
         ),
 
-        // Email
-        _SectionHeader(title: 'Email', icon: Icons.email_outlined),
+        _SectionHeader(title: l10n.accountEmailSection, icon: Icons.email_outlined),
         if (!canChangeEmail)
           _InfoBanner(
             message: profile.isAnonymous
-                ? 'Os convidados não têm email associado.'
-                : 'A tua conta Google não permite alterar o email aqui.',
+                ? l10n.accountEmailNoGuest
+                : l10n.accountEmailNoGoogle,
           )
         else
           _Card(
@@ -340,34 +343,31 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
                     keyboardType: TextInputType.emailAddress,
                     autocorrect: false,
                     validator: (v) {
-                      if ((v ?? '').trim().isEmpty) return 'Introduz um email';
+                      if ((v ?? '').trim().isEmpty) return l10n.accountEmailEmpty;
                       final re = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-                      if (!re.hasMatch(v!.trim())) return 'Email inválido';
+                      if (!re.hasMatch(v!.trim())) return l10n.accountEmailInvalid;
                       return null;
                     },
                     decoration: authInputDecoration(
-                      label: 'Novo email',
-                      hint: 'novo@exemplo.com',
+                      label: l10n.accountNewEmail,
+                      hint: l10n.accountNewEmailHint,
                       icon: Icons.email_outlined,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'A verificação será enviada para o novo email.',
-                    style: AppTextStyles.secondary,
-                  ),
+                  Text(l10n.accountEmailVerificationNote, style: AppTextStyles.secondary),
                   const SizedBox(height: AppSpacing.md),
                   _ObscuredField(
                     controller: _emailPasswordCtrl,
-                    label: 'Password atual (confirmação)',
-                    hint: '••••••••',
+                    label: l10n.accountCurrentPasswordConfirm,
+                    hint: l10n.accountPasswordHint,
                     icon: Icons.lock_outline_rounded,
                     validator: (v) =>
-                        (v ?? '').isEmpty ? 'Introduz a password atual' : null,
+                        (v ?? '').isEmpty ? l10n.accountCurrentPasswordEmpty : null,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _SaveButton(
-                    label: 'Alterar email',
+                    label: l10n.accountChangeEmail,
                     busy: _emailBusy,
                     onPressed: _saveEmail,
                   ),
@@ -376,13 +376,12 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
             ),
           ),
 
-        // Password
-        _SectionHeader(title: 'Password', icon: Icons.lock_outline_rounded),
+        _SectionHeader(title: l10n.accountPasswordSection, icon: Icons.lock_outline_rounded),
         if (!canChangePassword)
           _InfoBanner(
             message: profile.isAnonymous
-                ? 'Os convidados não têm password.'
-                : 'A tua conta Google não usa password.',
+                ? l10n.accountPasswordNoGuest
+                : l10n.accountPasswordNoGoogle,
           )
         else
           _Card(
@@ -392,34 +391,34 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
                 children: [
                   _ObscuredField(
                     controller: _currentPasswordCtrl,
-                    label: 'Password atual',
-                    hint: '••••••••',
+                    label: l10n.accountCurrentPassword,
+                    hint: l10n.accountPasswordHint,
                     icon: Icons.lock_outline_rounded,
                     validator: (v) =>
-                        (v ?? '').isEmpty ? 'Introduz a password atual' : null,
+                        (v ?? '').isEmpty ? l10n.accountCurrentPasswordEmpty : null,
                   ),
                   const SizedBox(height: AppSpacing.md),
                   PasswordStrengthField(
                     controller: _newPasswordCtrl,
-                    label: 'Nova password',
-                    hint: '••••••••',
+                    label: l10n.accountNewPassword,
+                    hint: l10n.accountPasswordHint,
                     requireStrength: true,
                   ),
                   const SizedBox(height: AppSpacing.md),
                   _ObscuredField(
                     controller: _confirmPasswordCtrl,
-                    label: 'Confirmar nova password',
-                    hint: '••••••••',
+                    label: l10n.accountConfirmPassword,
+                    hint: l10n.accountPasswordHint,
                     icon: Icons.lock_outline_rounded,
                     validator: (v) {
-                      if ((v ?? '').isEmpty) return 'Confirma a nova password';
-                      if (v != _newPasswordCtrl.text) return 'As passwords não coincidem';
+                      if ((v ?? '').isEmpty) return l10n.accountConfirmPasswordEmpty;
+                      if (v != _newPasswordCtrl.text) return l10n.accountPasswordMismatch;
                       return null;
                     },
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _SaveButton(
-                    label: 'Alterar password',
+                    label: l10n.accountChangePassword,
                     busy: _passwordBusy,
                     onPressed: _savePassword,
                   ),
@@ -587,19 +586,19 @@ class _AvatarPickerSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
-            'Escolhe o teu avatar',
-            style: TextStyle(
+          Builder(builder: (ctx) => Text(
+            ctx.l10n.accountAvatarPickerTitle,
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppColors.primary,
             ),
-          ),
+          )),
           const SizedBox(height: 6),
-          const Text(
-            'Toca num avatar para o selecionar.',
+          Builder(builder: (ctx) => Text(
+            ctx.l10n.accountAvatarPickerSub,
             style: AppTextStyles.secondary,
-          ),
+          )),
           const SizedBox(height: 20),
           // Default initials option
           _DefaultAvatarTile(
@@ -691,25 +690,25 @@ class _DefaultAvatarTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            const Expanded(
-              child: Column(
+            Expanded(
+              child: Builder(builder: (ctx) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Predefinido (iniciais)',
-                    style: TextStyle(
+                    ctx.l10n.accountAvatarDefaultLabel,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.primary,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
-                    'Mostra as iniciais do teu nome',
+                    ctx.l10n.accountAvatarDefaultSub,
                     style: AppTextStyles.secondary,
                   ),
                 ],
-              ),
+              )),
             ),
             if (selected)
               const Icon(Icons.check_circle_rounded,

@@ -417,9 +417,10 @@ class _HeroContent extends StatelessWidget {
     final next = findNextTide(entries);
 
     final displayH = currentH?.toStringAsFixed(2) ?? next?.height.toStringAsFixed(1) ?? '--';
-    final dirLabel = isRising ? 'subindo' : tidesData.direction == 'falling' ? 'descendo' : 'estável';
+    final l10n = context.l10n;
+    final dirLabel = isRising ? l10n.tideDirRising : tidesData.direction == 'falling' ? l10n.tideDirFalling : l10n.tideDirSteady;
     final nextStr  = next != null
-        ? '${tideTypeLabel(context.l10n, next.type, prefix: true)} às ${next.time}'
+        ? '${tideTypeLabel(l10n, next.type, prefix: true)} às ${next.time}'
         : '';
     final pillText = nextStr.isNotEmpty ? '$dirLabel · $nextStr' : dirLabel;
     final dotColor = isRising ? AppColors.teal : AppColors.sand;
@@ -431,7 +432,7 @@ class _HeroContent extends StatelessWidget {
         children: [
           const SizedBox(height: AppSpacing.xl),
           Text(
-            beachName ?? 'Marés',
+            beachName ?? context.l10n.tidesPageTitle,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.70),
               fontSize: 13,
@@ -563,7 +564,7 @@ class _DetailSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.sm),
-              const Text('MAIS DETALHES', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textHint, letterSpacing: 1.2)),
+              Builder(builder: (ctx) => Text(ctx.l10n.tidesMoreDetails, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.textHint, letterSpacing: 1.2))),
               const SizedBox(height: 2),
               ListenableBuilder(
                 listenable: sheetCtrl,
@@ -611,33 +612,37 @@ class _TodayTidesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (entries.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: AppRadii.cardLg,
-          border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+      return Builder(
+        builder: (ctx) => Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: AppRadii.cardLg,
+            border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+          ),
+          child: Center(child: Text(ctx.l10n.tidesNoData, style: AppTextStyles.secondaryMd)),
         ),
-        child: const Center(child: Text('Sem dados de marés disponíveis', style: AppTextStyles.secondaryMd)),
       );
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('MARÉS DE HOJE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.9)),
-      const SizedBox(height: 10),
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: AppRadii.cardLg,
-          border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+    return Builder(
+      builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(ctx.l10n.tidesTodaySection, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.9)),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: AppRadii.cardLg,
+            border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
+          ),
+          child: Column(children: [
+            for (int i = 0; i < entries.length; i++) ...[
+              if (i > 0) const Divider(height: 1, indent: 40, color: Color(0xFFEEEEEE)),
+              _TideRow(entry: entries[i]),
+            ],
+          ]),
         ),
-        child: Column(children: [
-          for (int i = 0; i < entries.length; i++) ...[
-            if (i > 0) const Divider(height: 1, indent: 40, color: Color(0xFFEEEEEE)),
-            _TideRow(entry: entries[i]),
-          ],
-        ]),
-      ),
-    ]);
+      ]),
+    );
   }
 }
 
@@ -662,7 +667,7 @@ class _TideRow extends StatelessWidget {
             style: AppTextStyles.titleMd,
           ),
           TextSpan(
-            text: '  ${isHigh ? 'alta' : 'baixa'}',
+            text: '  ${tideTypeLabel(context.l10n, entry.type)}',
             style: AppTextStyles.secondaryMd,
           ),
         ])),
@@ -679,16 +684,17 @@ class _SeaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(children: [
       Expanded(child: _SeaMini(
         icon: Icons.thermostat_outlined, iconColor: AppColors.coral,
-        label: 'Temp. Mar',
+        label: l10n.seaTempLabel,
         value: sea.seaTemp != null ? '${sea.seaTemp!.round()}°C' : '--',
       )),
       const SizedBox(width: 10),
       Expanded(child: _SeaMini(
         icon: Icons.waves, iconColor: AppColors.teal,
-        label: 'Ondas',
+        label: l10n.weatherWaves,
         value: sea.waveHeightMax != null ? '${sea.waveHeightMax!.toStringAsFixed(1)} m' : '--',
       )),
     ]);
@@ -733,8 +739,8 @@ class _TideChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final accent = (tidesData.currentHeight ?? 0) > 1.95 ? AppColors.teal : AppColors.sand;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Text('GRÁFICO DA MARÉ', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.9)),
+    return Builder(builder: (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(ctx.l10n.tidesChartSection, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textSecondary, letterSpacing: 0.9)),
       const SizedBox(height: 10),
       Container(
         height: 210,
@@ -750,10 +756,11 @@ class _TideChartCard extends StatelessWidget {
             tides: tidesData.entries,
             currentHeight: tidesData.currentHeight,
             accentColor: accent,
+            nowLabel: ctx.l10n.tidesNowLabel,
           ),
         ),
       ),
-    ]);
+    ]));
   }
 }
 
@@ -764,10 +771,12 @@ class _FullTideChartPainter extends CustomPainter {
     required this.tides,
     this.currentHeight,
     required this.accentColor,
+    required this.nowLabel,
   });
   final List<TideEntry> tides;
   final double? currentHeight;
   final Color accentColor;
+  final String nowLabel;
 
   // Internal layout constants (inside the painter's Size, after container padding)
   static const double _lPad = 36.0; // left — height axis labels
@@ -879,7 +888,7 @@ class _FullTideChartPainter extends CustomPainter {
     for (var dy = cT; dy < cT + cH; dy += dashH + gapH) {
       canvas.drawLine(Offset(nowX, dy), Offset(nowX, min(dy + dashH, cT + cH)), dashPaint);
     }
-    _label(canvas, 'AGORA', Offset(nowX, cT - 5),
+    _label(canvas, nowLabel, Offset(nowX, cT - 5),
       const TextStyle(fontSize: 8, color: AppColors.textHint, fontWeight: FontWeight.w700, letterSpacing: 0.5),
       align: TextAlign.center,
     );
@@ -957,5 +966,5 @@ class _FullTideChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FullTideChartPainter o) =>
-      o.tides != tides || o.currentHeight != currentHeight || o.accentColor != accentColor;
+      o.tides != tides || o.currentHeight != currentHeight || o.accentColor != accentColor || o.nowLabel != nowLabel;
 }

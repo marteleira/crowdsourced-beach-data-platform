@@ -7,11 +7,13 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/l10n/l10n.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/utils/beach_helpers.dart';
 
-//Utility 
+//Utility
 
 double _geoDistanceMeters(
   double lat1, double lon1, double lat2, double lon2,
@@ -27,7 +29,7 @@ double _geoDistanceMeters(
 
 int _walkMinsFromMeters(double meters) => (meters / 83.0).ceil();
 
-//Screen 
+//Screen
 
 class TransportScreen extends ConsumerStatefulWidget {
   const TransportScreen({super.key, required this.beach});
@@ -73,6 +75,7 @@ class _TransportScreenState extends ConsumerState<TransportScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
+    final l10n = context.l10n;
     return AppBar(
       backgroundColor: AppColors.primary,
       foregroundColor: Colors.white,
@@ -87,9 +90,9 @@ class _TransportScreenState extends ConsumerState<TransportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Transportes',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+          Text(
+            l10n.transportScreenTitle,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
           ),
           Text(
             widget.beach.name,
@@ -146,7 +149,7 @@ class _TransportScreenState extends ConsumerState<TransportScreen> {
   }
 }
 
-//Status strip 
+//Status strip
 
 class _StatusStrip extends StatelessWidget {
   const _StatusStrip({required this.flagColor, this.weather, this.sea});
@@ -156,13 +159,8 @@ class _StatusStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = switch (flagColor) {
-      'green'  => 'Segura',
-      'yellow' => 'Cuidado',
-      'red'    => 'Perigo',
-      'purple' => 'Proibida',
-      _        => 'Sem info',
-    };
+    final l10n = context.l10n;
+    final label = flagLabel(l10n, flagColor);
     final color = AppColors.forFlag(flagColor);
     final waves = sea?.waveHeightMax;
     final temp = weather?.maxTemp ?? sea?.seaTemp;
@@ -192,7 +190,7 @@ class _StatusStrip extends StatelessWidget {
             const _StripDivider(),
             const Icon(Icons.waves_rounded, size: 14, color: AppColors.textSecondary),
             const SizedBox(width: AppSpacing.xs),
-            Text('${waves.toStringAsFixed(1)}m ondas', style: AppTextStyles.secondaryMd),
+            Text(l10n.transportWavesLabel(waves.toStringAsFixed(1)), style: AppTextStyles.secondaryMd),
           ],
           if (temp != null) ...[
             const _StripDivider(),
@@ -216,7 +214,7 @@ class _StripDivider extends StatelessWidget {
       );
 }
 
-//Direction card (expandable) 
+//Direction card (expandable)
 
 class _DirectionCard extends StatefulWidget {
   const _DirectionCard({
@@ -283,6 +281,7 @@ class _DirectionCardState extends State<_DirectionCard>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final firstDep = widget.direction.departures.firstOrNull;
     final stop = _stop;
     final walkMins = _walkMins;
@@ -352,7 +351,7 @@ class _DirectionCardState extends State<_DirectionCard>
                               Expanded(
                                 child: Text(
                                   walkMins != null
-                                      ? '${stop.stopName} · $walkMins min a pé até à praia'
+                                      ? '${stop.stopName} · ${l10n.transportWalkMins(walkMins)}'
                                       : stop.stopName,
                                   style: AppTextStyles.secondarySm,
                                   overflow: TextOverflow.ellipsis,
@@ -371,7 +370,7 @@ class _DirectionCardState extends State<_DirectionCard>
                     children: [
                       if (firstDep != null)
                         Text(
-                          'Próxima: ${firstDep.displayTime}',
+                          l10n.transportNextDep(firstDep.displayTime),
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -406,9 +405,9 @@ class _DirectionCardState extends State<_DirectionCard>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'PRÓXIMAS PARTIDAS',
-                        style: TextStyle(
+                      Text(
+                        l10n.transportNextDeparturesSection,
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: AppColors.textHint,
@@ -436,7 +435,7 @@ class _DirectionCardState extends State<_DirectionCard>
   }
 }
 
-//Departure row 
+//Departure row
 
 class _DepartureRow extends StatelessWidget {
   const _DepartureRow({required this.dep, required this.headsign});
@@ -456,6 +455,7 @@ class _DepartureRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final soon = _isArrivingSoon;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -484,9 +484,9 @@ class _DepartureRow extends StatelessWidget {
                 borderRadius: AppRadii.cardXl,
                 border: Border.all(color: AppColors.teal.withValues(alpha: 0.30)),
               ),
-              child: const Text(
-                'A chegar',
-                style: TextStyle(
+              child: Text(
+                l10n.transportArrivingSoon,
+                style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: AppColors.tealDark,
@@ -609,14 +609,15 @@ class _WalkButtonState extends State<_WalkButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final mins = _walkMins;
     final String label;
     if (mins == null) {
-      label = 'Ir a pé para ${widget.beach.name}';
+      label = l10n.transportWalkTo(widget.beach.name);
     } else if (_fromCurrentLocation) {
-      label = 'Ir a pé para ${widget.beach.name} ($mins min)';
+      label = l10n.transportWalkToMins(widget.beach.name, mins);
     } else {
-      label = 'Ir a pé para ${widget.beach.name} ($mins min da paragem)';
+      label = l10n.transportWalkToMinsFromStop(widget.beach.name, mins);
     }
 
     return SizedBox(
@@ -637,7 +638,7 @@ class _WalkButtonState extends State<_WalkButton> {
   }
 }
 
-//Footer disclaimer 
+//Footer disclaimer
 
 class _FooterDisclaimer extends StatelessWidget {
   const _FooterDisclaimer({required this.dataSource});
@@ -645,32 +646,33 @@ class _FooterDisclaimer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Text(
       dataSource == 'live'
-          ? 'Horários Carris Metropolitana. Dados em tempo real quando disponível — verificar nas paragens.'
-          : 'Horários Carris Metropolitana. Dados em cache — verificar nas paragens.',
+          ? l10n.transportDisclaimerLive
+          : l10n.transportDisclaimerCache,
       style: AppTextStyles.hint,
       textAlign: TextAlign.center,
     );
   }
 }
 
-//Empty state 
+//Empty state
 
 class _EmptyTransport extends StatelessWidget {
   const _EmptyTransport();
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 60),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 60),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.directions_bus_outlined, size: 48, color: AppColors.textHint),
-          SizedBox(height: AppSpacing.md),
+          const Icon(Icons.directions_bus_outlined, size: 48, color: AppColors.textHint),
+          const SizedBox(height: AppSpacing.md),
           Text(
-            'Sem transportes disponíveis\npara esta praia',
+            context.l10n.transportEmpty,
             style: AppTextStyles.secondaryMd,
             textAlign: TextAlign.center,
           ),
@@ -680,7 +682,7 @@ class _EmptyTransport extends StatelessWidget {
   }
 }
 
-//Error view 
+//Error view
 
 class _ErrorView extends StatelessWidget {
   const _ErrorView({required this.error, required this.onRetry});
@@ -689,6 +691,7 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xxxl),
@@ -697,15 +700,15 @@ class _ErrorView extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline, size: 48, color: AppColors.textHint),
             const SizedBox(height: AppSpacing.md),
-            const Text(
-              'Não foi possível carregar os transportes',
+            Text(
+              l10n.transportLoadError,
               style: AppTextStyles.secondaryMd,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.lg),
             TextButton(
               onPressed: onRetry,
-              child: const Text('Tentar novamente'),
+              child: Text(l10n.retryAgain),
             ),
           ],
         ),

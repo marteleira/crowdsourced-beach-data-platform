@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -14,11 +15,11 @@ void showFlagProposalSheet(BuildContext context, BeachSummary beach) {
   );
 }
 
-const _kFlags = [
-  (value: 'green',  name: 'Verde',    desc: 'Seguro para nadar',          color: AppColors.flagGreen),
-  (value: 'yellow', name: 'Amarela',  desc: 'Nadar com precaução',        color: AppColors.flagYellow),
-  (value: 'red',    name: 'Vermelha', desc: 'Proibido nadar',             color: AppColors.flagRed),
-  (value: 'purple', name: 'Roxa',     desc: 'Animais marinhos presentes', color: AppColors.flagPurple),
+List<({String value, String name, String desc, Color color})> _flagOptions(AppLocalizations l10n) => [
+  (value: 'green',  name: l10n.flagColorGreenCap,  desc: l10n.flagProposeDescGreen,  color: AppColors.flagGreen),
+  (value: 'yellow', name: l10n.flagColorYellowCap, desc: l10n.flagProposeDescYellow, color: AppColors.flagYellow),
+  (value: 'red',    name: l10n.flagColorRedCap,    desc: l10n.flagProposeDescRed,    color: AppColors.flagRed),
+  (value: 'purple', name: l10n.flagColorPurpleCap, desc: l10n.flagProposeDescPurple, color: AppColors.flagPurple),
 ];
 
 enum _ProposeState { idle, loading, successPending, successApplied, noRep, notPresent, unavailable, error }
@@ -37,6 +38,9 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final flags = _flagOptions(l10n);
+
     return DraggableScrollableSheet(
       initialChildSize: 0.88,
       minChildSize: 0.5,
@@ -63,7 +67,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
                   child: SingleChildScrollView(
                     controller: controller,
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-                    child: _isSuccess ? _buildSuccess() : _buildMain(),
+                    child: _isSuccess ? _buildSuccess(l10n, flags) : _buildMain(l10n, flags),
                   ),
                 ),
               ],
@@ -91,16 +95,15 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
   bool get _isSuccess =>
       _state == _ProposeState.successPending || _state == _ProposeState.successApplied;
 
-  Widget _buildMain() {
+  Widget _buildMain(AppLocalizations l10n, List<({String value, String name, String desc, Color color})> flags) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: AppSpacing.sm),
 
-        // Header
-        const Text(
-          'Propor Bandeira',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary),
+        Text(
+          l10n.flagProposeTitle,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.primary),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
@@ -110,7 +113,6 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
 
         const SizedBox(height: AppSpacing.lg),
 
-        // Info banner
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
@@ -118,14 +120,14 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
             borderRadius: AppRadii.cardMd,
             border: Border.all(color: AppColors.teal.withValues(alpha: 0.2)),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.info_outline_rounded, color: AppColors.teal, size: 18),
-              SizedBox(width: 10),
+              const Icon(Icons.info_outline_rounded, color: AppColors.teal, size: 18),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Tens de estar na praia e ter reputação ≥ 25 para propor.',
-                  style: TextStyle(fontSize: 13, color: AppColors.tealDark, height: 1.4),
+                  l10n.flagProposeRequirement,
+                  style: const TextStyle(fontSize: 13, color: AppColors.tealDark, height: 1.4),
                 ),
               ),
             ],
@@ -134,14 +136,13 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
 
         const SizedBox(height: 28),
 
-        const Text(
-          'Qual é a bandeira actual?',
+        Text(
+          l10n.flagProposeQuestion,
           style: AppTextStyles.titleMd,
         ),
 
         const SizedBox(height: 14),
 
-        // 2x2 flag grid
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -149,7 +150,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
           childAspectRatio: 1.1,
-          children: _kFlags
+          children: flags
               .map((f) => _FlagOptionCard(
                     flagValue: f.value,
                     name: f.name,
@@ -161,44 +162,30 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
               .toList(),
         ),
 
-        // Error banners
         if (_state == _ProposeState.noRep) ...[
           const SizedBox(height: AppSpacing.xl),
-          _ErrorBanner(
-            icon: Icons.star_outline_rounded,
-            text: 'Ainda não tens reputação suficiente (mínimo: 25). Continua a contribuir com alertas e confirmações!',
-          ),
+          _ErrorBanner(icon: Icons.star_outline_rounded, text: l10n.flagProposeNoRep),
         ] else if (_state == _ProposeState.notPresent) ...[
           const SizedBox(height: AppSpacing.xl),
-          _ErrorBanner(
-            icon: Icons.location_off_outlined,
-            text: 'Tens de estar na praia (nos últimos 10 min) para propor uma bandeira.',
-          ),
+          _ErrorBanner(icon: Icons.location_off_outlined, text: l10n.flagProposeNotPresent),
         ] else if (_state == _ProposeState.unavailable) ...[
           const SizedBox(height: AppSpacing.xl),
-          _ErrorBanner(
-            icon: Icons.flag_outlined,
-            text: 'Esta praia não tem sistema de bandeiras físicas.',
-          ),
+          _ErrorBanner(icon: Icons.flag_outlined, text: l10n.flagProposeUnavailable),
         ] else if (_state == _ProposeState.error) ...[
           const SizedBox(height: AppSpacing.xl),
-          _ErrorBanner(
-            icon: Icons.error_outline_rounded,
-            text: 'Algo correu mal. Tenta de novo.',
-          ),
+          _ErrorBanner(icon: Icons.error_outline_rounded, text: l10n.flagProposeGenericError),
         ],
 
-        // Submit button (visible after selection)
         if (_selectedColor != null) ...[
           const SizedBox(height: 28),
-          _buildSubmitButton(),
+          _buildSubmitButton(l10n, flags),
         ],
       ],
     );
   }
 
-  Widget _buildSubmitButton() {
-    final selected = _kFlags.firstWhere((f) => f.value == _selectedColor);
+  Widget _buildSubmitButton(AppLocalizations l10n, List<({String value, String name, String desc, Color color})> flags) {
+    final selected = flags.firstWhere((f) => f.value == _selectedColor);
     final isLoading = _state == _ProposeState.loading;
 
     return SizedBox(
@@ -206,9 +193,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
       child: AnimatedContainer(
         duration: AppDurations.medium,
         decoration: BoxDecoration(
-          color: isLoading
-              ? selected.color.withValues(alpha: 0.5)
-              : selected.color,
+          color: isLoading ? selected.color.withValues(alpha: 0.5) : selected.color,
           borderRadius: AppRadii.cardLg,
           boxShadow: [
             BoxShadow(
@@ -237,18 +222,13 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
                         children: [
                           Container(
                             width: 10, height: 10,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
+                            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Propor bandeira ${selected.name.toLowerCase()}',
+                            l10n.flagProposeSubmit(selected.name.toLowerCase()),
                             style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
+                              color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -261,9 +241,9 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
     );
   }
 
-  Widget _buildSuccess() {
+  Widget _buildSuccess(AppLocalizations l10n, List<({String value, String name, String desc, Color color})> flags) {
     final applied = _state == _ProposeState.successApplied;
-    final selected = _kFlags.firstWhere((f) => f.value == _selectedColor);
+    final selected = flags.firstWhere((f) => f.value == _selectedColor);
 
     return Column(
       children: [
@@ -285,10 +265,8 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
         const SizedBox(height: 22),
 
         Text(
-          applied ? 'Bandeira atualizada!' : 'Proposta submetida!',
-          style: const TextStyle(
-            fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.primary,
-          ),
+          applied ? l10n.flagProposeSuccessApplied : l10n.flagProposeSuccessPending,
+          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.primary),
         ),
 
         const SizedBox(height: AppSpacing.md),
@@ -309,10 +287,8 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
               ),
               const SizedBox(width: 7),
               Text(
-                'Bandeira ${selected.name}',
-                style: TextStyle(
-                  color: selected.color, fontSize: 13, fontWeight: FontWeight.w700,
-                ),
+                l10n.flagProposeFlagLabel(selected.name),
+                style: TextStyle(color: selected.color, fontSize: 13, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -321,9 +297,7 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
         const SizedBox(height: AppSpacing.lg),
 
         Text(
-          applied
-              ? 'A tua reputação deu-te autoridade para aplicar a bandeira directamente.'
-              : 'A comunidade irá confirmar a tua proposta em breve.',
+          applied ? l10n.flagProposeSuccessBodyApplied : l10n.flagProposeSuccessBodyPending,
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.5),
         ),
@@ -339,9 +313,9 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
             ),
-            child: const Text(
-              'Fechar',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            child: Text(
+              l10n.close,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -483,9 +457,7 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               text,
-              style: const TextStyle(
-                fontSize: 13, color: AppColors.coral, height: 1.45,
-              ),
+              style: const TextStyle(fontSize: 13, color: AppColors.coral, height: 1.45),
             ),
           ),
         ],
