@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../core/constants/app_config.dart';
 import '../../../core/constants/app_routes.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
@@ -39,12 +39,12 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
   static const _kCenter = LatLng(AppConfig.mapCenterLat, AppConfig.mapCenterLon);
   static const _kInitialZoom = AppConfig.mapInitialZoom;
 
-  static const _filters = [
-    ('all', AppStrings.filterAll, null),
-    ('green', AppStrings.filterSafe, AppColors.flagGreen),
-    ('yellow', AppStrings.filterCaution, AppColors.flagYellow),
-    ('red', AppStrings.filterDanger, AppColors.flagRed),
-    ('unknown', AppStrings.filterNoData, AppColors.textHint),
+  List<(String, String, Color?)> _filters(AppLocalizations l10n) => [
+    ('all', l10n.filterAll, null),
+    ('green', l10n.filterSafe, AppColors.flagGreen),
+    ('yellow', l10n.filterCaution, AppColors.flagYellow),
+    ('red', l10n.filterDanger, AppColors.flagRed),
+    ('unknown', l10n.filterNoData, AppColors.textHint),
   ];
 
   @override
@@ -169,6 +169,8 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final filters = _filters(l10n);
     final top = MediaQuery.paddingOf(context).top;
     final screenH = MediaQuery.of(context).size.height;
 
@@ -271,8 +273,8 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
         Positioned(
           top: top + 10,
           left: 16,
-          child: const Text(
-            AppStrings.beachListTitle,
+          child: Text(
+            l10n.beachListTitle,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -393,7 +395,7 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                         onChanged: (q) => setState(() => _search = q),
                         style: const TextStyle(fontSize: 14, color: AppColors.primary),
                         decoration: InputDecoration(
-                          hintText: AppStrings.searchHint,
+                          hintText: l10n.searchHint,
                           hintStyle: const TextStyle(
                             color: AppColors.textHint,
                             fontSize: 14,
@@ -429,10 +431,10 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: _filters.length,
+                      itemCount: filters.length,
                       separatorBuilder: (_, _) => const SizedBox(width: 6),
                       itemBuilder: (_, i) {
-                        final (id, label, color) = _filters[i];
+                        final (id, label, color) = filters[i];
                         final selected = _flagFilter == id;
                         return _FilterChip(
                           label: label,
@@ -454,8 +456,8 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                       ),
                       error: (_, _) => EmptyState(
                         icon: Icons.cloud_off_rounded,
-                        message: AppStrings.errorLoadBeaches,
-                        actionLabel: AppStrings.tryAgain,
+                        message: l10n.errorLoadBeaches,
+                        actionLabel: l10n.tryAgain,
                         onAction: _refresh,
                       ),
                       data: (_) {
@@ -463,8 +465,8 @@ class _BeachListScreenState extends ConsumerState<BeachListScreen> {
                           return EmptyState(
                             icon: Icons.search_off_rounded,
                             message: _search.isNotEmpty
-                                ? AppStrings.noBeachesForSearch(_search)
-                                : AppStrings.noBeachesForFilter,
+                                ? l10n.noBeachesForSearch(_search)
+                                : l10n.noBeachesForFilter,
                           );
                         }
                         return RefreshIndicator(
@@ -606,8 +608,9 @@ class _SelectedBeachBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final flagColor = AppColors.forFlag(beach.flagColor);
-    final flagLabelText = flagLabel(beach.flagColor);
+    final flagLabelText = flagLabel(l10n, beach.flagColor);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -666,7 +669,7 @@ class _SelectedBeachBanner extends StatelessWidget {
                         const _Dot(),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
-                          occupancyLabel(beach.occupancyLevel),
+                          occupancyLabel(l10n, beach.occupancyLevel),
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppColors.textSecondary,
@@ -686,9 +689,9 @@ class _SelectedBeachBanner extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text(
-              AppStrings.beachCardView,
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+            child: Text(
+              l10n.beachCardView,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
             ),
           ),
           IconButton(
@@ -775,6 +778,7 @@ class _BeachCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final flagColor = AppColors.forFlag(beach.flagColor);
 
     return GestureDetector(
@@ -863,7 +867,7 @@ class _BeachCard extends StatelessWidget {
                           _StatusDot(color: flagColor),
                           const SizedBox(width: 5),
                           Text(
-                            flagLabel(beach.flagColor),
+                            flagLabel(l10n, beach.flagColor),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -875,7 +879,7 @@ class _BeachCard extends StatelessWidget {
                             const _Dot(),
                             const SizedBox(width: 10),
                             Text(
-                              occupancyLabel(beach.occupancyLevel),
+                              occupancyLabel(l10n, beach.occupancyLevel),
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppColors.textSecondary,

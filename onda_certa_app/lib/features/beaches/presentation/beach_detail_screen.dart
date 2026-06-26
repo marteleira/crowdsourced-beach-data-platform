@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/presence/heartbeat_service.dart';
 import '../data/beach_provider.dart';
 import '../domain/beach_models.dart';
@@ -101,7 +101,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
                   await ref.read(favouritesProvider.notifier).toggle(widget.beach);
                 } catch (_) {
                   messenger.showSnackBar(
-                    SnackBar(content: const Text(AppStrings.errorFavourite), backgroundColor: Colors.red),
+                    SnackBar(content: Text(context.l10n.errorFavourite), backgroundColor: Colors.red),
                   );
                 }
               },
@@ -139,7 +139,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         onTap: flagColor != 'unknown'
             ? () {
                 if (_isGuest) {
-                  showGuestSnackbar(context, AppStrings.guestConfirmFlag);
+                  showGuestSnackbar(context, context.l10n.guestConfirmFlag);
                   return;
                 }
                 showFlagConfirmationSheet(
@@ -151,7 +151,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
               }
             : () {
                 if (_isGuest) {
-                  showGuestSnackbar(context, AppStrings.guestProposeFlag);
+                  showGuestSnackbar(context, context.l10n.guestProposeFlag);
                   return;
                 }
                 showFlagProposalSheet(context, widget.beach);
@@ -199,18 +199,18 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
       final nearest = await sendHeartbeatForCurrentPosition(ref);
       if (nearest == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(AppStrings.tooFarToCheckin),
-            duration: Duration(seconds: 2),
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(context.l10n.tooFarToCheckin),
+            duration: const Duration(seconds: 2),
             backgroundColor: AppColors.coral,
           ));
         }
         return;
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(AppStrings.presenceRegistered),
-          duration: Duration(seconds: 2),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(context.l10n.presenceRegistered),
+          duration: const Duration(seconds: 2),
           backgroundColor: AppColors.teal,
         ));
         // Refresh detail to update occupancy count
@@ -275,7 +275,7 @@ class _HeroAppBar extends StatelessWidget {
               ),
             ),
             Text(
-              beach.municipality ?? AppStrings.municipality,
+              beach.municipality ?? context.l10n.municipality,
               style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w400),
             ),
           ],
@@ -348,7 +348,8 @@ class _FlagCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, label) = flagInfo(flagColor);
+    final l10n = context.l10n;
+    final (color, label) = flagInfo(l10n, flagColor);
     final confidence = flagConfidence ?? 0.7;
 
     return Material(
@@ -376,8 +377,8 @@ class _FlagCard extends StatelessWidget {
                     ],
                     Text(
                       flagColor != 'unknown'
-                          ? AppStrings.flagLiveTap
-                          : AppStrings.flagProposeTap,
+                          ? l10n.flagLiveTap
+                          : l10n.flagProposeTap,
                       style: AppTextStyles.secondary,
                     ),
                   ],
@@ -427,14 +428,15 @@ class _OccupancyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final userCount = occupancy?.userCount ?? 0;
-    final (pct, levelLabel, color) = occupancyInfo(occupancyLevel, userCount, maxCapacity: maxCapacity);
+    final (pct, levelLabel, color) = occupancyInfo(l10n, occupancyLevel, userCount, maxCapacity: maxCapacity);
 
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(title: AppStrings.labelOccupancy, isLive: true),
+          _CardHeader(title: l10n.labelOccupancy, isLive: true),
           const SizedBox(height: 14),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -450,10 +452,10 @@ class _OccupancyCard extends StatelessWidget {
                         style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
                         children: [
                           TextSpan(
-                            text: userCount > 0 ? '${AppStrings.usersAtBeach(userCount)} ' : '${AppStrings.fewUsersNote} ',
+                            text: userCount > 0 ? '${l10n.usersAtBeach(userCount)} ' : '${l10n.fewUsersNote} ',
                             style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
                           ),
-                          const TextSpan(text: AppStrings.occupancyNote),
+                          TextSpan(text: l10n.occupancyNote),
                         ],
                       ),
                     ),
@@ -463,7 +465,7 @@ class _OccupancyCard extends StatelessWidget {
                       icon: sending
                           ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
                           : const Text('📍', style: TextStyle(fontSize: 14)),
-                      label: Text(sending ? AppStrings.updating : AppStrings.updatePresence),
+                      label: Text(sending ? l10n.updating : l10n.updatePresence),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
                         side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
@@ -544,11 +546,12 @@ class _WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return _SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _CardHeader(title: AppStrings.sectionWeather, isLive: true),
+          _CardHeader(title: l10n.sectionWeather, isLive: true),
           const SizedBox(height: AppSpacing.md),
           metricRow([
             MetricCell(
@@ -561,7 +564,7 @@ class _WeatherCard extends StatelessWidget {
               subLabel: weather?.currentTemp != null && weather?.maxTemp != null
                   ? '${weather!.minTemp!.round()}-${weather!.maxTemp!.round()}°C'
                   : null,
-              label: AppStrings.labelTemperature, iconColor: AppColors.coral,
+              label: l10n.labelTemperature, iconColor: AppColors.coral,
             ),
             _WindCell(
               speedKmh: weather?.windSpeed,
@@ -572,7 +575,7 @@ class _WeatherCard extends StatelessWidget {
             MetricCell(
               icon: Icons.umbrella_outlined,
               value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--',
-              label: AppStrings.labelRain, iconColor: AppColors.waterIcon,
+              label: l10n.labelRain, iconColor: AppColors.waterIcon,
             ),
           ]),
           if (weather?.apparentTemp != null || weather?.humidity != null || weather?.uvIndex != null) ...[
@@ -720,7 +723,7 @@ class _TidesCard extends StatelessWidget {
                   Text(displayH, style: AppTextStyles.titleXl),
                   if (nextTide != null)
                     Text(
-                      '${tideTypeLabel(nextTide.type)} às ${nextTide.time}',
+                      '${tideTypeLabel(context.l10n, nextTide.type)} às ${nextTide.time}',
                       style: AppTextStyles.secondary,
                     ),
                 ],
@@ -757,7 +760,7 @@ class _WaterQualityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, label) = waterQualityInfo(quality?.classification);
+    final (color, label) = waterQualityInfo(context.l10n, quality?.classification);
     final cacheStr = _cacheStr(quality);
     final eeaStr = _eeaStr(quality);
 

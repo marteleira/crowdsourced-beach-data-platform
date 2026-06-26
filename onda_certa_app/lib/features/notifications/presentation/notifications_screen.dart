@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/notifications/notification_model.dart';
 import '../../../core/notifications/notification_provider.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/utils/format_helpers.dart';
 import '../../../shared/widgets/empty_state.dart';
 
@@ -61,6 +62,7 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Container(
       color: notif.isRead ? null : AppColors.teal.withValues(alpha: 0.06),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
@@ -87,7 +89,7 @@ class _NotificationTile extends StatelessWidget {
                   Text(notif.body, style: AppTextStyles.secondary),
                 ],
                 const SizedBox(height: 4),
-                Text(timeAgo(notif.receivedAt), style: AppTextStyles.hintXs),
+                Text(timeAgo(l10n, notif.receivedAt), style: AppTextStyles.hintXs),
               ],
             ),
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../utils/format_helpers.dart';
 import '../widgets/severity_dots.dart';
+import '../../core/l10n/l10n.dart';
 import '../../features/beaches/domain/beach_models.dart';
 
 (IconData, Color, String) alertMeta(String type) {
@@ -30,9 +31,10 @@ class AlertItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final (icon, typeColor, label) = alertMeta(report.type);
     final (sevColor, sevLabel) = severityMeta(report.severity);
-    final ago = timeAgoFromString(report.createdAt);
+    final ago = timeAgoFromString(l10n, report.createdAt);
 
     return Container(
       decoration: BoxDecoration(

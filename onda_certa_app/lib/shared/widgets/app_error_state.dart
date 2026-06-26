@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_strings.dart';
+import '../../core/l10n/l10n.dart';
 import 'empty_state.dart';
 
 /// Standard error state with optional retry button.
@@ -19,7 +19,7 @@ class AppErrorState extends StatelessWidget {
     return EmptyState(
       icon: Icons.cloud_off_rounded,
       message: message,
-      actionLabel: onRetry != null ? AppStrings.tryAgain : null,
+      actionLabel: onRetry != null ? context.l10n.tryAgain : null,
       onAction: onRetry,
     );
   }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -119,7 +119,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
 
   Future<void> _vote(int reportId, String vote) async {
     if (_isGuest) {
-      showGuestSnackbar(context, AppStrings.guestVoteAlerts);
+      showGuestSnackbar(context, context.l10n.guestVoteAlerts);
       return;
     }
     try {
@@ -138,7 +138,7 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
 
   void _openReportSheet() {
     if (_isGuest) {
-      showGuestSnackbar(context, AppStrings.guestSubmitReport);
+      showGuestSnackbar(context, context.l10n.guestSubmitReport);
       return;
     }
     showModalBottomSheet(
@@ -159,6 +159,7 @@ class _ReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final (icon, typeColor, typeLabel) = alertMeta(report.type);
     final (severityColor, severityLabel) = severityMeta(report.severity);
     final totalVotes = report.upvotes + report.downvotes;
@@ -248,7 +249,7 @@ class _ReportCard extends StatelessWidget {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  timeAgoFromString(report.createdAt),
+                                  timeAgoFromString(l10n, report.createdAt),
                                   style: AppTextStyles.hint,
                                 ),
                               ],

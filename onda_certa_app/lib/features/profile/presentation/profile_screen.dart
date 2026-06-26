@@ -6,6 +6,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/utils/format_helpers.dart';
 import '../../../shared/widgets/user_avatar.dart';
 
@@ -650,6 +651,7 @@ class _EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final positive = event.delta > 0;
     final deltaText = positive ? '+${event.delta}' : '${event.delta}';
     final label = event.reason ?? fallback[event.event] ?? event.event;
@@ -693,7 +695,7 @@ class _EventRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  timeAgoFromString(event.createdAt),
+                  timeAgoFromString(l10n, event.createdAt),
                   style: AppTextStyles.hint,
                 ),
               ],
