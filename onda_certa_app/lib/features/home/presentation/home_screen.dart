@@ -1000,7 +1000,7 @@ class _TidesSection extends StatelessWidget {
                           style: AppTextStyles.titleXl),
                       if (nextTide != null)
                         Text(
-                          '${tideTypeLabel(l10n, nextTide.type, capitalize: true)} às ${nextTide.time}',
+                          '${tideTypeLabel(l10n, nextTide.type, capitalize: true)} ${l10n.atTimePrep} ${nextTide.time}',
                           style: AppTextStyles.secondary,
                         ),
                     ],

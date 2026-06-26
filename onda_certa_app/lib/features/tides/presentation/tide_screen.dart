@@ -420,7 +420,7 @@ class _HeroContent extends StatelessWidget {
     final l10n = context.l10n;
     final dirLabel = isRising ? l10n.tideDirRising : tidesData.direction == 'falling' ? l10n.tideDirFalling : l10n.tideDirSteady;
     final nextStr  = next != null
-        ? '${tideTypeLabel(l10n, next.type, prefix: true)} às ${next.time}'
+        ? '${tideTypeLabel(l10n, next.type, prefix: true)} ${l10n.atTimePrep} ${next.time}'
         : '';
     final pillText = nextStr.isNotEmpty ? '$dirLabel · $nextStr' : dirLabel;
     final dotColor = isRising ? AppColors.teal : AppColors.sand;

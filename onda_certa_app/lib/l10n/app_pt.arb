@@ -498,11 +498,25 @@
   "achievementContributor": "Contribuidor",
   "achievementVeteran": "Veterano",
   "recentActivityTitle": "Atividade Recente",
+  "eventReportSubmitted": "Aviso submetido",
+  "eventFirstReportBonus": "Primeiro aviso!",
   "eventReportConfirmed": "Aviso confirmado pela comunidade",
   "eventReportContradicted": "Aviso rejeitado pela comunidade",
   "eventFlagConfirmed": "Proposta de bandeira confirmada",
   "eventFlagContradicted": "Proposta de bandeira rejeitada",
   "eventConfirmationAccurate": "Confirmação correta",
+  "eventConfirmationContradicted": "Confirmação precisa — bandeira {color} contradita",
+  "@eventConfirmationContradicted": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "eventConfirmationVerified": "Confirmação precisa — bandeira {color} verificada",
+  "@eventConfirmationVerified": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
   "eventSpamPenalty": "Penalidade por spam",
   "settingsAccountTitle": "Definições da Conta",
   "settingsFavouritesTitle": "Praias Favoritas",
@@ -743,5 +757,50 @@
     "placeholders": {
       "pct": { "type": "int" }
     }
-  }
+  },
+
+  "atTimePrep": "às",
+
+  "forgotPasswordTitle": "Recuperar password",
+  "forgotPasswordBody": "Introduz o teu email. Enviamos um código de 6 dígitos para poderes definir uma nova password.",
+  "forgotPasswordSubmit": "Enviar código",
+  "forgotPasswordSendError": "Erro ao enviar o código. Tenta novamente.",
+
+  "emailVerifyTitle": "Confirma o teu email",
+  "emailVerifyBody": "Enviámos um código de 6 dígitos para o teu email.\nIntroduz o código abaixo para continuares.",
+  "emailVerifyButton": "Verificar",
+  "emailVerifyCodeInvalid": "Código inválido. Tenta de novo.",
+
+  "resetCodeTitle": "Verifica o teu email",
+  "resetCodeBody": "Enviámos um código de 6 dígitos para {email}.",
+  "@resetCodeBody": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "resetCodeContinue": "Continuar",
+  "resetNewPasswordTitle": "Nova password",
+  "resetNewPasswordBody": "Escolhe uma nova password para a tua conta.",
+  "resetNewPasswordConfirmLabel": "Confirmar password",
+  "resetNewPasswordSubmit": "Alterar password",
+  "resetPasswordSuccessTitle": "Password alterada!",
+  "resetPasswordSuccessBody": "A tua password foi actualizada com sucesso.\nPodes entrar com a nova password.",
+  "resetPasswordError": "Erro ao alterar a password. Tenta novamente.",
+
+  "codeResend": "Reenviar código",
+  "codeResendCooldown": "Reenviar código ({secs}s)",
+  "@codeResendCooldown": {
+    "placeholders": {
+      "secs": { "type": "int" }
+    }
+  },
+  "codeResendShortCooldown": "Reenviar ({secs}s)",
+  "@codeResendShortCooldown": {
+    "placeholders": {
+      "secs": { "type": "int" }
+    }
+  },
+  "codeSentSnack": "Novo código enviado para o teu email.",
+  "codeResendError": "Erro ao reenviar o código.",
+  "codeConfirmEmpty": "Confirma a nova password"
 }

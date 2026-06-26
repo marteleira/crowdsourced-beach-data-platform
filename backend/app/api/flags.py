@@ -4,21 +4,31 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import MIN_REPUTATION_TO_PROPOSE, FLAG_PROPOSAL_WINDOW_MINUTES, FLAG_CONFIRM_WINDOW_HOURS
+from app.core.constants import (
+    FLAG_CONFIRM_WINDOW_HOURS,
+    FLAG_PROPOSAL_WINDOW_MINUTES,
+    MIN_REPUTATION_TO_PROPOSE,
+)
 from app.core.database import get_db
-from app.core.deps import require_registered_user, get_beach_or_404, was_recently_present
+from app.core.deps import get_beach_or_404, require_registered_user, was_recently_present
+from app.core.messages import Msg
 from app.core.utils import now_utc
-from app.models.beach_status import BeachStatus, FlagProposal, FlagConfirmation
+from app.models.beach_status import BeachStatus, FlagConfirmation, FlagProposal
 from app.models.user import User
 from app.schemas.flag import (
-    FlagProposalRequest, FlagProposalResponse,
-    FlagConfirmRequest, FlagConfirmResponse, BeachFlagStatus,
+    BeachFlagStatus,
+    FlagConfirmRequest,
+    FlagConfirmResponse,
+    FlagProposalRequest,
+    FlagProposalResponse,
 )
 from app.services.activity import get_activity_params
 from app.services.flag_confidence import recalculate_beach_confidence
-from app.services.reputation import apply_delta, proposal_weight, DELTA_FLAG_CONFIRMED
-from app.core.messages import Msg
-from app.services.push_notifications import dispatch_flag_notification, dispatch_red_flag_favourite_notification
+from app.services.push_notifications import (
+    dispatch_flag_notification,
+    dispatch_red_flag_favourite_notification,
+)
+from app.services.reputation import DELTA_FLAG_CONFIRMED, apply_delta, proposal_weight
 
 router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
 
@@ -120,7 +130,7 @@ async def _apply_proposal(db: AsyncSession, proposal: FlagProposal, beach_id: in
         await apply_delta(
             db, user_id, DELTA_FLAG_CONFIRMED,
             "flag_confirmed",
-            f"Proposta de bandeira {color} aplicada",
+            params={"color": color},
             ref_id=proposal.id,
         )
 

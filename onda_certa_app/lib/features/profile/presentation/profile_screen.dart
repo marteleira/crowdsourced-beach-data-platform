@@ -598,14 +598,6 @@ class _RecentActivity extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final fallbackLabels = {
-      'report_confirmed':      l10n.eventReportConfirmed,
-      'report_contradicted':   l10n.eventReportContradicted,
-      'flag_confirmed':        l10n.eventFlagConfirmed,
-      'flag_contradicted':     l10n.eventFlagContradicted,
-      'confirmation_accurate': l10n.eventConfirmationAccurate,
-      'spam_penalty':          l10n.eventSpamPenalty,
-    };
     return _Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Column(
@@ -617,7 +609,7 @@ class _RecentActivity extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Text(
                 l10n.recentActivityTitle,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -632,7 +624,7 @@ class _RecentActivity extends StatelessWidget {
             return Column(
               children: [
                 if (i > 0) const _Divider(),
-                _EventRow(event: e, fallback: fallbackLabels),
+                _EventRow(event: e),
               ],
             );
           }),
@@ -643,25 +635,62 @@ class _RecentActivity extends StatelessWidget {
 }
 
 class _EventRow extends StatelessWidget {
-  const _EventRow({required this.event, required this.fallback});
+  const _EventRow({required this.event});
   final UserReputationEvent event;
-  final Map<String, String> fallback;
 
   static const _positiveBg   = Color(0xFFD1FAE5);
   static const _positiveText = Color(0xFF059669);
   static const _negativeBg   = Color(0xFFFEE2E2);
   static const _negativeText = Color(0xFFDC2626);
 
-  String _normalizeLabel(AppLocalizations l10n, String raw) {
-    return raw
-        .replaceAll('green', l10n.flagColorGreen)
-        .replaceAll('yellow', l10n.flagColorYellow)
-        .replaceAll('red', l10n.flagColorRed)
-        .replaceAll('purple', l10n.flagColorPurple)
-        .replaceAll('Green', l10n.flagColorGreenCap)
-        .replaceAll('Yellow', l10n.flagColorYellowCap)
-        .replaceAll('Red', l10n.flagColorRedCap)
-        .replaceAll('Purple', l10n.flagColorPurpleCap);
+  String _alertTypeName(AppLocalizations l10n, String? type) => switch (type) {
+    'jellyfish'      => l10n.alertTypeJellyfish,
+    'strong_current' => l10n.alertTypeStrongCurrent,
+    'pollution'      => l10n.alertTypePollution,
+    'rough_sea'      => l10n.alertTypeRoughSea,
+    'other_alert'    => l10n.alertTypeOther,
+    _                => type ?? '',
+  };
+
+  String _flagColorLabel(AppLocalizations l10n, String? color) => switch (color) {
+    'green'  => l10n.flagColorGreenCap,
+    'yellow' => l10n.flagColorYellowCap,
+    'red'    => l10n.flagColorRedCap,
+    'purple' => l10n.flagColorPurpleCap,
+    _        => color ?? '',
+  };
+
+  String _formatEventLabel(AppLocalizations l10n) {
+    final p = event.params;
+    switch (event.event) {
+      case 'report_submitted':
+        final type = _alertTypeName(l10n, p?['alert_type'] as String?);
+        return type.isNotEmpty ? '${l10n.eventReportSubmitted}: $type' : l10n.eventReportSubmitted;
+      case 'first_report_bonus':
+        return l10n.eventFirstReportBonus;
+      case 'report_confirmed':
+        final type = _alertTypeName(l10n, p?['alert_type'] as String?);
+        return type.isNotEmpty ? '${l10n.eventReportConfirmed}: $type' : l10n.eventReportConfirmed;
+      case 'report_contradicted':
+        final type = _alertTypeName(l10n, p?['alert_type'] as String?);
+        return type.isNotEmpty ? '${l10n.eventReportContradicted}: $type' : l10n.eventReportContradicted;
+      case 'flag_confirmed':
+        final color = _flagColorLabel(l10n, p?['color'] as String?);
+        return color.isNotEmpty ? '${l10n.eventFlagConfirmed}: $color' : l10n.eventFlagConfirmed;
+      case 'flag_contradicted':
+        final color = _flagColorLabel(l10n, p?['color'] as String?);
+        return color.isNotEmpty ? '${l10n.eventFlagContradicted}: $color' : l10n.eventFlagContradicted;
+      case 'confirmation_accurate':
+        final color = _flagColorLabel(l10n, p?['color'] as String?);
+        final outcome = p?['outcome'] as String? ?? '';
+        if (outcome == 'contradicted') return l10n.eventConfirmationContradicted(color);
+        if (outcome == 'verified')     return l10n.eventConfirmationVerified(color);
+        return l10n.eventConfirmationAccurate;
+      case 'spam_penalty':
+        return l10n.eventSpamPenalty;
+      default:
+        return event.event;
+    }
   }
 
   @override
@@ -669,8 +698,7 @@ class _EventRow extends StatelessWidget {
     final l10n = context.l10n;
     final positive = event.delta > 0;
     final deltaText = positive ? '+${event.delta}' : '${event.delta}';
-    final rawLabel = event.reason ?? fallback[event.event] ?? event.event;
-    final label = _normalizeLabel(l10n, rawLabel);
+    final label = _formatEventLabel(l10n);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 11),

@@ -1101,6 +1101,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get recentActivityTitle => 'Atividade Recente';
 
   @override
+  String get eventReportSubmitted => 'Aviso submetido';
+
+  @override
+  String get eventFirstReportBonus => 'Primeiro aviso!';
+
+  @override
   String get eventReportConfirmed => 'Aviso confirmado pela comunidade';
 
   @override
@@ -1114,6 +1120,16 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get eventConfirmationAccurate => 'Confirmação correta';
+
+  @override
+  String eventConfirmationContradicted(String color) {
+    return 'Confirmação precisa — bandeira $color contradita';
+  }
+
+  @override
+  String eventConfirmationVerified(String color) {
+    return 'Confirmação precisa — bandeira $color verificada';
+  }
 
   @override
   String get eventSpamPenalty => 'Penalidade por spam';
@@ -1569,4 +1585,91 @@ class AppLocalizationsPt extends AppLocalizations {
   String confidencePct(int pct) {
     return '$pct% conf.';
   }
+
+  @override
+  String get atTimePrep => 'às';
+
+  @override
+  String get forgotPasswordTitle => 'Recuperar password';
+
+  @override
+  String get forgotPasswordBody =>
+      'Introduz o teu email. Enviamos um código de 6 dígitos para poderes definir uma nova password.';
+
+  @override
+  String get forgotPasswordSubmit => 'Enviar código';
+
+  @override
+  String get forgotPasswordSendError =>
+      'Erro ao enviar o código. Tenta novamente.';
+
+  @override
+  String get emailVerifyTitle => 'Confirma o teu email';
+
+  @override
+  String get emailVerifyBody =>
+      'Enviámos um código de 6 dígitos para o teu email.\nIntroduz o código abaixo para continuares.';
+
+  @override
+  String get emailVerifyButton => 'Verificar';
+
+  @override
+  String get emailVerifyCodeInvalid => 'Código inválido. Tenta de novo.';
+
+  @override
+  String get resetCodeTitle => 'Verifica o teu email';
+
+  @override
+  String resetCodeBody(String email) {
+    return 'Enviámos um código de 6 dígitos para $email.';
+  }
+
+  @override
+  String get resetCodeContinue => 'Continuar';
+
+  @override
+  String get resetNewPasswordTitle => 'Nova password';
+
+  @override
+  String get resetNewPasswordBody =>
+      'Escolhe uma nova password para a tua conta.';
+
+  @override
+  String get resetNewPasswordConfirmLabel => 'Confirmar password';
+
+  @override
+  String get resetNewPasswordSubmit => 'Alterar password';
+
+  @override
+  String get resetPasswordSuccessTitle => 'Password alterada!';
+
+  @override
+  String get resetPasswordSuccessBody =>
+      'A tua password foi actualizada com sucesso.\nPodes entrar com a nova password.';
+
+  @override
+  String get resetPasswordError =>
+      'Erro ao alterar a password. Tenta novamente.';
+
+  @override
+  String get codeResend => 'Reenviar código';
+
+  @override
+  String codeResendCooldown(int secs) {
+    return 'Reenviar código (${secs}s)';
+  }
+
+  @override
+  String codeResendShortCooldown(int secs) {
+    return 'Reenviar (${secs}s)';
+  }
+
+  @override
+  String get codeSentSnack => 'Novo código enviado para o teu email.';
+
+  @override
+  String get codeResendError => 'Erro ao reenviar o código.';
+
+  @override
+  String get codeConfirmEmpty => 'Confirma a nova password';
 }

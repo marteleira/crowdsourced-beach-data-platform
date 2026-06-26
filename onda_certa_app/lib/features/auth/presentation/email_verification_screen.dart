@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/auth_code_input.dart';
 
@@ -13,12 +14,10 @@ class EmailVerificationScreen extends ConsumerStatefulWidget {
   const EmailVerificationScreen({super.key});
 
   @override
-  ConsumerState<EmailVerificationScreen> createState() =>
-      _EmailVerificationScreenState();
+  ConsumerState<EmailVerificationScreen> createState() => _EmailVerificationScreenState();
 }
 
-class _EmailVerificationScreenState
-    extends ConsumerState<EmailVerificationScreen> {
+class _EmailVerificationScreenState extends ConsumerState<EmailVerificationScreen> {
   static const _resendCooldown = 30;
 
   final _codeKey = GlobalKey<AuthCodeInputState>();
@@ -55,54 +54,47 @@ class _EmailVerificationScreenState
   }
 
   Future<void> _verify(String code) async {
+    final l10n = context.l10n;
+    final invalidMsg = l10n.emailVerifyCodeInvalid;
+    final connMsg = l10n.connectionError;
     if (code.length != 6 || _verifying) return;
-    setState(() {
-      _verifying = true;
-      _errorMessage = null;
-    });
+    setState(() { _verifying = true; _errorMessage = null; });
     try {
       await ref.read(authProvider.notifier).verifyEmail(code);
-      if (mounted) context.go(AppRoutes.home);
+      if (mounted) { context.go(AppRoutes.home); }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) return;
       final detail = e.response?.data?['detail'];
       _codeKey.currentState?.clear();
-      setState(() {
-        _codeComplete = false;
-        _errorMessage = detail is String ? detail : 'Código inválido. Tenta de novo.';
-      });
+      setState(() { _codeComplete = false; _errorMessage = detail is String ? detail : invalidMsg; });
     } catch (_) {
-      setState(() => _errorMessage = 'Erro de ligação. Tenta novamente.');
+      setState(() => _errorMessage = connMsg);
     } finally {
       if (mounted) setState(() => _verifying = false);
     }
   }
 
   Future<void> _resend() async {
+    final l10n = context.l10n;
+    final sentMsg = l10n.codeSentSnack;
+    final errorMsg = l10n.codeResendError;
+    final connMsg = l10n.connectionError;
     setState(() => _resending = true);
     try {
       await ref.read(authProvider.notifier).resendVerification();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Novo código enviado para o teu email.')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(sentMsg)));
         _startCooldown();
       }
     } on DioException catch (e) {
       final detail = e.response?.data?['detail'];
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(detail is String ? detail : 'Erro ao reenviar o código.')),
+          SnackBar(content: Text(detail is String ? detail : errorMsg)),
         );
       }
     } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro de ligação. Tenta novamente.')),
-        );
-      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(connMsg)));
     } finally {
       if (mounted) setState(() => _resending = false);
     }
@@ -115,6 +107,7 @@ class _EmailVerificationScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -124,35 +117,25 @@ class _EmailVerificationScreenState
             children: [
               const Spacer(flex: 2),
               Container(
-                width: 80,
-                height: 80,
+                width: 80, height: 80,
                 decoration: BoxDecoration(
                   color: AppColors.teal.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.mark_email_read_outlined,
-                  size: 40,
-                  color: AppColors.tealDark,
-                ),
+                child: const Icon(Icons.mark_email_read_outlined, size: 40, color: AppColors.tealDark),
               ),
               const SizedBox(height: AppSpacing.xxl),
               Text(
-                'Confirma o teu email',
+                l10n.emailVerifyTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  color: AppColors.primary, fontWeight: FontWeight.w700,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.md),
-              const Text(
-                'Enviámos um código de 6 dígitos para o teu email.\nIntroduz o código abaixo para continuares.',
-                style: TextStyle(
-                  fontSize: 15,
-                  color: AppColors.textSecondary,
-                  height: 1.6,
-                ),
+              Text(
+                l10n.emailVerifyBody,
+                style: const TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.6),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.xxxl),
@@ -182,47 +165,24 @@ class _EmailVerificationScreenState
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor:
-                        AppColors.primary.withValues(alpha: 0.4),
+                    disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.4),
                     shape: const StadiumBorder(),
                     elevation: 0,
                   ),
                   child: _verifying
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'Verificar',
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w600),
-                        ),
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                      : Text(l10n.emailVerifyButton, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
               TextButton(
                 onPressed: (_cooldown > 0 || _resending) ? null : _resend,
                 child: _resending
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColors.textSecondary,
-                        ),
-                      )
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.textSecondary))
                     : Text(
-                        _cooldown > 0
-                            ? 'Reenviar código (${_cooldown}s)'
-                            : 'Reenviar código',
+                        _cooldown > 0 ? l10n.codeResendCooldown(_cooldown) : l10n.codeResend,
                         style: TextStyle(
-                          color: _cooldown > 0
-                              ? AppColors.textHint
-                              : AppColors.tealDark,
+                          color: _cooldown > 0 ? AppColors.textHint : AppColors.tealDark,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -235,14 +195,10 @@ class _EmailVerificationScreenState
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     foregroundColor: AppColors.textSecondary,
-                    side: BorderSide(
-                      color: AppColors.textSecondary.withValues(alpha: 0.3),
-                    ),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: AppRadii.cardButton),
+                    side: BorderSide(color: AppColors.textSecondary.withValues(alpha: 0.3)),
+                    shape: RoundedRectangleBorder(borderRadius: AppRadii.cardButton),
                   ),
-                  child:
-                      const Text('Terminar sessão', style: TextStyle(fontSize: 15)),
+                  child: Text(l10n.signOut, style: const TextStyle(fontSize: 15)),
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
@@ -256,23 +212,12 @@ class _EmailVerificationScreenState
   Widget _errorBanner(BuildContext context, String message) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.coral.withValues(alpha: 0.1),
-        borderRadius: AppRadii.cardMd,
-      ),
+      decoration: BoxDecoration(color: AppColors.coral.withValues(alpha: 0.1), borderRadius: AppRadii.cardMd),
       child: Row(
         children: [
           const Icon(Icons.error_outline, color: AppColors.coral, size: 18),
           const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              message,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: AppColors.coral),
-            ),
-          ),
+          Expanded(child: Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.coral))),
         ],
       ),
     );

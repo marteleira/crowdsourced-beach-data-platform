@@ -6,15 +6,18 @@ from app.core.database import get_db
 from app.core.deps import require_user
 from app.core.messages import Msg
 from app.core.security import (
-    hash_password, verify_password,
     generate_verification_code,
+    hash_password,
+    verify_password,
 )
 from app.core.utils import now_utc
-from app.models.user import User, ReputationEvent, RefreshToken
+from app.models.user import RefreshToken, ReputationEvent, User
 from app.models.user_extended import UserAchievement
 from app.schemas.user import (
-    UserProfile, ReputationEventOut,
-    UpdateProfileRequest, ChangePasswordRequest,
+    ChangePasswordRequest,
+    ReputationEventOut,
+    UpdateProfileRequest,
+    UserProfile,
 )
 from app.services.achievements import get_all_achievements_status
 from app.services.email import send_verification_email
@@ -63,7 +66,7 @@ async def _build_profile(user: User, db: AsyncSession) -> UserProfile:
             ReputationEventOut(
                 event=e.event,
                 delta=e.delta,
-                reason=e.reason,
+                params=e.params,
                 created_at=e.created_at,
             )
             for e in recent_events
@@ -73,8 +76,9 @@ async def _build_profile(user: User, db: AsyncSession) -> UserProfile:
 
 async def _send_new_verification(user: User, db: AsyncSession) -> None:
     code, code_hash = generate_verification_code()
-    from app.core.config import settings
     from datetime import timedelta
+
+    from app.core.config import settings
     user.email_verification_code_hash = code_hash
     user.email_verification_expires_at = (
         now_utc()
@@ -188,7 +192,7 @@ async def get_reputation_history(
         ReputationEventOut(
             event=e.event,
             delta=e.delta,
-            reason=e.reason,
+            params=e.params,
             created_at=e.created_at,
         )
         for e in events

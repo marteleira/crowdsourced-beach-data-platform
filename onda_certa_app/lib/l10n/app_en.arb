@@ -498,11 +498,25 @@
   "achievementContributor": "Contributor",
   "achievementVeteran": "Veteran",
   "recentActivityTitle": "Recent Activity",
+  "eventReportSubmitted": "Report submitted",
+  "eventFirstReportBonus": "First report!",
   "eventReportConfirmed": "Report confirmed by the community",
   "eventReportContradicted": "Report rejected by the community",
   "eventFlagConfirmed": "Flag proposal confirmed",
   "eventFlagContradicted": "Flag proposal rejected",
   "eventConfirmationAccurate": "Accurate confirmation",
+  "eventConfirmationContradicted": "Accurate confirmation — {color} flag contradicted",
+  "@eventConfirmationContradicted": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "eventConfirmationVerified": "Accurate confirmation — {color} flag verified",
+  "@eventConfirmationVerified": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
   "eventSpamPenalty": "Spam penalty",
   "settingsAccountTitle": "Account Settings",
   "settingsFavouritesTitle": "Favourite Beaches",
@@ -743,5 +757,50 @@
     "placeholders": {
       "pct": { "type": "int" }
     }
-  }
+  },
+
+  "atTimePrep": "at",
+
+  "forgotPasswordTitle": "Reset password",
+  "forgotPasswordBody": "Enter your email. We'll send a 6-digit code so you can set a new password.",
+  "forgotPasswordSubmit": "Send code",
+  "forgotPasswordSendError": "Error sending the code. Try again.",
+
+  "emailVerifyTitle": "Confirm your email",
+  "emailVerifyBody": "We sent a 6-digit code to your email.\nEnter the code below to continue.",
+  "emailVerifyButton": "Verify",
+  "emailVerifyCodeInvalid": "Invalid code. Try again.",
+
+  "resetCodeTitle": "Check your email",
+  "resetCodeBody": "We sent a 6-digit code to {email}.",
+  "@resetCodeBody": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "resetCodeContinue": "Continue",
+  "resetNewPasswordTitle": "New password",
+  "resetNewPasswordBody": "Choose a new password for your account.",
+  "resetNewPasswordConfirmLabel": "Confirm password",
+  "resetNewPasswordSubmit": "Change password",
+  "resetPasswordSuccessTitle": "Password changed!",
+  "resetPasswordSuccessBody": "Your password has been updated successfully.\nYou can sign in with your new password.",
+  "resetPasswordError": "Error changing password. Try again.",
+
+  "codeResend": "Resend code",
+  "codeResendCooldown": "Resend code ({secs}s)",
+  "@codeResendCooldown": {
+    "placeholders": {
+      "secs": { "type": "int" }
+    }
+  },
+  "codeResendShortCooldown": "Resend ({secs}s)",
+  "@codeResendShortCooldown": {
+    "placeholders": {
+      "secs": { "type": "int" }
+    }
+  },
+  "codeSentSnack": "New code sent to your email.",
+  "codeResendError": "Error resending the code.",
+  "codeConfirmEmpty": "Confirm the new password"
 }

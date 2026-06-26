@@ -1,4 +1,6 @@
+import 'dart:io' show Platform;
 import 'package:dio/dio.dart';
+import 'package:intl/intl.dart' show Intl;
 import '../storage/secure_storage.dart';
 import 'auth_interceptor.dart';
 
@@ -11,6 +13,20 @@ const _kBaseUrl = 'http://$_kApiHost:8000/api/v1';
 
 /// Root of the server — use this to resolve root-relative paths like /static/...
 const kServerBaseUrl = 'http://$_kApiHost:8000';
+
+/// Injects Accept-Language on every request so the backend can respond
+/// (and send push notifications) in the user's current locale.
+class _LanguageInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    // Intl.defaultLocale is set by Flutter's localization system at startup.
+    // Falls back to the OS locale (e.g. "pt_PT" → "pt").
+    final locale =
+        (Intl.defaultLocale ?? Platform.localeName).split('_').first;
+    options.headers['Accept-Language'] = locale;
+    handler.next(options);
+  }
+}
 
 Dio createDio(
   SecureStorage storage, {
@@ -26,7 +42,8 @@ Dio createDio(
       headers: {'Content-Type': 'application/json'},
     ),
   );
-  dio.interceptors.add(
+  dio.interceptors.addAll([
+    _LanguageInterceptor(),
     AuthInterceptor(
       dio,
       storage,
@@ -34,6 +51,6 @@ Dio createDio(
       onBanned: onBanned,
       onSuspended: onSuspended,
     ),
-  );
+  ]);
   return dio;
 }

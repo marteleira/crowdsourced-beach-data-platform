@@ -1094,6 +1094,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recentActivityTitle => 'Recent Activity';
 
   @override
+  String get eventReportSubmitted => 'Report submitted';
+
+  @override
+  String get eventFirstReportBonus => 'First report!';
+
+  @override
   String get eventReportConfirmed => 'Report confirmed by the community';
 
   @override
@@ -1107,6 +1113,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventConfirmationAccurate => 'Accurate confirmation';
+
+  @override
+  String eventConfirmationContradicted(String color) {
+    return 'Accurate confirmation — $color flag contradicted';
+  }
+
+  @override
+  String eventConfirmationVerified(String color) {
+    return 'Accurate confirmation — $color flag verified';
+  }
 
   @override
   String get eventSpamPenalty => 'Spam penalty';
@@ -1563,4 +1579,88 @@ class AppLocalizationsEn extends AppLocalizations {
   String confidencePct(int pct) {
     return '$pct% conf.';
   }
+
+  @override
+  String get atTimePrep => 'at';
+
+  @override
+  String get forgotPasswordTitle => 'Reset password';
+
+  @override
+  String get forgotPasswordBody =>
+      'Enter your email. We\'ll send a 6-digit code so you can set a new password.';
+
+  @override
+  String get forgotPasswordSubmit => 'Send code';
+
+  @override
+  String get forgotPasswordSendError => 'Error sending the code. Try again.';
+
+  @override
+  String get emailVerifyTitle => 'Confirm your email';
+
+  @override
+  String get emailVerifyBody =>
+      'We sent a 6-digit code to your email.\nEnter the code below to continue.';
+
+  @override
+  String get emailVerifyButton => 'Verify';
+
+  @override
+  String get emailVerifyCodeInvalid => 'Invalid code. Try again.';
+
+  @override
+  String get resetCodeTitle => 'Check your email';
+
+  @override
+  String resetCodeBody(String email) {
+    return 'We sent a 6-digit code to $email.';
+  }
+
+  @override
+  String get resetCodeContinue => 'Continue';
+
+  @override
+  String get resetNewPasswordTitle => 'New password';
+
+  @override
+  String get resetNewPasswordBody => 'Choose a new password for your account.';
+
+  @override
+  String get resetNewPasswordConfirmLabel => 'Confirm password';
+
+  @override
+  String get resetNewPasswordSubmit => 'Change password';
+
+  @override
+  String get resetPasswordSuccessTitle => 'Password changed!';
+
+  @override
+  String get resetPasswordSuccessBody =>
+      'Your password has been updated successfully.\nYou can sign in with your new password.';
+
+  @override
+  String get resetPasswordError => 'Error changing password. Try again.';
+
+  @override
+  String get codeResend => 'Resend code';
+
+  @override
+  String codeResendCooldown(int secs) {
+    return 'Resend code (${secs}s)';
+  }
+
+  @override
+  String codeResendShortCooldown(int secs) {
+    return 'Resend (${secs}s)';
+  }
+
+  @override
+  String get codeSentSnack => 'New code sent to your email.';
+
+  @override
+  String get codeResendError => 'Error resending the code.';
+
+  @override
+  String get codeConfirmEmpty => 'Confirm the new password';
 }
