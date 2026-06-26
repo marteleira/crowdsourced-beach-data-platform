@@ -13,6 +13,8 @@
   "continueAsGuest": "Continue as guest",
   "createAccount": "Create account",
   "signIn": "Sign in",
+  "signInGoogle": "Sign in with Google",
+  "signInEmail": "Sign in with email",
   "registerSubtitle": "Register to contribute to the community",
   "loginWelcomeBack": "Welcome back",
   "fieldName": "Name",
@@ -26,6 +28,7 @@
   "authConsentAnd": " and our ",
   "errorGoogleToken": "Could not obtain Google token",
   "errorGoogleSignIn": "Failed to sign in with Google",
+  "errorSignIn": "Error signing in. Please try again.",
 
   "loading": "Loading data...",
   "comingSoon": "Coming soon",
@@ -35,11 +38,21 @@
   "viewDetails": "View details →",
   "viewBeaches": "View all →",
   "tryAgain": "Try again",
+  "retryAgain": "Try again",
+  "cancelLabel": "Cancel",
   "liveLabel": "live",
   "recommended": "Recommended",
   "updating": "Updating...",
   "updatePresence": "Update presence",
   "seeAllBeaches": "See all beaches >",
+  "explorerName": "explorer",
+
+  "updatedAt": "Updated at {time}",
+  "@updatedAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
 
   "noLocationBanner": "Without location access you cannot report conditions or vote.",
 
@@ -56,6 +69,11 @@
     }
   },
 
+  "homeSeaTemp": "Sea temp.",
+  "homeActiveNow": "Active now",
+  "homeAlerts": "Alerts",
+  "homeFavViewAll": "View\nall",
+
   "greetingMorning": "Good morning",
   "greetingAfternoon": "Good afternoon",
   "greetingEvening": "Good evening",
@@ -64,6 +82,15 @@
   "weatherWind": "Wind",
   "weatherWaves": "Waves",
   "weatherRain": "Rain",
+  "weatherFeelsLike": "Feels like",
+  "weatherHumidity": "Humidity",
+  "weatherUv": "UV",
+  "windGusts": "gusts {gusts} km/h",
+  "@windGusts": {
+    "placeholders": {
+      "gusts": { "type": "int" }
+    }
+  },
 
   "flagStatusSafe": "Safe",
   "flagStatusCaution": "Caution",
@@ -109,6 +136,8 @@
     }
   },
   "noBeachesForFilter": "No beach with this filter",
+  "beachAlertSingular": "active alert",
+  "beachAlertPlural": "active alerts",
 
   "municipality": "Arrábida",
   "sectionWeather": "Weather",
@@ -129,6 +158,150 @@
     }
   },
   "occupancyNote": "using the app at this beach in the last 20 min. Approximate estimate.",
+
+  "seaConditionsTitle": "Sea Conditions",
+  "seaWavePeriod": "Period",
+  "seaTempLabel": "Sea Temp.",
+
+  "tideDirRising": "rising",
+  "tideDirFalling": "falling",
+  "tideDirSteady": "steady",
+  "tideDirRisingCap": "Rising",
+  "tideDirFallingCap": "Falling",
+  "tideDirSteadyCap": "Steady",
+  "tidesPageTitle": "Tides",
+  "tidesMoreDetails": "MORE DETAILS",
+  "tidesTodaySection": "TODAY'S TIDES",
+  "tidesNoData": "No tide data available",
+  "tidesChartSection": "TIDE CHART",
+  "tidesNowLabel": "NOW",
+  "tidesCardTitle": "Today's Tides",
+  "tidesViewFull": "Full view →",
+
+  "waterQualityTitle": "Water Quality",
+  "waterQualityLastSampled": "Last sampled {date}",
+  "@waterQualityLastSampled": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "waterQualityCachedMins": "cached {minutes} min ago",
+  "@waterQualityCachedMins": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "waterQualityCachedHours": "cached {hours}h ago",
+  "@waterQualityCachedHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "waterQualityCachedDays": "cached {days}d ago",
+  "@waterQualityCachedDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "waterQualityCached": "cached data",
+
+  "transportCardTitle": "Next Departures",
+  "transportNoInfo": "No transport information for this beach",
+  "transportNoDepartures": "No scheduled departures",
+  "transportNearbyStop": "{count} stop nearby",
+  "@transportNearbyStop": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "transportNearbyStops": "{count} stops nearby",
+  "@transportNearbyStops": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "transportViewSchedules": "View full schedule →",
+
+  "communityAlertsSectionTitle": "COMMUNITY ALERTS",
+  "reportVerified": "Verified",
+  "reportVoteSingular": "vote",
+  "reportVotePlural": "votes",
+  "communityAlertsEmptyTitle": "All clear!",
+  "communityAlertsEmptyBody": "No active alerts at this beach.\nIf you see something, report it!",
+  "communityAlertsReportBtn": "Report condition",
+  "errorLoadAlerts": "Error loading alerts",
+
+  "alertTypeJellyfish": "Jellyfish",
+  "alertTypeStrongCurrent": "Strong Current",
+  "alertTypePollution": "Pollution",
+  "alertTypeRoughSea": "Rough Sea",
+  "alertTypeOther": "Other",
+  "alertTypeDefault": "Alert",
+  "severityLow": "Low",
+  "severityModerate": "Moderate",
+  "severityHigh": "Severe",
+
+  "reportSheetTitle": "Report Condition",
+  "reportTypeSection": "Condition type",
+  "reportSeveritySection": "What is the severity?",
+  "reportSeverityLowSub": "Minor concern",
+  "reportSeverityModerateSub": "Notable risk",
+  "reportSeverityHighSub": "Dangerous",
+  "reportNoteSection": "Add note",
+  "reportNoteOptional": "(optional)",
+  "reportNoteHint": "Describe what you observed...",
+  "reportLocationNote": "Your approximate location will be shared with this report.",
+  "reportSubmit": "Submit Report",
+  "reportSuccess": "Report submitted successfully!",
+  "reportMustBeAtBeach": "You must be at the beach to submit a report",
+  "reportError": "Error submitting. Try again.",
+
+  "presenceSectionTitle": "WHO'S HERE",
+  "presenceViewAll": "View all →",
+  "presencePerson": "1 person",
+  "presencePeople": "{count} people",
+  "@presencePeople": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presencePersonHere": "1 person at this beach now",
+  "presencePeopleHere": "{count} people at this beach now",
+  "@presencePeopleHere": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presenceSharedProfile1": "1 shares profile",
+  "presenceSharedProfiles": "{count} share profile",
+  "@presenceSharedProfiles": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presencePrivateNote": "No one has chosen to share their location.",
+  "presenceSheetTitle": "Who's here",
+  "presenceAnonymousUser": "Anonymous User",
+  "presencePrivateFooter1": "+{count} person in private mode",
+  "@presencePrivateFooter1": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presencePrivateFooterN": "+{count} people in private mode",
+  "@presencePrivateFooterN": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presenceEmptyTitle1": "1 person is here",
+  "presenceEmptyTitleN": "{count} people are here",
+  "@presenceEmptyTitleN": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presenceEmptyPrivate": "No one has chosen to share\ntheir location.",
 
   "alertsTitle": "Community Alerts",
   "alertsActive": "{count} active",
@@ -166,9 +339,128 @@
       "meters": { "type": "int" }
     }
   },
+  "settingsFavBeaches": "Favourite beaches",
+  "settingsFavAlertsEnabled": "My beach alerts",
+  "settingsFavAlertsEnabledSub": "Receive alerts for beaches you have saved",
+  "settingsBeachStatus": "Beach status",
+  "settingsFlagChange": "Flag change",
+  "settingsFlagChangeSub": "Notify when the safety status changes",
+  "settingsTideAlerts": "Tide alerts",
+  "settingsTideAlertsSub": "Alert before high tide and low tide",
+  "settingsMyReports": "My reports",
+  "settingsReportConfirmed": "Report confirmed",
+  "settingsReportConfirmedSub": "When the community confirms one of your reports",
+  "settingsReportRejected": "Report rejected",
+  "settingsReportRejectedSub": "When the community rejects one of your reports",
+  "settingsQuietHours": "Quiet hours",
+  "settingsQuietHoursEnabled": "Enable quiet hours",
+  "settingsQuietHoursEnabledSub": "No notifications during the defined period",
+  "settingsQuietStart": "Start",
+  "settingsQuietEnd": "End",
+  "settingsSeverityLow": "Low",
+  "settingsSeverityMedium": "Medium",
+  "settingsSeverityHigh": "High",
+
+  "privacyLocation": "Location",
+  "privacyLocationAccuracy": "Location accuracy",
+  "privacyLocationAccuracySub": "Controls the precision shared with other users",
+  "privacyLocationExact": "Exact",
+  "privacyLocationApprox": "Approx.",
+  "privacyLocationNone": "None",
+  "privacyPublicProfile": "Public profile",
+  "privacyNameVisible": "Name visible",
+  "privacyNameVisibleSub": "Other users can see your name",
+  "privacyAvatarVisible": "Avatar visible",
+  "privacyAvatarVisibleSub": "Your initials appear on reports",
+  "privacyPresence": "Presence & Activity",
+  "privacyShowOnMap": "Show on map",
+  "privacyShowOnMapSub": "Your presence counts towards beach occupancy",
+  "privacyShareUsage": "Share usage data",
+  "privacyShareUsageSub": "Help improve the app anonymously",
+  "privacyMyData": "My data",
+  "privacyExportData": "Export my data",
+  "privacyExportDataSub": "Receive a copy of everything we store",
+  "privacyDeleteReports": "Delete all reports",
+  "privacyDeleteReportsSub": "Remove your reports from the platform",
+  "privacyDeleteAccount": "Delete account",
+  "privacyDeleteAccountSub": "Permanent and irreversible action",
+  "privacyExporting": "Exporting data…",
+  "privacyExportSaved": "Saved: {filename}",
+  "@privacyExportSaved": {
+    "placeholders": {
+      "filename": { "type": "String" }
+    }
+  },
+  "privacyExportError": "Error: {error}",
+  "@privacyExportError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "privacyDeleteReportsConfirmTitle": "Delete all reports?",
+  "privacyDeleteReportsConfirmBody": "All your reports will be removed from the platform. Your reputation points will be kept.",
+  "privacyDeleteReportsSuccess": "Reports deleted successfully",
+  "privacyDeleteReportsError": "Error deleting reports",
+  "privacyDeleteAccountConfirmTitle": "Delete account?",
+  "privacyDeleteAccountConfirmBody": "This action is permanent. All your data will be deleted.\n\nType DELETE to confirm:",
+  "privacyDeleteAccountConfirmWord": "DELETE",
+  "privacyDeleteAccountError": "Error deleting account",
+  "privacyPendingTitle": "Account scheduled for deletion",
+  "privacyPendingBody": "Your account and all your data will be permanently deleted on {date}.\n\nYou can cancel this action until that date.",
+  "@privacyPendingBody": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "privacyCancelDeletion": "Cancel deletion",
+  "privacyCancelling": "Cancelling…",
+  "privacyCancelError": "Error cancelling deletion. Try again.",
+  "privacyDeleteLabel": "Delete",
+  "privacyDeleteAccountConfirmBtn": "Delete account",
 
   "accountTitle": "Account",
   "errorLoadProfile": "Could not load profile",
+  "accountAvatarSection": "Avatar",
+  "accountAvatarDefault": "Default avatar (initials)",
+  "accountAvatarChoose": "Choose avatar",
+  "accountAvatarPickerTitle": "Choose your avatar",
+  "accountAvatarPickerSub": "Tap an avatar to select it.",
+  "accountAvatarDefaultLabel": "Default (initials)",
+  "accountAvatarDefaultSub": "Shows your name initials",
+  "accountPersonalSection": "Personal Information",
+  "accountNameEmpty": "Name cannot be empty",
+  "accountNameTooLong": "Maximum 50 characters",
+  "accountSaveName": "Save name",
+  "accountNoChanges": "No changes to save",
+  "accountProfileUpdated": "Profile updated successfully",
+  "accountProfileUpdateError": "Could not update profile",
+  "accountAvatarUpdated": "Avatar updated successfully",
+  "accountAvatarUpdateError": "Could not update avatar",
+  "accountUnexpectedError": "An unexpected error occurred",
+  "accountEmailSection": "Email",
+  "accountEmailNoGuest": "Guests do not have an associated email.",
+  "accountEmailNoGoogle": "Your Google account does not allow changing email here.",
+  "accountNewEmail": "New email",
+  "accountNewEmailHint": "new@example.com",
+  "accountEmailVerificationNote": "Verification will be sent to the new email.",
+  "accountCurrentPasswordConfirm": "Current password (confirmation)",
+  "accountPasswordHint": "••••••••",
+  "accountEmailEmpty": "Enter an email",
+  "accountEmailInvalid": "Invalid email",
+  "accountEmailUnchanged": "Email has not changed",
+  "accountCurrentPasswordEmpty": "Enter current password",
+  "accountChangeEmail": "Change email",
+  "accountPasswordSection": "Password",
+  "accountPasswordNoGuest": "Guests do not have a password.",
+  "accountPasswordNoGoogle": "Your Google account does not use a password.",
+  "accountCurrentPassword": "Current password",
+  "accountNewPassword": "New password",
+  "accountConfirmPassword": "Confirm new password",
+  "accountPasswordMismatch": "Passwords do not match",
+  "accountConfirmPasswordEmpty": "Confirm the new password",
+  "accountPasswordChanged": "Password changed. Sign in again on other devices.",
+  "accountPasswordChangeError": "Could not change password",
+  "accountChangePassword": "Change password",
 
   "guestUser": "Guest",
   "registeredUser": "User",
@@ -179,6 +471,71 @@
       "count": { "type": "int" }
     }
   },
+
+  "levelNew": "Beginner",
+  "levelRegular": "Regular",
+  "levelContributor": "Contributor",
+  "levelVeteran": "Veteran",
+  "levelNextLabel": "Next level",
+  "levelPointsLeft": "{count} pts remaining",
+  "@levelPointsLeft": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "levelMaxReached": "🏄 Max level!",
+  "statReports": "Reports",
+  "statStreak": "Streak",
+  "statAccuracy": "Accuracy",
+  "guestBannerTitle": "You are in guest mode",
+  "achievementsTitle": "Achievements",
+  "achievementFirstReport": "First Wave",
+  "achievementTideWatcher": "Tide Guardian",
+  "achievement10Reports": "10 Reports",
+  "achievementAccurate": "Accurate",
+  "achievementStreak10": "10 Days",
+  "achievementRegular": "Regular",
+  "achievementContributor": "Contributor",
+  "achievementVeteran": "Veteran",
+  "recentActivityTitle": "Recent Activity",
+  "eventReportConfirmed": "Report confirmed by the community",
+  "eventReportContradicted": "Report rejected by the community",
+  "eventFlagConfirmed": "Flag proposal confirmed",
+  "eventFlagContradicted": "Flag proposal rejected",
+  "eventConfirmationAccurate": "Accurate confirmation",
+  "eventSpamPenalty": "Spam penalty",
+  "settingsAccountTitle": "Account Settings",
+  "settingsFavouritesTitle": "Favourite Beaches",
+  "settingsPrivacyTitle": "Privacy & Data",
+  "settingsAboutTitle": "About OndaCerta",
+  "signOut": "Sign Out",
+  "signOutTitle": "Sign out?",
+  "signOutBody": "Are you sure you want to sign out of your account?",
+  "signOutCancel": "Cancel",
+  "signOutConfirm": "Sign out",
+
+  "favouritesScreenTitle": "Favourite Beaches",
+  "favouritesSaved1": "1 beach saved",
+  "favouritesSavedN": "{count} beaches saved",
+  "@favouritesSavedN": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "favouriteAlertSingular": "alert",
+  "favouriteAlertPlural": "alerts",
+  "favouriteRemoveTitle": "Remove \"{name}\"?",
+  "@favouriteRemoveTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "favouriteRemoveBody": "This beach will be removed from your favourites.",
+  "removeLabel": "Remove",
+  "errorRemoveFavourite": "Error removing favourite",
+  "favouritesEmptyTitle": "No favourite beaches",
+  "favouritesEmptyHint": "Open a beach and tap the heart\nto save it here.",
+  "errorLoadFavourites": "Error loading favourites",
 
   "flagLabelGreen": "Safe",
   "flagLabelYellow": "Caution",
@@ -251,5 +608,140 @@
   "guestSubmitReport": "Create an account to submit reports",
   "guestConfirmFlag": "Create an account to confirm flags",
   "guestProposeFlag": "Create an account to propose flags",
-  "guestSaveContribs": "Create an account to save your contributions."
+  "guestSaveContribs": "Create an account to save your contributions.",
+
+  "transportScreenTitle": "Transport",
+  "transportFlagNoInfo": "No info",
+  "transportWavesLabel": "{height}m waves",
+  "@transportWavesLabel": {
+    "placeholders": {
+      "height": { "type": "String" }
+    }
+  },
+  "transportArrivingSoon": "Arriving",
+  "transportNextDeparturesSection": "NEXT DEPARTURES",
+  "transportWalkMins": "{mins} min walk to beach",
+  "@transportWalkMins": {
+    "placeholders": {
+      "mins": { "type": "int" }
+    }
+  },
+  "transportNextDep": "Next: {time}",
+  "@transportNextDep": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "transportWalkTo": "Walk to {beach}",
+  "@transportWalkTo": {
+    "placeholders": {
+      "beach": { "type": "String" }
+    }
+  },
+  "transportWalkToMins": "Walk to {beach} ({mins} min)",
+  "@transportWalkToMins": {
+    "placeholders": {
+      "beach": { "type": "String" },
+      "mins": { "type": "int" }
+    }
+  },
+  "transportWalkToMinsFromStop": "Walk to {beach} ({mins} min from stop)",
+  "@transportWalkToMinsFromStop": {
+    "placeholders": {
+      "beach": { "type": "String" },
+      "mins": { "type": "int" }
+    }
+  },
+  "transportDisclaimerLive": "Carris Metropolitana schedules. Real-time data when available — check at stops.",
+  "transportDisclaimerCache": "Carris Metropolitana schedules. Cached data — check at stops.",
+  "transportEmpty": "No transport available\nfor this beach",
+  "transportLoadError": "Could not load transport",
+
+  "emailNameEmpty": "Enter your name",
+  "emailEmpty": "Enter your email",
+  "emailInvalidSimple": "Invalid email",
+  "emailAlreadyRegisteredTitle": "Email already registered",
+  "emailAlreadyRegisteredBody": "This email already has an account. Sign in with your password.",
+  "emailRegisterError": "Error creating account. Check the details.",
+  "emailLoginError": "Incorrect email or password.",
+  "connectionError": "Connection error. Try again.",
+  "emailAlreadyHaveAccount": "Already have an account? ",
+  "emailNoAccountYet": "Don't have an account yet? ",
+
+  "flagColorGreen": "green",
+  "flagColorYellow": "yellow",
+  "flagColorRed": "red",
+  "flagColorPurple": "purple",
+  "flagColorGreenCap": "Green",
+  "flagColorYellowCap": "Yellow",
+  "flagColorRedCap": "Red",
+  "flagColorPurpleCap": "Purple",
+
+  "flagProposeTitle": "Propose Flag",
+  "flagProposeRequirement": "You must be at the beach and have reputation ≥ 25 to propose.",
+  "flagProposeQuestion": "What is the current flag?",
+  "flagProposeDescGreen": "Safe to swim",
+  "flagProposeDescYellow": "Swim with caution",
+  "flagProposeDescRed": "Swimming prohibited",
+  "flagProposeDescPurple": "Marine animals present",
+  "flagProposeNoRep": "You don't have enough reputation yet (minimum: 25). Keep contributing with alerts and confirmations!",
+  "flagProposeNotPresent": "You must be at the beach (within the last 10 min) to propose a flag.",
+  "flagProposeUnavailable": "This beach does not have a physical flag system.",
+  "flagProposeGenericError": "Something went wrong. Try again.",
+  "flagProposeSubmit": "Propose {color} flag",
+  "@flagProposeSubmit": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "flagProposeSuccessApplied": "Flag updated!",
+  "flagProposeSuccessPending": "Proposal submitted!",
+  "flagProposeSuccessBodyApplied": "Your reputation gave you authority to apply the flag directly.",
+  "flagProposeSuccessBodyPending": "The community will confirm your proposal soon.",
+  "flagProposeFlagLabel": "{color} flag",
+  "@flagProposeFlagLabel": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+
+  "flagConfirmQuestionPrefix": "Is the flag still ",
+  "flagConfirmQuestionSuffix": "?",
+  "flagConfirmYesPrefix": "Yes, still ",
+  "flagConfirmNo": "No, it changed",
+  "flagConfirmUnsure": "Not sure",
+  "flagConfirmRateLimited": "You already confirmed this beach's flag in the last hour.",
+  "flagConfirmError": "Something went wrong. Try again.",
+  "flagConfirmThankYou": "Thank you!",
+  "flagConfirmSuccessBody": "Your confirmation helps the community\nstay well informed.",
+  "communityConfidence": "Community confidence",
+  "confidencePercent": "{pct}% confidence",
+  "@confidencePercent": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "confidencePercentShort": "{pct}% confidence",
+  "@confidencePercentShort": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "flagNameGreen": "Green Flag",
+  "flagNameYellow": "Yellow Flag",
+  "flagNameRed": "Red Flag",
+  "flagNamePurple": "Purple Flag",
+  "flagNameUnknown": "Unknown Status",
+  "flagSafetyGreen": "Safe to swim",
+  "flagSafetyYellow": "Swim with caution",
+  "flagSafetyRed": "Swimming prohibited",
+  "flagSafetyPurple": "Marine animals present",
+  "flagSafetyUnknown": "Unknown status",
+
+  "confidencePct": "{pct}% conf.",
+  "@confidencePct": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  }
 }

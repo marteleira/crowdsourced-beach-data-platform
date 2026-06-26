@@ -107,13 +107,13 @@ abstract class AppLocalizations {
   /// No description provided for @appTagline.
   ///
   /// In pt, this message translates to:
-  /// **'Real beaches. Real conditions.'**
+  /// **'Praias reais. Condições reais.'**
   String get appTagline;
 
   /// No description provided for @appLocation.
   ///
   /// In pt, this message translates to:
-  /// **'Arrábida Natural Park · Portugal'**
+  /// **'Parque Natural da Arrábida · Portugal'**
   String get appLocation;
 
   /// No description provided for @navHome.
@@ -157,6 +157,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Entrar'**
   String get signIn;
+
+  /// No description provided for @signInGoogle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar com Google'**
+  String get signInGoogle;
+
+  /// No description provided for @signInEmail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Entrar com email'**
+  String get signInEmail;
 
   /// No description provided for @registerSubtitle.
   ///
@@ -236,6 +248,12 @@ abstract class AppLocalizations {
   /// **'Falha ao entrar com Google'**
   String get errorGoogleSignIn;
 
+  /// No description provided for @errorSignIn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao iniciar sessão. Tenta novamente.'**
+  String get errorSignIn;
+
   /// No description provided for @loading.
   ///
   /// In pt, this message translates to:
@@ -284,6 +302,18 @@ abstract class AppLocalizations {
   /// **'Tentar de novo'**
   String get tryAgain;
 
+  /// No description provided for @retryAgain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tentar novamente'**
+  String get retryAgain;
+
+  /// No description provided for @cancelLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get cancelLabel;
+
   /// No description provided for @liveLabel.
   ///
   /// In pt, this message translates to:
@@ -313,6 +343,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ver todas as praias >'**
   String get seeAllBeaches;
+
+  /// No description provided for @explorerName.
+  ///
+  /// In pt, this message translates to:
+  /// **'explorador'**
+  String get explorerName;
+
+  /// No description provided for @updatedAt.
+  ///
+  /// In pt, this message translates to:
+  /// **'Actualizado às {time}'**
+  String updatedAt(String time);
 
   /// No description provided for @noLocationBanner.
   ///
@@ -362,6 +404,30 @@ abstract class AppLocalizations {
   /// **'MARÉS · {beach}'**
   String tidesSection(String beach);
 
+  /// No description provided for @homeSeaTemp.
+  ///
+  /// In pt, this message translates to:
+  /// **'Temp. mar'**
+  String get homeSeaTemp;
+
+  /// No description provided for @homeActiveNow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Activos agora'**
+  String get homeActiveNow;
+
+  /// No description provided for @homeAlerts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alertas'**
+  String get homeAlerts;
+
+  /// No description provided for @homeFavViewAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver\ntodas'**
+  String get homeFavViewAll;
+
   /// No description provided for @greetingMorning.
   ///
   /// In pt, this message translates to:
@@ -403,6 +469,30 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Chuva'**
   String get weatherRain;
+
+  /// No description provided for @weatherFeelsLike.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sensação'**
+  String get weatherFeelsLike;
+
+  /// No description provided for @weatherHumidity.
+  ///
+  /// In pt, this message translates to:
+  /// **'Humidade'**
+  String get weatherHumidity;
+
+  /// No description provided for @weatherUv.
+  ///
+  /// In pt, this message translates to:
+  /// **'UV'**
+  String get weatherUv;
+
+  /// No description provided for @windGusts.
+  ///
+  /// In pt, this message translates to:
+  /// **'raj. {gusts} km/h'**
+  String windGusts(int gusts);
 
   /// No description provided for @flagStatusSafe.
   ///
@@ -554,6 +644,18 @@ abstract class AppLocalizations {
   /// **'Nenhuma praia com este filtro'**
   String get noBeachesForFilter;
 
+  /// No description provided for @beachAlertSingular.
+  ///
+  /// In pt, this message translates to:
+  /// **'alerta ativo'**
+  String get beachAlertSingular;
+
+  /// No description provided for @beachAlertPlural.
+  ///
+  /// In pt, this message translates to:
+  /// **'alertas ativos'**
+  String get beachAlertPlural;
+
   /// No description provided for @municipality.
   ///
   /// In pt, this message translates to:
@@ -637,6 +739,462 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'a usar a app nesta praia nos últimos 20 min. Estimativa aproximada.'**
   String get occupancyNote;
+
+  /// No description provided for @seaConditionsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Condições do Mar'**
+  String get seaConditionsTitle;
+
+  /// No description provided for @seaWavePeriod.
+  ///
+  /// In pt, this message translates to:
+  /// **'Período'**
+  String get seaWavePeriod;
+
+  /// No description provided for @seaTempLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Temp. Mar'**
+  String get seaTempLabel;
+
+  /// No description provided for @tideDirRising.
+  ///
+  /// In pt, this message translates to:
+  /// **'subindo'**
+  String get tideDirRising;
+
+  /// No description provided for @tideDirFalling.
+  ///
+  /// In pt, this message translates to:
+  /// **'descendo'**
+  String get tideDirFalling;
+
+  /// No description provided for @tideDirSteady.
+  ///
+  /// In pt, this message translates to:
+  /// **'estável'**
+  String get tideDirSteady;
+
+  /// No description provided for @tideDirRisingCap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Subindo'**
+  String get tideDirRisingCap;
+
+  /// No description provided for @tideDirFallingCap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descendo'**
+  String get tideDirFallingCap;
+
+  /// No description provided for @tideDirSteadyCap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estável'**
+  String get tideDirSteadyCap;
+
+  /// No description provided for @tidesPageTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Marés'**
+  String get tidesPageTitle;
+
+  /// No description provided for @tidesMoreDetails.
+  ///
+  /// In pt, this message translates to:
+  /// **'MAIS DETALHES'**
+  String get tidesMoreDetails;
+
+  /// No description provided for @tidesTodaySection.
+  ///
+  /// In pt, this message translates to:
+  /// **'MARÉS DE HOJE'**
+  String get tidesTodaySection;
+
+  /// No description provided for @tidesNoData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem dados de marés disponíveis'**
+  String get tidesNoData;
+
+  /// No description provided for @tidesChartSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'GRÁFICO DA MARÉ'**
+  String get tidesChartSection;
+
+  /// No description provided for @tidesNowLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'AGORA'**
+  String get tidesNowLabel;
+
+  /// No description provided for @tidesCardTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Marés Hoje'**
+  String get tidesCardTitle;
+
+  /// No description provided for @tidesViewFull.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vista completa →'**
+  String get tidesViewFull;
+
+  /// No description provided for @waterQualityTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Qualidade da Água'**
+  String get waterQualityTitle;
+
+  /// No description provided for @waterQualityLastSampled.
+  ///
+  /// In pt, this message translates to:
+  /// **'Última avaliação em {date}'**
+  String waterQualityLastSampled(String date);
+
+  /// No description provided for @waterQualityCachedMins.
+  ///
+  /// In pt, this message translates to:
+  /// **'cache {minutes} min atrás'**
+  String waterQualityCachedMins(int minutes);
+
+  /// No description provided for @waterQualityCachedHours.
+  ///
+  /// In pt, this message translates to:
+  /// **'cache {hours}h atrás'**
+  String waterQualityCachedHours(int hours);
+
+  /// No description provided for @waterQualityCachedDays.
+  ///
+  /// In pt, this message translates to:
+  /// **'cache {days}d atrás'**
+  String waterQualityCachedDays(int days);
+
+  /// No description provided for @waterQualityCached.
+  ///
+  /// In pt, this message translates to:
+  /// **'dados em cache'**
+  String get waterQualityCached;
+
+  /// No description provided for @transportCardTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próximas Partidas'**
+  String get transportCardTitle;
+
+  /// No description provided for @transportNoInfo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem informação de transportes para esta praia'**
+  String get transportNoInfo;
+
+  /// No description provided for @transportNoDepartures.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem partidas previstas'**
+  String get transportNoDepartures;
+
+  /// No description provided for @transportNearbyStop.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} paragem próxima'**
+  String transportNearbyStop(int count);
+
+  /// No description provided for @transportNearbyStops.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} paragens próximas'**
+  String transportNearbyStops(int count);
+
+  /// No description provided for @transportViewSchedules.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver horários completos →'**
+  String get transportViewSchedules;
+
+  /// No description provided for @communityAlertsSectionTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'ALERTAS DA COMUNIDADE'**
+  String get communityAlertsSectionTitle;
+
+  /// No description provided for @reportVerified.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verificado'**
+  String get reportVerified;
+
+  /// No description provided for @reportVoteSingular.
+  ///
+  /// In pt, this message translates to:
+  /// **'voto'**
+  String get reportVoteSingular;
+
+  /// No description provided for @reportVotePlural.
+  ///
+  /// In pt, this message translates to:
+  /// **'votos'**
+  String get reportVotePlural;
+
+  /// No description provided for @communityAlertsEmptyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tudo calmo!'**
+  String get communityAlertsEmptyTitle;
+
+  /// No description provided for @communityAlertsEmptyBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem alertas activos nesta praia.\nSe vires algo, reporta!'**
+  String get communityAlertsEmptyBody;
+
+  /// No description provided for @communityAlertsReportBtn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reportar condição'**
+  String get communityAlertsReportBtn;
+
+  /// No description provided for @errorLoadAlerts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao carregar alertas'**
+  String get errorLoadAlerts;
+
+  /// No description provided for @alertTypeJellyfish.
+  ///
+  /// In pt, this message translates to:
+  /// **'Medusas'**
+  String get alertTypeJellyfish;
+
+  /// No description provided for @alertTypeStrongCurrent.
+  ///
+  /// In pt, this message translates to:
+  /// **'Corrente Forte'**
+  String get alertTypeStrongCurrent;
+
+  /// No description provided for @alertTypePollution.
+  ///
+  /// In pt, this message translates to:
+  /// **'Poluição'**
+  String get alertTypePollution;
+
+  /// No description provided for @alertTypeRoughSea.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mar Agitado'**
+  String get alertTypeRoughSea;
+
+  /// No description provided for @alertTypeOther.
+  ///
+  /// In pt, this message translates to:
+  /// **'Outro'**
+  String get alertTypeOther;
+
+  /// No description provided for @alertTypeDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alerta'**
+  String get alertTypeDefault;
+
+  /// No description provided for @severityLow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixo'**
+  String get severityLow;
+
+  /// No description provided for @severityModerate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Moderado'**
+  String get severityModerate;
+
+  /// No description provided for @severityHigh.
+  ///
+  /// In pt, this message translates to:
+  /// **'Grave'**
+  String get severityHigh;
+
+  /// No description provided for @reportSheetTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reportar Condição'**
+  String get reportSheetTitle;
+
+  /// No description provided for @reportTypeSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tipo de condição'**
+  String get reportTypeSection;
+
+  /// No description provided for @reportSeveritySection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Qual a gravidade?'**
+  String get reportSeveritySection;
+
+  /// No description provided for @reportSeverityLowSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preocupação menor'**
+  String get reportSeverityLowSub;
+
+  /// No description provided for @reportSeverityModerateSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Risco notável'**
+  String get reportSeverityModerateSub;
+
+  /// No description provided for @reportSeverityHighSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Perigoso'**
+  String get reportSeverityHighSub;
+
+  /// No description provided for @reportNoteSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Adicionar nota'**
+  String get reportNoteSection;
+
+  /// No description provided for @reportNoteOptional.
+  ///
+  /// In pt, this message translates to:
+  /// **'(opcional)'**
+  String get reportNoteOptional;
+
+  /// No description provided for @reportNoteHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descreve o que observaste...'**
+  String get reportNoteHint;
+
+  /// No description provided for @reportLocationNote.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua localização aproximada será partilhada com este aviso.'**
+  String get reportLocationNote;
+
+  /// No description provided for @reportSubmit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Submeter Aviso'**
+  String get reportSubmit;
+
+  /// No description provided for @reportSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso submetido com sucesso!'**
+  String get reportSuccess;
+
+  /// No description provided for @reportMustBeAtBeach.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tens de estar na praia para submeter um aviso'**
+  String get reportMustBeAtBeach;
+
+  /// No description provided for @reportError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao submeter. Tenta de novo.'**
+  String get reportError;
+
+  /// No description provided for @presenceSectionTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'QUEM ESTÁ AQUI'**
+  String get presenceSectionTitle;
+
+  /// No description provided for @presenceViewAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver todos →'**
+  String get presenceViewAll;
+
+  /// No description provided for @presencePerson.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 pessoa'**
+  String get presencePerson;
+
+  /// No description provided for @presencePeople.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} pessoas'**
+  String presencePeople(int count);
+
+  /// No description provided for @presencePersonHere.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 pessoa nesta praia agora'**
+  String get presencePersonHere;
+
+  /// No description provided for @presencePeopleHere.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} pessoas nesta praia agora'**
+  String presencePeopleHere(int count);
+
+  /// No description provided for @presenceSharedProfile1.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 partilha o perfil'**
+  String get presenceSharedProfile1;
+
+  /// No description provided for @presenceSharedProfiles.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} partilham o perfil'**
+  String presenceSharedProfiles(int count);
+
+  /// No description provided for @presencePrivateNote.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma pessoa decidiu partilhar a localização.'**
+  String get presencePrivateNote;
+
+  /// No description provided for @presenceSheetTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quem está aqui'**
+  String get presenceSheetTitle;
+
+  /// No description provided for @presenceAnonymousUser.
+  ///
+  /// In pt, this message translates to:
+  /// **'Utilizador Anónimo'**
+  String get presenceAnonymousUser;
+
+  /// No description provided for @presencePrivateFooter1.
+  ///
+  /// In pt, this message translates to:
+  /// **'+{count} pessoa em modo privado'**
+  String presencePrivateFooter1(int count);
+
+  /// No description provided for @presencePrivateFooterN.
+  ///
+  /// In pt, this message translates to:
+  /// **'+{count} pessoas em modo privado'**
+  String presencePrivateFooterN(int count);
+
+  /// No description provided for @presenceEmptyTitle1.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 pessoa está aqui'**
+  String get presenceEmptyTitle1;
+
+  /// No description provided for @presenceEmptyTitleN.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} pessoas estão aqui'**
+  String presenceEmptyTitleN(int count);
+
+  /// No description provided for @presenceEmptyPrivate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma pessoa decidiu partilhar\na sua localização.'**
+  String get presenceEmptyPrivate;
 
   /// No description provided for @alertsTitle.
   ///
@@ -782,6 +1340,378 @@ abstract class AppLocalizations {
   /// **'{meters} m'**
   String proximityRadiusValue(int meters);
 
+  /// No description provided for @settingsFavBeaches.
+  ///
+  /// In pt, this message translates to:
+  /// **'Praias favoritas'**
+  String get settingsFavBeaches;
+
+  /// No description provided for @settingsFavAlertsEnabled.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alertas das minhas praias'**
+  String get settingsFavAlertsEnabled;
+
+  /// No description provided for @settingsFavAlertsEnabledSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recebe alertas das praias que tens guardadas'**
+  String get settingsFavAlertsEnabledSub;
+
+  /// No description provided for @settingsBeachStatus.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estado da praia'**
+  String get settingsBeachStatus;
+
+  /// No description provided for @settingsFlagChange.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mudança de bandeira'**
+  String get settingsFlagChange;
+
+  /// No description provided for @settingsFlagChangeSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Notifica quando o estado de segurança muda'**
+  String get settingsFlagChangeSub;
+
+  /// No description provided for @settingsTideAlerts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alertas de maré'**
+  String get settingsTideAlerts;
+
+  /// No description provided for @settingsTideAlertsSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso antes de preia-mar e baixa-mar'**
+  String get settingsTideAlertsSub;
+
+  /// No description provided for @settingsMyReports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os meus avisos'**
+  String get settingsMyReports;
+
+  /// No description provided for @settingsReportConfirmed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso confirmado'**
+  String get settingsReportConfirmed;
+
+  /// No description provided for @settingsReportConfirmedSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quando a comunidade confirma um aviso teu'**
+  String get settingsReportConfirmedSub;
+
+  /// No description provided for @settingsReportRejected.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso rejeitado'**
+  String get settingsReportRejected;
+
+  /// No description provided for @settingsReportRejectedSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quando a comunidade rejeita um aviso teu'**
+  String get settingsReportRejectedSub;
+
+  /// No description provided for @settingsQuietHours.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horas de silêncio'**
+  String get settingsQuietHours;
+
+  /// No description provided for @settingsQuietHoursEnabled.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ativar horas de silêncio'**
+  String get settingsQuietHoursEnabled;
+
+  /// No description provided for @settingsQuietHoursEnabledSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem notificações durante o período definido'**
+  String get settingsQuietHoursEnabledSub;
+
+  /// No description provided for @settingsQuietStart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Início'**
+  String get settingsQuietStart;
+
+  /// No description provided for @settingsQuietEnd.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fim'**
+  String get settingsQuietEnd;
+
+  /// No description provided for @settingsSeverityLow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Baixa'**
+  String get settingsSeverityLow;
+
+  /// No description provided for @settingsSeverityMedium.
+  ///
+  /// In pt, this message translates to:
+  /// **'Média'**
+  String get settingsSeverityMedium;
+
+  /// No description provided for @settingsSeverityHigh.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alta'**
+  String get settingsSeverityHigh;
+
+  /// No description provided for @privacyLocation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Localização'**
+  String get privacyLocation;
+
+  /// No description provided for @privacyLocationAccuracy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Precisão da localização'**
+  String get privacyLocationAccuracy;
+
+  /// No description provided for @privacyLocationAccuracySub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Controla a precisão partilhada com outros utilizadores'**
+  String get privacyLocationAccuracySub;
+
+  /// No description provided for @privacyLocationExact.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exata'**
+  String get privacyLocationExact;
+
+  /// No description provided for @privacyLocationApprox.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aprox.'**
+  String get privacyLocationApprox;
+
+  /// No description provided for @privacyLocationNone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma'**
+  String get privacyLocationNone;
+
+  /// No description provided for @privacyPublicProfile.
+  ///
+  /// In pt, this message translates to:
+  /// **'Perfil público'**
+  String get privacyPublicProfile;
+
+  /// No description provided for @privacyNameVisible.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome visível'**
+  String get privacyNameVisible;
+
+  /// No description provided for @privacyNameVisibleSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Outros utilizadores podem ver o teu nome'**
+  String get privacyNameVisibleSub;
+
+  /// No description provided for @privacyAvatarVisible.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avatar visível'**
+  String get privacyAvatarVisible;
+
+  /// No description provided for @privacyAvatarVisibleSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'As tuas iniciais aparecem nos avisos'**
+  String get privacyAvatarVisibleSub;
+
+  /// No description provided for @privacyPresence.
+  ///
+  /// In pt, this message translates to:
+  /// **'Presença & Atividade'**
+  String get privacyPresence;
+
+  /// No description provided for @privacyShowOnMap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mostrar no mapa'**
+  String get privacyShowOnMap;
+
+  /// No description provided for @privacyShowOnMapSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua presença conta para a lotação da praia'**
+  String get privacyShowOnMapSub;
+
+  /// No description provided for @privacyShareUsage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Partilhar dados de utilização'**
+  String get privacyShareUsage;
+
+  /// No description provided for @privacyShareUsageSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ajuda a melhorar a app de forma anónima'**
+  String get privacyShareUsageSub;
+
+  /// No description provided for @privacyMyData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os meus dados'**
+  String get privacyMyData;
+
+  /// No description provided for @privacyExportData.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exportar os meus dados'**
+  String get privacyExportData;
+
+  /// No description provided for @privacyExportDataSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recebe uma cópia de tudo o que guardamos'**
+  String get privacyExportDataSub;
+
+  /// No description provided for @privacyDeleteReports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar todos os avisos'**
+  String get privacyDeleteReports;
+
+  /// No description provided for @privacyDeleteReportsSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remove os teus avisos da plataforma'**
+  String get privacyDeleteReportsSub;
+
+  /// No description provided for @privacyDeleteAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar conta'**
+  String get privacyDeleteAccount;
+
+  /// No description provided for @privacyDeleteAccountSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ação permanente e irreversível'**
+  String get privacyDeleteAccountSub;
+
+  /// No description provided for @privacyExporting.
+  ///
+  /// In pt, this message translates to:
+  /// **'A exportar dados…'**
+  String get privacyExporting;
+
+  /// No description provided for @privacyExportSaved.
+  ///
+  /// In pt, this message translates to:
+  /// **'Guardado: {filename}'**
+  String privacyExportSaved(String filename);
+
+  /// No description provided for @privacyExportError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro: {error}'**
+  String privacyExportError(String error);
+
+  /// No description provided for @privacyDeleteReportsConfirmTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar todos os avisos?'**
+  String get privacyDeleteReportsConfirmTitle;
+
+  /// No description provided for @privacyDeleteReportsConfirmBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todos os teus avisos serão removidos da plataforma. Os teus pontos de reputação serão mantidos.'**
+  String get privacyDeleteReportsConfirmBody;
+
+  /// No description provided for @privacyDeleteReportsSuccess.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avisos apagados com sucesso'**
+  String get privacyDeleteReportsSuccess;
+
+  /// No description provided for @privacyDeleteReportsError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao apagar avisos'**
+  String get privacyDeleteReportsError;
+
+  /// No description provided for @privacyDeleteAccountConfirmTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar conta?'**
+  String get privacyDeleteAccountConfirmTitle;
+
+  /// No description provided for @privacyDeleteAccountConfirmBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta ação é permanente. Todos os teus dados serão eliminados.\n\nEscreve APAGAR para confirmar:'**
+  String get privacyDeleteAccountConfirmBody;
+
+  /// No description provided for @privacyDeleteAccountConfirmWord.
+  ///
+  /// In pt, this message translates to:
+  /// **'APAGAR'**
+  String get privacyDeleteAccountConfirmWord;
+
+  /// No description provided for @privacyDeleteAccountError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao apagar conta'**
+  String get privacyDeleteAccountError;
+
+  /// No description provided for @privacyPendingTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta agendada para eliminação'**
+  String get privacyPendingTitle;
+
+  /// No description provided for @privacyPendingBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta e todos os teus dados serão eliminados definitivamente a {date}.\n\nPodes cancelar esta ação até essa data.'**
+  String privacyPendingBody(String date);
+
+  /// No description provided for @privacyCancelDeletion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar eliminação'**
+  String get privacyCancelDeletion;
+
+  /// No description provided for @privacyCancelling.
+  ///
+  /// In pt, this message translates to:
+  /// **'A cancelar…'**
+  String get privacyCancelling;
+
+  /// No description provided for @privacyCancelError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao cancelar a eliminação. Tenta de novo.'**
+  String get privacyCancelError;
+
+  /// No description provided for @privacyDeleteLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar'**
+  String get privacyDeleteLabel;
+
+  /// No description provided for @privacyDeleteAccountConfirmBtn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Apagar conta'**
+  String get privacyDeleteAccountConfirmBtn;
+
   /// No description provided for @accountTitle.
   ///
   /// In pt, this message translates to:
@@ -793,6 +1723,252 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível carregar o perfil'**
   String get errorLoadProfile;
+
+  /// No description provided for @accountAvatarSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avatar'**
+  String get accountAvatarSection;
+
+  /// No description provided for @accountAvatarDefault.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avatar predefinido (iniciais)'**
+  String get accountAvatarDefault;
+
+  /// No description provided for @accountAvatarChoose.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolher avatar'**
+  String get accountAvatarChoose;
+
+  /// No description provided for @accountAvatarPickerTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolhe o teu avatar'**
+  String get accountAvatarPickerTitle;
+
+  /// No description provided for @accountAvatarPickerSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Toca num avatar para o selecionar.'**
+  String get accountAvatarPickerSub;
+
+  /// No description provided for @accountAvatarDefaultLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Predefinido (iniciais)'**
+  String get accountAvatarDefaultLabel;
+
+  /// No description provided for @accountAvatarDefaultSub.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mostra as iniciais do teu nome'**
+  String get accountAvatarDefaultSub;
+
+  /// No description provided for @accountPersonalSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Informação Pessoal'**
+  String get accountPersonalSection;
+
+  /// No description provided for @accountNameEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'O nome não pode estar vazio'**
+  String get accountNameEmpty;
+
+  /// No description provided for @accountNameTooLong.
+  ///
+  /// In pt, this message translates to:
+  /// **'Máximo 50 caracteres'**
+  String get accountNameTooLong;
+
+  /// No description provided for @accountSaveName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Guardar nome'**
+  String get accountSaveName;
+
+  /// No description provided for @accountNoChanges.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma alteração para guardar'**
+  String get accountNoChanges;
+
+  /// No description provided for @accountProfileUpdated.
+  ///
+  /// In pt, this message translates to:
+  /// **'Perfil atualizado com sucesso'**
+  String get accountProfileUpdated;
+
+  /// No description provided for @accountProfileUpdateError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível atualizar o perfil'**
+  String get accountProfileUpdateError;
+
+  /// No description provided for @accountAvatarUpdated.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avatar atualizado com sucesso'**
+  String get accountAvatarUpdated;
+
+  /// No description provided for @accountAvatarUpdateError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível atualizar o avatar'**
+  String get accountAvatarUpdateError;
+
+  /// No description provided for @accountUnexpectedError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ocorreu um erro inesperado'**
+  String get accountUnexpectedError;
+
+  /// No description provided for @accountEmailSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email'**
+  String get accountEmailSection;
+
+  /// No description provided for @accountEmailNoGuest.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os convidados não têm email associado.'**
+  String get accountEmailNoGuest;
+
+  /// No description provided for @accountEmailNoGoogle.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta Google não permite alterar o email aqui.'**
+  String get accountEmailNoGoogle;
+
+  /// No description provided for @accountNewEmail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo email'**
+  String get accountNewEmail;
+
+  /// No description provided for @accountNewEmailHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'novo@exemplo.com'**
+  String get accountNewEmailHint;
+
+  /// No description provided for @accountEmailVerificationNote.
+  ///
+  /// In pt, this message translates to:
+  /// **'A verificação será enviada para o novo email.'**
+  String get accountEmailVerificationNote;
+
+  /// No description provided for @accountCurrentPasswordConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Password atual (confirmação)'**
+  String get accountCurrentPasswordConfirm;
+
+  /// No description provided for @accountPasswordHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'••••••••'**
+  String get accountPasswordHint;
+
+  /// No description provided for @accountEmailEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Introduz um email'**
+  String get accountEmailEmpty;
+
+  /// No description provided for @accountEmailInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email inválido'**
+  String get accountEmailInvalid;
+
+  /// No description provided for @accountEmailUnchanged.
+  ///
+  /// In pt, this message translates to:
+  /// **'O email não foi alterado'**
+  String get accountEmailUnchanged;
+
+  /// No description provided for @accountCurrentPasswordEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Introduz a password atual'**
+  String get accountCurrentPasswordEmpty;
+
+  /// No description provided for @accountChangeEmail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alterar email'**
+  String get accountChangeEmail;
+
+  /// No description provided for @accountPasswordSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'Password'**
+  String get accountPasswordSection;
+
+  /// No description provided for @accountPasswordNoGuest.
+  ///
+  /// In pt, this message translates to:
+  /// **'Os convidados não têm password.'**
+  String get accountPasswordNoGuest;
+
+  /// No description provided for @accountPasswordNoGoogle.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta Google não usa password.'**
+  String get accountPasswordNoGoogle;
+
+  /// No description provided for @accountCurrentPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Password atual'**
+  String get accountCurrentPassword;
+
+  /// No description provided for @accountNewPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova password'**
+  String get accountNewPassword;
+
+  /// No description provided for @accountConfirmPassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmar nova password'**
+  String get accountConfirmPassword;
+
+  /// No description provided for @accountPasswordMismatch.
+  ///
+  /// In pt, this message translates to:
+  /// **'As passwords não coincidem'**
+  String get accountPasswordMismatch;
+
+  /// No description provided for @accountConfirmPasswordEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirma a nova password'**
+  String get accountConfirmPasswordEmpty;
+
+  /// No description provided for @accountPasswordChanged.
+  ///
+  /// In pt, this message translates to:
+  /// **'Password alterada. Inicia sessão novamente nos outros dispositivos.'**
+  String get accountPasswordChanged;
+
+  /// No description provided for @accountPasswordChangeError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível alterar a password'**
+  String get accountPasswordChangeError;
+
+  /// No description provided for @accountChangePassword.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alterar password'**
+  String get accountChangePassword;
 
   /// No description provided for @guestUser.
   ///
@@ -817,6 +1993,294 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{count} pontos de reputação'**
   String reputationPoints(int count);
+
+  /// No description provided for @levelNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo'**
+  String get levelNew;
+
+  /// No description provided for @levelRegular.
+  ///
+  /// In pt, this message translates to:
+  /// **'Regular'**
+  String get levelRegular;
+
+  /// No description provided for @levelContributor.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contribuidor'**
+  String get levelContributor;
+
+  /// No description provided for @levelVeteran.
+  ///
+  /// In pt, this message translates to:
+  /// **'Veterano'**
+  String get levelVeteran;
+
+  /// No description provided for @levelNextLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próximo nível'**
+  String get levelNextLabel;
+
+  /// No description provided for @levelPointsLeft.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} pts restantes'**
+  String levelPointsLeft(int count);
+
+  /// No description provided for @levelMaxReached.
+  ///
+  /// In pt, this message translates to:
+  /// **'🏄 Nível máximo!'**
+  String get levelMaxReached;
+
+  /// No description provided for @statReports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Avisos'**
+  String get statReports;
+
+  /// No description provided for @statStreak.
+  ///
+  /// In pt, this message translates to:
+  /// **'Streak'**
+  String get statStreak;
+
+  /// No description provided for @statAccuracy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Precisão'**
+  String get statAccuracy;
+
+  /// No description provided for @guestBannerTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estás em modo convidado'**
+  String get guestBannerTitle;
+
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conquistas'**
+  String get achievementsTitle;
+
+  /// No description provided for @achievementFirstReport.
+  ///
+  /// In pt, this message translates to:
+  /// **'Primeira Onda'**
+  String get achievementFirstReport;
+
+  /// No description provided for @achievementTideWatcher.
+  ///
+  /// In pt, this message translates to:
+  /// **'Guardião das Marés'**
+  String get achievementTideWatcher;
+
+  /// No description provided for @achievement10Reports.
+  ///
+  /// In pt, this message translates to:
+  /// **'10 Avisos'**
+  String get achievement10Reports;
+
+  /// No description provided for @achievementAccurate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preciso'**
+  String get achievementAccurate;
+
+  /// No description provided for @achievementStreak10.
+  ///
+  /// In pt, this message translates to:
+  /// **'10 Dias'**
+  String get achievementStreak10;
+
+  /// No description provided for @achievementRegular.
+  ///
+  /// In pt, this message translates to:
+  /// **'Regular'**
+  String get achievementRegular;
+
+  /// No description provided for @achievementContributor.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contribuidor'**
+  String get achievementContributor;
+
+  /// No description provided for @achievementVeteran.
+  ///
+  /// In pt, this message translates to:
+  /// **'Veterano'**
+  String get achievementVeteran;
+
+  /// No description provided for @recentActivityTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atividade Recente'**
+  String get recentActivityTitle;
+
+  /// No description provided for @eventReportConfirmed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso confirmado pela comunidade'**
+  String get eventReportConfirmed;
+
+  /// No description provided for @eventReportContradicted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso rejeitado pela comunidade'**
+  String get eventReportContradicted;
+
+  /// No description provided for @eventFlagConfirmed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Proposta de bandeira confirmada'**
+  String get eventFlagConfirmed;
+
+  /// No description provided for @eventFlagContradicted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Proposta de bandeira rejeitada'**
+  String get eventFlagContradicted;
+
+  /// No description provided for @eventConfirmationAccurate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmação correta'**
+  String get eventConfirmationAccurate;
+
+  /// No description provided for @eventSpamPenalty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Penalidade por spam'**
+  String get eventSpamPenalty;
+
+  /// No description provided for @settingsAccountTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Definições da Conta'**
+  String get settingsAccountTitle;
+
+  /// No description provided for @settingsFavouritesTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Praias Favoritas'**
+  String get settingsFavouritesTitle;
+
+  /// No description provided for @settingsPrivacyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Privacidade & Dados'**
+  String get settingsPrivacyTitle;
+
+  /// No description provided for @settingsAboutTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sobre OndaCerta'**
+  String get settingsAboutTitle;
+
+  /// No description provided for @signOut.
+  ///
+  /// In pt, this message translates to:
+  /// **'Terminar Sessão'**
+  String get signOut;
+
+  /// No description provided for @signOutTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Terminar sessão?'**
+  String get signOutTitle;
+
+  /// No description provided for @signOutBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tens a certeza que queres sair da tua conta?'**
+  String get signOutBody;
+
+  /// No description provided for @signOutCancel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cancelar'**
+  String get signOutCancel;
+
+  /// No description provided for @signOutConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sair'**
+  String get signOutConfirm;
+
+  /// No description provided for @favouritesScreenTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Praias Favoritas'**
+  String get favouritesScreenTitle;
+
+  /// No description provided for @favouritesSaved1.
+  ///
+  /// In pt, this message translates to:
+  /// **'1 praia guardada'**
+  String get favouritesSaved1;
+
+  /// No description provided for @favouritesSavedN.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} praias guardadas'**
+  String favouritesSavedN(int count);
+
+  /// No description provided for @favouriteAlertSingular.
+  ///
+  /// In pt, this message translates to:
+  /// **'alerta'**
+  String get favouriteAlertSingular;
+
+  /// No description provided for @favouriteAlertPlural.
+  ///
+  /// In pt, this message translates to:
+  /// **'alertas'**
+  String get favouriteAlertPlural;
+
+  /// No description provided for @favouriteRemoveTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover \"{name}\"?'**
+  String favouriteRemoveTitle(String name);
+
+  /// No description provided for @favouriteRemoveBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta praia será removida das tuas favoritas.'**
+  String get favouriteRemoveBody;
+
+  /// No description provided for @removeLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Remover'**
+  String get removeLabel;
+
+  /// No description provided for @errorRemoveFavourite.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao remover favorito'**
+  String get errorRemoveFavourite;
+
+  /// No description provided for @favouritesEmptyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem praias favoritas'**
+  String get favouritesEmptyTitle;
+
+  /// No description provided for @favouritesEmptyHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Abre uma praia e toca no coração\npara a guardar aqui.'**
+  String get favouritesEmptyHint;
+
+  /// No description provided for @errorLoadFavourites.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao carregar favoritos'**
+  String get errorLoadFavourites;
 
   /// No description provided for @flagLabelGreen.
   ///
@@ -1063,6 +2527,438 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Cria uma conta para guardar as tuas contribuições.'**
   String get guestSaveContribs;
+
+  /// No description provided for @transportScreenTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Transportes'**
+  String get transportScreenTitle;
+
+  /// No description provided for @transportFlagNoInfo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem info'**
+  String get transportFlagNoInfo;
+
+  /// No description provided for @transportWavesLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'{height}m ondas'**
+  String transportWavesLabel(String height);
+
+  /// No description provided for @transportArrivingSoon.
+  ///
+  /// In pt, this message translates to:
+  /// **'A chegar'**
+  String get transportArrivingSoon;
+
+  /// No description provided for @transportNextDeparturesSection.
+  ///
+  /// In pt, this message translates to:
+  /// **'PRÓXIMAS PARTIDAS'**
+  String get transportNextDeparturesSection;
+
+  /// No description provided for @transportWalkMins.
+  ///
+  /// In pt, this message translates to:
+  /// **'{mins} min a pé até à praia'**
+  String transportWalkMins(int mins);
+
+  /// No description provided for @transportNextDep.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próxima: {time}'**
+  String transportNextDep(String time);
+
+  /// No description provided for @transportWalkTo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ir a pé para {beach}'**
+  String transportWalkTo(String beach);
+
+  /// No description provided for @transportWalkToMins.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ir a pé para {beach} ({mins} min)'**
+  String transportWalkToMins(String beach, int mins);
+
+  /// No description provided for @transportWalkToMinsFromStop.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ir a pé para {beach} ({mins} min da paragem)'**
+  String transportWalkToMinsFromStop(String beach, int mins);
+
+  /// No description provided for @transportDisclaimerLive.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horários Carris Metropolitana. Dados em tempo real quando disponível — verificar nas paragens.'**
+  String get transportDisclaimerLive;
+
+  /// No description provided for @transportDisclaimerCache.
+  ///
+  /// In pt, this message translates to:
+  /// **'Horários Carris Metropolitana. Dados em cache — verificar nas paragens.'**
+  String get transportDisclaimerCache;
+
+  /// No description provided for @transportEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem transportes disponíveis\npara esta praia'**
+  String get transportEmpty;
+
+  /// No description provided for @transportLoadError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi possível carregar os transportes'**
+  String get transportLoadError;
+
+  /// No description provided for @emailNameEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Introduz o teu nome'**
+  String get emailNameEmpty;
+
+  /// No description provided for @emailEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Introduz o email'**
+  String get emailEmpty;
+
+  /// No description provided for @emailInvalidSimple.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email inválido'**
+  String get emailInvalidSimple;
+
+  /// No description provided for @emailAlreadyRegisteredTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email já registado'**
+  String get emailAlreadyRegisteredTitle;
+
+  /// No description provided for @emailAlreadyRegisteredBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este email já tem uma conta. Entra com a tua password.'**
+  String get emailAlreadyRegisteredBody;
+
+  /// No description provided for @emailRegisterError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao criar conta. Verifica os dados.'**
+  String get emailRegisterError;
+
+  /// No description provided for @emailLoginError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Email ou password incorrectos.'**
+  String get emailLoginError;
+
+  /// No description provided for @connectionError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro de ligação. Tenta novamente.'**
+  String get connectionError;
+
+  /// No description provided for @emailAlreadyHaveAccount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Já tens conta? '**
+  String get emailAlreadyHaveAccount;
+
+  /// No description provided for @emailNoAccountYet.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ainda não tens conta? '**
+  String get emailNoAccountYet;
+
+  /// No description provided for @flagColorGreen.
+  ///
+  /// In pt, this message translates to:
+  /// **'verde'**
+  String get flagColorGreen;
+
+  /// No description provided for @flagColorYellow.
+  ///
+  /// In pt, this message translates to:
+  /// **'amarela'**
+  String get flagColorYellow;
+
+  /// No description provided for @flagColorRed.
+  ///
+  /// In pt, this message translates to:
+  /// **'vermelha'**
+  String get flagColorRed;
+
+  /// No description provided for @flagColorPurple.
+  ///
+  /// In pt, this message translates to:
+  /// **'roxa'**
+  String get flagColorPurple;
+
+  /// No description provided for @flagColorGreenCap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verde'**
+  String get flagColorGreenCap;
+
+  /// No description provided for @flagColorYellowCap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Amarela'**
+  String get flagColorYellowCap;
+
+  /// No description provided for @flagColorRedCap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vermelha'**
+  String get flagColorRedCap;
+
+  /// No description provided for @flagColorPurpleCap.
+  ///
+  /// In pt, this message translates to:
+  /// **'Roxa'**
+  String get flagColorPurpleCap;
+
+  /// No description provided for @flagProposeTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Propor Bandeira'**
+  String get flagProposeTitle;
+
+  /// No description provided for @flagProposeRequirement.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tens de estar na praia e ter reputação ≥ 25 para propor.'**
+  String get flagProposeRequirement;
+
+  /// No description provided for @flagProposeQuestion.
+  ///
+  /// In pt, this message translates to:
+  /// **'Qual é a bandeira actual?'**
+  String get flagProposeQuestion;
+
+  /// No description provided for @flagProposeDescGreen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seguro para nadar'**
+  String get flagProposeDescGreen;
+
+  /// No description provided for @flagProposeDescYellow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nadar com precaução'**
+  String get flagProposeDescYellow;
+
+  /// No description provided for @flagProposeDescRed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Proibido nadar'**
+  String get flagProposeDescRed;
+
+  /// No description provided for @flagProposeDescPurple.
+  ///
+  /// In pt, this message translates to:
+  /// **'Animais marinhos presentes'**
+  String get flagProposeDescPurple;
+
+  /// No description provided for @flagProposeNoRep.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ainda não tens reputação suficiente (mínimo: 25). Continua a contribuir com alertas e confirmações!'**
+  String get flagProposeNoRep;
+
+  /// No description provided for @flagProposeNotPresent.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tens de estar na praia (nos últimos 10 min) para propor uma bandeira.'**
+  String get flagProposeNotPresent;
+
+  /// No description provided for @flagProposeUnavailable.
+  ///
+  /// In pt, this message translates to:
+  /// **'Esta praia não tem sistema de bandeiras físicas.'**
+  String get flagProposeUnavailable;
+
+  /// No description provided for @flagProposeGenericError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Algo correu mal. Tenta de novo.'**
+  String get flagProposeGenericError;
+
+  /// No description provided for @flagProposeSubmit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Propor bandeira {color}'**
+  String flagProposeSubmit(String color);
+
+  /// No description provided for @flagProposeSuccessApplied.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bandeira atualizada!'**
+  String get flagProposeSuccessApplied;
+
+  /// No description provided for @flagProposeSuccessPending.
+  ///
+  /// In pt, this message translates to:
+  /// **'Proposta submetida!'**
+  String get flagProposeSuccessPending;
+
+  /// No description provided for @flagProposeSuccessBodyApplied.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua reputação deu-te autoridade para aplicar a bandeira directamente.'**
+  String get flagProposeSuccessBodyApplied;
+
+  /// No description provided for @flagProposeSuccessBodyPending.
+  ///
+  /// In pt, this message translates to:
+  /// **'A comunidade irá confirmar a tua proposta em breve.'**
+  String get flagProposeSuccessBodyPending;
+
+  /// No description provided for @flagProposeFlagLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bandeira {color}'**
+  String flagProposeFlagLabel(String color);
+
+  /// No description provided for @flagConfirmQuestionPrefix.
+  ///
+  /// In pt, this message translates to:
+  /// **'A bandeira ainda está '**
+  String get flagConfirmQuestionPrefix;
+
+  /// No description provided for @flagConfirmQuestionSuffix.
+  ///
+  /// In pt, this message translates to:
+  /// **'?'**
+  String get flagConfirmQuestionSuffix;
+
+  /// No description provided for @flagConfirmYesPrefix.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sim, ainda '**
+  String get flagConfirmYesPrefix;
+
+  /// No description provided for @flagConfirmNo.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não, mudou'**
+  String get flagConfirmNo;
+
+  /// No description provided for @flagConfirmUnsure.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não tenho a certeza'**
+  String get flagConfirmUnsure;
+
+  /// No description provided for @flagConfirmRateLimited.
+  ///
+  /// In pt, this message translates to:
+  /// **'Já confirmaste a bandeira desta praia na última hora.'**
+  String get flagConfirmRateLimited;
+
+  /// No description provided for @flagConfirmError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Algo correu mal. Tenta de novo.'**
+  String get flagConfirmError;
+
+  /// No description provided for @flagConfirmThankYou.
+  ///
+  /// In pt, this message translates to:
+  /// **'Obrigado!'**
+  String get flagConfirmThankYou;
+
+  /// No description provided for @flagConfirmSuccessBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua confirmação ajuda a comunidade\na estar sempre bem informada.'**
+  String get flagConfirmSuccessBody;
+
+  /// No description provided for @communityConfidence.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confiança da comunidade'**
+  String get communityConfidence;
+
+  /// No description provided for @confidencePercent.
+  ///
+  /// In pt, this message translates to:
+  /// **'{pct}% de confiança'**
+  String confidencePercent(int pct);
+
+  /// No description provided for @confidencePercentShort.
+  ///
+  /// In pt, this message translates to:
+  /// **'{pct}% confiança'**
+  String confidencePercentShort(int pct);
+
+  /// No description provided for @flagNameGreen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bandeira Verde'**
+  String get flagNameGreen;
+
+  /// No description provided for @flagNameYellow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bandeira Amarela'**
+  String get flagNameYellow;
+
+  /// No description provided for @flagNameRed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bandeira Vermelha'**
+  String get flagNameRed;
+
+  /// No description provided for @flagNamePurple.
+  ///
+  /// In pt, this message translates to:
+  /// **'Bandeira Roxa'**
+  String get flagNamePurple;
+
+  /// No description provided for @flagNameUnknown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estado Desconhecido'**
+  String get flagNameUnknown;
+
+  /// No description provided for @flagSafetyGreen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seguro para nadar'**
+  String get flagSafetyGreen;
+
+  /// No description provided for @flagSafetyYellow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nadar com precaução'**
+  String get flagSafetyYellow;
+
+  /// No description provided for @flagSafetyRed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Proibido nadar'**
+  String get flagSafetyRed;
+
+  /// No description provided for @flagSafetyPurple.
+  ///
+  /// In pt, this message translates to:
+  /// **'Animais marinhos presentes'**
+  String get flagSafetyPurple;
+
+  /// No description provided for @flagSafetyUnknown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estado desconhecido'**
+  String get flagSafetyUnknown;
+
+  /// No description provided for @confidencePct.
+  ///
+  /// In pt, this message translates to:
+  /// **'{pct}% conf.'**
+  String confidencePct(int pct);
 }
 
 class _AppLocalizationsDelegate

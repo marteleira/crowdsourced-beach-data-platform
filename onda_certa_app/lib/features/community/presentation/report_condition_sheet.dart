@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -20,12 +21,12 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
   final _noteController = TextEditingController();
   bool _submitting = false;
 
-  static const _types = [
-    ('jellyfish',      'Medusas',        Icons.bubble_chart),
-    ('strong_current', 'Corrente Forte', Icons.electric_bolt),
-    ('pollution',      'Poluição',       Icons.delete_outline),
-    ('rough_sea',      'Mar Agitado',    Icons.waves),
-    ('other_alert',    'Outro',          Icons.warning_amber_outlined),
+  List<(String, String, IconData)> _types(AppLocalizations l10n) => [
+    ('jellyfish',      l10n.alertTypeJellyfish,      Icons.bubble_chart),
+    ('strong_current', l10n.alertTypeStrongCurrent,  Icons.electric_bolt),
+    ('pollution',      l10n.alertTypePollution,       Icons.delete_outline),
+    ('rough_sea',      l10n.alertTypeRoughSea,        Icons.waves),
+    ('other_alert',    l10n.alertTypeOther,           Icons.warning_amber_outlined),
   ];
 
   @override
@@ -36,6 +37,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
 
     return DraggableScrollableSheet(
@@ -70,8 +72,8 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Reportar Condição',
+                        Text(
+                          l10n.reportSheetTitle,
                           style: AppTextStyles.titleLg,
                         ),
                         const SizedBox(height: 2),
@@ -100,16 +102,16 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                 controller: controller,
                 padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
                 children: [
-                  _buildTypeSection(),
+                  _buildTypeSection(l10n),
                   if (_selectedType != null) ...[
                     const SizedBox(height: AppSpacing.xxl),
-                    _buildSeveritySection(),
+                    _buildSeveritySection(l10n),
                     const SizedBox(height: AppSpacing.xxl),
-                    _buildNoteSection(),
+                    _buildNoteSection(l10n),
                     const SizedBox(height: 14),
-                    _buildLocationNote(),
+                    _buildLocationNote(l10n),
                     const SizedBox(height: AppSpacing.xxl),
-                    _buildSubmitButton(),
+                    _buildSubmitButton(l10n),
                   ],
                 ],
               ),
@@ -120,22 +122,23 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
     );
   }
 
-  Widget _buildTypeSection() {
+  Widget _buildTypeSection(AppLocalizations l10n) {
+    final types = _types(l10n);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Tipo de condição',
+        Text(
+          l10n.reportTypeSection,
           style: AppTextStyles.titleSm,
         ),
         const SizedBox(height: AppSpacing.md),
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: _types.map((t) {
+          children: types.map((t) {
             final (type, label, icon) = t;
             final isSelected = _selectedType == type;
-            final (_, typeColor, _) = alertMeta(type);
+            final (_, typeColor, _) = alertMeta(l10n, type);
             return GestureDetector(
               onTap: () => setState(() => _selectedType = type),
               child: AnimatedContainer(
@@ -172,26 +175,26 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
     );
   }
 
-  Widget _buildSeveritySection() {
-    const severities = [
-      (1, 'Baixo',    'Preocupação menor', AppColors.flagGreen),
-      (2, 'Moderado', 'Risco notável',     AppColors.flagYellow),
-      (3, 'Grave',    'Perigoso',          AppColors.flagRed),
+  Widget _buildSeveritySection(AppLocalizations l10n) {
+    final severities = [
+      (1, l10n.severityLow,      l10n.reportSeverityLowSub,      AppColors.flagGreen),
+      (2, l10n.severityModerate, l10n.reportSeverityModerateSub,  AppColors.flagYellow),
+      (3, l10n.severityHigh,     l10n.reportSeverityHighSub,      AppColors.flagRed),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Qual a gravidade?',
+        Text(
+          l10n.reportSeveritySection,
           style: AppTextStyles.titleSm,
         ),
         const SizedBox(height: AppSpacing.md),
         Row(
-          children: severities.map((s) {
-            final (level, label, sub, color) = s;
+          children: severities.asMap().entries.map((entry) {
+            final idx = entry.key;
+            final (level, label, sub, color) = entry.value;
             final isSelected = _severity == level;
-            final idx = severities.indexOf(s);
             return Expanded(
               child: GestureDetector(
                 onTap: () => setState(() => _severity = level),
@@ -251,18 +254,18 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
     );
   }
 
-  Widget _buildNoteSection() {
+  Widget _buildNoteSection(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Text(
-              'Adicionar nota',
+            Text(
+              l10n.reportNoteSection,
               style: AppTextStyles.titleSm,
             ),
             const SizedBox(width: 5),
-            const Text('(opcional)', style: AppTextStyles.secondaryMd),
+            Text(l10n.reportNoteOptional, style: AppTextStyles.secondaryMd),
           ],
         ),
         const SizedBox(height: 10),
@@ -273,7 +276,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
           onChanged: (_) => setState(() {}),
           style: const TextStyle(fontSize: 14, color: AppColors.primary),
           decoration: InputDecoration(
-            hintText: 'Descreve o que observaste...',
+            hintText: l10n.reportNoteHint,
             hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 13),
             filled: true,
             fillColor: AppColors.background,
@@ -289,20 +292,20 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
     );
   }
 
-  Widget _buildLocationNote() {
+  Widget _buildLocationNote(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: AppRadii.cardChip,
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.location_on_outlined, color: AppColors.textHint, size: 16),
-          SizedBox(width: AppSpacing.sm),
+          const Icon(Icons.location_on_outlined, color: AppColors.textHint, size: 16),
+          const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              'A tua localização aproximada será partilhada com este aviso.',
+              l10n.reportLocationNote,
               style: AppTextStyles.secondary,
             ),
           ),
@@ -311,7 +314,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
     );
   }
 
-  Widget _buildSubmitButton() {
+  Widget _buildSubmitButton(AppLocalizations l10n) {
     final canSubmit = _selectedType != null && !_submitting;
 
     return SizedBox(
@@ -324,7 +327,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
               )
             : const Icon(Icons.send_outlined, size: 18),
-        label: const Text('Submeter Aviso', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+        label: Text(l10n.reportSubmit, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.teal,
           disabledBackgroundColor: AppColors.borderLight,
@@ -338,6 +341,7 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
 
   Future<void> _submit() async {
     if (_selectedType == null) return;
+    final l10n = context.l10n;
     final pos = ref.read(locationProvider).value;
 
     setState(() => _submitting = true);
@@ -352,16 +356,16 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       if (!mounted) return;
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Aviso submetido com sucesso!'),
+        SnackBar(
+          content: Text(l10n.reportSuccess),
           backgroundColor: AppColors.flagGreen,
         ),
       );
     } on DioException catch (e) {
       if (!mounted) return;
       final msg = e.response?.statusCode == 403
-          ? 'Tens de estar na praia para submeter um aviso'
-          : 'Erro ao submeter. Tenta de novo.';
+          ? l10n.reportMustBeAtBeach
+          : l10n.reportError;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(msg), backgroundColor: AppColors.coral),
       );

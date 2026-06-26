@@ -217,7 +217,7 @@ class _SectionLabelWithTime extends StatelessWidget {
           const Spacer(),
           if (timeStr != null)
             Text(
-              'Actualizado às $timeStr',
+              context.l10n.updatedAt(timeStr),
               style: AppTextStyles.hintXs,
             ),
         ],
@@ -306,7 +306,7 @@ class _Header extends ConsumerWidget {
     } else {
       emoji = '🌙';
     }
-    final name = profile?.displayName ?? 'explorador';
+    final name = profile?.displayName ?? l10n.explorerName;
     final locale = Localizations.localeOf(context).languageCode;
     final dateStr = DateFormat('EEEE, d MMM', locale).format(now);
 
@@ -623,11 +623,11 @@ class _StatsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: _StatCard(icon: Icons.thermostat_outlined, value: seaTemp != null ? '${seaTemp!.round()}°C' : '--', label: 'Temp. mar', iconColor: AppColors.teal)),
+        Expanded(child: _StatCard(icon: Icons.thermostat_outlined, value: seaTemp != null ? '${seaTemp!.round()}°C' : '--', label: context.l10n.homeSeaTemp, iconColor: AppColors.teal)),
         const SizedBox(width: 10),
-        Expanded(child: _StatCard(icon: Icons.people_outline, value: '$activeUsers', label: 'Activos agora', iconColor: AppColors.primary)),
+        Expanded(child: _StatCard(icon: Icons.people_outline, value: '$activeUsers', label: context.l10n.homeActiveNow, iconColor: AppColors.primary)),
         const SizedBox(width: 10),
-        Expanded(child: _StatCard(icon: Icons.warning_amber_outlined, value: '$alertsCount', label: 'Alertas', iconColor: alertsCount > 0 ? AppColors.coral : AppColors.textSecondary)),
+        Expanded(child: _StatCard(icon: Icons.warning_amber_outlined, value: '$alertsCount', label: context.l10n.homeAlerts, iconColor: alertsCount > 0 ? AppColors.coral : AppColors.textSecondary)),
       ],
     );
   }
@@ -823,7 +823,7 @@ class _FavouritesViewAllCard extends StatelessWidget {
               child: const Icon(Icons.arrow_forward, color: AppColors.teal, size: 17),
             ),
             const SizedBox(height: 7),
-            const Text('Ver\ntodas', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.tealDark, height: 1.3)),
+            Text(context.l10n.homeFavViewAll, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.tealDark, height: 1.3)),
           ],
         ),
       ),
@@ -937,7 +937,7 @@ class _TidesSection extends StatelessWidget {
 
     // Determine direction label and next extremum from the API direction field
     final apiDirection = tidesData.direction ?? 'steady';
-    final directionLabel = apiDirection == 'rising' ? 'Subindo' : apiDirection == 'falling' ? 'Descendo' : 'Estável';
+    final directionLabel = apiDirection == 'rising' ? l10n.tideDirRisingCap : apiDirection == 'falling' ? l10n.tideDirFallingCap : l10n.tideDirSteadyCap;
     final isRising = apiDirection == 'rising';
 
     final nextTide = findNextTide(tides);

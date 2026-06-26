@@ -32,19 +32,19 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        title: const Text(
-          'Notificações',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18),
+        title: Text(
+          context.l10n.notificationsTitle,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18),
         ),
         elevation: 0,
       ),
       body: notifs.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5)),
-        error: (_, _) => const Center(child: Text('Erro ao carregar notificações', style: TextStyle(color: AppColors.textSecondary))),
+        error: (_, _) => Center(child: Text(context.l10n.errorLoadNotifications, style: const TextStyle(color: AppColors.textSecondary))),
         data: (items) => items.isEmpty
-            ? const EmptyState(
+            ? EmptyState(
                 icon: Icons.notifications_off_outlined,
-                message: 'As notificações sobre as praias aparecem aqui.',
+                message: context.l10n.notificationsEmpty,
               )
             : ListView.separated(
                 itemCount: items.length,

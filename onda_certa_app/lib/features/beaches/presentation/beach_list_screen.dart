@@ -914,7 +914,7 @@ class _BeachCard extends StatelessWidget {
                             ),
                             const SizedBox(width: AppSpacing.xs),
                             Text(
-                              '${beach.activeAlertsCount} ${beach.activeAlertsCount == 1 ? 'alerta ativo' : 'alertas ativos'}',
+                              '${beach.activeAlertsCount} ${beach.activeAlertsCount == 1 ? l10n.beachAlertSingular : l10n.beachAlertPlural}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: AppColors.amber,

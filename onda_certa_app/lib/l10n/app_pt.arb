@@ -2,8 +2,8 @@
   "@@locale": "pt",
 
   "appName": "OndaCerta",
-  "appTagline": "Real beaches. Real conditions.",
-  "appLocation": "Arrábida Natural Park · Portugal",
+  "appTagline": "Praias reais. Condições reais.",
+  "appLocation": "Parque Natural da Arrábida · Portugal",
 
   "navHome": "Início",
   "navBeaches": "Praias",
@@ -13,6 +13,8 @@
   "continueAsGuest": "Continuar como visitante",
   "createAccount": "Criar conta",
   "signIn": "Entrar",
+  "signInGoogle": "Entrar com Google",
+  "signInEmail": "Entrar com email",
   "registerSubtitle": "Regista-te para contribuíres com a comunidade",
   "loginWelcomeBack": "Bem-vindo de volta",
   "fieldName": "Nome",
@@ -26,6 +28,7 @@
   "authConsentAnd": " e a nossa ",
   "errorGoogleToken": "Não foi possível obter o token Google",
   "errorGoogleSignIn": "Falha ao entrar com Google",
+  "errorSignIn": "Erro ao iniciar sessão. Tenta novamente.",
 
   "loading": "A carregar dados...",
   "comingSoon": "Em breve",
@@ -35,11 +38,21 @@
   "viewDetails": "Ver detalhes →",
   "viewBeaches": "Ver todas →",
   "tryAgain": "Tentar de novo",
+  "retryAgain": "Tentar novamente",
+  "cancelLabel": "Cancelar",
   "liveLabel": "live",
   "recommended": "Recomendada",
   "updating": "A atualizar...",
   "updatePresence": "Atualizar presença",
   "seeAllBeaches": "Ver todas as praias >",
+  "explorerName": "explorador",
+
+  "updatedAt": "Actualizado às {time}",
+  "@updatedAt": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
 
   "noLocationBanner": "Sem acesso à localização não podes reportar condições nem votar.",
 
@@ -56,6 +69,11 @@
     }
   },
 
+  "homeSeaTemp": "Temp. mar",
+  "homeActiveNow": "Activos agora",
+  "homeAlerts": "Alertas",
+  "homeFavViewAll": "Ver\ntodas",
+
   "greetingMorning": "Bom dia",
   "greetingAfternoon": "Boa tarde",
   "greetingEvening": "Boa noite",
@@ -64,6 +82,15 @@
   "weatherWind": "Vento",
   "weatherWaves": "Ondas",
   "weatherRain": "Chuva",
+  "weatherFeelsLike": "Sensação",
+  "weatherHumidity": "Humidade",
+  "weatherUv": "UV",
+  "windGusts": "raj. {gusts} km/h",
+  "@windGusts": {
+    "placeholders": {
+      "gusts": { "type": "int" }
+    }
+  },
 
   "flagStatusSafe": "Seguras",
   "flagStatusCaution": "Cuidado",
@@ -109,6 +136,8 @@
     }
   },
   "noBeachesForFilter": "Nenhuma praia com este filtro",
+  "beachAlertSingular": "alerta ativo",
+  "beachAlertPlural": "alertas ativos",
 
   "municipality": "Arrábida",
   "sectionWeather": "Meteorologia",
@@ -129,6 +158,150 @@
     }
   },
   "occupancyNote": "a usar a app nesta praia nos últimos 20 min. Estimativa aproximada.",
+
+  "seaConditionsTitle": "Condições do Mar",
+  "seaWavePeriod": "Período",
+  "seaTempLabel": "Temp. Mar",
+
+  "tideDirRising": "subindo",
+  "tideDirFalling": "descendo",
+  "tideDirSteady": "estável",
+  "tideDirRisingCap": "Subindo",
+  "tideDirFallingCap": "Descendo",
+  "tideDirSteadyCap": "Estável",
+  "tidesPageTitle": "Marés",
+  "tidesMoreDetails": "MAIS DETALHES",
+  "tidesTodaySection": "MARÉS DE HOJE",
+  "tidesNoData": "Sem dados de marés disponíveis",
+  "tidesChartSection": "GRÁFICO DA MARÉ",
+  "tidesNowLabel": "AGORA",
+  "tidesCardTitle": "Marés Hoje",
+  "tidesViewFull": "Vista completa →",
+
+  "waterQualityTitle": "Qualidade da Água",
+  "waterQualityLastSampled": "Última avaliação em {date}",
+  "@waterQualityLastSampled": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "waterQualityCachedMins": "cache {minutes} min atrás",
+  "@waterQualityCachedMins": {
+    "placeholders": {
+      "minutes": { "type": "int" }
+    }
+  },
+  "waterQualityCachedHours": "cache {hours}h atrás",
+  "@waterQualityCachedHours": {
+    "placeholders": {
+      "hours": { "type": "int" }
+    }
+  },
+  "waterQualityCachedDays": "cache {days}d atrás",
+  "@waterQualityCachedDays": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "waterQualityCached": "dados em cache",
+
+  "transportCardTitle": "Próximas Partidas",
+  "transportNoInfo": "Sem informação de transportes para esta praia",
+  "transportNoDepartures": "Sem partidas previstas",
+  "transportNearbyStop": "{count} paragem próxima",
+  "@transportNearbyStop": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "transportNearbyStops": "{count} paragens próximas",
+  "@transportNearbyStops": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "transportViewSchedules": "Ver horários completos →",
+
+  "communityAlertsSectionTitle": "ALERTAS DA COMUNIDADE",
+  "reportVerified": "Verificado",
+  "reportVoteSingular": "voto",
+  "reportVotePlural": "votos",
+  "communityAlertsEmptyTitle": "Tudo calmo!",
+  "communityAlertsEmptyBody": "Sem alertas activos nesta praia.\nSe vires algo, reporta!",
+  "communityAlertsReportBtn": "Reportar condição",
+  "errorLoadAlerts": "Erro ao carregar alertas",
+
+  "alertTypeJellyfish": "Medusas",
+  "alertTypeStrongCurrent": "Corrente Forte",
+  "alertTypePollution": "Poluição",
+  "alertTypeRoughSea": "Mar Agitado",
+  "alertTypeOther": "Outro",
+  "alertTypeDefault": "Alerta",
+  "severityLow": "Baixo",
+  "severityModerate": "Moderado",
+  "severityHigh": "Grave",
+
+  "reportSheetTitle": "Reportar Condição",
+  "reportTypeSection": "Tipo de condição",
+  "reportSeveritySection": "Qual a gravidade?",
+  "reportSeverityLowSub": "Preocupação menor",
+  "reportSeverityModerateSub": "Risco notável",
+  "reportSeverityHighSub": "Perigoso",
+  "reportNoteSection": "Adicionar nota",
+  "reportNoteOptional": "(opcional)",
+  "reportNoteHint": "Descreve o que observaste...",
+  "reportLocationNote": "A tua localização aproximada será partilhada com este aviso.",
+  "reportSubmit": "Submeter Aviso",
+  "reportSuccess": "Aviso submetido com sucesso!",
+  "reportMustBeAtBeach": "Tens de estar na praia para submeter um aviso",
+  "reportError": "Erro ao submeter. Tenta de novo.",
+
+  "presenceSectionTitle": "QUEM ESTÁ AQUI",
+  "presenceViewAll": "Ver todos →",
+  "presencePerson": "1 pessoa",
+  "presencePeople": "{count} pessoas",
+  "@presencePeople": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presencePersonHere": "1 pessoa nesta praia agora",
+  "presencePeopleHere": "{count} pessoas nesta praia agora",
+  "@presencePeopleHere": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presenceSharedProfile1": "1 partilha o perfil",
+  "presenceSharedProfiles": "{count} partilham o perfil",
+  "@presenceSharedProfiles": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presencePrivateNote": "Nenhuma pessoa decidiu partilhar a localização.",
+  "presenceSheetTitle": "Quem está aqui",
+  "presenceAnonymousUser": "Utilizador Anónimo",
+  "presencePrivateFooter1": "+{count} pessoa em modo privado",
+  "@presencePrivateFooter1": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presencePrivateFooterN": "+{count} pessoas em modo privado",
+  "@presencePrivateFooterN": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presenceEmptyTitle1": "1 pessoa está aqui",
+  "presenceEmptyTitleN": "{count} pessoas estão aqui",
+  "@presenceEmptyTitleN": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "presenceEmptyPrivate": "Nenhuma pessoa decidiu partilhar\na sua localização.",
 
   "alertsTitle": "Alertas da Comunidade",
   "alertsActive": "{count} activos",
@@ -166,9 +339,128 @@
       "meters": { "type": "int" }
     }
   },
+  "settingsFavBeaches": "Praias favoritas",
+  "settingsFavAlertsEnabled": "Alertas das minhas praias",
+  "settingsFavAlertsEnabledSub": "Recebe alertas das praias que tens guardadas",
+  "settingsBeachStatus": "Estado da praia",
+  "settingsFlagChange": "Mudança de bandeira",
+  "settingsFlagChangeSub": "Notifica quando o estado de segurança muda",
+  "settingsTideAlerts": "Alertas de maré",
+  "settingsTideAlertsSub": "Aviso antes de preia-mar e baixa-mar",
+  "settingsMyReports": "Os meus avisos",
+  "settingsReportConfirmed": "Aviso confirmado",
+  "settingsReportConfirmedSub": "Quando a comunidade confirma um aviso teu",
+  "settingsReportRejected": "Aviso rejeitado",
+  "settingsReportRejectedSub": "Quando a comunidade rejeita um aviso teu",
+  "settingsQuietHours": "Horas de silêncio",
+  "settingsQuietHoursEnabled": "Ativar horas de silêncio",
+  "settingsQuietHoursEnabledSub": "Sem notificações durante o período definido",
+  "settingsQuietStart": "Início",
+  "settingsQuietEnd": "Fim",
+  "settingsSeverityLow": "Baixa",
+  "settingsSeverityMedium": "Média",
+  "settingsSeverityHigh": "Alta",
+
+  "privacyLocation": "Localização",
+  "privacyLocationAccuracy": "Precisão da localização",
+  "privacyLocationAccuracySub": "Controla a precisão partilhada com outros utilizadores",
+  "privacyLocationExact": "Exata",
+  "privacyLocationApprox": "Aprox.",
+  "privacyLocationNone": "Nenhuma",
+  "privacyPublicProfile": "Perfil público",
+  "privacyNameVisible": "Nome visível",
+  "privacyNameVisibleSub": "Outros utilizadores podem ver o teu nome",
+  "privacyAvatarVisible": "Avatar visível",
+  "privacyAvatarVisibleSub": "As tuas iniciais aparecem nos avisos",
+  "privacyPresence": "Presença & Atividade",
+  "privacyShowOnMap": "Mostrar no mapa",
+  "privacyShowOnMapSub": "A tua presença conta para a lotação da praia",
+  "privacyShareUsage": "Partilhar dados de utilização",
+  "privacyShareUsageSub": "Ajuda a melhorar a app de forma anónima",
+  "privacyMyData": "Os meus dados",
+  "privacyExportData": "Exportar os meus dados",
+  "privacyExportDataSub": "Recebe uma cópia de tudo o que guardamos",
+  "privacyDeleteReports": "Apagar todos os avisos",
+  "privacyDeleteReportsSub": "Remove os teus avisos da plataforma",
+  "privacyDeleteAccount": "Apagar conta",
+  "privacyDeleteAccountSub": "Ação permanente e irreversível",
+  "privacyExporting": "A exportar dados…",
+  "privacyExportSaved": "Guardado: {filename}",
+  "@privacyExportSaved": {
+    "placeholders": {
+      "filename": { "type": "String" }
+    }
+  },
+  "privacyExportError": "Erro: {error}",
+  "@privacyExportError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "privacyDeleteReportsConfirmTitle": "Apagar todos os avisos?",
+  "privacyDeleteReportsConfirmBody": "Todos os teus avisos serão removidos da plataforma. Os teus pontos de reputação serão mantidos.",
+  "privacyDeleteReportsSuccess": "Avisos apagados com sucesso",
+  "privacyDeleteReportsError": "Erro ao apagar avisos",
+  "privacyDeleteAccountConfirmTitle": "Apagar conta?",
+  "privacyDeleteAccountConfirmBody": "Esta ação é permanente. Todos os teus dados serão eliminados.\n\nEscreve APAGAR para confirmar:",
+  "privacyDeleteAccountConfirmWord": "APAGAR",
+  "privacyDeleteAccountError": "Erro ao apagar conta",
+  "privacyPendingTitle": "Conta agendada para eliminação",
+  "privacyPendingBody": "A tua conta e todos os teus dados serão eliminados definitivamente a {date}.\n\nPodes cancelar esta ação até essa data.",
+  "@privacyPendingBody": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "privacyCancelDeletion": "Cancelar eliminação",
+  "privacyCancelling": "A cancelar…",
+  "privacyCancelError": "Erro ao cancelar a eliminação. Tenta de novo.",
+  "privacyDeleteLabel": "Apagar",
+  "privacyDeleteAccountConfirmBtn": "Apagar conta",
 
   "accountTitle": "Conta",
   "errorLoadProfile": "Não foi possível carregar o perfil",
+  "accountAvatarSection": "Avatar",
+  "accountAvatarDefault": "Avatar predefinido (iniciais)",
+  "accountAvatarChoose": "Escolher avatar",
+  "accountAvatarPickerTitle": "Escolhe o teu avatar",
+  "accountAvatarPickerSub": "Toca num avatar para o selecionar.",
+  "accountAvatarDefaultLabel": "Predefinido (iniciais)",
+  "accountAvatarDefaultSub": "Mostra as iniciais do teu nome",
+  "accountPersonalSection": "Informação Pessoal",
+  "accountNameEmpty": "O nome não pode estar vazio",
+  "accountNameTooLong": "Máximo 50 caracteres",
+  "accountSaveName": "Guardar nome",
+  "accountNoChanges": "Nenhuma alteração para guardar",
+  "accountProfileUpdated": "Perfil atualizado com sucesso",
+  "accountProfileUpdateError": "Não foi possível atualizar o perfil",
+  "accountAvatarUpdated": "Avatar atualizado com sucesso",
+  "accountAvatarUpdateError": "Não foi possível atualizar o avatar",
+  "accountUnexpectedError": "Ocorreu um erro inesperado",
+  "accountEmailSection": "Email",
+  "accountEmailNoGuest": "Os convidados não têm email associado.",
+  "accountEmailNoGoogle": "A tua conta Google não permite alterar o email aqui.",
+  "accountNewEmail": "Novo email",
+  "accountNewEmailHint": "novo@exemplo.com",
+  "accountEmailVerificationNote": "A verificação será enviada para o novo email.",
+  "accountCurrentPasswordConfirm": "Password atual (confirmação)",
+  "accountPasswordHint": "••••••••",
+  "accountEmailEmpty": "Introduz um email",
+  "accountEmailInvalid": "Email inválido",
+  "accountEmailUnchanged": "O email não foi alterado",
+  "accountCurrentPasswordEmpty": "Introduz a password atual",
+  "accountChangeEmail": "Alterar email",
+  "accountPasswordSection": "Password",
+  "accountPasswordNoGuest": "Os convidados não têm password.",
+  "accountPasswordNoGoogle": "A tua conta Google não usa password.",
+  "accountCurrentPassword": "Password atual",
+  "accountNewPassword": "Nova password",
+  "accountConfirmPassword": "Confirmar nova password",
+  "accountPasswordMismatch": "As passwords não coincidem",
+  "accountConfirmPasswordEmpty": "Confirma a nova password",
+  "accountPasswordChanged": "Password alterada. Inicia sessão novamente nos outros dispositivos.",
+  "accountPasswordChangeError": "Não foi possível alterar a password",
+  "accountChangePassword": "Alterar password",
 
   "guestUser": "Convidado",
   "registeredUser": "Utilizador",
@@ -179,6 +471,71 @@
       "count": { "type": "int" }
     }
   },
+
+  "levelNew": "Novo",
+  "levelRegular": "Regular",
+  "levelContributor": "Contribuidor",
+  "levelVeteran": "Veterano",
+  "levelNextLabel": "Próximo nível",
+  "levelPointsLeft": "{count} pts restantes",
+  "@levelPointsLeft": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "levelMaxReached": "🏄 Nível máximo!",
+  "statReports": "Avisos",
+  "statStreak": "Streak",
+  "statAccuracy": "Precisão",
+  "guestBannerTitle": "Estás em modo convidado",
+  "achievementsTitle": "Conquistas",
+  "achievementFirstReport": "Primeira Onda",
+  "achievementTideWatcher": "Guardião das Marés",
+  "achievement10Reports": "10 Avisos",
+  "achievementAccurate": "Preciso",
+  "achievementStreak10": "10 Dias",
+  "achievementRegular": "Regular",
+  "achievementContributor": "Contribuidor",
+  "achievementVeteran": "Veterano",
+  "recentActivityTitle": "Atividade Recente",
+  "eventReportConfirmed": "Aviso confirmado pela comunidade",
+  "eventReportContradicted": "Aviso rejeitado pela comunidade",
+  "eventFlagConfirmed": "Proposta de bandeira confirmada",
+  "eventFlagContradicted": "Proposta de bandeira rejeitada",
+  "eventConfirmationAccurate": "Confirmação correta",
+  "eventSpamPenalty": "Penalidade por spam",
+  "settingsAccountTitle": "Definições da Conta",
+  "settingsFavouritesTitle": "Praias Favoritas",
+  "settingsPrivacyTitle": "Privacidade & Dados",
+  "settingsAboutTitle": "Sobre OndaCerta",
+  "signOut": "Terminar Sessão",
+  "signOutTitle": "Terminar sessão?",
+  "signOutBody": "Tens a certeza que queres sair da tua conta?",
+  "signOutCancel": "Cancelar",
+  "signOutConfirm": "Sair",
+
+  "favouritesScreenTitle": "Praias Favoritas",
+  "favouritesSaved1": "1 praia guardada",
+  "favouritesSavedN": "{count} praias guardadas",
+  "@favouritesSavedN": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "favouriteAlertSingular": "alerta",
+  "favouriteAlertPlural": "alertas",
+  "favouriteRemoveTitle": "Remover \"{name}\"?",
+  "@favouriteRemoveTitle": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "favouriteRemoveBody": "Esta praia será removida das tuas favoritas.",
+  "removeLabel": "Remover",
+  "errorRemoveFavourite": "Erro ao remover favorito",
+  "favouritesEmptyTitle": "Sem praias favoritas",
+  "favouritesEmptyHint": "Abre uma praia e toca no coração\npara a guardar aqui.",
+  "errorLoadFavourites": "Erro ao carregar favoritos",
 
   "flagLabelGreen": "Segura",
   "flagLabelYellow": "Cuidado",
@@ -251,5 +608,140 @@
   "guestSubmitReport": "Cria uma conta para submeter avisos",
   "guestConfirmFlag": "Cria uma conta para confirmar bandeiras",
   "guestProposeFlag": "Cria uma conta para propor bandeiras",
-  "guestSaveContribs": "Cria uma conta para guardar as tuas contribuições."
+  "guestSaveContribs": "Cria uma conta para guardar as tuas contribuições.",
+
+  "transportScreenTitle": "Transportes",
+  "transportFlagNoInfo": "Sem info",
+  "transportWavesLabel": "{height}m ondas",
+  "@transportWavesLabel": {
+    "placeholders": {
+      "height": { "type": "String" }
+    }
+  },
+  "transportArrivingSoon": "A chegar",
+  "transportNextDeparturesSection": "PRÓXIMAS PARTIDAS",
+  "transportWalkMins": "{mins} min a pé até à praia",
+  "@transportWalkMins": {
+    "placeholders": {
+      "mins": { "type": "int" }
+    }
+  },
+  "transportNextDep": "Próxima: {time}",
+  "@transportNextDep": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  },
+  "transportWalkTo": "Ir a pé para {beach}",
+  "@transportWalkTo": {
+    "placeholders": {
+      "beach": { "type": "String" }
+    }
+  },
+  "transportWalkToMins": "Ir a pé para {beach} ({mins} min)",
+  "@transportWalkToMins": {
+    "placeholders": {
+      "beach": { "type": "String" },
+      "mins": { "type": "int" }
+    }
+  },
+  "transportWalkToMinsFromStop": "Ir a pé para {beach} ({mins} min da paragem)",
+  "@transportWalkToMinsFromStop": {
+    "placeholders": {
+      "beach": { "type": "String" },
+      "mins": { "type": "int" }
+    }
+  },
+  "transportDisclaimerLive": "Horários Carris Metropolitana. Dados em tempo real quando disponível — verificar nas paragens.",
+  "transportDisclaimerCache": "Horários Carris Metropolitana. Dados em cache — verificar nas paragens.",
+  "transportEmpty": "Sem transportes disponíveis\npara esta praia",
+  "transportLoadError": "Não foi possível carregar os transportes",
+
+  "emailNameEmpty": "Introduz o teu nome",
+  "emailEmpty": "Introduz o email",
+  "emailInvalidSimple": "Email inválido",
+  "emailAlreadyRegisteredTitle": "Email já registado",
+  "emailAlreadyRegisteredBody": "Este email já tem uma conta. Entra com a tua password.",
+  "emailRegisterError": "Erro ao criar conta. Verifica os dados.",
+  "emailLoginError": "Email ou password incorrectos.",
+  "connectionError": "Erro de ligação. Tenta novamente.",
+  "emailAlreadyHaveAccount": "Já tens conta? ",
+  "emailNoAccountYet": "Ainda não tens conta? ",
+
+  "flagColorGreen": "verde",
+  "flagColorYellow": "amarela",
+  "flagColorRed": "vermelha",
+  "flagColorPurple": "roxa",
+  "flagColorGreenCap": "Verde",
+  "flagColorYellowCap": "Amarela",
+  "flagColorRedCap": "Vermelha",
+  "flagColorPurpleCap": "Roxa",
+
+  "flagProposeTitle": "Propor Bandeira",
+  "flagProposeRequirement": "Tens de estar na praia e ter reputação ≥ 25 para propor.",
+  "flagProposeQuestion": "Qual é a bandeira actual?",
+  "flagProposeDescGreen": "Seguro para nadar",
+  "flagProposeDescYellow": "Nadar com precaução",
+  "flagProposeDescRed": "Proibido nadar",
+  "flagProposeDescPurple": "Animais marinhos presentes",
+  "flagProposeNoRep": "Ainda não tens reputação suficiente (mínimo: 25). Continua a contribuir com alertas e confirmações!",
+  "flagProposeNotPresent": "Tens de estar na praia (nos últimos 10 min) para propor uma bandeira.",
+  "flagProposeUnavailable": "Esta praia não tem sistema de bandeiras físicas.",
+  "flagProposeGenericError": "Algo correu mal. Tenta de novo.",
+  "flagProposeSubmit": "Propor bandeira {color}",
+  "@flagProposeSubmit": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+  "flagProposeSuccessApplied": "Bandeira atualizada!",
+  "flagProposeSuccessPending": "Proposta submetida!",
+  "flagProposeSuccessBodyApplied": "A tua reputação deu-te autoridade para aplicar a bandeira directamente.",
+  "flagProposeSuccessBodyPending": "A comunidade irá confirmar a tua proposta em breve.",
+  "flagProposeFlagLabel": "Bandeira {color}",
+  "@flagProposeFlagLabel": {
+    "placeholders": {
+      "color": { "type": "String" }
+    }
+  },
+
+  "flagConfirmQuestionPrefix": "A bandeira ainda está ",
+  "flagConfirmQuestionSuffix": "?",
+  "flagConfirmYesPrefix": "Sim, ainda ",
+  "flagConfirmNo": "Não, mudou",
+  "flagConfirmUnsure": "Não tenho a certeza",
+  "flagConfirmRateLimited": "Já confirmaste a bandeira desta praia na última hora.",
+  "flagConfirmError": "Algo correu mal. Tenta de novo.",
+  "flagConfirmThankYou": "Obrigado!",
+  "flagConfirmSuccessBody": "A tua confirmação ajuda a comunidade\na estar sempre bem informada.",
+  "communityConfidence": "Confiança da comunidade",
+  "confidencePercent": "{pct}% de confiança",
+  "@confidencePercent": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "confidencePercentShort": "{pct}% confiança",
+  "@confidencePercentShort": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "flagNameGreen": "Bandeira Verde",
+  "flagNameYellow": "Bandeira Amarela",
+  "flagNameRed": "Bandeira Vermelha",
+  "flagNamePurple": "Bandeira Roxa",
+  "flagNameUnknown": "Estado Desconhecido",
+  "flagSafetyGreen": "Seguro para nadar",
+  "flagSafetyYellow": "Nadar com precaução",
+  "flagSafetyRed": "Proibido nadar",
+  "flagSafetyPurple": "Animais marinhos presentes",
+  "flagSafetyUnknown": "Estado desconhecido",
+
+  "confidencePct": "{pct}% conf.",
+  "@confidencePct": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  }
 }
