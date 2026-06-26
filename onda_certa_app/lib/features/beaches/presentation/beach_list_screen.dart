@@ -886,13 +886,13 @@ class _BeachCard extends StatelessWidget {
                               ),
                             ),
                           ],
-                          if (beach.activityLabel != null) ...[
+                          if (activityLabelText(l10n, beach.activityLabel) case final actLabel?) ...[
                             const SizedBox(width: 10),
                             const _Dot(),
                             const SizedBox(width: 10),
                             Flexible(
                               child: Text(
-                                beach.activityLabel!,
+                                actLabel,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 12,

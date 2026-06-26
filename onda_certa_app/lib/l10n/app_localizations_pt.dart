@@ -1252,6 +1252,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get occupancyUnknown => 'Desconhecida';
 
   @override
+  String get activityLabelUnverified => 'Não verificado';
+
+  @override
   String get qualityExcellent => 'Excelente';
 
   @override

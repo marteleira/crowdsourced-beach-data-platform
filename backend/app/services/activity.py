@@ -43,7 +43,7 @@ ACTIVITY_PARAMS = {
         "contradiction_threshold": {"jellyfish": 2, "strong_current": 2, "other_alert": 3, "pollution": 2, "rough_sea": 2},
         "flag_confirmation_min": 1,
         "confidence_decay_per_minute": 0.001,
-        "label": "não verificado",
+        "label": "unverified",
     },
 }
 

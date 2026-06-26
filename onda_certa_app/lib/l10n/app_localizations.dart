@@ -2402,6 +2402,12 @@ abstract class AppLocalizations {
   /// **'Desconhecida'**
   String get occupancyUnknown;
 
+  /// No description provided for @activityLabelUnverified.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não verificado'**
+  String get activityLabelUnverified;
+
   /// No description provided for @qualityExcellent.
   ///
   /// In pt, this message translates to:

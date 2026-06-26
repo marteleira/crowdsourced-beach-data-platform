@@ -1246,6 +1246,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get occupancyUnknown => 'Unknown';
 
   @override
+  String get activityLabelUnverified => 'Unverified';
+
+  @override
   String get qualityExcellent => 'Excellent';
 
   @override

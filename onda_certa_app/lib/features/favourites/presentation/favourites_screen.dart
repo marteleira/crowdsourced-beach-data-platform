@@ -200,10 +200,10 @@ class _BeachFavCard extends ConsumerWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          if (beach.activityLabel != null) ...[
+                          if (activityLabelText(l10n, beach.activityLabel) case final actLabel?) ...[
                             const Icon(Icons.people_outline, color: Colors.white70, size: 13),
                             const SizedBox(width: 4),
-                            Text(beach.activityLabel!, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                            Text(actLabel, style: const TextStyle(color: Colors.white70, fontSize: 12)),
                             const SizedBox(width: 12),
                           ],
                           if (beach.distanceKm != null) ...[
