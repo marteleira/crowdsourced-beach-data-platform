@@ -2,20 +2,26 @@ from datetime import timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select, update, func
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import REPORT_PRESENCE_WINDOW_HOURS, VOTE_PRESENCE_WINDOW_HOURS
 from app.core.database import get_db
-from app.core.deps import get_current_user, require_user, require_registered_user, get_beach_or_404, was_recently_present
+from app.core.deps import (
+    get_beach_or_404,
+    get_current_user,
+    require_registered_user,
+    require_user,
+    was_recently_present,
+)
+from app.core.messages import Msg
 from app.core.utils import now_utc
 from app.models.report import Report, ReportVote
-from app.models.user import User, ReputationEvent
-from app.schemas.report import ReportCreate, ReportResponse, VoteRequest, ReportListResponse
+from app.models.user import ReputationEvent, User
+from app.schemas.report import ReportCreate, ReportListResponse, ReportResponse, VoteRequest
 from app.services.activity import get_activity_params, report_ttl_minutes
 from app.services.push_notifications import dispatch_report_notification
-from app.core.messages import Msg
-from app.services.reputation import apply_delta, DELTA_REPORT_SUBMITTED, DELTA_FIRST_REPORT_BONUS
+from app.services.reputation import DELTA_FIRST_REPORT_BONUS, DELTA_REPORT_SUBMITTED, apply_delta
 
 router = APIRouter(prefix="/beaches/{slug}/reports", tags=["reports"])
 
@@ -112,7 +118,7 @@ async def create_report(
     if user.total_reports == 0:
         await apply_delta(
             db, user.id, DELTA_FIRST_REPORT_BONUS,
-            "first_report_bonus", "Primeiro aviso submetido",
+            "first_report_bonus",
             ref_id=report.id,
         )
 
@@ -128,7 +134,8 @@ async def create_report(
     if count_today < 3:
         await apply_delta(
             db, user.id, DELTA_REPORT_SUBMITTED,
-            "report_submitted", f"Aviso de '{body.type}' submetido",
+            "report_submitted",
+            params={"alert_type": body.type},
             ref_id=report.id,
         )
 

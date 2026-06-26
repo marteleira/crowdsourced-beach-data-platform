@@ -725,7 +725,7 @@ class _TidesCard extends StatelessWidget {
                   Text(displayH, style: AppTextStyles.titleXl),
                   if (nextTide != null)
                     Text(
-                      '${tideTypeLabel(context.l10n, nextTide.type)} às ${nextTide.time}',
+                      '${tideTypeLabel(context.l10n, nextTide.type)} ${context.l10n.atTimePrep} ${nextTide.time}',
                       style: AppTextStyles.secondary,
                     ),
                 ],

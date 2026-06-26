@@ -2120,6 +2120,18 @@ abstract class AppLocalizations {
   /// **'Atividade Recente'**
   String get recentActivityTitle;
 
+  /// No description provided for @eventReportSubmitted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aviso submetido'**
+  String get eventReportSubmitted;
+
+  /// No description provided for @eventFirstReportBonus.
+  ///
+  /// In pt, this message translates to:
+  /// **'Primeiro aviso!'**
+  String get eventFirstReportBonus;
+
   /// No description provided for @eventReportConfirmed.
   ///
   /// In pt, this message translates to:
@@ -2149,6 +2161,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Confirmação correta'**
   String get eventConfirmationAccurate;
+
+  /// No description provided for @eventConfirmationContradicted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmação precisa — bandeira {color} contradita'**
+  String eventConfirmationContradicted(String color);
+
+  /// No description provided for @eventConfirmationVerified.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmação precisa — bandeira {color} verificada'**
+  String eventConfirmationVerified(String color);
 
   /// No description provided for @eventSpamPenalty.
   ///
@@ -2959,6 +2983,156 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'{pct}% conf.'**
   String confidencePct(int pct);
+
+  /// No description provided for @atTimePrep.
+  ///
+  /// In pt, this message translates to:
+  /// **'às'**
+  String get atTimePrep;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recuperar password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Introduz o teu email. Enviamos um código de 6 dígitos para poderes definir uma nova password.'**
+  String get forgotPasswordBody;
+
+  /// No description provided for @forgotPasswordSubmit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviar código'**
+  String get forgotPasswordSubmit;
+
+  /// No description provided for @forgotPasswordSendError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao enviar o código. Tenta novamente.'**
+  String get forgotPasswordSendError;
+
+  /// No description provided for @emailVerifyTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirma o teu email'**
+  String get emailVerifyTitle;
+
+  /// No description provided for @emailVerifyBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviámos um código de 6 dígitos para o teu email.\nIntroduz o código abaixo para continuares.'**
+  String get emailVerifyBody;
+
+  /// No description provided for @emailVerifyButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verificar'**
+  String get emailVerifyButton;
+
+  /// No description provided for @emailVerifyCodeInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Código inválido. Tenta de novo.'**
+  String get emailVerifyCodeInvalid;
+
+  /// No description provided for @resetCodeTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Verifica o teu email'**
+  String get resetCodeTitle;
+
+  /// No description provided for @resetCodeBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Enviámos um código de 6 dígitos para {email}.'**
+  String resetCodeBody(String email);
+
+  /// No description provided for @resetCodeContinue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Continuar'**
+  String get resetCodeContinue;
+
+  /// No description provided for @resetNewPasswordTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova password'**
+  String get resetNewPasswordTitle;
+
+  /// No description provided for @resetNewPasswordBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Escolhe uma nova password para a tua conta.'**
+  String get resetNewPasswordBody;
+
+  /// No description provided for @resetNewPasswordConfirmLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirmar password'**
+  String get resetNewPasswordConfirmLabel;
+
+  /// No description provided for @resetNewPasswordSubmit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alterar password'**
+  String get resetNewPasswordSubmit;
+
+  /// No description provided for @resetPasswordSuccessTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Password alterada!'**
+  String get resetPasswordSuccessTitle;
+
+  /// No description provided for @resetPasswordSuccessBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua password foi actualizada com sucesso.\nPodes entrar com a nova password.'**
+  String get resetPasswordSuccessBody;
+
+  /// No description provided for @resetPasswordError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao alterar a password. Tenta novamente.'**
+  String get resetPasswordError;
+
+  /// No description provided for @codeResend.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reenviar código'**
+  String get codeResend;
+
+  /// No description provided for @codeResendCooldown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reenviar código ({secs}s)'**
+  String codeResendCooldown(int secs);
+
+  /// No description provided for @codeResendShortCooldown.
+  ///
+  /// In pt, this message translates to:
+  /// **'Reenviar ({secs}s)'**
+  String codeResendShortCooldown(int secs);
+
+  /// No description provided for @codeSentSnack.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo código enviado para o teu email.'**
+  String get codeSentSnack;
+
+  /// No description provided for @codeResendError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao reenviar o código.'**
+  String get codeResendError;
+
+  /// No description provided for @codeConfirmEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confirma a nova password'**
+  String get codeConfirmEmpty;
 }
 
 class _AppLocalizationsDelegate

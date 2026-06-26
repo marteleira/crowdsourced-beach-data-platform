@@ -4,11 +4,11 @@ Called by the scheduler, never inline in request handlers.
 """
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select, update, exists, func
+from sqlalchemy import exists, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import User, ReputationEvent
 from app.models.report import Report
+from app.models.user import ReputationEvent, User
 
 DELTA_REPORT_SUBMITTED = 1
 DELTA_FIRST_REPORT_BONUS = 5
@@ -43,10 +43,10 @@ async def apply_delta(
     user_id,
     delta: int,
     event: str,
-    reason: str,
+    params: dict = None,
     ref_id: int = None,
 ) -> None:
-    evt = ReputationEvent(user_id=user_id, event=event, delta=delta, reason=reason, ref_id=ref_id)
+    evt = ReputationEvent(user_id=user_id, event=event, delta=delta, params=params, ref_id=ref_id)
     db.add(evt)
 
     await db.execute(
@@ -107,7 +107,7 @@ async def process_report_outcomes(db: AsyncSession) -> None:
                 db, report.user_id,
                 DELTA_REPORT_CONFIRMED,
                 "report_confirmed",
-                f"Aviso de '{report.type}' confirmado pela comunidade",
+                params={"alert_type": report.type},
                 ref_id=report.id,
             )
             await db.execute(
@@ -122,7 +122,7 @@ async def process_report_outcomes(db: AsyncSession) -> None:
                 db, report.user_id,
                 DELTA_REPORT_CONTRADICTED,
                 "report_contradicted",
-                f"Aviso de '{report.type}' rejeitado pela comunidade",
+                params={"alert_type": report.type},
                 ref_id=report.id,
             )
             await db.execute(
@@ -164,7 +164,7 @@ async def process_flag_outcomes(db: AsyncSession) -> None:
             db, proposal.user_id,
             DELTA_FLAG_CONTRADICTED,
             "flag_contradicted",
-            f"Proposta de bandeira {proposal.proposed_color} rejeitada pela comunidade",
+            params={"color": proposal.proposed_color},
             ref_id=proposal.id,
         )
 
@@ -177,7 +177,7 @@ async def process_confirmation_accuracy(db: AsyncSession) -> None:
     - "no" voters on proposals that were subsequently rejected
     - "yes" voters on proposals that remained applied for > 2 hours
     """
-    from app.models.beach_status import FlagProposal, FlagConfirmation
+    from app.models.beach_status import FlagConfirmation, FlagProposal
 
     now = datetime.now(timezone.utc)
 
@@ -205,7 +205,7 @@ async def process_confirmation_accuracy(db: AsyncSession) -> None:
                 db, conf.user_id,
                 DELTA_CONFIRMATION_ACCURATE,
                 "confirmation_accurate",
-                f"Confirmação precisa: bandeira {conf.flag_color} contradita",
+                params={"color": conf.flag_color, "outcome": "contradicted"},
                 ref_id=conf.id,
             )
 
@@ -237,7 +237,7 @@ async def process_confirmation_accuracy(db: AsyncSession) -> None:
                 db, conf.user_id,
                 DELTA_CONFIRMATION_ACCURATE,
                 "confirmation_accurate",
-                f"Confirmação precisa: bandeira {conf.flag_color} verificada",
+                params={"color": conf.flag_color, "outcome": "verified"},
                 ref_id=conf.id,
             )
 
@@ -344,7 +344,6 @@ async def detect_spam(db: AsyncSession) -> None:
                 db, user_id,
                 DELTA_SPAM_PENALTY,
                 "spam_penalty",
-                "Múltiplos avisos rejeitados em pouco tempo",
             )
 
     await db.commit()

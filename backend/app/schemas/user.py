@@ -1,12 +1,13 @@
-from pydantic import BaseModel, EmailStr, field_validator
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
+
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 class ReputationEventOut(BaseModel):
     event: str
     delta: int
-    reason: Optional[str] = None
+    params: Optional[dict] = None  # structured params for frontend l10n formatting
     created_at: datetime
 
 

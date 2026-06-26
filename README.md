@@ -320,11 +320,11 @@ Detailed docs for each part live in their respective directories:
 - [x] Widget/Shortcut for the favorite beaches
 - [x] Display current temps (prob requires another api), and remove the "Parque nacional..." for every one
 - [x] Disable the interaction with the social/community layer for guests
+- [x] Support more than one language (pt and eng)
 ---
 
 ### 🔜 Planned
 
-- [ ] Support more than one language 
 ver nomes
 - [ ] Review the points system and requirements for certain tasks
 - [ ] Final legal pages (Terms of Service, Privacy Policy)

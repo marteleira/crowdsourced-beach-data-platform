@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Optional, Literal
+from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -10,8 +10,8 @@ from app.core.database import get_db
 from app.core.deps import require_user, require_user_or_pending
 from app.core.messages import Msg
 from app.core.utils import now_utc
-from app.models.user import User, ReputationEvent, RefreshToken
 from app.models.report import Report
+from app.models.user import RefreshToken, ReputationEvent, User
 from app.models.user_extended import effective_privacy_settings
 
 router = APIRouter(prefix="/users/me", tags=["privacy"])
@@ -93,7 +93,7 @@ async def export_data(
             {
                 "event": e.event,
                 "delta": e.delta,
-                "reason": e.reason,
+                "params": e.params,
                 "created_at": e.created_at.isoformat() if e.created_at else None,
             }
             for e in events

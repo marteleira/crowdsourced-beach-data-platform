@@ -1,10 +1,12 @@
-from datetime import datetime, date
-from typing import Any
 import uuid
-from sqlalchemy import Text, Boolean, Integer, TIMESTAMP, Index, Date
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from datetime import date, datetime
+from typing import Any
+
+from sqlalchemy import TIMESTAMP, Boolean, Date, Index, Integer, Text
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
+
 from app.core.database import Base
 
 
@@ -71,8 +73,8 @@ class ReputationEvent(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
-    event: Mapped[str] = mapped_column(Text, nullable=False)  # report_confirmed | report_contradicted | ...
+    event: Mapped[str] = mapped_column(Text, nullable=False)  # report_confirmed | flag_confirmed | ...
     delta: Mapped[int] = mapped_column(Integer, nullable=False)
-    reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    params: Mapped[dict | None] = mapped_column(JSONB, nullable=True)  # e.g. {"alert_type": "jellyfish"}
     ref_id: Mapped[int | None] = mapped_column(Integer, nullable=True)  # ID of associated report/flag
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())

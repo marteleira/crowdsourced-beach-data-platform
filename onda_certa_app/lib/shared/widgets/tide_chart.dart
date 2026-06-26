@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../utils/beach_helpers.dart';
+import '../../core/l10n/l10n.dart';
 import '../../features/beaches/domain/beach_models.dart';
 
 /// Shared tide chart painter — used by HomeScreen and BeachDetailScreen.
@@ -131,7 +133,7 @@ class TideTimeCell extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         Text(entry.time, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary)),
         Text('${entry.height.toStringAsFixed(1)}m', style: AppTextStyles.secondarySm),
-        Text(entry.type, style: AppTextStyles.secondaryXs),
+        Text(tideTypeLabel(context.l10n, entry.type), style: AppTextStyles.secondaryXs),
       ],
     );
   }

@@ -476,17 +476,17 @@ class UserStats {
 class UserReputationEvent {
   const UserReputationEvent({
     required this.event, required this.delta,
-    this.reason, required this.createdAt,
+    this.params, required this.createdAt,
   });
   final String event;
   final int delta;
-  final String? reason;
+  final Map<String, dynamic>? params;
   final String createdAt;
 
   factory UserReputationEvent.fromJson(Map<String, dynamic> j) => UserReputationEvent(
     event: j['event'] as String,
     delta: j['delta'] as int? ?? 0,
-    reason: j['reason'] as String?,
+    params: j['params'] as Map<String, dynamic>?,
     createdAt: j['created_at'] as String? ?? DateTime.now().toIso8601String(),
   );
 }
