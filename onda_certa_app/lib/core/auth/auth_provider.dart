@@ -205,7 +205,11 @@ class AuthNotifier extends AsyncNotifier<AuthState> {
     await repo.verifyEmail(code);
 
     final refreshToken = await storage.getRefreshToken();
-    final tokens = await repo.refresh(refreshToken!);
+    if (refreshToken == null) {
+      state = const AsyncData(AuthUnauthenticated());
+      return;
+    }
+    final tokens = await repo.refresh(refreshToken);
     await storage.saveTokens(
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,

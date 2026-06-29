@@ -22,6 +22,7 @@ import '../../../shared/widgets/metric_cell.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/severity_dots.dart';
 import '../../../shared/widgets/tide_chart.dart';
+import '../../../shared/widgets/app_error_state.dart';
 import '../../../shared/widgets/user_avatar.dart';
 
 class BeachDetailScreen extends ConsumerStatefulWidget {
@@ -97,17 +98,25 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
               isFavourite: ref.watch(favouritesProvider).value?.any((b) => b.slug == widget.beach.slug) ?? false,
               onFavourite: () async {
                 final messenger = ScaffoldMessenger.of(context);
+                final l10n = context.l10n;
                 try {
                   await ref.read(favouritesProvider.notifier).toggle(widget.beach);
                 } catch (_) {
                   messenger.showSnackBar(
-                    SnackBar(content: Text(context.l10n.errorFavourite), backgroundColor: Colors.red),
+                    SnackBar(content: Text(l10n.errorFavourite), backgroundColor: Colors.red),
                   );
                 }
               },
             ),
             if (detail.isLoading && detail.value == null)
               const SliverFillRemaining(child: Center(child: CircularProgressIndicator(color: AppColors.teal, strokeWidth: 2.5)))
+            else if (detail.hasError && detail.value == null)
+              SliverFillRemaining(
+                child: AppErrorState(
+                  message: context.l10n.connectionError,
+                  onRetry: _refresh,
+                ),
+              )
             else
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
@@ -195,12 +204,14 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
   Future<void> _sendHeartbeat() async {
     if (_sendingHeartbeat) return;
     setState(() => _sendingHeartbeat = true);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
     try {
       final nearest = await sendHeartbeatForCurrentPosition(ref);
       if (nearest == null) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(context.l10n.tooFarToCheckin),
+          messenger.showSnackBar(SnackBar(
+            content: Text(l10n.tooFarToCheckin),
             duration: const Duration(seconds: 2),
             backgroundColor: AppColors.coral,
           ));
@@ -208,15 +219,21 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
         return;
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(context.l10n.presenceRegistered),
+        messenger.showSnackBar(SnackBar(
+          content: Text(l10n.presenceRegistered),
           duration: const Duration(seconds: 2),
           backgroundColor: AppColors.teal,
         ));
-        // Refresh detail to update occupancy count
         ref.invalidate(beachFullDetailProvider(nearest.slug));
       }
     } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(
+          content: Text(l10n.connectionError),
+          duration: const Duration(seconds: 2),
+          backgroundColor: AppColors.coral,
+        ));
+      }
     } finally {
       if (mounted) setState(() => _sendingHeartbeat = false);
     }

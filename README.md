@@ -326,6 +326,7 @@ Detailed docs for each part live in their respective directories:
 ### 🔜 Planned
 
 - [ ] Review the app quirks (like the multiple same action buttons, the button that does nothing at the bottom of the home, check for more translations,...)
+- [ ] Translate the warnings
 - [ ] Review the points system and requirements for certain tasks
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 

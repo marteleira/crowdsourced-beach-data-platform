@@ -97,8 +97,9 @@ final _routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.resetPassword,
+        redirect: (_, state) => state.extra is! String ? AppRoutes.login : null,
         builder: (_, state) => ResetPasswordScreen(
-          email: state.extra as String,
+          email: state.extra! as String,
         ),
       ),
       GoRoute(path: AppRoutes.pendingDeletion, builder: (_, _) => const PendingDeletionScreen()),
@@ -113,16 +114,19 @@ final _routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.settingsNotifications, builder: (_, _) => const NotificationSettingsScreen()),
       GoRoute(
         path: '/beach/:slug',
-        builder: (_, state) => BeachDetailScreen(beach: state.extra as BeachSummary),
+        redirect: (_, state) => state.extra is! BeachSummary ? AppRoutes.home : null,
+        builder: (_, state) => BeachDetailScreen(beach: state.extra! as BeachSummary),
       ),
       GoRoute(
         path: '/beach/:slug/alerts',
-        builder: (_, state) => CommunityAlertsScreen(beach: state.extra as BeachSummary),
+        redirect: (_, state) => state.extra is! BeachSummary ? AppRoutes.home : null,
+        builder: (_, state) => CommunityAlertsScreen(beach: state.extra! as BeachSummary),
       ),
       GoRoute(path: AppRoutes.favourites, builder: (_, _) => const FavouritesScreen()),
       GoRoute(
         path: '/beach/:slug/transport',
-        builder: (_, state) => TransportScreen(beach: state.extra as BeachSummary),
+        redirect: (_, state) => state.extra is! BeachSummary ? AppRoutes.home : null,
+        builder: (_, state) => TransportScreen(beach: state.extra! as BeachSummary),
       ),
       GoRoute(path: AppRoutes.notifications, builder: (_, _) => const NotificationsScreen()),
     ],
