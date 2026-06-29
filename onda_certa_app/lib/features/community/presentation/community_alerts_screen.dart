@@ -155,14 +155,55 @@ class _CommunityAlertsScreenState extends ConsumerState<CommunityAlertsScreen> {
 
 // Report Card
 
-class _ReportCard extends StatelessWidget {
+enum _TranslateState { idle, loading, translated, sameLanguage, error }
+
+class _ReportCard extends StatefulWidget {
   const _ReportCard({required this.report, required this.onVote});
   final BeachReport report;
   final void Function(String) onVote;
 
   @override
+  State<_ReportCard> createState() => _ReportCardState();
+}
+
+class _ReportCardState extends State<_ReportCard> {
+  _TranslateState _translateState = _TranslateState.idle;
+  String? _translatedNote;
+
+  Future<void> _translate() async {
+    setState(() => _translateState = _TranslateState.loading);
+    try {
+      final locale = Localizations.localeOf(context).languageCode;
+      final res = await Dio().get<Map<String, dynamic>>(
+        'https://api.mymemory.translated.net/get',
+        queryParameters: {
+          'q': widget.report.note!,
+          'langpair': 'autodetect|$locale',
+        },
+      );
+      if (!mounted) return;
+      final status = res.data?['responseStatus'];
+      if (status != 200) {
+        setState(() => _translateState = _TranslateState.sameLanguage);
+        return;
+      }
+      final text = (res.data?['responseData']?['translatedText'] as String?) ?? '';
+      setState(() {
+        _translatedNote = text;
+        _translateState = _TranslateState.translated;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _translateState = _TranslateState.error);
+    }
+  }
+
+  void _showOriginal() => setState(() => _translateState = _TranslateState.idle);
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final report = widget.report;
     final (icon, typeColor, typeLabel) = alertMeta(l10n, report.type);
     final (severityColor, severityLabel) = severityMeta(l10n, report.severity);
     final totalVotes = report.upvotes + report.downvotes;
@@ -263,7 +304,7 @@ class _ReportCard extends StatelessWidget {
                     ],
                   ),
 
-                  // Note
+                  // Note + translation
                   if (report.note != null && report.note!.isNotEmpty) ...[
                     const SizedBox(height: 10),
                     Container(
@@ -273,14 +314,87 @@ class _ReportCard extends StatelessWidget {
                         color: AppColors.background,
                         borderRadius: AppRadii.cardChip,
                       ),
-                      child: Text(
-                        '"${report.note!}"',
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 13,
-                          fontStyle: FontStyle.italic,
-                          height: 1.4,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '"${_translateState == _TranslateState.translated ? _translatedNote! : report.note!}"',
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                              fontStyle: FontStyle.italic,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          switch (_translateState) {
+                            _TranslateState.idle => GestureDetector(
+                                onTap: _translate,
+                                child: Text(
+                                  l10n.translateNote,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.teal,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            _TranslateState.loading => const SizedBox(
+                                height: 12,
+                                width: 12,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 1.5,
+                                  color: AppColors.teal,
+                                ),
+                              ),
+                            _TranslateState.translated => Row(
+                                children: [
+                                  const Icon(Icons.translate, size: 11, color: AppColors.textHint),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    l10n.translatedLabel,
+                                    style: const TextStyle(fontSize: 11, color: AppColors.textHint),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text('·', style: TextStyle(fontSize: 11, color: AppColors.textHint)),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: _showOriginal,
+                                    child: Text(
+                                      l10n.showOriginal,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.teal,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            _TranslateState.sameLanguage => GestureDetector(
+                                onTap: _showOriginal,
+                                child: Text(
+                                  l10n.translateSameLanguage,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textHint,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            _TranslateState.error => GestureDetector(
+                                onTap: _translate,
+                                child: Text(
+                                  l10n.translateError,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.coral,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                          },
+                        ],
                       ),
                     ),
                   ],
@@ -296,7 +410,7 @@ class _ReportCard extends StatelessWidget {
                         count: report.upvotes,
                         isActive: report.myVote == 1,
                         color: const Color(0xFF10B981),
-                        onTap: () => onVote('up'),
+                        onTap: () => widget.onVote('up'),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       _VoteButton(
@@ -305,7 +419,7 @@ class _ReportCard extends StatelessWidget {
                         count: report.downvotes,
                         isActive: report.myVote == -1,
                         color: AppColors.flagRed,
-                        onTap: () => onVote('down'),
+                        onTap: () => widget.onVote('down'),
                       ),
                       const Spacer(),
                       Text(

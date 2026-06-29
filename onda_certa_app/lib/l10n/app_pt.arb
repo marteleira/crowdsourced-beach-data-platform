@@ -835,5 +835,11 @@
   "passwordReq8Chars": "8+ caracteres",
   "passwordReqUppercase": "Letra maiúscula (A–Z)",
   "passwordReqLowercase": "Letra minúscula (a–z)",
-  "passwordReqDigitOrSpecial": "Número ou caractere especial"
+  "passwordReqDigitOrSpecial": "Número ou caractere especial",
+
+  "translateNote": "Traduzir",
+  "showOriginal": "Ver original",
+  "translatedLabel": "Traduzido",
+  "translateError": "Erro ao traduzir · Tentar de novo",
+  "translateSameLanguage": "Nota já no teu idioma"
 }
