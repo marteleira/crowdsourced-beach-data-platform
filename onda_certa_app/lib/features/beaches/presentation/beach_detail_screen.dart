@@ -197,8 +197,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
   }
 
   void _goToTides() {
-    ref.read(selectedTabProvider.notifier).set(2);
-    context.pop();
+    context.push(AppRoutes.beachTides(widget.beach.slug), extra: widget.beach);
   }
 
   Future<void> _sendHeartbeat() async {

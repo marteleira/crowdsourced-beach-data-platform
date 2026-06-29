@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../beaches/data/beach_provider.dart';
 import '../../beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
@@ -88,7 +89,12 @@ class _Scene {
 // Widget
 
 class TideScreen extends ConsumerStatefulWidget {
-  const TideScreen({super.key});
+  const TideScreen({super.key, this.beach});
+
+  /// When provided, shows tides for this specific beach instead of the
+  /// nearest/"best" beach used by the bottom-nav Marés tab.
+  final BeachSummary? beach;
+
   @override
   ConsumerState<TideScreen> createState() => _TideScreenState();
 }
@@ -113,7 +119,15 @@ class _TideScreenState extends ConsumerState<TideScreen>
     if (_reloading) return;
     setState(() => _reloading = true);
     try {
-      await refreshHomeData(ref);
+      final beach = widget.beach;
+      if (beach != null) {
+        ref.invalidate(beachTidesBySlugProvider(beach.slug));
+        ref.invalidate(beachSeaBySlugProvider(beach.slug));
+        ref.invalidate(beachWeatherBySlugProvider(beach.slug));
+        await ref.read(beachTidesBySlugProvider(beach.slug).future);
+      } else {
+        await refreshHomeData(ref);
+      }
     } finally {
       if (mounted) setState(() => _reloading = false);
     }
@@ -121,16 +135,36 @@ class _TideScreenState extends ConsumerState<TideScreen>
 
   @override
   Widget build(BuildContext context) {
-    final tidesAsync   = ref.watch(tidesProvider);
-    final seaAsync     = ref.watch(seaProvider);
-    final beachAsync   = ref.watch(bestBeachProvider);
-    final weatherAsync = ref.watch(weatherProvider);
+    final beach = widget.beach;
 
-    final tides   = tidesAsync.value ?? TidesData.empty;
-    final sea     = seaAsync.value;
-    final beach   = beachAsync.value;
-    final weather = weatherAsync.value;
-    final loading = tidesAsync.isLoading && tides.entries.isEmpty;
+    final TidesData tides;
+    final SeaPoint? sea;
+    final WeatherPoint? weather;
+    final String? beachName;
+    final bool loading;
+
+    if (beach != null) {
+      final tidesAsync   = ref.watch(beachTidesBySlugProvider(beach.slug));
+      final seaAsync     = ref.watch(beachSeaBySlugProvider(beach.slug));
+      final weatherAsync = ref.watch(beachWeatherBySlugProvider(beach.slug));
+
+      tides     = tidesAsync.value ?? TidesData.empty;
+      sea       = seaAsync.value;
+      weather   = weatherAsync.value;
+      beachName = beach.name;
+      loading   = tidesAsync.isLoading && tides.entries.isEmpty;
+    } else {
+      final tidesAsync   = ref.watch(tidesProvider);
+      final seaAsync     = ref.watch(seaProvider);
+      final beachAsync   = ref.watch(bestBeachProvider);
+      final weatherAsync = ref.watch(weatherProvider);
+
+      tides     = tidesAsync.value ?? TidesData.empty;
+      sea       = seaAsync.value;
+      weather   = weatherAsync.value;
+      beachName = beachAsync.value?.name;
+      loading   = tidesAsync.isLoading && tides.entries.isEmpty;
+    }
 
     final now   = DateTime.now();
     final scene = _Scene(
@@ -140,54 +174,74 @@ class _TideScreenState extends ConsumerState<TideScreen>
       waveHeightMax: sea?.waveHeightMax,
     );
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        AnimatedBuilder(
-          animation: _waveCtrl,
-          builder: (_, _) => CustomPaint(
-            painter: _OceanPainter(
-              phase: _waveCtrl.value,
-              fillFraction: _computeFill(tides),
-              scene: scene,
-            ),
-          ),
-        ),
-        _HeroContent(tidesData: tides, beachName: beach?.name),
-        DraggableScrollableSheet(
-          controller: _sheetCtrl,
-          initialChildSize: 0.22, minChildSize: 0.14, maxChildSize: 0.72,
-          snap: true, snapSizes: const [0.22, 0.72],
-          builder: (_, sc) => _DetailSheet(
-            scrollController: sc, sheetCtrl: _sheetCtrl,
-            tidesData: tides, sea: sea, isLoading: loading,
-          ),
-        ),
-        Positioned(
-          top: MediaQuery.paddingOf(context).top + 6,
-          right: 12,
-          child: GestureDetector(
-            onTap: _reload,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: const BoxDecoration(
-                color: Colors.black26,
-                shape: BoxShape.circle,
+    return Material(
+      color: Colors.transparent,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedBuilder(
+            animation: _waveCtrl,
+            builder: (_, _) => CustomPaint(
+              painter: _OceanPainter(
+                phase: _waveCtrl.value,
+                fillFraction: _computeFill(tides),
+                scene: scene,
               ),
-              child: _reloading
-                  ? const Padding(
-                      padding: EdgeInsets.all(9),
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Icon(Icons.refresh, color: Colors.white, size: 20),
             ),
           ),
-        ),
-      ],
+          _HeroContent(tidesData: tides, beachName: beachName),
+          DraggableScrollableSheet(
+            controller: _sheetCtrl,
+            initialChildSize: 0.22, minChildSize: 0.14, maxChildSize: 0.72,
+            snap: true, snapSizes: const [0.22, 0.72],
+            builder: (_, sc) => _DetailSheet(
+              scrollController: sc, sheetCtrl: _sheetCtrl,
+              tidesData: tides, sea: sea, isLoading: loading,
+            ),
+          ),
+          if (beach != null)
+            Positioned(
+              top: MediaQuery.paddingOf(context).top + 6,
+              left: 12,
+              child: GestureDetector(
+                onTap: () => context.pop(),
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.black26,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+                ),
+              ),
+            ),
+          Positioned(
+            top: MediaQuery.paddingOf(context).top + 6,
+            right: 12,
+            child: GestureDetector(
+              onTap: _reload,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: const BoxDecoration(
+                  color: Colors.black26,
+                  shape: BoxShape.circle,
+                ),
+                child: _reloading
+                    ? const Padding(
+                        padding: EdgeInsets.all(9),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Icon(Icons.refresh, color: Colors.white, size: 20),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

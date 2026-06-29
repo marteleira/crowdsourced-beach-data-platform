@@ -29,4 +29,5 @@ class AppRoutes {
   static String beach(String slug)          => '/beach/$slug';
   static String beachAlerts(String slug)    => '/beach/$slug/alerts';
   static String beachTransport(String slug) => '/beach/$slug/transport';
+  static String beachTides(String slug)     => '/beach/$slug/tides';
 }

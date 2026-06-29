@@ -26,6 +26,7 @@ import 'features/settings/presentation/notification_settings_screen.dart';
 import 'features/settings/presentation/privacy_settings_screen.dart';
 import 'features/favourites/presentation/favourites_screen.dart';
 import 'features/splash/presentation/splash_screen.dart';
+import 'features/tides/presentation/tide_screen.dart';
 import 'shared/theme/app_theme.dart';
 
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
@@ -127,6 +128,11 @@ final _routerProvider = Provider<GoRouter>((ref) {
         path: '/beach/:slug/transport',
         redirect: (_, state) => state.extra is! BeachSummary ? AppRoutes.home : null,
         builder: (_, state) => TransportScreen(beach: state.extra! as BeachSummary),
+      ),
+      GoRoute(
+        path: '/beach/:slug/tides',
+        redirect: (_, state) => state.extra is! BeachSummary ? AppRoutes.home : null,
+        builder: (_, state) => TideScreen(beach: state.extra! as BeachSummary),
       ),
       GoRoute(path: AppRoutes.notifications, builder: (_, _) => const NotificationsScreen()),
     ],
