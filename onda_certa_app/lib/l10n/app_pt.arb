@@ -412,7 +412,8 @@
       "date": { "type": "String" }
     }
   },
-  "privacyCancelDeletion": "Cancelar eliminação",
+  "privacyPendingBodyNoDate": "A tua conta está agendada para eliminação.\n\nPodes cancelar esta ação antes da data prevista.",
+  "privacyCancelDeletion": "Cancelar eliminação da conta",
   "privacyCancelling": "A cancelar…",
   "privacyCancelError": "Erro ao cancelar a eliminação. Tenta de novo.",
   "privacyDeleteLabel": "Apagar",
@@ -803,5 +804,36 @@
   },
   "codeSentSnack": "Novo código enviado para o teu email.",
   "codeResendError": "Erro ao reenviar o código.",
-  "codeConfirmEmpty": "Confirma a nova password"
+  "codeConfirmEmpty": "Confirma a nova password",
+
+  "accountBannedTitle": "Conta banida",
+  "accountBannedBody": "A tua conta foi banida permanentemente por violação das regras da comunidade.",
+  "accountBannedBodyReason": "A tua conta foi banida permanentemente por violação das regras da comunidade.\n\nRazão: {reason}",
+  "@accountBannedBodyReason": {
+    "placeholders": {
+      "reason": { "type": "String" }
+    }
+  },
+  "accountSuspendedTitle": "Conta suspensa",
+  "accountSuspendedBody": "A tua conta está temporariamente suspensa.\n\nContinuas a poder ver as praias.",
+  "accountSuspendedBodyUntil": "A tua conta está temporariamente suspensa até {date}.\n\nContinuas a poder ver as praias. Podes voltar a contribuir após esse período.",
+  "@accountSuspendedBodyUntil": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+
+  "passwordEmpty": "Introduz a password",
+  "passwordMinLength": "Mínimo 8 caracteres",
+  "passwordNeedsUppercase": "Precisa de uma letra maiúscula",
+  "passwordNeedsLowercase": "Precisa de uma letra minúscula",
+  "passwordNeedsDigitOrSpecial": "Precisa de um número ou caractere especial",
+  "passwordStrengthWeak": "Fraca",
+  "passwordStrengthFair": "Razoável",
+  "passwordStrengthGood": "Boa",
+  "passwordStrengthStrong": "Forte",
+  "passwordReq8Chars": "8+ caracteres",
+  "passwordReqUppercase": "Letra maiúscula (A–Z)",
+  "passwordReqLowercase": "Letra minúscula (a–z)",
+  "passwordReqDigitOrSpecial": "Número ou caractere especial"
 }

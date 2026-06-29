@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../settings/data/settings_provider.dart';
 
@@ -31,9 +32,7 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro ao cancelar a eliminação. Tenta de novo.'),
-          ),
+          SnackBar(content: Text(context.l10n.privacyCancelError)),
         );
         setState(() => _cancelling = false);
       }
@@ -71,9 +70,9 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
                 ),
               ),
               const SizedBox(height: 28),
-              const Text(
-                'Conta agendada para eliminação',
-                style: TextStyle(
+              Text(
+                context.l10n.privacyPendingTitle,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: AppColors.primary,
@@ -83,8 +82,8 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
               const SizedBox(height: 16),
               Text(
                 scheduledAt != null
-                    ? 'A tua conta e todos os teus dados serão eliminados definitivamente a ${_formatDate(scheduledAt)}.\n\nPodes cancelar esta ação até essa data.'
-                    : 'A tua conta está agendada para eliminação.\n\nPodes cancelar esta ação antes da data prevista.',
+                    ? context.l10n.privacyPendingBody(_formatDate(scheduledAt))
+                    : context.l10n.privacyPendingBodyNoDate,
                 style: const TextStyle(
                   fontSize: 15,
                   color: AppColors.textSecondary,
@@ -115,7 +114,7 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
                         )
                       : const Icon(Icons.undo_rounded, size: 20),
                   label: Text(
-                    _cancelling ? 'A cancelar…' : 'Cancelar eliminação da conta',
+                    _cancelling ? context.l10n.privacyCancelling : context.l10n.privacyCancelDeletion,
                     style: const TextStyle(fontSize: 15),
                   ),
                 ),
@@ -135,7 +134,7 @@ class _PendingDeletionScreenState extends ConsumerState<PendingDeletionScreen> {
                       borderRadius: AppRadii.cardButton,
                     ),
                   ),
-                  child: const Text('Terminar sessão', style: TextStyle(fontSize: 15)),
+                  child: Text(context.l10n.signOut, style: const TextStyle(fontSize: 15)),
                 ),
               ),
               const SizedBox(height: 32),
