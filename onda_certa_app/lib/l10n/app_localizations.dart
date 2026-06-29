@@ -3259,6 +3259,36 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Número ou caractere especial'**
   String get passwordReqDigitOrSpecial;
+
+  /// No description provided for @translateNote.
+  ///
+  /// In pt, this message translates to:
+  /// **'Traduzir'**
+  String get translateNote;
+
+  /// No description provided for @showOriginal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ver original'**
+  String get showOriginal;
+
+  /// No description provided for @translatedLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Traduzido'**
+  String get translatedLabel;
+
+  /// No description provided for @translateError.
+  ///
+  /// In pt, this message translates to:
+  /// **'Erro ao traduzir · Tentar de novo'**
+  String get translateError;
+
+  /// No description provided for @translateSameLanguage.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nota já no teu idioma'**
+  String get translateSameLanguage;
 }
 
 class _AppLocalizationsDelegate

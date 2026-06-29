@@ -1734,4 +1734,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordReqDigitOrSpecial => 'Digit or special character';
+
+  @override
+  String get translateNote => 'Translate';
+
+  @override
+  String get showOriginal => 'Show original';
+
+  @override
+  String get translatedLabel => 'Translated';
+
+  @override
+  String get translateError => 'Translation error · Try again';
+
+  @override
+  String get translateSameLanguage => 'Note already in your language';
 }

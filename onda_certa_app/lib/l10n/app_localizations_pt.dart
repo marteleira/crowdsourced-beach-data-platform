@@ -1743,4 +1743,19 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get passwordReqDigitOrSpecial => 'Número ou caractere especial';
+
+  @override
+  String get translateNote => 'Traduzir';
+
+  @override
+  String get showOriginal => 'Ver original';
+
+  @override
+  String get translatedLabel => 'Traduzido';
+
+  @override
+  String get translateError => 'Erro ao traduzir · Tentar de novo';
+
+  @override
+  String get translateSameLanguage => 'Nota já no teu idioma';
 }
