@@ -867,7 +867,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get privacyCancelDeletion => 'Cancel deletion';
+  String get privacyPendingBodyNoDate =>
+      'Your account is scheduled for deletion.\n\nYou can cancel this action before the scheduled date.';
+
+  @override
+  String get privacyCancelDeletion => 'Cancel account deletion';
 
   @override
   String get privacyCancelling => 'Cancelling…';
@@ -1666,4 +1670,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get codeConfirmEmpty => 'Confirm the new password';
+
+  @override
+  String get accountBannedTitle => 'Account banned';
+
+  @override
+  String get accountBannedBody =>
+      'Your account has been permanently banned for violating community rules.';
+
+  @override
+  String accountBannedBodyReason(String reason) {
+    return 'Your account has been permanently banned for violating community rules.\n\nReason: $reason';
+  }
+
+  @override
+  String get accountSuspendedTitle => 'Account suspended';
+
+  @override
+  String get accountSuspendedBody =>
+      'Your account is temporarily suspended.\n\nYou can still view beaches.';
+
+  @override
+  String accountSuspendedBodyUntil(String date) {
+    return 'Your account is temporarily suspended until $date.\n\nYou can still view beaches. You can contribute again after that period.';
+  }
+
+  @override
+  String get passwordEmpty => 'Enter password';
+
+  @override
+  String get passwordMinLength => 'Minimum 8 characters';
+
+  @override
+  String get passwordNeedsUppercase => 'Needs an uppercase letter';
+
+  @override
+  String get passwordNeedsLowercase => 'Needs a lowercase letter';
+
+  @override
+  String get passwordNeedsDigitOrSpecial =>
+      'Needs a digit or special character';
+
+  @override
+  String get passwordStrengthWeak => 'Weak';
+
+  @override
+  String get passwordStrengthFair => 'Fair';
+
+  @override
+  String get passwordStrengthGood => 'Good';
+
+  @override
+  String get passwordStrengthStrong => 'Strong';
+
+  @override
+  String get passwordReq8Chars => '8+ characters';
+
+  @override
+  String get passwordReqUppercase => 'Uppercase letter (A–Z)';
+
+  @override
+  String get passwordReqLowercase => 'Lowercase letter (a–z)';
+
+  @override
+  String get passwordReqDigitOrSpecial => 'Digit or special character';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../../core/l10n/l10n.dart';
 import 'auth_input_decoration.dart';
 
 /// Password field that optionally shows a live strength indicator.
@@ -59,12 +60,13 @@ class _PasswordStrengthFieldState extends State<PasswordStrengthField> {
   }
 
   String? _validate(String? v) {
-    if (v == null || v.isEmpty) return 'Introduz a password';
+    final l10n = context.l10n;
+    if (v == null || v.isEmpty) return l10n.passwordEmpty;
     if (!widget.requireStrength) return null;
-    if (!_hasLength) return 'Mínimo 8 caracteres';
-    if (!_hasUpper) return 'Precisa de uma letra maiúscula';
-    if (!_hasLower) return 'Precisa de uma letra minúscula';
-    if (!_hasDigitOrSpecial) return 'Precisa de um número ou caractere especial';
+    if (!_hasLength) return l10n.passwordMinLength;
+    if (!_hasUpper) return l10n.passwordNeedsUppercase;
+    if (!_hasLower) return l10n.passwordNeedsLowercase;
+    if (!_hasDigitOrSpecial) return l10n.passwordNeedsDigitOrSpecial;
     return null;
   }
 
@@ -104,11 +106,12 @@ class _PasswordStrengthFieldState extends State<PasswordStrengthField> {
 
   Widget _buildIndicator() {
     final score = _score;
+    final l10n = context.l10n;
     final (label, color) = switch (score) {
-      0 || 1 => ('Fraca', AppColors.coral),
-      2 => ('Razoável', AppColors.amber),
-      3 => ('Boa', AppColors.teal),
-      _ => ('Forte', AppColors.flagGreen),
+      0 || 1 => (l10n.passwordStrengthWeak, AppColors.coral),
+      2 => (l10n.passwordStrengthFair, AppColors.amber),
+      3 => (l10n.passwordStrengthGood, AppColors.teal),
+      _ => (l10n.passwordStrengthStrong, AppColors.flagGreen),
     };
 
     return AnimatedSize(
@@ -153,10 +156,10 @@ class _PasswordStrengthFieldState extends State<PasswordStrengthField> {
               ],
             ),
             const SizedBox(height: 8),
-            _requirement('8+ caracteres', _hasLength),
-            _requirement('Letra maiúscula (A–Z)', _hasUpper),
-            _requirement('Letra minúscula (a–z)', _hasLower),
-            _requirement('Número ou caractere especial', _hasDigitOrSpecial),
+            _requirement(l10n.passwordReq8Chars, _hasLength),
+            _requirement(l10n.passwordReqUppercase, _hasUpper),
+            _requirement(l10n.passwordReqLowercase, _hasLower),
+            _requirement(l10n.passwordReqDigitOrSpecial, _hasDigitOrSpecial),
           ],
         ),
       ),

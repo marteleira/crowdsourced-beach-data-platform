@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/l10n.dart';
 import 'legal_screen.dart';
 
 class TermsScreen extends StatelessWidget {
@@ -6,8 +7,8 @@ class TermsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const LegalScreen(
-      title: 'Termos de Serviço',
+    return LegalScreen(
+      title: context.l10n.termsOfService,
       sections: _sections,
     );
   }

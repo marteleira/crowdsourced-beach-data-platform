@@ -1682,10 +1682,16 @@ abstract class AppLocalizations {
   /// **'A tua conta e todos os teus dados serão eliminados definitivamente a {date}.\n\nPodes cancelar esta ação até essa data.'**
   String privacyPendingBody(String date);
 
+  /// No description provided for @privacyPendingBodyNoDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta está agendada para eliminação.\n\nPodes cancelar esta ação antes da data prevista.'**
+  String get privacyPendingBodyNoDate;
+
   /// No description provided for @privacyCancelDeletion.
   ///
   /// In pt, this message translates to:
-  /// **'Cancelar eliminação'**
+  /// **'Cancelar eliminação da conta'**
   String get privacyCancelDeletion;
 
   /// No description provided for @privacyCancelling.
@@ -3139,6 +3145,120 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Confirma a nova password'**
   String get codeConfirmEmpty;
+
+  /// No description provided for @accountBannedTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta banida'**
+  String get accountBannedTitle;
+
+  /// No description provided for @accountBannedBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta foi banida permanentemente por violação das regras da comunidade.'**
+  String get accountBannedBody;
+
+  /// No description provided for @accountBannedBodyReason.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta foi banida permanentemente por violação das regras da comunidade.\n\nRazão: {reason}'**
+  String accountBannedBodyReason(String reason);
+
+  /// No description provided for @accountSuspendedTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conta suspensa'**
+  String get accountSuspendedTitle;
+
+  /// No description provided for @accountSuspendedBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta está temporariamente suspensa.\n\nContinuas a poder ver as praias.'**
+  String get accountSuspendedBody;
+
+  /// No description provided for @accountSuspendedBodyUntil.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua conta está temporariamente suspensa até {date}.\n\nContinuas a poder ver as praias. Podes voltar a contribuir após esse período.'**
+  String accountSuspendedBodyUntil(String date);
+
+  /// No description provided for @passwordEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Introduz a password'**
+  String get passwordEmpty;
+
+  /// No description provided for @passwordMinLength.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mínimo 8 caracteres'**
+  String get passwordMinLength;
+
+  /// No description provided for @passwordNeedsUppercase.
+  ///
+  /// In pt, this message translates to:
+  /// **'Precisa de uma letra maiúscula'**
+  String get passwordNeedsUppercase;
+
+  /// No description provided for @passwordNeedsLowercase.
+  ///
+  /// In pt, this message translates to:
+  /// **'Precisa de uma letra minúscula'**
+  String get passwordNeedsLowercase;
+
+  /// No description provided for @passwordNeedsDigitOrSpecial.
+  ///
+  /// In pt, this message translates to:
+  /// **'Precisa de um número ou caractere especial'**
+  String get passwordNeedsDigitOrSpecial;
+
+  /// No description provided for @passwordStrengthWeak.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fraca'**
+  String get passwordStrengthWeak;
+
+  /// No description provided for @passwordStrengthFair.
+  ///
+  /// In pt, this message translates to:
+  /// **'Razoável'**
+  String get passwordStrengthFair;
+
+  /// No description provided for @passwordStrengthGood.
+  ///
+  /// In pt, this message translates to:
+  /// **'Boa'**
+  String get passwordStrengthGood;
+
+  /// No description provided for @passwordStrengthStrong.
+  ///
+  /// In pt, this message translates to:
+  /// **'Forte'**
+  String get passwordStrengthStrong;
+
+  /// No description provided for @passwordReq8Chars.
+  ///
+  /// In pt, this message translates to:
+  /// **'8+ caracteres'**
+  String get passwordReq8Chars;
+
+  /// No description provided for @passwordReqUppercase.
+  ///
+  /// In pt, this message translates to:
+  /// **'Letra maiúscula (A–Z)'**
+  String get passwordReqUppercase;
+
+  /// No description provided for @passwordReqLowercase.
+  ///
+  /// In pt, this message translates to:
+  /// **'Letra minúscula (a–z)'**
+  String get passwordReqLowercase;
+
+  /// No description provided for @passwordReqDigitOrSpecial.
+  ///
+  /// In pt, this message translates to:
+  /// **'Número ou caractere especial'**
+  String get passwordReqDigitOrSpecial;
 }
 
 class _AppLocalizationsDelegate

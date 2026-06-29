@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 
 class AccountBannedScreen extends ConsumerWidget {
@@ -10,15 +11,16 @@ class AccountBannedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final banReason = ref.watch(accountBannedProvider);
 
     return _AccountStatusLayout(
       icon: Icons.gavel_rounded,
       iconColor: AppColors.coral,
-      title: 'Conta banida',
+      title: l10n.accountBannedTitle,
       body: banReason != null && banReason.isNotEmpty
-          ? 'A tua conta foi banida permanentemente por violação das regras da comunidade.\n\nRazão: $banReason'
-          : 'A tua conta foi banida permanentemente por violação das regras da comunidade.',
+          ? l10n.accountBannedBodyReason(banReason)
+          : l10n.accountBannedBody,
       onLogout: () async {
         ref.read(accountBannedProvider.notifier).set(null);
         await ref.read(authProvider.notifier).logout();
@@ -31,26 +33,27 @@ class AccountBannedScreen extends ConsumerWidget {
 class AccountSuspendedScreen extends ConsumerWidget {
   const AccountSuspendedScreen({super.key});
 
-  String _formatDateTime(DateTime dt) {
+  String _formatDateTime(AppLocalizations l10n, DateTime dt) {
     final l = dt.toLocal();
     final date =
         '${l.day.toString().padLeft(2, '0')}/${l.month.toString().padLeft(2, '0')}/${l.year}';
     final time =
         '${l.hour.toString().padLeft(2, '0')}:${l.minute.toString().padLeft(2, '0')}';
-    return '$date às $time';
+    return '$date ${l10n.atTimePrep} $time';
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final suspendedUntil = ref.watch(accountSuspendedProvider);
 
     return _AccountStatusLayout(
       icon: Icons.hourglass_top_rounded,
       iconColor: AppColors.teal,
-      title: 'Conta suspensa',
+      title: l10n.accountSuspendedTitle,
       body: suspendedUntil != null
-          ? 'A tua conta está temporariamente suspensa até ${_formatDateTime(suspendedUntil)}.\n\nContinuas a poder ver as praias. Podes voltar a contribuir após esse período.'
-          : 'A tua conta está temporariamente suspensa.\n\nContinuas a poder ver as praias.',
+          ? l10n.accountSuspendedBodyUntil(_formatDateTime(l10n, suspendedUntil))
+          : l10n.accountSuspendedBody,
       onLogout: () async {
         ref.read(accountSuspendedProvider.notifier).set(null);
         await ref.read(authProvider.notifier).logout();
@@ -129,9 +132,9 @@ class _AccountStatusLayout extends StatelessWidget {
                       borderRadius: AppRadii.cardButton,
                     ),
                   ),
-                  child: const Text(
-                    'Terminar sessão',
-                    style: TextStyle(fontSize: 15),
+                  child: Text(
+                    context.l10n.signOut,
+                    style: const TextStyle(fontSize: 15),
                   ),
                 ),
               ),
