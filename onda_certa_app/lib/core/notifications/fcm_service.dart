@@ -23,21 +23,28 @@ class FcmService {
     await _requestPermission();
     _setupForegroundHandler();
 
-    // Register current token and keep it fresh
-    _currentToken = await _messaging.getToken();
-    _messaging.onTokenRefresh.listen((newToken) {
-      _currentToken = newToken;
-      _sendTokenToBackend(newToken);
-    });
+    try {
+      _currentToken = await _messaging.getToken();
+      _messaging.onTokenRefresh.listen((newToken) {
+        _currentToken = newToken;
+        _sendTokenToBackend(newToken);
+      });
+    } catch (e) {
+      debugPrint('FCM unavailable: $e');
+    }
   }
 
 
   /// Call after every successful login so the token is linked to the account
   Future<void> registerToken() async {
-    final token = _currentToken ?? await _messaging.getToken();
-    if (token != null) {
-      _currentToken = token;
-      await _sendTokenToBackend(token);
+    try {
+      final token = _currentToken ?? await _messaging.getToken();
+      if (token != null) {
+        _currentToken = token;
+        await _sendTokenToBackend(token);
+      }
+    } catch (e) {
+      debugPrint('FCM token registration failed: $e');
     }
   }
 
