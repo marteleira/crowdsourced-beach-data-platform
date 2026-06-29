@@ -173,8 +173,6 @@ class _HomeDashboard extends ConsumerWidget {
               const SizedBox(height: AppSpacing.xxl),
               _TidesSection(beach: bestBeach.value, tidesData: tides.value ?? TidesData.empty, onViewAll: () => onTabChange(2)),
               const SizedBox(height: AppSpacing.xxl),
-              _ExploreGrid(beachCount: beaches.value?.length ?? 0, onTabChange: onTabChange, bestBeach: bestBeach.value),
-              const SizedBox(height: AppSpacing.xxl),
               const _FavouritesSection(),
               const SizedBox(height: AppSpacing.xxl),
               _CommunitySection(
@@ -1034,81 +1032,6 @@ class _TidesSection extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// Explore grid
-
-class _ExploreGrid extends StatelessWidget {
-  const _ExploreGrid({required this.beachCount, required this.onTabChange, this.bestBeach});
-  final int beachCount;
-  final void Function(int tab) onTabChange;
-  final BeachSummary? bestBeach;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionLabel(l10n.exploreTitle),
-        const SizedBox(height: 10),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 1.3,
-          children: [
-            _ExploreCard(emoji: '🗺️', title: l10n.exploreMap, subtitle: l10n.exploreMapSub, onTap: () => onTabChange(1)),
-            _ExploreCard(emoji: '🚌', title: l10n.exploreTransport, subtitle: l10n.exploreTransportSub, onTap: () => onTabChange(1)),
-            _ExploreCard(emoji: '🌊', title: l10n.exploreBeaches, subtitle: '$beachCount praias da Arrábida', onTap: () => onTabChange(1)),
-            _ExploreCard(
-              emoji: '📋',
-              title: l10n.exploreReport,
-              subtitle: l10n.exploreReportSub,
-              onTap: bestBeach != null
-                  ? () => context.push(AppRoutes.beachAlerts(bestBeach!.slug), extra: bestBeach)
-                  : () => onTabChange(1),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _ExploreCard extends StatelessWidget {
-  const _ExploreCard({required this.emoji, required this.title, required this.subtitle, required this.onTap});
-  final String emoji;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: AppRadii.cardLg,
-          border: Border.all(color: Colors.black.withValues(alpha: 0.06)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 28)),
-            const Spacer(),
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primary)),
-            const SizedBox(height: 2),
-            Text(subtitle, style: AppTextStyles.secondarySm),
-          ],
-        ),
-      ),
     );
   }
 }

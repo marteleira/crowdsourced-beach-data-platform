@@ -33,7 +33,11 @@ class AuthRepository {
   final Dio _dio;
 
   Future<TokenResponse> loginWithGoogle(String idToken) async {
-    final res = await _dio.post('/auth/google', data: {'id_token': idToken});
+    final res = await _dio.post(
+      '/auth/google',
+      data: {'id_token': idToken},
+      options: Options(extra: {'skipAuthInterceptor': true}),
+    );
     return TokenResponse.fromJson(res.data as Map<String, dynamic>);
   }
 
