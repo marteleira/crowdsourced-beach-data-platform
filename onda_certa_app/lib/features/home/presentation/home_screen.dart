@@ -71,13 +71,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
         backgroundColor: _tab == 2 ? AppColors.primaryDark : AppColors.background,
-        body: switch (_tab) {
-          0 => _HomeDashboard(onTabChange: (i) => setState(() => _tab = i)),
-          1 => const BeachListScreen(),
-          2 => const TideScreen(),
-          3 => const ProfileScreen(),
-          _ => _PlaceholderTab(tab: _tab),
-        },
+        // IndexedStack keeps every tab's widget tree
+        body: IndexedStack(
+          index: _tab,
+          children: [
+            TickerMode(enabled: _tab == 0, child: _HomeDashboard(onTabChange: (i) => setState(() => _tab = i))),
+            TickerMode(enabled: _tab == 1, child: const BeachListScreen()),
+            TickerMode(enabled: _tab == 2, child: const TideScreen()),
+            TickerMode(enabled: _tab == 3, child: const ProfileScreen()),
+          ],
+        ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _tab,
           onDestinationSelected: (i) => setState(() => _tab = i),
@@ -92,18 +95,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _PlaceholderTab extends StatelessWidget {
-  const _PlaceholderTab({required this.tab});
-  final int tab;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(context.l10n.comingSoon, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary)),
     );
   }
 }
