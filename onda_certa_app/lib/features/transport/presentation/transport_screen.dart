@@ -530,27 +530,45 @@ class _WalkButton extends StatefulWidget {
 class _WalkButtonState extends State<_WalkButton> {
   int? _walkMins;
   bool _fromCurrentLocation = false;
+  // Stop the displayed estimate is measured from, when it isn't from the
+  // user's current location — needed so the Maps link's origin matches it.
+  TransportStop? _originStop;
 
   @override
   void initState() {
     super.initState();
     if (widget.hasActiveBuses) {
-      _walkMins = _nearestStopWalkMins();
+      final nearest = _nearestStop();
+      _walkMins = nearest?.$2;
+      _originStop = nearest?.$1;
     } else {
       _fetchCurrentLocationDistance();
     }
   }
 
-  int? _nearestStopWalkMins() {
+  (TransportStop, int)? _nearestStop() {
+    TransportStop? nearestStop;
     double? minDist;
     for (final stop in widget.stops) {
       if (stop.lat == null || stop.lon == null) continue;
       final d = _geoDistanceMeters(
         widget.beach.lat, widget.beach.lon, stop.lat!, stop.lon!,
       );
-      if (minDist == null || d < minDist) minDist = d;
+      if (minDist == null || d < minDist) {
+        minDist = d;
+        nearestStop = stop;
+      }
     }
-    return minDist != null ? _walkMinsFromMeters(minDist) : null;
+    if (nearestStop == null || minDist == null) return null;
+    return (nearestStop, _walkMinsFromMeters(minDist));
+  }
+
+  void _useNearestStopEstimate() {
+    final nearest = _nearestStop();
+    setState(() {
+      _walkMins = nearest?.$2;
+      _originStop = nearest?.$1;
+    });
   }
 
   Future<void> _fetchCurrentLocationDistance() async {
@@ -558,7 +576,7 @@ class _WalkButtonState extends State<_WalkButton> {
       final permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        if (mounted) setState(() => _walkMins = _nearestStopWalkMins());
+        if (mounted) _useNearestStopEstimate();
         return;
       }
       Position? pos;
@@ -582,14 +600,29 @@ class _WalkButtonState extends State<_WalkButton> {
           _fromCurrentLocation = true;
         });
       } else {
-        setState(() => _walkMins = _nearestStopWalkMins());
+        _useNearestStopEstimate();
       }
     } catch (_) {
-      if (mounted) setState(() => _walkMins = _nearestStopWalkMins());
+      if (mounted) _useNearestStopEstimate();
     }
   }
 
   Future<void> _launch() async {
+    // When the displayed estimate is measured from a bus stop (not the
+    // user's current location), pin that stop as the explicit route origin
+    // so the Maps directions match the time shown on screen.
+    final origin = _fromCurrentLocation ? null : _originStop;
+    if (origin?.lat != null && origin?.lon != null) {
+      final webUri = Uri.parse(
+        'https://www.google.com/maps/dir/?api=1'
+        '&origin=${origin!.lat},${origin.lon}'
+        '&destination=${widget.beach.lat},${widget.beach.lon}'
+        '&travelmode=walking',
+      );
+      await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
     final geoUri = Uri.parse(
       'geo:${widget.beach.lat},${widget.beach.lon}'
       '?q=${widget.beach.lat},${widget.beach.lon}'
