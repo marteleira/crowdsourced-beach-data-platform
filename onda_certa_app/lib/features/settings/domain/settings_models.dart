@@ -1,19 +1,16 @@
 class PrivacySettings {
   const PrivacySettings({
-    this.locationAccuracy = 'approximate',
     this.namePublic = true,
     this.avatarPublic = true,
     this.shareUsageData = true,
     this.sharePresence = true,
   });
-  final String locationAccuracy; // exact | approximate | none
   final bool namePublic;
   final bool avatarPublic;
   final bool shareUsageData;
   final bool sharePresence;
 
   factory PrivacySettings.fromJson(Map<String, dynamic> j) => PrivacySettings(
-    locationAccuracy: j['location_accuracy'] as String? ?? 'approximate',
     namePublic: j['name_public'] as bool? ?? true,
     avatarPublic: j['avatar_public'] as bool? ?? true,
     shareUsageData: j['share_usage_data'] as bool? ?? true,
@@ -21,13 +18,11 @@ class PrivacySettings {
   );
 
   PrivacySettings copyWith({
-    String? locationAccuracy,
     bool? namePublic,
     bool? avatarPublic,
     bool? shareUsageData,
     bool? sharePresence,
   }) => PrivacySettings(
-    locationAccuracy: locationAccuracy ?? this.locationAccuracy,
     namePublic: namePublic ?? this.namePublic,
     avatarPublic: avatarPublic ?? this.avatarPublic,
     shareUsageData: shareUsageData ?? this.shareUsageData,

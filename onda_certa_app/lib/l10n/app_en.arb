@@ -361,12 +361,6 @@
   "settingsSeverityMedium": "Medium",
   "settingsSeverityHigh": "High",
 
-  "privacyLocation": "Location",
-  "privacyLocationAccuracy": "Location accuracy",
-  "privacyLocationAccuracySub": "Controls the precision shared with other users",
-  "privacyLocationExact": "Exact",
-  "privacyLocationApprox": "Approx.",
-  "privacyLocationNone": "None",
   "privacyPublicProfile": "Public profile",
   "privacyNameVisible": "Name visible",
   "privacyNameVisibleSub": "Other users can see your name",

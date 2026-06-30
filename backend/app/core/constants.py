@@ -25,9 +25,6 @@ OCCUPANCY_MEDIUM_THRESHOLD = 40      # < this -> "medium" (headcount-only path)
 MIN_REPUTATION_TO_PROPOSE = 25       # minimum rep to propose a flag
 REPORT_VERIFIED_NET_VOTES = 3        # upvotes - downvotes >= this -> verified
 
-# Map privacy 
-JITTER_DEGREES = 0.003               # ~300m latitude
-
 # Reputation thresholds (all in one place)
 AUTO_BAN_REPUTATION_THRESHOLD = -50
 SUSPENSION_REPUTATION_THRESHOLD = -30

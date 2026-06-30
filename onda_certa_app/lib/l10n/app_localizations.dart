@@ -1466,42 +1466,6 @@ abstract class AppLocalizations {
   /// **'Alta'**
   String get settingsSeverityHigh;
 
-  /// No description provided for @privacyLocation.
-  ///
-  /// In pt, this message translates to:
-  /// **'Localização'**
-  String get privacyLocation;
-
-  /// No description provided for @privacyLocationAccuracy.
-  ///
-  /// In pt, this message translates to:
-  /// **'Precisão da localização'**
-  String get privacyLocationAccuracy;
-
-  /// No description provided for @privacyLocationAccuracySub.
-  ///
-  /// In pt, this message translates to:
-  /// **'Controla a precisão partilhada com outros utilizadores'**
-  String get privacyLocationAccuracySub;
-
-  /// No description provided for @privacyLocationExact.
-  ///
-  /// In pt, this message translates to:
-  /// **'Exata'**
-  String get privacyLocationExact;
-
-  /// No description provided for @privacyLocationApprox.
-  ///
-  /// In pt, this message translates to:
-  /// **'Aprox.'**
-  String get privacyLocationApprox;
-
-  /// No description provided for @privacyLocationNone.
-  ///
-  /// In pt, this message translates to:
-  /// **'Nenhuma'**
-  String get privacyLocationNone;
-
   /// No description provided for @privacyPublicProfile.
   ///
   /// In pt, this message translates to:

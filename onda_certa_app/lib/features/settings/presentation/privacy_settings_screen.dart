@@ -77,34 +77,6 @@ class _PrivacyForm extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       children: [
         _Section(
-          title: l10n.privacyLocation,
-          children: [
-            _LabelRow(
-              icon: Icons.location_on_outlined,
-              iconColor: AppColors.teal,
-              label: l10n.privacyLocationAccuracy,
-              subtitle: l10n.privacyLocationAccuracySub,
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _SegmentedPicker(
-                options: [
-                  ('exact',       l10n.privacyLocationExact),
-                  ('approximate', l10n.privacyLocationApprox),
-                  ('none',        l10n.privacyLocationNone),
-                ],
-                selected: settings.locationAccuracy,
-                onChanged: (v) => patch({'location_accuracy': v}),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-          ],
-        ),
-
-        const SizedBox(height: AppSpacing.md),
-
-        _Section(
           title: l10n.privacyPublicProfile,
           children: [
             _SwitchTile(
@@ -535,46 +507,6 @@ class _SwitchTile extends StatelessWidget {
   }
 }
 
-class _LabelRow extends StatelessWidget {
-  const _LabelRow({
-    required this.label,
-    this.subtitle,
-    required this.icon,
-    required this.iconColor,
-  });
-  final String label;
-  final String? subtitle;
-  final IconData icon;
-  final Color iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: iconColor),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: AppTextStyles.primaryMd),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(subtitle!,
-                      style: AppTextStyles.hint),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ActionTile extends StatelessWidget {
   const _ActionTile({
     required this.label,
@@ -624,59 +556,6 @@ class _ActionTile extends StatelessWidget {
             Icon(Icons.chevron_right_rounded, color: AppColors.textHint, size: 20),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SegmentedPicker extends StatelessWidget {
-  const _SegmentedPicker({
-    required this.options,
-    required this.selected,
-    required this.onChanged,
-  });
-  final List<(String, String)> options;
-  final String selected;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.backgroundLight,
-        borderRadius: AppRadii.cardChip,
-      ),
-      padding: const EdgeInsets.all(3),
-      child: Row(
-        children: options.map((opt) {
-          final (value, label) = opt;
-          final active = selected == value;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged(value),
-              child: AnimatedContainer(
-                duration: AppDurations.fast,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: active ? Colors.white : Colors.transparent,
-                  borderRadius: AppRadii.cardSm,
-                  boxShadow: active
-                      ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 1))]
-                      : [],
-                ),
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: active ? AppColors.primary : AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
       ),
     );
   }

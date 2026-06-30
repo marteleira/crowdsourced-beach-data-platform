@@ -39,7 +39,6 @@ DEFAULT_NOTIFICATION_SETTINGS = {
 }
 
 DEFAULT_PRIVACY_SETTINGS = {
-    "location_accuracy": "approximate",   # exact | approximate | none
     "name_public": True,
     "avatar_public": True,
     "share_usage_data": True, #This settings does nothing yet

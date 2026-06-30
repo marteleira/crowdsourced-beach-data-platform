@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Literal, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
@@ -20,7 +20,6 @@ DELETION_GRACE_DAYS = 30
 
 
 class PrivacySettingsPatch(BaseModel):
-    location_accuracy: Optional[Literal["exact", "approximate", "none"]] = None
     name_public: Optional[bool] = None
     avatar_public: Optional[bool] = None
     share_usage_data: Optional[bool] = None
