@@ -20,6 +20,8 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
   int _severity = 1;
   final _noteController = TextEditingController();
   bool _submitting = false;
+  String? _errorMessage;
+  ScrollController? _scrollController;
 
   List<(String, String, IconData)> _types(AppLocalizations l10n) => [
     ('jellyfish',      l10n.alertTypeJellyfish,      Icons.bubble_chart),
@@ -44,82 +46,101 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       initialChildSize: 0.88,
       minChildSize: 0.5,
       maxChildSize: 0.96,
-      builder: (_, controller) => Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xxl)),
-        ),
-        child: Column(
-          children: [
-            // Handle
-            const SizedBox(height: 10),
-            Container(
-              width: 40, height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.borderLight,
-                borderRadius: BorderRadius.circular(2),
+      builder: (_, controller) {
+        _scrollController = controller;
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.xxl)),
+          ),
+          child: Column(
+            children: [
+              // Handle
+              const SizedBox(height: 10),
+              Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.borderLight,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
+              const SizedBox(height: AppSpacing.lg),
 
-            // Header
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.reportSheetTitle,
-                          style: AppTextStyles.titleLg,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          widget.beach.name,
-                          style: AppTextStyles.secondaryMd,
-                        ),
-                      ],
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.reportSheetTitle,
+                            style: AppTextStyles.titleLg,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            widget.beach.name,
+                            style: AppTextStyles.secondaryMd,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 22),
-                    onPressed: () => Navigator.pop(context),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
-              ),
-            ),
-
-            Container(height: 1, margin: const EdgeInsets.only(top: 16), color: AppColors.backgroundLight),
-
-            // Scrollable form
-            Expanded(
-              child: ListView(
-                controller: controller,
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
-                children: [
-                  _buildTypeSection(l10n),
-                  if (_selectedType != null) ...[
-                    const SizedBox(height: AppSpacing.xxl),
-                    _buildSeveritySection(l10n),
-                    const SizedBox(height: AppSpacing.xxl),
-                    _buildNoteSection(l10n),
-                    const SizedBox(height: 14),
-                    _buildLocationNote(l10n),
-                    const SizedBox(height: AppSpacing.xxl),
-                    _buildSubmitButton(l10n),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: AppColors.textSecondary, size: 22),
+                      onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+
+              Container(height: 1, margin: const EdgeInsets.only(top: 16), color: AppColors.backgroundLight),
+
+              // Scrollable form
+              Expanded(
+                child: ListView(
+                  controller: controller,
+                  padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
+                  children: [
+                    _buildTypeSection(l10n),
+                    if (_selectedType != null) ...[
+                      const SizedBox(height: AppSpacing.xxl),
+                      _buildSeveritySection(l10n),
+                      const SizedBox(height: AppSpacing.xxl),
+                      _buildNoteSection(l10n),
+                      const SizedBox(height: 14),
+                      _buildLocationNote(l10n),
+                      const SizedBox(height: AppSpacing.xxl),
+                      _buildSubmitButton(l10n),
+                      if (_errorMessage != null) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        _buildErrorBanner(_errorMessage!),
+                      ],
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
+  }
+
+  void _scrollToError() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = _scrollController;
+      if (controller == null || !controller.hasClients) return;
+      controller.animateTo(
+        controller.position.maxScrollExtent,
+        duration: AppDurations.medium,
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   Widget _buildTypeSection(AppLocalizations l10n) {
@@ -314,6 +335,28 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
     );
   }
 
+  Widget _buildErrorBanner(String message) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.coral.withValues(alpha: 0.12),
+        borderRadius: AppRadii.cardChip,
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline_rounded, color: AppColors.coral, size: 18),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: AppColors.coral, fontSize: 13, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSubmitButton(AppLocalizations l10n) {
     final canSubmit = _selectedType != null && !_submitting;
 
@@ -344,7 +387,10 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
     final l10n = context.l10n;
     final pos = ref.read(locationProvider).value;
 
-    setState(() => _submitting = true);
+    setState(() {
+      _submitting = true;
+      _errorMessage = null;
+    });
     try {
       await ref.read(communityReportsProvider(widget.beach.slug).notifier).submitReport(
         type: _selectedType!,
@@ -366,9 +412,8 @@ class _ReportConditionSheetState extends ConsumerState<ReportConditionSheet> {
       final msg = e.response?.statusCode == 403
           ? l10n.reportMustBeAtBeach
           : l10n.reportError;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), backgroundColor: AppColors.coral),
-      );
+      setState(() => _errorMessage = msg);
+      _scrollToError();
     } finally {
       if (mounted) setState(() => _submitting = false);
     }
