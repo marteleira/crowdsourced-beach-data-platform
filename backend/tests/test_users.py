@@ -59,7 +59,7 @@ class TestUserProfile:
             user_id=user.id,
             event="report_confirmed",
             delta=10,
-            reason="Test event",
+            params={"reason": "Test event"},
         )
         db.add(evt)
         await db.commit()
@@ -312,7 +312,7 @@ class TestReputationHistory:
     ):
         for i, delta in enumerate([10, -5, 15]):
             db.add(ReputationEvent(
-                user_id=user.id, event="report_confirmed", delta=delta, reason=f"event {i}"
+                user_id=user.id, event="report_confirmed", delta=delta, params={"reason": f"event {i}"}
             ))
         await db.commit()
 
@@ -326,7 +326,7 @@ class TestReputationHistory:
     ):
         for i in range(25):
             db.add(ReputationEvent(
-                user_id=user.id, event="report_confirmed", delta=1, reason=f"evt {i}"
+                user_id=user.id, event="report_confirmed", delta=1, params={"reason": f"evt {i}"}
             ))
         await db.commit()
 

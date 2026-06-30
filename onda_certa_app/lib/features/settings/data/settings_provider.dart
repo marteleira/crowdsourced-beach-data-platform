@@ -37,7 +37,6 @@ class PrivacySettingsNotifier extends AsyncNotifier<PrivacySettings> {
 
   PrivacySettings _apply(PrivacySettings p, Map<String, dynamic> c) =>
       p.copyWith(
-        locationAccuracy: c['location_accuracy'] as String?,
         namePublic: c['name_public'] as bool?,
         avatarPublic: c['avatar_public'] as bool?,
         shareUsageData: c['share_usage_data'] as bool?,

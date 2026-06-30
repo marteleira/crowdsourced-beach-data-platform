@@ -37,7 +37,7 @@ class TestMapUsers:
     async def test_user_with_share_presence_false_excluded_from_list_but_counted(
         self, client: AsyncClient, beach: Beach, db: AsyncSession, user: User
     ):
-        user.privacy_settings = {"share_presence": False, "location_accuracy": "approximate",
+        user.privacy_settings = {"share_presence": False,
                                   "name_public": True, "avatar_public": True, "share_usage_data": True}
         db.add(user)
         await db.commit()
@@ -54,7 +54,7 @@ class TestMapUsers:
     async def test_anonymous_user_has_no_name(
         self, client: AsyncClient, beach: Beach, db: AsyncSession, user: User
     ):
-        user.privacy_settings = {"share_presence": True, "location_accuracy": "approximate",
+        user.privacy_settings = {"share_presence": True,
                                   "name_public": False, "avatar_public": True, "share_usage_data": True}
         db.add(user)
         await db.commit()

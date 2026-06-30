@@ -1,14 +1,15 @@
 """
-Map endpoint — returns active users per beach for the map overlay.
+Map endpoint — returns active user counts per beach, plus the names/avatars
+of those who opted in to being listed.
 
 Privacy rules (per user's privacy_settings):
-  share_presence = False  → user not included at all
-  location_accuracy = "none"      → not included
-  location_accuracy = "approximate" → position jittered ±~300m
-  location_accuracy = "exact"     → exact heartbeat position
-  name_public = False             → display_name replaced with "Anonymous"
+  share_presence = False  → user not included in the visible list at all
+                             (still counted in user_count)
+  name_public = False     → display_name replaced with "Anonymous"
+
+No per-user coordinates are returned — the app only shows aggregate counts
+and a "who's here" name list, never individual positions on a map.
 """
-import random
 from datetime import timedelta
 from typing import List, Optional
 
@@ -17,7 +18,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import MAP_PRESENCE_WINDOW_MINUTES, JITTER_DEGREES
+from app.core.constants import MAP_PRESENCE_WINDOW_MINUTES
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.utils import now_utc
@@ -32,8 +33,6 @@ router = APIRouter(prefix="/map", tags=["map"])
 class MapUser(BaseModel):
     display_name: Optional[str] = None   # None = "Anonymous"
     avatar_id: Optional[str] = None
-    lat: float
-    lon: float
     beach_id: int
 
 
@@ -47,10 +46,6 @@ class MapBeachPresence(BaseModel):
     users: List[MapUser]
 
 
-def _jitter(coord: float) -> float:
-    return coord + random.uniform(-JITTER_DEGREES, JITTER_DEGREES)
-
-
 @router.get("/users", response_model=List[MapBeachPresence])
 async def get_map_users(
     db: AsyncSession = Depends(get_db),
@@ -58,8 +53,7 @@ async def get_map_users(
 ):
     """
     Returns active users (heartbeat in last 20 min) grouped by beach.
-    Each user is shown only if their privacy settings allow it.
-    Position is jittered or omitted based on location_accuracy.
+    Each user is listed by name/avatar only if their privacy settings allow it.
     """
     cutoff = now_utc() - timedelta(minutes=MAP_PRESENCE_WINDOW_MINUTES)
 
@@ -104,29 +98,18 @@ async def get_map_users(
 
         if user:
             priv = effective_privacy_settings(user)
-            if not priv["share_presence"] or priv["location_accuracy"] == "none":
+            if not priv["share_presence"]:
                 continue  # excluded from the visible list, but still counted above
             name = user.display_name if priv["name_public"] else None
             avatar = user.avatar_id if priv.get("avatar_public", True) else None
-            accuracy = priv["location_accuracy"]
         else:
             # Anonymous heartbeat — always show, no name
             name = None
             avatar = None
-            accuracy = "approximate"
-
-        # Resolve position from geometry (stored as WKB; fall back to beach coords)
-        beach = beaches[hb.beach_id]
-        base_lat, base_lon = beach.lat, beach.lon
-
-        if accuracy == "exact":
-            lat, lon = base_lat, base_lon
-        else:
-            lat, lon = _jitter(base_lat), _jitter(base_lon)
 
         if hb.beach_id not in beach_map:
             beach_map[hb.beach_id] = []
-        beach_map[hb.beach_id].append(MapUser(display_name=name, avatar_id=avatar, lat=lat, lon=lon, beach_id=hb.beach_id))
+        beach_map[hb.beach_id].append(MapUser(display_name=name, avatar_id=avatar, beach_id=hb.beach_id))
 
     # Include beaches that have active users even if all chose maximum privacy
     result = []

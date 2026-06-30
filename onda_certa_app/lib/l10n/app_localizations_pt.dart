@@ -754,25 +754,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsSeverityHigh => 'Alta';
 
   @override
-  String get privacyLocation => 'Localização';
-
-  @override
-  String get privacyLocationAccuracy => 'Precisão da localização';
-
-  @override
-  String get privacyLocationAccuracySub =>
-      'Controla a precisão partilhada com outros utilizadores';
-
-  @override
-  String get privacyLocationExact => 'Exata';
-
-  @override
-  String get privacyLocationApprox => 'Aprox.';
-
-  @override
-  String get privacyLocationNone => 'Nenhuma';
-
-  @override
   String get privacyPublicProfile => 'Perfil público';
 
   @override

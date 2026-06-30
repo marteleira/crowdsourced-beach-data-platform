@@ -99,7 +99,6 @@ class TestPrivacySettings:
         assert r.status_code == 200
         body = r.json()
         assert body["share_presence"] is True
-        assert body["location_accuracy"] == "approximate"
         assert body["name_public"] is True
 
     async def test_patch_updates_fields(self, client: AsyncClient, auth_headers: dict):
@@ -114,11 +113,11 @@ class TestPrivacySettings:
     async def test_patch_persists(self, client: AsyncClient, auth_headers: dict):
         await client.patch(
             "/api/v1/users/me/privacy-settings",
-            json={"location_accuracy": "exact"},
+            json={"name_public": False},
             headers=auth_headers,
         )
         r = await client.get("/api/v1/users/me/privacy-settings", headers=auth_headers)
-        assert r.json()["location_accuracy"] == "exact"
+        assert r.json()["name_public"] is False
 
     async def test_requires_auth(self, client: AsyncClient):
         r = await client.get("/api/v1/users/me/privacy-settings")
@@ -285,23 +284,6 @@ class TestPrivacySettingsEnforcement:
         assert entry["user_count"] == 1   #counted
         assert entry["users"] == []       #but not listed
 
-    async def test_location_accuracy_none_excluded_from_users_but_still_counted(
-        self, client: AsyncClient, auth_headers: dict,
-        db: AsyncSession, user: User, beach: Beach,
-    ):
-        await self._heartbeat(db, user, beach)
-        await client.patch(
-            "/api/v1/users/me/privacy-settings",
-            json={"location_accuracy": "none"},
-            headers=auth_headers,
-        )
-
-        r = await client.get("/api/v1/map/users")
-        entry = next((b for b in r.json() if b["beach_id"] == beach.id), None)
-        assert entry is not None
-        assert entry["user_count"] == 1
-        assert entry["users"] == []
-
     async def test_name_public_false_returns_null_display_name(
         self, client: AsyncClient, auth_headers: dict,
         db: AsyncSession, user: User, beach: Beach,
@@ -350,19 +332,9 @@ class TestPrivacySettingsEnforcement:
         r = await client.get("/api/v1/users/me/privacy-settings", headers=auth_headers)
         body = r.json()
         assert set(body.keys()) == {
-            "location_accuracy", "name_public", "avatar_public",
+            "name_public", "avatar_public",
             "share_usage_data", "share_presence",
         }
-
-    async def test_invalid_location_accuracy_rejected(
-        self, client: AsyncClient, auth_headers: dict,
-    ):
-        r = await client.patch(
-            "/api/v1/users/me/privacy-settings",
-            json={"location_accuracy": "gps"},
-            headers=auth_headers,
-        )
-        assert r.status_code == 422
 
     async def test_avatar_public_persisted(
         self, client: AsyncClient, auth_headers: dict,
@@ -600,14 +572,13 @@ class TestSettingsIsolation:
 
         await client.patch(
             "/api/v1/users/me/privacy-settings",
-            json={"share_presence": False, "location_accuracy": "none"},
+            json={"share_presence": False},
             headers=auth_headers,
         )
 
         r = await client.get("/api/v1/users/me/privacy-settings", headers=other_headers)
         body = r.json()
         assert body["share_presence"] is True
-        assert body["location_accuracy"] == "approximate"
 
     async def test_map_shows_only_users_with_presence_enabled(
         self, client: AsyncClient, auth_headers: dict,
