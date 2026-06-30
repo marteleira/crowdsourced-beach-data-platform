@@ -8,6 +8,7 @@ from app.core.constants import (
     FLAG_CONFIRM_WINDOW_HOURS,
     FLAG_PROPOSAL_WINDOW_MINUTES,
     MIN_REPUTATION_TO_PROPOSE,
+    VOTE_PRESENCE_WINDOW_HOURS,
 )
 from app.core.database import get_db
 from app.core.deps import get_beach_or_404, require_registered_user, was_recently_present
@@ -147,6 +148,10 @@ async def confirm_flag(
 
     if status.flag_color == "unknown":
         raise HTTPException(400, Msg.NO_FLAG_TO_CONFIRM)
+
+    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS))
+    if not present:
+        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_VOTE)
 
     # One confirmation vote per user per beach per FLAG_CONFIRM_WINDOW_HOURS
     one_hour_ago = now_utc() - timedelta(hours=FLAG_CONFIRM_WINDOW_HOURS)

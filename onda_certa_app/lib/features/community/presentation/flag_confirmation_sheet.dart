@@ -24,7 +24,7 @@ void showFlagConfirmationSheet(
   );
 }
 
-enum _ConfirmState { idle, loading, success, rateLimited, error }
+enum _ConfirmState { idle, loading, success, rateLimited, notPresent, error }
 
 class FlagConfirmationSheet extends ConsumerStatefulWidget {
   const FlagConfirmationSheet({
@@ -205,6 +205,14 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
             text: l10n.flagConfirmRateLimited,
             color: AppColors.sand,
             textColor: AppColors.primary,
+          ),
+        ] else if (_state == _ConfirmState.notPresent) ...[
+          const SizedBox(height: AppSpacing.lg),
+          _InfoBanner(
+            icon: Icons.location_off_outlined,
+            text: l10n.mustBeAtBeachVote,
+            color: AppColors.coral.withValues(alpha: 0.12),
+            textColor: AppColors.coral,
           ),
         ] else if (_state == _ConfirmState.error) ...[
           const SizedBox(height: AppSpacing.lg),
@@ -419,10 +427,18 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
       ref.invalidate(beachFullDetailProvider(widget.beach.slug));
       setState(() => _state = _ConfirmState.success);
     } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) return;
       if (!mounted) return;
-      setState(() => _state = e.response?.statusCode == 429
-          ? _ConfirmState.rateLimited
-          : _ConfirmState.error);
+      final code = e.response?.statusCode;
+      setState(() {
+        if (code == 429) {
+          _state = _ConfirmState.rateLimited;
+        } else if (code == 403) {
+          _state = _ConfirmState.notPresent;
+        } else {
+          _state = _ConfirmState.error;
+        }
+      });
     } catch (_) {
       if (mounted) setState(() => _state = _ConfirmState.error);
     }
