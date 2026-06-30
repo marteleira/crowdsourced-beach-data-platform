@@ -46,6 +46,7 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
   _ConfirmState _state = _ConfirmState.idle;
   double? _newConfidence;
   late final AnimationController _pulseCtrl;
+  ScrollController? _scrollController;
 
   @override
   void initState() {
@@ -94,52 +95,55 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
       initialChildSize: 0.9,
       minChildSize: 0.5,
       maxChildSize: 0.96,
-      builder: (_, controller) => Container(
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        ),
-        child: Stack(
-          children: [
-            Column(
-              children: [
-                const SizedBox(height: AppSpacing.md),
-                Container(
-                  width: 40, height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.borderMedium,
-                    borderRadius: BorderRadius.circular(2),
+      builder: (_, controller) {
+        _scrollController = controller;
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: AppSpacing.md),
+                  Container(
+                    width: 40, height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.borderMedium,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: controller,
-                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
-                    child: _state == _ConfirmState.success
-                        ? _buildSuccess(context.l10n)
-                        : _buildMain(context.l10n),
+                  const SizedBox(height: AppSpacing.xs),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: controller,
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+                      child: _state == _ConfirmState.success
+                          ? _buildSuccess(context.l10n)
+                          : _buildMain(context.l10n),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Positioned(
-              top: 14, right: 16,
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 36, height: 36,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    shape: BoxShape.circle,
+                ],
+              ),
+              Positioned(
+                top: 14, right: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close, size: 18, color: AppColors.primary),
                   ),
-                  child: const Icon(Icons.close, size: 18, color: AppColors.primary),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -439,9 +443,24 @@ class _FlagConfirmationSheetState extends ConsumerState<FlagConfirmationSheet>
           _state = _ConfirmState.error;
         }
       });
+      _scrollToError();
     } catch (_) {
-      if (mounted) setState(() => _state = _ConfirmState.error);
+      if (!mounted) return;
+      setState(() => _state = _ConfirmState.error);
+      _scrollToError();
     }
+  }
+
+  void _scrollToError() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = _scrollController;
+      if (controller == null || !controller.hasClients) return;
+      controller.animateTo(
+        controller.position.maxScrollExtent,
+        duration: AppDurations.medium,
+        curve: Curves.easeOut,
+      );
+    });
   }
 }
 
