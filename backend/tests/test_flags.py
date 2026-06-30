@@ -103,9 +103,21 @@ class TestConfirmFlag:
         )
         assert r.status_code == 401
 
-    async def test_confirm_flag_yes(
+    async def test_confirm_requires_presence(
         self, client: AsyncClient, beach: Beach, beach_status: BeachStatus, auth_headers: dict
     ):
+        r = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/flag/confirm",
+            json={"response": "yes"},
+            headers=auth_headers,
+        )
+        assert r.status_code == 403
+
+    async def test_confirm_flag_yes(
+        self, client: AsyncClient, beach: Beach, beach_status: BeachStatus,
+        db: AsyncSession, auth_headers: dict, user: User
+    ):
+        await _add_heartbeat(db, beach, user)
         r = await client.post(
             "/api/v1/beaches/portinho-da-arrabida/flag/confirm",
             json={"response": "yes"},
@@ -127,6 +139,7 @@ class TestConfirmFlag:
             db.add(u)
             await db.commit()   # commit so the client's session can find the user
             await db.refresh(u)
+            await _add_heartbeat(db, beach, u)
             token = create_access_token(u.id, 0, False)
             r = await client.post(
                 "/api/v1/beaches/portinho-da-arrabida/flag/confirm",
@@ -138,8 +151,10 @@ class TestConfirmFlag:
         await db.commit()
 
     async def test_confirm_rate_limited_per_hour(
-        self, client: AsyncClient, beach: Beach, beach_status: BeachStatus, auth_headers: dict
+        self, client: AsyncClient, beach: Beach, beach_status: BeachStatus,
+        db: AsyncSession, auth_headers: dict, user: User
     ):
+        await _add_heartbeat(db, beach, user)
         await client.post(
             "/api/v1/beaches/portinho-da-arrabida/flag/confirm",
             json={"response": "yes"}, headers=auth_headers,
@@ -151,8 +166,10 @@ class TestConfirmFlag:
         assert r.status_code == 429
 
     async def test_confirm_unknown_flag_returns_400(
-        self, client: AsyncClient, beach: Beach, auth_headers: dict
+        self, client: AsyncClient, beach: Beach, db: AsyncSession,
+        auth_headers: dict, user: User
     ):
+        await _add_heartbeat(db, beach, user)
         r = await client.post(
             "/api/v1/beaches/portinho-da-arrabida/flag/confirm",
             json={"response": "yes"}, headers=auth_headers,
