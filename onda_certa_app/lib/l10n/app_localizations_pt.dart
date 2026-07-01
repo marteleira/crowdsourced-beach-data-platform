@@ -1204,6 +1204,57 @@ class AppLocalizationsPt extends AppLocalizations {
   String get occupancyUnknown => 'Desconhecida';
 
   @override
+  String get occupancyVotePrompt => 'Como está a praia agora?';
+
+  @override
+  String get occupancyVote1 => 'Vazia';
+
+  @override
+  String get occupancyVote2 => 'Tranquila';
+
+  @override
+  String get occupancyVote3 => 'Normal';
+
+  @override
+  String get occupancyVote4 => 'Movimentada';
+
+  @override
+  String get occupancyVote5 => 'Cheia';
+
+  @override
+  String get occupancyVoted => 'Obrigado pelo teu voto!';
+
+  @override
+  String get occupancyAlreadyVoted => 'Já votaste recentemente.';
+
+  @override
+  String get occupancyMustBePresent => 'Deves estar na praia para reportar.';
+
+  @override
+  String get occupancyDetailsTitle => 'Detalhes da ocupação';
+
+  @override
+  String occupancyAppUsers(int count) {
+    return '$count utilizadores da app';
+  }
+
+  @override
+  String occupancyReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'relatos',
+      one: 'relato',
+    );
+    return '$count $_temp0 recentes';
+  }
+
+  @override
+  String occupancyConfidencePct(int pct) {
+    return 'Confiança: $pct%';
+  }
+
+  @override
   String get activityLabelUnverified => 'Não verificado';
 
   @override

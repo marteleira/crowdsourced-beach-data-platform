@@ -51,7 +51,7 @@ async def setup_schema():
 TRUNCATE_ORDER = [
     "report_votes", "reports",
     "flag_confirmations", "flag_proposals", "beach_status",
-    "occupancy_heartbeats",
+    "occupancy_reports", "occupancy_heartbeats",
     "reputation_events", "refresh_tokens",
     "api_snapshots",
     "user_achievements", "user_favourites", "push_tokens",

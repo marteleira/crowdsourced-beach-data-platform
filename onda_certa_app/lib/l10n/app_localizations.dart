@@ -2306,6 +2306,84 @@ abstract class AppLocalizations {
   /// **'Desconhecida'**
   String get occupancyUnknown;
 
+  /// No description provided for @occupancyVotePrompt.
+  ///
+  /// In pt, this message translates to:
+  /// **'Como está a praia agora?'**
+  String get occupancyVotePrompt;
+
+  /// No description provided for @occupancyVote1.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vazia'**
+  String get occupancyVote1;
+
+  /// No description provided for @occupancyVote2.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tranquila'**
+  String get occupancyVote2;
+
+  /// No description provided for @occupancyVote3.
+  ///
+  /// In pt, this message translates to:
+  /// **'Normal'**
+  String get occupancyVote3;
+
+  /// No description provided for @occupancyVote4.
+  ///
+  /// In pt, this message translates to:
+  /// **'Movimentada'**
+  String get occupancyVote4;
+
+  /// No description provided for @occupancyVote5.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cheia'**
+  String get occupancyVote5;
+
+  /// No description provided for @occupancyVoted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Obrigado pelo teu voto!'**
+  String get occupancyVoted;
+
+  /// No description provided for @occupancyAlreadyVoted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Já votaste recentemente.'**
+  String get occupancyAlreadyVoted;
+
+  /// No description provided for @occupancyMustBePresent.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deves estar na praia para reportar.'**
+  String get occupancyMustBePresent;
+
+  /// No description provided for @occupancyDetailsTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Detalhes da ocupação'**
+  String get occupancyDetailsTitle;
+
+  /// No description provided for @occupancyAppUsers.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} utilizadores da app'**
+  String occupancyAppUsers(int count);
+
+  /// No description provided for @occupancyReports.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count} {count, plural, one{relato} other{relatos}} recentes'**
+  String occupancyReports(int count);
+
+  /// No description provided for @occupancyConfidencePct.
+  ///
+  /// In pt, this message translates to:
+  /// **'Confiança: {pct}%'**
+  String occupancyConfidencePct(int pct);
+
   /// No description provided for @activityLabelUnverified.
   ///
   /// In pt, this message translates to:

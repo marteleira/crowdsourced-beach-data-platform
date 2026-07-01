@@ -225,17 +225,40 @@ class MapBeachPresence {
   );
 }
 
-// Backend: OccupancyData { level, user_count, is_estimate, last_updated }
+// Backend: OccupancyData { level, user_count, report_count, report_confidence, is_estimate, last_updated }
 class OccupancyData {
-  const OccupancyData({required this.level, required this.userCount, this.isEstimate = true});
+  const OccupancyData({
+    required this.level, required this.userCount,
+    this.reportCount = 0, this.reportConfidence = 0.0,
+    this.isEstimate = true,
+  });
   final String level; // low | medium | high | unknown
   final int userCount;
+  final int reportCount;
+  final double reportConfidence;
   final bool isEstimate;
 
   factory OccupancyData.fromJson(Map<String, dynamic> j) => OccupancyData(
     level: j['level'] as String? ?? 'unknown',
     userCount: j['user_count'] as int? ?? 0,
+    reportCount: j['report_count'] as int? ?? 0,
+    reportConfidence: (j['report_confidence'] as num?)?.toDouble() ?? 0.0,
     isEstimate: j['is_estimate'] as bool? ?? true,
+  );
+}
+
+class OccupancyReportResult {
+  const OccupancyReportResult({
+    required this.occupancyLevel, required this.reportCount, required this.reportConfidence,
+  });
+  final String occupancyLevel;
+  final int reportCount;
+  final double reportConfidence;
+
+  factory OccupancyReportResult.fromJson(Map<String, dynamic> j) => OccupancyReportResult(
+    occupancyLevel: j['occupancy_level'] as String? ?? 'unknown',
+    reportCount: j['report_count'] as int? ?? 0,
+    reportConfidence: (j['report_confidence'] as num?)?.toDouble() ?? 0.0,
   );
 }
 

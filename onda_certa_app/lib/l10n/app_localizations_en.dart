@@ -1198,6 +1198,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get occupancyUnknown => 'Unknown';
 
   @override
+  String get occupancyVotePrompt => 'How crowded is the beach right now?';
+
+  @override
+  String get occupancyVote1 => 'Empty';
+
+  @override
+  String get occupancyVote2 => 'Quiet';
+
+  @override
+  String get occupancyVote3 => 'Normal';
+
+  @override
+  String get occupancyVote4 => 'Busy';
+
+  @override
+  String get occupancyVote5 => 'Packed';
+
+  @override
+  String get occupancyVoted => 'Thanks for your vote!';
+
+  @override
+  String get occupancyAlreadyVoted => 'You already voted recently.';
+
+  @override
+  String get occupancyMustBePresent => 'You must be at the beach to report.';
+
+  @override
+  String get occupancyDetailsTitle => 'Occupancy details';
+
+  @override
+  String occupancyAppUsers(int count) {
+    return '$count app users';
+  }
+
+  @override
+  String occupancyReports(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'reports',
+      one: 'report',
+    );
+    return '$count recent $_temp0';
+  }
+
+  @override
+  String occupancyConfidencePct(int pct) {
+    return 'Confidence: $pct%';
+  }
+
+  @override
   String get activityLabelUnverified => 'Unverified';
 
   @override

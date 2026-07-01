@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -168,9 +168,9 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
       ),
       const SizedBox(height: AppSpacing.md),
       _OccupancyCard(
+        slug: widget.beach.slug,
         occupancy: d?.status.occupancy,
         occupancyLevel: d?.status.occupancy.level ?? widget.beach.occupancyLevel,
-        maxCapacity: d?.detail.maxCapacity,
         onImHere: _sendHeartbeat,
         sending: _sendingHeartbeat,
       ),
@@ -450,22 +450,91 @@ class _FlagCard extends StatelessWidget {
 
 }
 
-class _OccupancyCard extends StatelessWidget {
+class _OccupancyCard extends ConsumerStatefulWidget {
   const _OccupancyCard({
-    this.occupancy, required this.occupancyLevel, this.maxCapacity,
-    required this.onImHere, required this.sending,
+    required this.slug,
+    this.occupancy,
+    required this.occupancyLevel,
+    required this.onImHere,
+    required this.sending,
   });
+  final String slug;
   final OccupancyData? occupancy;
   final String occupancyLevel;
-  final int? maxCapacity;
   final VoidCallback onImHere;
   final bool sending;
 
   @override
+  ConsumerState<_OccupancyCard> createState() => _OccupancyCardState();
+}
+
+class _OccupancyCardState extends ConsumerState<_OccupancyCard> {
+  int? _votedLevel;
+  bool _submitting = false;
+
+  Color _levelColor(String level) => switch (level) {
+    'low'    => AppColors.flagGreen,
+    'medium' => AppColors.sand,
+    'high'   => AppColors.coral,
+    _        => AppColors.textHint,
+  };
+
+  String _levelLabel(AppLocalizations l10n, String level) => switch (level) {
+    'low'    => l10n.occupancyLow,
+    'medium' => l10n.occupancyMedium,
+    'high'   => l10n.occupancyHigh,
+    _        => l10n.occupancyUnknown,
+  };
+
+  Future<void> _submitVote(int level) async {
+    if (_submitting || _votedLevel != null) return;
+    setState(() => _submitting = true);
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(beachRepositoryProvider).submitOccupancyReport(widget.slug, level);
+      if (!mounted) return;
+      setState(() { _votedLevel = level; _submitting = false; });
+      messenger.showSnackBar(SnackBar(
+        content: Text(l10n.occupancyVoted),
+        backgroundColor: AppColors.teal,
+        duration: const Duration(seconds: 2),
+      ));
+    } on DioException catch (e) {
+      if (!mounted) return;
+      setState(() => _submitting = false);
+      final code = (e.response?.data as Map?)?.cast<String, dynamic>()['detail']?['code'] as String?;
+      final msg = switch (code) {
+        'already_reported' => l10n.occupancyAlreadyVoted,
+        'not_present'      => l10n.occupancyMustBePresent,
+        _                  => l10n.connectionError,
+      };
+      if (code == 'already_reported') setState(() => _votedLevel = -1);
+      messenger.showSnackBar(SnackBar(
+        content: Text(msg),
+        backgroundColor: AppColors.coral,
+        duration: const Duration(seconds: 3),
+      ));
+    } catch (_) {
+      if (mounted) {
+        setState(() => _submitting = false);
+        messenger.showSnackBar(SnackBar(
+          content: Text(context.l10n.connectionError),
+          backgroundColor: AppColors.coral,
+          duration: const Duration(seconds: 2),
+        ));
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final userCount = occupancy?.userCount ?? 0;
-    final (pct, levelLabel, color) = occupancyInfo(l10n, occupancyLevel, userCount, maxCapacity: maxCapacity);
+    final level = widget.occupancyLevel;
+    final color = _levelColor(level);
+    final label = _levelLabel(l10n, level);
+    final userCount = widget.occupancy?.userCount ?? 0;
+    final reportCount = widget.occupancy?.reportCount ?? 0;
 
     return _SectionCard(
       child: Column(
@@ -476,18 +545,20 @@ class _OccupancyCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _DonutChart(percentage: pct, label: levelLabel, color: color),
+              _OccupancyMeter(level: level, color: color),
               const SizedBox(width: AppSpacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(label, style: AppTextStyles.titleMd.copyWith(color: color)),
+                    const SizedBox(height: 4),
                     RichText(
                       text: TextSpan(
                         style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.5),
                         children: [
                           TextSpan(
-                            text: userCount > 0 ? '${l10n.usersAtBeach(userCount)} ' : '${l10n.fewUsersNote} ',
+                            text: userCount > 0 ? '${l10n.occupancyAppUsers(userCount)} ' : '${l10n.fewUsersNote} ',
                             style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
                           ),
                           TextSpan(text: l10n.occupancyNote),
@@ -495,19 +566,29 @@ class _OccupancyCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    OutlinedButton.icon(
-                      onPressed: sending ? null : onImHere,
-                      icon: sending
-                          ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
-                          : const Text('📍', style: TextStyle(fontSize: 14)),
-                      label: Text(sending ? l10n.updating : l10n.updatePresence),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
-                        shape: RoundedRectangleBorder(borderRadius: AppRadii.cardXl),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                      ),
+                    Row(
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: widget.sending ? null : widget.onImHere,
+                          icon: widget.sending
+                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
+                              : const Text('📍', style: TextStyle(fontSize: 14)),
+                          label: Text(widget.sending ? l10n.updating : l10n.updatePresence),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+                            shape: RoundedRectangleBorder(borderRadius: AppRadii.cardXl),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _VoteChip(
+                          votedLevel: _votedLevel,
+                          submitting: _submitting,
+                          onTap: () => _showVoteSheet(context, l10n, reportCount),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -518,61 +599,194 @@ class _OccupancyCard extends StatelessWidget {
       ),
     );
   }
-
-}
-
-class _DonutChart extends StatelessWidget {
-  const _DonutChart({required this.percentage, required this.label, required this.color});
-  final double percentage;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80, height: 80,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CustomPaint(size: const Size(80, 80), painter: _DonutPainter(percentage: percentage, color: color)),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('${(percentage * 100).round()}%',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.primary)),
-              Text(label,
-                  style: AppTextStyles.secondaryXs,
-                  textAlign: TextAlign.center),
+  void _showVoteSheet(BuildContext context, AppLocalizations l10n, int reportCount) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36, height: 4,
+                decoration: BoxDecoration(color: AppColors.borderLight, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(l10n.occupancyVotePrompt, style: AppTextStyles.titleSm),
+            if (reportCount > 0) ...[
+              const SizedBox(height: 4),
+              Text(l10n.occupancyReports(reportCount), style: AppTextStyles.secondarySm),
             ],
-          ),
-        ],
+            const SizedBox(height: 16),
+            _OccupancyVoteRow(
+              votedLevel: _votedLevel,
+              submitting: _submitting,
+              onVote: (level) {
+                Navigator.of(context).pop();
+                _submitVote(level);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class _DonutPainter extends CustomPainter {
-  const _DonutPainter({required this.percentage, required this.color});
-  final double percentage;
+class _VoteChip extends StatelessWidget {
+  const _VoteChip({required this.votedLevel, required this.submitting, required this.onTap});
+  final int? votedLevel;
+  final bool submitting;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final voted = votedLevel != null;
+    return GestureDetector(
+      onTap: voted ? null : onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: voted ? AppColors.primary.withValues(alpha: 0.06) : Colors.transparent,
+          borderRadius: AppRadii.cardXl,
+          border: Border.all(
+            color: voted ? AppColors.primary.withValues(alpha: 0.15) : AppColors.primary.withValues(alpha: 0.3),
+          ),
+        ),
+        child: submitting
+            ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary))
+            : Icon(
+                voted ? Icons.check_rounded : Icons.how_to_vote_outlined,
+                size: 16,
+                color: voted ? AppColors.teal : AppColors.primary,
+              ),
+      ),
+    );
+  }
+}
+
+class _OccupancyMeter extends StatelessWidget {
+  const _OccupancyMeter({required this.level, required this.color});
+  final String level;
   final Color color;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 8;
-    const strokeW = 10.0;
-    final rect = Rect.fromCircle(center: center, radius: radius);
+  int get _filledCount => switch (level) {
+    'low'    => 2,
+    'medium' => 3,
+    'high'   => 5,
+    _        => 0,
+  };
 
-    canvas.drawArc(rect, -pi / 2, 2 * pi, false,
-      Paint()..color = AppColors.borderLight..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round);
-    if (percentage > 0) {
-      canvas.drawArc(rect, -pi / 2, 2 * pi * percentage, false,
-        Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = strokeW..strokeCap = StrokeCap.round);
-    }
+  @override
+  Widget build(BuildContext context) {
+    final filled = _filledCount;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (i) => Padding(
+        padding: EdgeInsets.only(right: i < 4 ? 4 : 0),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          width: 10, height: 40,
+          decoration: BoxDecoration(
+            color: i < filled ? color : AppColors.borderLight,
+            borderRadius: BorderRadius.circular(5),
+          ),
+        ),
+      )),
+    );
   }
+}
+
+class _OccupancyVoteRow extends StatelessWidget {
+  const _OccupancyVoteRow({
+    required this.votedLevel,
+    required this.submitting,
+    required this.onVote,
+  });
+  final int? votedLevel;
+  final bool submitting;
+  final void Function(int) onVote;
+
+  static const _colors = [
+    AppColors.flagGreen,
+    AppColors.flagGreen,
+    AppColors.sand,
+    AppColors.coral,
+    AppColors.flagRed,
+  ];
 
   @override
-  bool shouldRepaint(_DonutPainter old) => old.percentage != percentage || old.color != color;
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final labels = [
+      l10n.occupancyVote1, l10n.occupancyVote2, l10n.occupancyVote3,
+      l10n.occupancyVote4, l10n.occupancyVote5,
+    ];
+    final alreadyVoted = votedLevel != null;
+
+    return Row(
+      children: List.generate(5, (i) {
+        final level = i + 1;
+        final isSelected = votedLevel == level;
+        final color = _colors[i];
+
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(right: i < 4 ? 4 : 0),
+            child: GestureDetector(
+              onTap: alreadyVoted || submitting ? null : () => onVote(level),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? color.withValues(alpha: 0.12)
+                      : Colors.transparent,
+                  borderRadius: AppRadii.cardMd,
+                  border: Border.all(
+                    color: isSelected ? color : AppColors.borderLight,
+                    width: isSelected ? 1.5 : 1.0,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (submitting && !alreadyVoted)
+                      const SizedBox(
+                        width: 12, height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 1.5, color: AppColors.textHint),
+                      )
+                    else
+                      Icon(
+                        isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
+                        size: 14,
+                        color: isSelected ? color : AppColors.textHint,
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      labels[i],
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? color : alreadyVoted ? AppColors.textHint : AppColors.textSecondary,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
 }
 
 class _WeatherCard extends StatelessWidget {

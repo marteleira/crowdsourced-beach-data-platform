@@ -113,6 +113,14 @@ class BeachRepository {
     );
   }
 
+  Future<OccupancyReportResult> submitOccupancyReport(String slug, int level) async {
+    final res = await _dio.post(
+      '/beaches/$slug/occupancy/report',
+      data: {'level': level},
+    );
+    return OccupancyReportResult.fromJson(res.data as Map<String, dynamic>);
+  }
+
   Future<UserProfile?> getUserProfile() async {
     try {
       final res = await _dio.get('/users/me');
