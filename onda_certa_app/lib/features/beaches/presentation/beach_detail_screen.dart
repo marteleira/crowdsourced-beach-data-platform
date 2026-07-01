@@ -277,41 +277,55 @@ class _HeroAppBar extends StatelessWidget {
           ),
         ),
       ],
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              beach.name,
-              style: const TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700,
-                shadows: [Shadow(blurRadius: 6, color: Colors.black45)],
+      flexibleSpace: Builder(
+        builder: (ctx) {
+          final settings = ctx.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
+          final t = settings == null
+              ? 0.0
+              : (1.0 - ((settings.currentExtent - settings.minExtent) / (settings.maxExtent - settings.minExtent)))
+                  .clamp(0.0, 1.0);
+          final leftPadding = 16.0 + 56.0 * t; // interpolates 16 → 72
+
+          return FlexibleSpaceBar(
+            titlePadding: EdgeInsetsDirectional.only(start: leftPadding),
+            title: SizedBox(
+              height: kToolbarHeight,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    beach.name,
+                    style: const TextStyle(
+                      color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700,
+                      shadows: [Shadow(blurRadius: 6, color: Colors.black45)],
+                    ),
+                  ),
+                  Text(
+                    beach.municipality ?? ctx.l10n.municipality,
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w400),
+                  ),
+                ],
               ),
             ),
-            Text(
-              beach.municipality ?? context.l10n.municipality,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w400),
-            ),
-          ],
-        ),
-        background: BeachCoverImage(
-          flagColor: beach.flagColor,
-          photoUrl: beach.coverPhotoUrl,
-          child: Positioned(
-            left: 0, right: 0, bottom: 0,
-            child: Container(
-              height: 150,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.72)],
+            background: BeachCoverImage(
+              flagColor: beach.flagColor,
+              photoUrl: beach.coverPhotoUrl,
+              child: Positioned(
+                left: 0, right: 0, bottom: 0,
+                child: Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                      colors: [Colors.transparent, Colors.black.withValues(alpha: 0.72)],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
