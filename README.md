@@ -325,15 +325,18 @@ Detailed docs for each part live in their respective directories:
 
 ### 🔜 Planned
 
-- [ ] Review the app quirks (like the multiple same action buttons, the button that does nothing at the bottom of the home, check for more translations,...)
-- [ ] Translate the warnings
+- [ ] Real emails working
 - [ ] Review the points system and requirements for certain tasks
+
+- [ ] Think on a occupation measurement aproach..
+
+- [ ] Consider dealing with favorites as i'm there (receive all nofications)
+- [ ] Share button (review feature) (on beach_detail)
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
+- [ ] More tests (specially for the client side)
 
-
-- [ ] Share button (on beach_detail)
-- [ ] End-to-end tests & more
-
+- [ ] Hosting for the backend
+- [ ] Publish
 ---
 
 ### Low priority
