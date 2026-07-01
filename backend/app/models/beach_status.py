@@ -69,3 +69,20 @@ class OccupancyHeartbeat(Base):
     __table_args__ = (
         Index("ix_heartbeats_beach_created", "beach_id", "created_at"),
     )
+
+
+class OccupancyReport(Base):
+    """Crowdsourced occupancy perception (1=vazia … 5=cheia), one per user per beach per 2h."""
+    __tablename__ = "occupancy_reports"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    beach_id: Mapped[int] = mapped_column(Integer, ForeignKey("beaches.id"), nullable=False)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    level: Mapped[int] = mapped_column(Integer, nullable=False)   # 1–5
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+
+    __table_args__ = (
+        CheckConstraint("level BETWEEN 1 AND 5", name="ck_occupancy_report_level"),
+        Index("ix_occupancy_reports_beach_created", "beach_id", "created_at"),
+        Index("ix_occupancy_reports_user_beach", "user_id", "beach_id"),
+    )

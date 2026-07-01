@@ -126,6 +126,8 @@ class TransportResponse(BaseModel):
 class OccupancyData(BaseModel):
     level: str                    # low | medium | high | unknown
     user_count: int
+    report_count: int = 0         # active crowdsourced reports within window
+    report_confidence: float = 0.0  # 0–1, how much weight reports carry
     is_estimate: bool = True
     last_updated: datetime
 

@@ -40,6 +40,24 @@ class HeartbeatResponse(BaseModel):
     user_count: int
 
 
+class OccupancyReportRequest(BaseModel):
+    level: int   # 1=empty, 2=soft, 3=normal, 4=busy, 5=full- 
+
+    @field_validator("level")
+    @classmethod
+    def level_in_range(cls, v: int) -> int:
+        if not (1 <= v <= 5):
+            raise ValueError("O nível deve estar entre 1 e 5")
+        return v
+
+
+class OccupancyReportResponse(BaseModel):
+    status: str
+    occupancy_level: str
+    report_count: int
+    report_confidence: float
+
+
 _VALID_AVATAR_IDS = {
     "wave", "surfer", "shell", "anchor", "dolphin",
     "crab", "sailboat", "compass", "fish", "shark",

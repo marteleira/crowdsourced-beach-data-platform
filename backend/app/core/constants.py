@@ -5,10 +5,15 @@ All magic numbers and repeated literal values live here!
 Import from this module instead of hard-coding values across routers/services
 """
 
-# Presence / occupancy 
+# Presence / occupancy
 OCCUPANCY_WINDOW_MINUTES = 20        # heartbeat window for occupancy count
 MAP_PRESENCE_WINDOW_MINUTES = 20     # heartbeat window shown on map overlay
 CHECKIN_WINDOW_MINUTES = 180         # "you are at the beach" window for notifications
+
+# Occupancy reports
+OCCUPANCY_REPORT_EXPIRE_MINUTES = 120    # reports expire after 2h (conditions change)
+OCCUPANCY_REPORT_RATE_LIMIT_MINUTES = 120  # one report per user per beach per 2h
+OCCUPANCY_REPORT_CONFIDENCE_THRESHOLD = 3.0  # total weight needed for full confidence
 
 #  Gating windows 
 REPORT_PRESENCE_WINDOW_HOURS = 1     # must have heartbeat within 1h to submit report

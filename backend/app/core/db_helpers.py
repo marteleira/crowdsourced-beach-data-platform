@@ -12,13 +12,69 @@ from app.core.constants import (
     OCCUPANCY_WINDOW_MINUTES,
     OCCUPANCY_LOW_RATIO, OCCUPANCY_MEDIUM_RATIO,
     OCCUPANCY_LOW_THRESHOLD, OCCUPANCY_MEDIUM_THRESHOLD,
+    OCCUPANCY_REPORT_EXPIRE_MINUTES, OCCUPANCY_REPORT_CONFIDENCE_THRESHOLD,
 )
 from app.core.utils import now_utc
 from app.models.beach import Beach
-from app.models.beach_status import BeachStatus, OccupancyHeartbeat
+from app.models.beach_status import BeachStatus, OccupancyHeartbeat, OccupancyReport
 from app.models.report import Report
+from app.models.user import User
 from app.schemas.beach import BeachSummary, OccupancyData
 from app.services.activity import get_activity_level, get_params
+
+
+# Occupancy helpers 
+
+def _reputation_weight(reputation: int) -> float:
+    """Map user reputation to a report weight multiplier."""
+    if reputation < 0:
+        return 0.1
+    if reputation < 10:
+        return 0.5   #novo
+    if reputation < 50:
+        return 1.0   # regular
+    if reputation < 150:
+        return 1.5   # contribuidor
+    return 2.0       # veterano
+
+
+def _level_from_report_score(score: float) -> str:
+    """Map weighted average report level (1–5) to low/medium/high."""
+    if score <= 2.0:
+        return "low"
+    if score <= 3.5:
+        return "medium"
+    return "high"
+
+
+def _level_to_int(level: str) -> int:
+    return {"low": 1, "medium": 2, "high": 3}.get(level, 0)
+
+
+def _int_to_level(value: float) -> str:
+    if value < 1.5:
+        return "low"
+    if value < 2.5:
+        return "medium"
+    return "high"
+
+
+def _blend_levels(heartbeat_level: str, report_level: str, report_confidence: float) -> str:
+    """Linearly interpolate between heartbeat and report level signals."""
+    hb = _level_to_int(heartbeat_level)
+    rp = _level_to_int(report_level)
+    if hb == 0:
+        return report_level
+    blended = hb * (1.0 - report_confidence) + rp * report_confidence
+    return _int_to_level(blended)
+
+
+def _heartbeat_level(beach: Beach, count: int) -> str:
+    """Derive low/medium/high from heartbeat count alone."""
+    if beach.max_capacity:
+        ratio = count / beach.max_capacity
+        return "low" if ratio < OCCUPANCY_LOW_RATIO else "medium" if ratio < OCCUPANCY_MEDIUM_RATIO else "high"
+    return "low" if count < OCCUPANCY_LOW_THRESHOLD else "medium" if count < OCCUPANCY_MEDIUM_THRESHOLD else "high"
 
 
 async def get_beach_flag_status(db: AsyncSession, beach_id: int) -> tuple[str, float]:
@@ -41,32 +97,57 @@ async def count_active_alerts(db: AsyncSession, beach_id: int, now: datetime) ->
 
 
 async def compute_occupancy(db: AsyncSession, beach: Beach) -> OccupancyData:
-    """Compute real-time occupancy for a beach from recent heartbeats."""
-    cutoff = now_utc() - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
-    stmt = (
+    """Compute real-time occupancy blending heartbeat count with crowdsourced reports."""
+    now = now_utc()
+
+    #  Heartbeat signal 
+    hb_cutoff = now - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
+    hb_count = await db.scalar(
         select(func.count(func.distinct(OccupancyHeartbeat.user_id)))
-        .where(
-            OccupancyHeartbeat.beach_id == beach.id,
-            OccupancyHeartbeat.created_at > cutoff,
-        )
+        .where(OccupancyHeartbeat.beach_id == beach.id, OccupancyHeartbeat.created_at > hb_cutoff)
+    ) or 0
+    hb_level = _heartbeat_level(beach, hb_count)
+
+    #  Report signal 
+    rpt_cutoff = now - timedelta(minutes=OCCUPANCY_REPORT_EXPIRE_MINUTES)
+    rows = await db.execute(
+        select(OccupancyReport.level, OccupancyReport.created_at, User.reputation)
+        .join(User, OccupancyReport.user_id == User.id)
+        .where(OccupancyReport.beach_id == beach.id, OccupancyReport.created_at > rpt_cutoff)
     )
-    result = await db.execute(stmt)
-    count = result.scalar_one() or 0
+    reports = rows.all()
 
-    if beach.max_capacity:
-        ratio = count / beach.max_capacity
-        level = "low" if ratio < OCCUPANCY_LOW_RATIO else "medium" if ratio < OCCUPANCY_MEDIUM_RATIO else "high"
+    total_weight = 0.0
+    weighted_sum = 0.0
+    for rpt_level, created_at, reputation in reports:
+        age_minutes = (now - created_at).total_seconds() / 60
+        time_decay = max(0.0, 1.0 - age_minutes / OCCUPANCY_REPORT_EXPIRE_MINUTES)
+        w = _reputation_weight(reputation) * time_decay
+        total_weight += w
+        weighted_sum += rpt_level * w
+
+    report_count = len(reports)
+    report_confidence = min(1.0, total_weight / OCCUPANCY_REPORT_CONFIDENCE_THRESHOLD)
+
+    #  Blend 
+    if report_confidence >= 0.8:
+        level = _level_from_report_score(weighted_sum / total_weight)
+    elif report_confidence >= 0.2:
+        report_level = _level_from_report_score(weighted_sum / total_weight)
+        level = _blend_levels(hb_level, report_level, report_confidence)
     else:
-        level = "low" if count < OCCUPANCY_LOW_THRESHOLD else "medium" if count < OCCUPANCY_MEDIUM_THRESHOLD else "high"
+        level = hb_level
 
-    if count == 0 and not beach.has_capacity_data:
+    if hb_count == 0 and report_confidence < 0.2 and not beach.has_capacity_data:
         level = "unknown"
 
     return OccupancyData(
         level=level,
-        user_count=count,
+        user_count=hb_count,
+        report_count=report_count,
+        report_confidence=round(report_confidence, 2),
         is_estimate=True,
-        last_updated=now_utc(),
+        last_updated=now,
     )
 
 
