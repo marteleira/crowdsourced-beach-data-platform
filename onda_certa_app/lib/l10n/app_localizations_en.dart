@@ -75,9 +75,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authConsentPrefix => 'By continuing, you accept our ';
 
   @override
-  String get authConsentAnd => ' and our ';
-
-  @override
   String get errorGoogleToken => 'Could not obtain Google token';
 
   @override
@@ -88,9 +85,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loading => 'Loading data...';
-
-  @override
-  String get comingSoon => 'Coming soon';
 
   @override
   String get settings => 'Settings';
@@ -224,30 +218,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flagStatusDanger => 'Danger';
 
   @override
-  String get exploreTitle => 'Explore';
-
-  @override
-  String get exploreMap => 'Beach map';
-
-  @override
-  String get exploreMapSub => 'View all on map';
-
-  @override
-  String get exploreTransport => 'Transport';
-
-  @override
-  String get exploreTransportSub => 'Carris Metropolitana';
-
-  @override
-  String get exploreBeaches => 'Beaches';
-
-  @override
-  String get exploreReport => 'Submit report';
-
-  @override
-  String get exploreReportSub => 'Help the community';
-
-  @override
   String get communityTitle => 'Community';
 
   @override
@@ -315,9 +285,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get labelOccupancy => 'Occupancy';
-
-  @override
-  String get labelConfidence => '% conf.';
 
   @override
   String get flagLiveTap => 'live · Tap to confirm';

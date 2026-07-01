@@ -284,10 +284,11 @@ class _HeroAppBar extends StatelessWidget {
               ? 0.0
               : (1.0 - ((settings.currentExtent - settings.minExtent) / (settings.maxExtent - settings.minExtent)))
                   .clamp(0.0, 1.0);
-          final leftPadding = 16.0 + 56.0 * t; // interpolates 16 → 72
+          final leftPadding = 16.0 + 56.0 * t;  // interpolates 16 → 72
+          final rightPadding = 100.0 * t;         // interpolates 0 → 100 (clears 2 action buttons)
 
           return FlexibleSpaceBar(
-            titlePadding: EdgeInsetsDirectional.only(start: leftPadding),
+            titlePadding: EdgeInsetsDirectional.only(start: leftPadding, end: rightPadding),
             title: SizedBox(
               height: kToolbarHeight,
               child: Column(
@@ -296,6 +297,8 @@ class _HeroAppBar extends StatelessWidget {
                 children: [
                   Text(
                     beach.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700,
                       shadows: [Shadow(blurRadius: 6, color: Colors.black45)],
@@ -303,6 +306,8 @@ class _HeroAppBar extends StatelessWidget {
                   ),
                   Text(
                     beach.municipality ?? ctx.l10n.municipality,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.w400),
                   ),
                 ],

@@ -25,13 +25,11 @@
   "termsOfService": "Termos de Serviço",
   "privacyPolicy": "Política de Privacidade",
   "authConsentPrefix": "Ao continuar, aceitas os nossos ",
-  "authConsentAnd": " e a nossa ",
   "errorGoogleToken": "Não foi possível obter o token Google",
   "errorGoogleSignIn": "Falha ao entrar com Google",
   "errorSignIn": "Erro ao iniciar sessão. Tenta novamente.",
 
   "loading": "A carregar dados...",
-  "comingSoon": "Em breve",
   "settings": "Definições",
   "close": "Fechar",
   "viewAll": "Ver tudo →",
@@ -96,17 +94,9 @@
   "flagStatusCaution": "Cuidado",
   "flagStatusDanger": "Perigo",
 
-  "exploreTitle": "Explorar",
-  "exploreMap": "Mapa de praias",
-  "exploreMapSub": "Ver todas no mapa",
-  "exploreTransport": "Transportes",
-  "exploreTransportSub": "Carris Metropolitana",
-  "exploreBeaches": "Praias",
-  "exploreReport": "Submeter reporte",
-  "exploreReportSub": "Ajuda a comunidade",
 
   "communityTitle": "Comunidade",
-  "communityReports": "{count} reportes activos",
+  "communityReports": "{count} avisos activos",
   "@communityReports": {
     "placeholders": {
       "count": { "type": "int" }
@@ -144,7 +134,6 @@
   "labelTemperature": "Temperatura",
   "labelRain": "Chuva",
   "labelOccupancy": "Ocupação",
-  "labelConfidence": "% conf.",
   "flagLiveTap": "live · Toca para confirmar",
   "flagProposeTap": "Toca para propor a bandeira",
   "errorFavourite": "Erro ao actualizar favorito",
