@@ -170,6 +170,7 @@ class _HomeDashboard extends ConsumerWidget {
                 totalReports: totalAlerts,
                 beachCount: beaches.value?.length ?? 0,
                 activeUsers: totalActiveUsers,
+                onSeeAll: () => onTabChange(1),
               ),
             ]),
           ),
@@ -1030,10 +1031,11 @@ class _TidesSection extends StatelessWidget {
 // Community section 
 
 class _CommunitySection extends StatelessWidget {
-  const _CommunitySection({required this.totalReports, required this.beachCount, required this.activeUsers});
+  const _CommunitySection({required this.totalReports, required this.beachCount, required this.activeUsers, required this.onSeeAll});
   final int totalReports;
   final int beachCount;
   final int activeUsers;
+  final VoidCallback onSeeAll;
 
   @override
   Widget build(BuildContext context) {
@@ -1073,7 +1075,7 @@ class _CommunitySection extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: onSeeAll,
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(color: AppColors.primary.withValues(alpha: 0.2)),

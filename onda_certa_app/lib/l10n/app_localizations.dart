@@ -230,12 +230,6 @@ abstract class AppLocalizations {
   /// **'Ao continuar, aceitas os nossos '**
   String get authConsentPrefix;
 
-  /// No description provided for @authConsentAnd.
-  ///
-  /// In pt, this message translates to:
-  /// **' e a nossa '**
-  String get authConsentAnd;
-
   /// No description provided for @errorGoogleToken.
   ///
   /// In pt, this message translates to:
@@ -259,12 +253,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'A carregar dados...'**
   String get loading;
-
-  /// No description provided for @comingSoon.
-  ///
-  /// In pt, this message translates to:
-  /// **'Em breve'**
-  String get comingSoon;
 
   /// No description provided for @settings.
   ///
@@ -512,54 +500,6 @@ abstract class AppLocalizations {
   /// **'Perigo'**
   String get flagStatusDanger;
 
-  /// No description provided for @exploreTitle.
-  ///
-  /// In pt, this message translates to:
-  /// **'Explorar'**
-  String get exploreTitle;
-
-  /// No description provided for @exploreMap.
-  ///
-  /// In pt, this message translates to:
-  /// **'Mapa de praias'**
-  String get exploreMap;
-
-  /// No description provided for @exploreMapSub.
-  ///
-  /// In pt, this message translates to:
-  /// **'Ver todas no mapa'**
-  String get exploreMapSub;
-
-  /// No description provided for @exploreTransport.
-  ///
-  /// In pt, this message translates to:
-  /// **'Transportes'**
-  String get exploreTransport;
-
-  /// No description provided for @exploreTransportSub.
-  ///
-  /// In pt, this message translates to:
-  /// **'Carris Metropolitana'**
-  String get exploreTransportSub;
-
-  /// No description provided for @exploreBeaches.
-  ///
-  /// In pt, this message translates to:
-  /// **'Praias'**
-  String get exploreBeaches;
-
-  /// No description provided for @exploreReport.
-  ///
-  /// In pt, this message translates to:
-  /// **'Submeter reporte'**
-  String get exploreReport;
-
-  /// No description provided for @exploreReportSub.
-  ///
-  /// In pt, this message translates to:
-  /// **'Ajuda a comunidade'**
-  String get exploreReportSub;
-
   /// No description provided for @communityTitle.
   ///
   /// In pt, this message translates to:
@@ -569,7 +509,7 @@ abstract class AppLocalizations {
   /// No description provided for @communityReports.
   ///
   /// In pt, this message translates to:
-  /// **'{count} reportes activos'**
+  /// **'{count} avisos activos'**
   String communityReports(int count);
 
   /// No description provided for @communityFooter.
@@ -685,12 +625,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Ocupação'**
   String get labelOccupancy;
-
-  /// No description provided for @labelConfidence.
-  ///
-  /// In pt, this message translates to:
-  /// **'% conf.'**
-  String get labelConfidence;
 
   /// No description provided for @flagLiveTap.
   ///

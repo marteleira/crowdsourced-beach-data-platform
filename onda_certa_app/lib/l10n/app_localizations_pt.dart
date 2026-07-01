@@ -76,9 +76,6 @@ class AppLocalizationsPt extends AppLocalizations {
   String get authConsentPrefix => 'Ao continuar, aceitas os nossos ';
 
   @override
-  String get authConsentAnd => ' e a nossa ';
-
-  @override
   String get errorGoogleToken => 'Não foi possível obter o token Google';
 
   @override
@@ -89,9 +86,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get loading => 'A carregar dados...';
-
-  @override
-  String get comingSoon => 'Em breve';
 
   @override
   String get settings => 'Definições';
@@ -225,35 +219,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get flagStatusDanger => 'Perigo';
 
   @override
-  String get exploreTitle => 'Explorar';
-
-  @override
-  String get exploreMap => 'Mapa de praias';
-
-  @override
-  String get exploreMapSub => 'Ver todas no mapa';
-
-  @override
-  String get exploreTransport => 'Transportes';
-
-  @override
-  String get exploreTransportSub => 'Carris Metropolitana';
-
-  @override
-  String get exploreBeaches => 'Praias';
-
-  @override
-  String get exploreReport => 'Submeter reporte';
-
-  @override
-  String get exploreReportSub => 'Ajuda a comunidade';
-
-  @override
   String get communityTitle => 'Comunidade';
 
   @override
   String communityReports(int count) {
-    return '$count reportes activos';
+    return '$count avisos activos';
   }
 
   @override
@@ -316,9 +286,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get labelOccupancy => 'Ocupação';
-
-  @override
-  String get labelConfidence => '% conf.';
 
   @override
   String get flagLiveTap => 'live · Toca para confirmar';

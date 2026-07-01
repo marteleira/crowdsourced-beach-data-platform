@@ -109,14 +109,14 @@ class AppStrings {
   static const String exploreTransport  = 'Transportes';
   static const String exploreTransportSub = 'Carris Metropolitana';
   static const String exploreBeaches    = 'Praias';
-  static const String exploreReport     = 'Submeter reporte';
+  static const String exploreReport     = 'Submeter aviso';
   static const String exploreReportSub  = 'Ajuda a comunidade';
 
   // ---------------------------------------------------------------------------
   // Home screen — community strip
   // -------------------------------------------------------------------------
   static const String communityTitle    = 'Comunidade';
-  static String communityReports(int n) => '$n reportes activos';
+  static String communityReports(int n) => '$n avisos activos';
   static String communityFooter(int beaches, int users) =>
       'em $beaches praias · $users utilizadores online';
 
