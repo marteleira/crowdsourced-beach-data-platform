@@ -312,6 +312,54 @@ BEACHES = [
         "cover_photo_url": "/static/beaches/mijona.jpg",
         "municipality": "Sesimbra",
     },
+    {
+        "slug": "praia-bico-das-lulas",
+        "name": "Praia Bico das Lulas",
+        "lat": 38.486292,
+        "lon": -8.907746,
+        "ipma_global_id": 1151200,     # Setubal IPMA point
+        "ipma_sea_global_id": 1111026,  # nearest sea forecast point even measured from Tróia
+        "eea_station_id": "PTCN9M",     # official APA/EEA zone "Tróia-Bico das Lulas"
+        "tide_station_id": "PT_150505_2",  # IH station "Setúbal - Tróia"
+        "has_capacity_data": False,
+        "max_capacity": None,
+        "nearby_stop_ids": [],  # Carris metropolitana does not serve
+        "flags_available": True,
+        "cover_photo_url": "/static/beaches/bico_lulas.jpg",
+        "municipality": "Grândola",
+    },
+    {
+        "slug": "praia-de-troia",
+        "name": "Praia de Tróia",
+        "lat": 38.489728,
+        "lon": -8.911451,
+        "ipma_global_id": 1151200,
+        "ipma_sea_global_id": 1111026,
+        "eea_station_id": "PTCU9C",     # official APA/EEA zone "Tróia - Mar"
+        "tide_station_id": "PT_150505_2",  # ~1km away
+        "has_capacity_data": False,
+        "max_capacity": None,
+        "nearby_stop_ids": [],
+        "flags_available": True,
+        "cover_photo_url": "/static/beaches/troia.jpg",
+        "municipality": "Grândola",
+    },
+    {
+        "slug": "praia-de-troia-rio",
+        "name": "Praia de Tróia Rio",
+        "lat": 38.493811,
+        "lon": -8.898588,
+        "ipma_global_id": 1151200,
+        "ipma_sea_global_id": 1111026,
+        "eea_station_id": None,  # river-facing side (no data)
+        "tide_station_id": "PT_150505_2",  # only 0.2km away — closest of the three
+        "has_capacity_data": False,
+        "max_capacity": None,
+        "nearby_stop_ids": [],
+        "flags_available": True,
+        "cover_photo_url": "/static/beaches/troia_rio.jpg",
+        "municipality": "Grândola",
+    },
 ]
 """
     Thats a lot, its added until mijona, if i want more just follow from mijona to left and up (coast)
