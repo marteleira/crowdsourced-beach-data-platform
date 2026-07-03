@@ -23,7 +23,7 @@ async def _send_message(msg: MIMEText) -> None:
         port=settings.SMTP_PORT,
         username=settings.SMTP_USER or None,
         password=settings.SMTP_PASSWORD or None,
-        use_tls=settings.SMTP_TLS,
+        start_tls=settings.SMTP_TLS,
     )
 
 

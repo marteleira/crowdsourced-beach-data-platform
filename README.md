@@ -322,6 +322,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Disable the interaction with the social/community layer for guests
 - [x] Support more than one language (pt and eng)
 - [x] Think on a occupation measurement aproach..
+- [x] Real emails working
 ---
 
 ### 🔜 Planned
@@ -329,11 +330,11 @@ Detailed docs for each part live in their respective directories:
 - [ ] Review the points system and requirements for certain tasks
 - [ ] Consider dealing with favorites as i'm there (receive all nofications)
 - [ ] Share button (review feature) (on beach_detail)
+
+
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
-
-- [ ] Real emails working
-
 - [ ] More tests (specially for the client side)
+
 
 - [ ] Hosting for the backend
 
