@@ -3,7 +3,7 @@
 
   "appName": "OndaCerta",
   "appTagline": "Praias reais. Condições reais.",
-  "appLocation": "Parque Natural da Arrábida · Portugal",
+  "appLocation": "Setúbal · Portugal",
 
   "navHome": "Início",
   "navBeaches": "Praias",
@@ -129,7 +129,7 @@
   "beachAlertSingular": "alerta ativo",
   "beachAlertPlural": "alertas ativos",
 
-  "municipality": "Arrábida",
+  "municipality": "Setúbal",
   "sectionWeather": "Meteorologia",
   "labelTemperature": "Temperatura",
   "labelRain": "Chuva",
@@ -840,5 +840,15 @@
   "showOriginal": "Ver original",
   "translatedLabel": "Traduzido",
   "translateError": "Erro ao traduzir · Tentar de novo",
-  "translateSameLanguage": "Nota já no teu idioma"
+  "translateSameLanguage": "Nota já no teu idioma",
+
+  "onboardingSkip": "Saltar",
+  "onboardingNext": "Seguinte",
+  "onboardingStart": "Começar",
+  "onboardingTitle1": "Sabe antes de ir",
+  "onboardingBody1": "Consulta o estado do mar, ondas, maré e qualidade da água de cada praia em tempo real",
+  "onboardingTitle2": "Alertas da comunidade",
+  "onboardingBody2": "Medusas, correntes fortes ou lotação — recebe avisos reportados por quem está na praia.",
+  "onboardingTitle3": "As tuas praias favoritas",
+  "onboardingBody3": "Guarda as praias que mais visitas e recebe notificações sobre as condições."
 }

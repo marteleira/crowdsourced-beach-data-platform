@@ -7,6 +7,7 @@ class SecureStorage {
   static const _kRefreshToken = 'refresh_token';
   static const _kIsAnonymous = 'is_anonymous';
   static const _kIsEmailVerified = 'is_email_verified';
+  static const _kOnboardingSeen = 'onboarding_seen';
 
   Future<void> saveTokens({
     required String accessToken,
@@ -35,4 +36,12 @@ class SecureStorage {
   }
 
   Future<void> clearTokens() => _storage.deleteAll();
+
+  Future<bool> getOnboardingSeen() async {
+    final v = await _storage.read(key: _kOnboardingSeen);
+    return v == 'true';
+  }
+
+  Future<void> setOnboardingSeen() =>
+      _storage.write(key: _kOnboardingSeen, value: 'true');
 }

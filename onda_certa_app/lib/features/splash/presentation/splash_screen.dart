@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
+import '../../../core/onboarding/onboarding_provider.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/animated_waves.dart';
 
@@ -21,7 +22,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
   bool _animDone = false;
   bool _authReady = false;
+  bool _onboardingReady = false;
   AuthState? _pendingState;
+  bool _onboardingSeen = true;
 
   @override
   void initState() {
@@ -49,11 +52,14 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   void _maybeNavigate() {
-    if (!_animDone || !_authReady || !mounted || _pendingState == null) return;
-    if (_pendingState is AuthAuthenticated) {
-      context.go(AppRoutes.home);
+    if (!_animDone || !_authReady || !_onboardingReady || !mounted || _pendingState == null) {
+      return;
+    }
+    final destination = _pendingState is AuthAuthenticated ? AppRoutes.home : AppRoutes.login;
+    if (!_onboardingSeen) {
+      context.go(AppRoutes.onboarding, extra: destination);
     } else {
-      context.go(AppRoutes.login);
+      context.go(destination);
     }
   }
 
@@ -70,6 +76,19 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     if (!current.isLoading && !_authReady) {
       _authReady = true;
       _pendingState = current.value ?? const AuthUnauthenticated();
+    }
+
+    ref.listen<AsyncValue<bool>>(onboardingSeenProvider, (_, next) {
+      if (next.isLoading) return;
+      _onboardingReady = true;
+      _onboardingSeen = next.value ?? true;
+      _maybeNavigate();
+    });
+
+    final currentOnboarding = ref.read(onboardingSeenProvider);
+    if (!currentOnboarding.isLoading && !_onboardingReady) {
+      _onboardingReady = true;
+      _onboardingSeen = currentOnboarding.value ?? true;
     }
 
     return Scaffold(

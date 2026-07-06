@@ -15,7 +15,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTagline => 'Real beaches. Real conditions.';
 
   @override
-  String get appLocation => 'Arrábida Natural Park · Portugal';
+  String get appLocation => 'Setúbal · Portugal';
 
   @override
   String get navHome => 'Home';
@@ -272,7 +272,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get beachAlertPlural => 'active alerts';
 
   @override
-  String get municipality => 'Arrábida';
+  String get municipality => 'Setúbal';
 
   @override
   String get sectionWeather => 'Weather';
@@ -1748,4 +1748,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get translateSameLanguage => 'Note already in your language';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
+  String get onboardingTitle1 => 'Know before you go';
+
+  @override
+  String get onboardingBody1 =>
+      'Check the sea state, waves, tide and water quality for every beach, in real time.';
+
+  @override
+  String get onboardingTitle2 => 'Community alerts';
+
+  @override
+  String get onboardingBody2 =>
+      'Jellyfish, strong currents or crowding — get warnings reported by people at the beach.';
+
+  @override
+  String get onboardingTitle3 => 'Your favourite beaches';
+
+  @override
+  String get onboardingBody3 =>
+      'Save the beaches you visit most and get notified about conditions.';
 }
