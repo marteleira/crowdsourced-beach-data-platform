@@ -27,12 +27,12 @@ OCCUPANCY_LOW_THRESHOLD = 10         # < this -> "low" (headcount-only path)
 OCCUPANCY_MEDIUM_THRESHOLD = 40      # < this -> "medium" (headcount-only path)
 
 #  Reputation 
-MIN_REPUTATION_TO_PROPOSE = 25       # minimum rep to propose a flag
+MIN_REPUTATION_TO_PROPOSE = 0       # minimum rep to propose a flag, zero for now (app launch)
 REPORT_VERIFIED_NET_VOTES = 3        # upvotes - downvotes >= this -> verified
 
 # Reputation thresholds (all in one place)
-AUTO_BAN_REPUTATION_THRESHOLD = -50
-SUSPENSION_REPUTATION_THRESHOLD = -30
+AUTO_BAN_REPUTATION_THRESHOLD = -30
+SUSPENSION_REPUTATION_THRESHOLD = -10
 SUSPENSION_DURATION_HOURS = 48
 
 # Flag confirmation cooldown
