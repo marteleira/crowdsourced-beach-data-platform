@@ -1,4 +1,4 @@
-package com.example.onda_certa_app
+package com.marteleira.ondacerta
 
 import io.flutter.embedding.android.FlutterActivity
 
