@@ -15,7 +15,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get appTagline => 'Praias reais. Condições reais.';
 
   @override
-  String get appLocation => 'Parque Natural da Arrábida · Portugal';
+  String get appLocation => 'Setúbal · Portugal';
 
   @override
   String get navHome => 'Início';
@@ -273,7 +273,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get beachAlertPlural => 'alertas ativos';
 
   @override
-  String get municipality => 'Arrábida';
+  String get municipality => 'Setúbal';
 
   @override
   String get sectionWeather => 'Meteorologia';
@@ -1757,4 +1757,34 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get translateSameLanguage => 'Nota já no teu idioma';
+
+  @override
+  String get onboardingSkip => 'Saltar';
+
+  @override
+  String get onboardingNext => 'Seguinte';
+
+  @override
+  String get onboardingStart => 'Começar';
+
+  @override
+  String get onboardingTitle1 => 'Sabe antes de ir';
+
+  @override
+  String get onboardingBody1 =>
+      'Consulta o estado do mar, ondas, maré e qualidade da água de cada praia em tempo real';
+
+  @override
+  String get onboardingTitle2 => 'Alertas da comunidade';
+
+  @override
+  String get onboardingBody2 =>
+      'Medusas, correntes fortes ou lotação — recebe avisos reportados por quem está na praia.';
+
+  @override
+  String get onboardingTitle3 => 'As tuas praias favoritas';
+
+  @override
+  String get onboardingBody3 =>
+      'Guarda as praias que mais visitas e recebe notificações sobre as condições.';
 }

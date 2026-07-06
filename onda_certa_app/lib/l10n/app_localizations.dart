@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @appLocation.
   ///
   /// In pt, this message translates to:
-  /// **'Parque Natural da Arrábida · Portugal'**
+  /// **'Setúbal · Portugal'**
   String get appLocation;
 
   /// No description provided for @navHome.
@@ -599,7 +599,7 @@ abstract class AppLocalizations {
   /// No description provided for @municipality.
   ///
   /// In pt, this message translates to:
-  /// **'Arrábida'**
+  /// **'Setúbal'**
   String get municipality;
 
   /// No description provided for @sectionWeather.
@@ -3265,6 +3265,60 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Nota já no teu idioma'**
   String get translateSameLanguage;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saltar'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In pt, this message translates to:
+  /// **'Seguinte'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In pt, this message translates to:
+  /// **'Começar'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingTitle1.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sabe antes de ir'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingBody1.
+  ///
+  /// In pt, this message translates to:
+  /// **'Consulta o estado do mar, ondas, maré e qualidade da água de cada praia em tempo real'**
+  String get onboardingBody1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alertas da comunidade'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingBody2.
+  ///
+  /// In pt, this message translates to:
+  /// **'Medusas, correntes fortes ou lotação — recebe avisos reportados por quem está na praia.'**
+  String get onboardingBody2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In pt, this message translates to:
+  /// **'As tuas praias favoritas'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingBody3.
+  ///
+  /// In pt, this message translates to:
+  /// **'Guarda as praias que mais visitas e recebe notificações sobre as condições.'**
+  String get onboardingBody3;
 }
 
 class _AppLocalizationsDelegate

@@ -1,4 +1,7 @@
 class AppRoutes {
+  // Onboarding
+  static const onboarding = '/onboarding';
+
   // Auth
   static const login         = '/login';
   static const loginEmail    = '/login/email';

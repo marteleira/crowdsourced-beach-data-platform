@@ -21,6 +21,7 @@ import 'features/transport/presentation/transport_screen.dart';
 import 'features/home/presentation/home_screen.dart';
 import 'features/legal/presentation/privacy_screen.dart';
 import 'features/legal/presentation/terms_screen.dart';
+import 'features/onboarding/presentation/onboarding_screen.dart';
 import 'features/settings/presentation/account_settings_screen.dart';
 import 'features/settings/presentation/notification_settings_screen.dart';
 import 'features/settings/presentation/privacy_settings_screen.dart';
@@ -64,8 +65,10 @@ final _routerProvider = Provider<GoRouter>((ref) {
         return loc == AppRoutes.accountSuspended ? null : AppRoutes.accountSuspended;
       }
 
-      // Splash and auth routes manage their own navigation
-      if (loc == '/' || loc.startsWith(AppRoutes.login)) return null;
+      // Splash, onboarding and auth routes manage their own navigation
+      if (loc == '/' || loc == AppRoutes.onboarding || loc.startsWith(AppRoutes.login)) {
+        return null;
+      }
 
       // Protect app routes
       final authState = ref.read(authProvider).value;
@@ -88,6 +91,11 @@ final _routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/', builder: (_, _) => const SplashScreen()),
+      GoRoute(
+        path: AppRoutes.onboarding,
+        redirect: (_, state) => state.extra is! String ? AppRoutes.login : null,
+        builder: (_, state) => OnboardingScreen(destination: state.extra! as String),
+      ),
       GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(path: AppRoutes.loginEmail, builder: (_, _) => const EmailLoginScreen()),
       GoRoute(

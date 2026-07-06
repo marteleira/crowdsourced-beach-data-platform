@@ -323,6 +323,8 @@ Detailed docs for each part live in their respective directories:
 - [x] Support more than one language (pt and eng)
 - [x] Think on a occupation measurement aproach..
 - [x] Real emails working
+- [x] First use -> app tour
+
 ---
 
 ### 🔜 Planned
@@ -339,9 +341,6 @@ Detailed docs for each part live in their respective directories:
 
 - [ ] Publish
 ---
-
-### Low priority
-- [ ] First use -> app tour
 
 ### After the first launch
 - [ ] Expand to other Portuguese beaches 

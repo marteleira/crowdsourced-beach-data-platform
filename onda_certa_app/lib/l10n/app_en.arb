@@ -3,7 +3,7 @@
 
   "appName": "OndaCerta",
   "appTagline": "Real beaches. Real conditions.",
-  "appLocation": "Arrábida Natural Park · Portugal",
+  "appLocation": "Setúbal · Portugal",
 
   "navHome": "Home",
   "navBeaches": "Beaches",
@@ -129,7 +129,7 @@
   "beachAlertSingular": "active alert",
   "beachAlertPlural": "active alerts",
 
-  "municipality": "Arrábida",
+  "municipality": "Setúbal",
   "sectionWeather": "Weather",
   "labelTemperature": "Temperature",
   "labelRain": "Rain",
@@ -840,5 +840,15 @@
   "showOriginal": "Show original",
   "translatedLabel": "Translated",
   "translateError": "Translation error · Try again",
-  "translateSameLanguage": "Note already in your language"
+  "translateSameLanguage": "Note already in your language",
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingStart": "Get started",
+  "onboardingTitle1": "Know before you go",
+  "onboardingBody1": "Check the sea state, waves, tide and water quality for every beach, in real time.",
+  "onboardingTitle2": "Community alerts",
+  "onboardingBody2": "Jellyfish, strong currents or crowding — get warnings reported by people at the beach.",
+  "onboardingTitle3": "Your favourite beaches",
+  "onboardingBody3": "Save the beaches you visit most and get notified about conditions."
 }
