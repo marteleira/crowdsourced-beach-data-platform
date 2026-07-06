@@ -327,7 +327,6 @@ Detailed docs for each part live in their respective directories:
 
 ### 🔜 Planned
 
-- [ ] Review the points system and requirements for certain tasks
 - [ ] Consider dealing with favorites as i'm there (receive all nofications)
 - [ ] Share button (review feature) (on beach_detail)
 
