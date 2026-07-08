@@ -329,16 +329,14 @@ Detailed docs for each part live in their respective directories:
 
 ### 🔜 Planned
 
-- [ ] Consider dealing with favorites as i'm there (receive all nofications)
-- [ ] Share button (review feature) (on beach_detail)
+- [ ] Deal with favorites as i'm there (receive all nofications)
+- [ ] Remove share button on beach_detail
 
-
+- [ ] Pagina web de apresentação e etc
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
-- [ ] More tests (specially for the client side)
+- [ ] Hosting for the backend (azure)
 
-
-- [ ] Hosting for the backend
-
+- [ ] Testes de usabilidade com pessoas reais.
 - [ ] Publish
 ---
 
