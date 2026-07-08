@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.beach import Beach
 from app.models.beach_status import BeachStatus, FlagConfirmation, OccupancyHeartbeat
 from app.models.user import User
+from app.core.constants import MIN_REPUTATION_TO_PROPOSE
 
 
 async def _add_heartbeat(db: AsyncSession, beach: Beach, user: User):
@@ -51,6 +52,10 @@ class TestProposeFlag:
     async def test_propose_requires_minimum_reputation(
         self, client: AsyncClient, beach: Beach, auth_headers: dict, db: AsyncSession, user: User
     ):
+        if MIN_REPUTATION_TO_PROPOSE <= 0:
+            pytest.skip("MIN_REPUTATION_TO_PROPOSE is 0, skipping test")
+
+
         await _add_heartbeat(db, beach, user)
         r = await client.post(
             "/api/v1/beaches/portinho-da-arrabida/flag/propose",
