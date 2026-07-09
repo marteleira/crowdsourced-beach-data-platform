@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/auth_provider.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/widgets/animated_waves.dart';
@@ -156,6 +158,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: AppSpacing.md),
+                      const _LegalLinksRow(),
                     ],
                   ),
                 ),
@@ -201,6 +205,36 @@ class _SlideView extends StatelessWidget {
             style: AppTextStyles.secondaryLg.copyWith(height: 1.5),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LegalLinksRow extends StatelessWidget {
+  const _LegalLinksRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final style = TextStyle(fontSize: 12, color: AppColors.textHint);
+    return Center(
+      child: Text.rich(
+        TextSpan(
+          style: style,
+          children: [
+            TextSpan(
+              text: l10n.termsOfService,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => context.push(AppRoutes.terms),
+            ),
+            TextSpan(text: l10n.legalLinksSeparator),
+            TextSpan(
+              text: l10n.privacyPolicy,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () => context.push(AppRoutes.privacy),
+            ),
+          ],
+        ),
       ),
     );
   }

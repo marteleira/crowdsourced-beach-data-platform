@@ -3319,6 +3319,252 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Guarda as praias que mais visitas e recebe notificações sobre as condições.'**
   String get onboardingBody3;
+
+  /// No description provided for @legalLastUpdated.
+  ///
+  /// In pt, this message translates to:
+  /// **'Última atualização: julho de 2026'**
+  String get legalLastUpdated;
+
+  /// No description provided for @termsIntroBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ao utilizares a OndaCerta aceitas estes Termos de Serviço. Lê-os com atenção antes de criar uma conta ou usar a aplicação.'**
+  String get termsIntroBody;
+
+  /// No description provided for @termsSection1Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'1. O Serviço'**
+  String get termsSection1Heading;
+
+  /// No description provided for @termsSection1Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'A OndaCerta é uma aplicação de informação sobre as praias do Parque Natural da Arrábida que agrega dados oficiais de entidades como o IPMA, o Instituto Hidrográfico, a APA e a Carris Metropolitana, complementados por contribuições da comunidade de utilizadores.\n\nOs dados meteorológicos, de marés, qualidade da água e transportes têm caráter meramente informativo e podem conter atrasos, falhas ou imprecisões das fontes externas. A OndaCerta não é um serviço de emergência nem substitui a sinalização oficial das praias, a bandeira hasteada no areal ou as indicações dos nadadores-salvadores e das autoridades competentes. Em caso de emergência, liga sempre 112.'**
+  String get termsSection1Body;
+
+  /// No description provided for @termsSection2Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'2. Conta de Utilizador'**
+  String get termsSection2Heading;
+
+  /// No description provided for @termsSection2Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Podes usar a app como visitante (conta anónima associada ao teu dispositivo), com registo por email/password, ou com Google Sign-In.\n\nÉs responsável por manter a confidencialidade da tua password e por notificar-nos imediatamente em caso de uso não autorizado da tua conta.\n\nAo criar uma conta, declaras e garantes que tens pelo menos 13 anos de idade. Não verificamos tecnicamente a tua idade — confiamos na tua declaração — pelo que não deves criar uma conta, nem permitir que um menor de 13 anos o faça, se essa condição não se verificar.'**
+  String get termsSection2Body;
+
+  /// No description provided for @termsSection3Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'3. Conteúdo Comunitário'**
+  String get termsSection3Heading;
+
+  /// No description provided for @termsSection3Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ao submeteres relatos (alforrecas, correntes fortes, poluição, mar agitado ou outros), propostas de bandeira, votos ou confirmações, garantes que a informação é verdadeira e reflete condições que observaste presencialmente.\n\nAlguns relatos só podem ser submetidos quando o sistema verifica, através do sinal de localização (heartbeat), que estás fisicamente perto da praia em causa.\n\nÉ proibido publicar conteúdo falso, enganoso, ofensivo ou que viole direitos de terceiros. Ao submeter conteúdo concedes à OndaCerta uma licença não exclusiva, mundial e gratuita para o exibir, distribuir e utilizar no âmbito do serviço, incluindo de forma agregada ou estatística.'**
+  String get termsSection3Body;
+
+  /// No description provided for @termsSection4Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'4. Sistema de Reputação e Moderação'**
+  String get termsSection4Heading;
+
+  /// No description provided for @termsSection4Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'A tua reputação é calculada com base nas tuas contribuições e na forma como a comunidade as confirma ou rejeita. Relatos confirmados aumentam a reputação; relatos marcados como falsos reduzem-na.\n\nAlgumas funcionalidades (por exemplo, propor uma bandeira) podem exigir um nível mínimo de reputação, que nos reservamos o direito de ajustar a qualquer momento.\n\nSe a tua reputação descer de forma sustentada abaixo de um limite definido por nós, ou em caso de violação destes termos, a tua conta pode ser suspensa temporariamente ou banida de forma permanente, de forma automática ou manual, sem aviso prévio. Podes sempre contactar-nos (secção 10) para contestar uma decisão de suspensão ou banimento.'**
+  String get termsSection4Body;
+
+  /// No description provided for @termsSection5Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'5. Comportamento Proibido'**
+  String get termsSection5Heading;
+
+  /// No description provided for @termsSection5Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'É proibido:\n\n• Submeter relatos, propostas de bandeira ou confirmações falsas, ou manipular votos de forma coordenada.\n\n• Usar ferramentas automáticas (bots), contas falsas ou GPS falsificado para gerar presença ou conteúdo artificial.\n\n• Tentar aceder a contas de outros utilizadores ou comprometer a segurança do serviço.\n\n• Recolher (\"scrape\") dados de outros utilizadores ou da app sem consentimento.\n\nA violação destas regras pode resultar na suspensão ou eliminação da conta, nos termos da secção 4.'**
+  String get termsSection5Body;
+
+  /// No description provided for @termsSection6Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'6. Limitação de Responsabilidade'**
+  String get termsSection6Heading;
+
+  /// No description provided for @termsSection6Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'A informação apresentada na OndaCerta, incluindo dados de terceiros e conteúdo comunitário, é fornecida \"tal como está\", sem garantias de exatidão, atualidade ou disponibilidade. As condições do mar podem mudar rapidamente e de forma imprevisível.\n\nNa máxima medida permitida por lei, a OndaCerta e os seus criadores não se responsabilizam por lesões, afogamentos, danos materiais ou outros prejuízos resultantes do uso da app ou da confiança depositada nos dados nela exibidos, nem por imprecisões nos dados de APIs externas ou por conteúdo submetido por outros utilizadores.\n\nNunca entres na água nem tomes decisões de segurança apenas com base nesta app — segue sempre a sinalização física da praia e as indicações dos nadadores-salvadores.'**
+  String get termsSection6Body;
+
+  /// No description provided for @termsSection7Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'7. Propriedade Intelectual'**
+  String get termsSection7Heading;
+
+  /// No description provided for @termsSection7Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'O nome \"OndaCerta\", o logótipo e os materiais visuais da aplicação são propriedade dos seus criadores. O código-fonte está disponível publicamente no GitHub nos termos da respetiva licença.\n\nOs dados das APIs externas são propriedade das respetivas entidades (IPMA, Instituto Hidrográfico, APA, Carris Metropolitana). O conteúdo comunitário (relatos, votos, propostas) pode ser reutilizado pela OndaCerta de forma agregada ou anonimizada, nos termos da secção 3.'**
+  String get termsSection7Body;
+
+  /// No description provided for @termsSection8Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'8. Alterações e Rescisão'**
+  String get termsSection8Heading;
+
+  /// No description provided for @termsSection8Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Podemos modificar ou descontinuar o serviço, ou atualizar estes termos, a qualquer momento. Alterações significativas serão comunicadas na app ou por email.\n\nPodes eliminar a tua conta a qualquer momento em Perfil → Privacidade → Eliminar conta. A eliminação tem um período de carência de 30 dias, durante o qual podes cancelar o pedido; após esse período, a conta e os dados de identificação são apagados de forma permanente e irreversível.'**
+  String get termsSection8Body;
+
+  /// No description provided for @termsSection9Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'9. Lei Aplicável'**
+  String get termsSection9Heading;
+
+  /// No description provided for @termsSection9Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Estes termos regem-se pela lei portuguesa. Qualquer litígio será submetido à jurisdição dos tribunais portugueses, sem prejuízo dos direitos que te assistam como consumidor ao abrigo de legislação imperativa aplicável.'**
+  String get termsSection9Body;
+
+  /// No description provided for @termsSection10Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'10. Contacto'**
+  String get termsSection10Heading;
+
+  /// No description provided for @termsSection10Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Para questões sobre estes termos, contacta-nos em ondacerta.app@gmail.com.'**
+  String get termsSection10Body;
+
+  /// No description provided for @privacyIntroBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'A OndaCerta valoriza a tua privacidade. Esta política explica que dados recolhemos, como os usamos e quais são os teus direitos ao abrigo do Regulamento Geral de Proteção de Dados (RGPD).'**
+  String get privacyIntroBody;
+
+  /// No description provided for @privacySection1Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'1. Responsável pelo Tratamento'**
+  String get privacySection1Heading;
+
+  /// No description provided for @privacySection1Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'OndaCerta — projeto académico (Projeto Final de Curso, Engenharia Informática) associado ao Parque Natural da Arrábida, Portugal.\nContacto: ondacerta.app@gmail.com'**
+  String get privacySection1Body;
+
+  /// No description provided for @privacySection2Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'2. Dados que Recolhemos'**
+  String get privacySection2Heading;
+
+  /// No description provided for @privacySection2Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'• Dados de conta: email, nome apresentado e avatar selecionado (um ícone predefinido, não uma fotografia), quando te registas com email/password ou Google. Nas contas de visitante não recolhemos email nem nome, apenas um identificador anónimo do dispositivo.\n\n• Localização: enquanto a app está aberta e tens a permissão de localização ativa, enviamos periodicamente a tua posição GPS para calcular a tua proximidade a uma praia e o número de pessoas presentes (\"ocupação\"). As tuas coordenadas exatas nunca são mostradas a outros utilizadores — apenas o número total de pessoas por praia é público e, se ativares \"Mostrar no mapa\" nas definições de privacidade, o teu nome pode ficar associado a essa praia (sem coordenadas).\n\n• Conteúdo comunitário: relatos que submeteste (tipo, severidade, nota), votos e propostas ou confirmações de bandeira.\n\n• Notificações push: um token do dispositivo (Firebase Cloud Messaging), usado apenas para te enviar as notificações que ativares.\n\n• Identificador de dispositivo: nas contas de visitante, um identificador anónimo do dispositivo. Não recolhemos IMEI, número de telefone nem outros dados de hardware.\n\n• Dados de sessão: tokens de autenticação armazenados de forma segura no dispositivo (Keychain no iOS, Keystore no Android). Não usamos cookies.'**
+  String get privacySection2Body;
+
+  /// No description provided for @privacySection3Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'3. Como Usamos os Dados'**
+  String get privacySection3Heading;
+
+  /// No description provided for @privacySection3Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'• Mostrar condições das praias e presença de utilizadores em tempo real.\n\n• Calcular o nível de ocupação de cada praia.\n\n• Enviar as notificações que configurares (proximidade, alertas da comunidade, marés, alteração de bandeira, entre outras).\n\n• Calcular a tua reputação com base nos relatos confirmados pela comunidade.\n\n• Manter a segurança do serviço e prevenir abuso (por exemplo, deteção de contas suspeitas).'**
+  String get privacySection3Body;
+
+  /// No description provided for @privacySection4Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'4. Partilha de Dados'**
+  String get privacySection4Heading;
+
+  /// No description provided for @privacySection4Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não vendemos os teus dados pessoais nem os partilhamos com terceiros para fins publicitários.\n\nO teu nome e a praia onde estás podem ficar visíveis a outros utilizadores no mapa se ativares \"Mostrar no mapa\" nas definições de privacidade; podes desativar esta opção a qualquer momento.\n\nUsamos os seguintes serviços de terceiros, estritamente necessários ao funcionamento da app:\n\n• Google (Firebase Cloud Messaging), para enviar notificações push.\n\n• Google Sign-In, se optares por entrar com a tua conta Google.\n\nEstes serviços podem processar dados fora do Espaço Económico Europeu, ao abrigo dos mecanismos de transferência internacional de dados da Google (cláusulas contratuais-tipo da Comissão Europeia ou equivalente).'**
+  String get privacySection4Body;
+
+  /// No description provided for @privacySection5Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'5. Retenção de Dados'**
+  String get privacySection5Heading;
+
+  /// No description provided for @privacySection5Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mantemos os teus dados enquanto a tua conta estiver ativa.\n\nOs relatos que submetes deixam de ser mostrados na app quando expiram (geralmente algumas horas), mas o conteúdo pode ser mantido para fins estatísticos.\n\nSe eliminares a tua conta, os teus dados de identificação (email, nome, tokens de sessão e de notificações) são apagados de forma permanente ao fim do período de carência de 30 dias. Os relatos, votos e propostas que submeteste deixam de estar associados à tua identidade nesse momento: os relatos com conteúdo informativo (por exemplo, o alerta de alforrecas que submeteste) podem ser mantidos desassociados da tua conta, enquanto votos, propostas de bandeira e confirmações são apagados.'**
+  String get privacySection5Body;
+
+  /// No description provided for @privacySection6Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'6. Os Teus Direitos (RGPD)'**
+  String get privacySection6Heading;
+
+  /// No description provided for @privacySection6Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ao abrigo do RGPD tens direito a:\n\n• Acesso e portabilidade: exportar os teus dados em formato JSON em Perfil → Privacidade → Exportar dados.\n\n• Retificação: alterar o teu nome ou email nas definições de conta.\n\n• Apagamento: eliminar todos os teus relatos em Privacidade → Apagar os meus relatos, ou eliminar a conta completa em Privacidade → Eliminar conta (com período de carência de 30 dias, cancelável a qualquer momento).\n\n• Oposição: desativar a partilha de presença e de localização nas definições de privacidade.\n\nPara exercer qualquer um destes direitos, ou se tiveres dúvidas sobre o tratamento dos teus dados, contacta-nos em ondacerta.app@gmail.com. Tens também o direito de apresentar reclamação junto da Comissão Nacional de Proteção de Dados (CNPD), a autoridade de controlo em Portugal — www.cnpd.pt.'**
+  String get privacySection6Body;
+
+  /// No description provided for @privacySection7Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'7. Segurança'**
+  String get privacySection7Heading;
+
+  /// No description provided for @privacySection7Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'As passwords são armazenadas com hash bcrypt, nunca em texto simples. Os tokens de autenticação são guardados no sistema de armazenamento seguro do dispositivo e toda a comunicação com o servidor é feita sobre HTTPS.'**
+  String get privacySection7Body;
+
+  /// No description provided for @privacySection8Heading.
+  ///
+  /// In pt, this message translates to:
+  /// **'8. Alterações a esta Política'**
+  String get privacySection8Heading;
+
+  /// No description provided for @privacySection8Body.
+  ///
+  /// In pt, this message translates to:
+  /// **'Podemos atualizar esta política ocasionalmente. Quando o fizermos, atualizamos a data no topo desta página; para alterações significativas, notificamos através da app ou por email.'**
+  String get privacySection8Body;
+
+  /// No description provided for @authConsentJoiner.
+  ///
+  /// In pt, this message translates to:
+  /// **' e\n'**
+  String get authConsentJoiner;
+
+  /// No description provided for @legalLinksSeparator.
+  ///
+  /// In pt, this message translates to:
+  /// **' · '**
+  String get legalLinksSeparator;
 }
 
 class _AppLocalizationsDelegate

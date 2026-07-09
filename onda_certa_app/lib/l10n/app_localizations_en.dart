@@ -1778,4 +1778,147 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingBody3 =>
       'Save the beaches you visit most and get notified about conditions.';
+
+  @override
+  String get legalLastUpdated => 'Last updated: July 2026';
+
+  @override
+  String get termsIntroBody =>
+      'By using OndaCerta you accept these Terms of Service. Please read them carefully before creating an account or using the app.';
+
+  @override
+  String get termsSection1Heading => '1. The Service';
+
+  @override
+  String get termsSection1Body =>
+      'OndaCerta is an information app for the beaches of Arrábida Natural Park that aggregates official data from sources such as IPMA, the Portuguese Hydrographic Institute, APA and Carris Metropolitana, complemented by contributions from the user community.\n\nWeather, tide, water quality and transport data is provided for informational purposes only and may be delayed, incomplete or inaccurate, since it comes from external sources. OndaCerta is not an emergency service and does not replace official beach signage, the flag flown on the sand, or instructions from lifeguards and the relevant authorities. In an emergency, always call 112.';
+
+  @override
+  String get termsSection2Heading => '2. User Account';
+
+  @override
+  String get termsSection2Body =>
+      'You can use the app as a guest (an anonymous account tied to your device), by registering with email/password, or with Google Sign-In.\n\nYou\'re responsible for keeping your password confidential and for notifying us immediately of any unauthorised use of your account.\n\nBy creating an account, you represent and warrant that you are at least 13 years old. We don\'t technically verify your age — we rely on this representation — so you should not create an account, nor allow anyone under 13 to do so, if this isn\'t true.';
+
+  @override
+  String get termsSection3Heading => '3. Community Content';
+
+  @override
+  String get termsSection3Body =>
+      'By submitting reports (jellyfish, strong currents, pollution, rough sea or other), flag proposals, votes or confirmations, you guarantee that the information is true and reflects conditions you observed in person.\n\nSome reports can only be submitted once the system verifies, through your location signal (heartbeat), that you\'re physically near the beach in question.\n\nPosting false, misleading or offensive content, or content that infringes third-party rights, is prohibited. By submitting content you grant OndaCerta a non-exclusive, worldwide, royalty-free licence to display, distribute and use it as part of the service, including in aggregated or statistical form.';
+
+  @override
+  String get termsSection4Heading => '4. Reputation and Moderation';
+
+  @override
+  String get termsSection4Body =>
+      'Your reputation is calculated based on your contributions and how the community confirms or rejects them. Confirmed reports increase your reputation; reports marked as false lower it.\n\nSome features (for example, proposing a flag) may require a minimum reputation level, which we reserve the right to adjust at any time.\n\nIf your reputation drops sustainably below a threshold we define, or if you breach these terms, your account may be temporarily suspended or permanently banned, automatically or manually, without prior notice. You can always contact us (section 10) to appeal a suspension or ban.';
+
+  @override
+  String get termsSection5Heading => '5. Prohibited Conduct';
+
+  @override
+  String get termsSection5Body =>
+      'You may not:\n\n• Submit false reports, flag proposals or confirmations, or coordinate vote manipulation.\n\n• Use bots, fake accounts or spoofed GPS to generate artificial presence or content.\n\n• Attempt to access other users\' accounts or compromise the security of the service.\n\n• Scrape data from other users or from the app without consent.\n\nBreaking these rules may result in your account being suspended or deleted, as described in section 4.';
+
+  @override
+  String get termsSection6Heading => '6. Limitation of Liability';
+
+  @override
+  String get termsSection6Body =>
+      'Information shown in OndaCerta, including third-party data and community content, is provided \"as is\", without guarantees of accuracy, timeliness or availability. Sea conditions can change quickly and unpredictably.\n\nTo the maximum extent permitted by law, OndaCerta and its creators are not liable for injuries, drownings, property damage or other harm resulting from use of the app or reliance on the data it displays, nor for inaccuracies in third-party API data or content submitted by other users.\n\nNever go into the water or make safety decisions based on this app alone — always follow the physical signage on the beach and instructions from lifeguards.';
+
+  @override
+  String get termsSection7Heading => '7. Intellectual Property';
+
+  @override
+  String get termsSection7Body =>
+      'The \"OndaCerta\" name, logo and visual assets belong to their creators. The source code is publicly available on GitHub under its respective licence.\n\nData from external APIs belongs to the respective entities (IPMA, Hydrographic Institute, APA, Carris Metropolitana). Community content (reports, votes, proposals) may be reused by OndaCerta in aggregated or anonymised form, as described in section 3.';
+
+  @override
+  String get termsSection8Heading => '8. Changes and Termination';
+
+  @override
+  String get termsSection8Body =>
+      'We may modify or discontinue the service, or update these terms, at any time. Significant changes will be communicated in the app or by email.\n\nYou can delete your account at any time in Profile → Privacy → Delete account. Deletion has a 30-day grace period during which you can cancel the request; after that period, the account and identifying data are permanently and irreversibly erased.';
+
+  @override
+  String get termsSection9Heading => '9. Governing Law';
+
+  @override
+  String get termsSection9Body =>
+      'These terms are governed by Portuguese law. Any dispute will be submitted to the jurisdiction of the Portuguese courts, without prejudice to any rights you may have as a consumer under applicable mandatory legislation.';
+
+  @override
+  String get termsSection10Heading => '10. Contact';
+
+  @override
+  String get termsSection10Body =>
+      'For questions about these terms, contact us at ondacerta.app@gmail.com.';
+
+  @override
+  String get privacyIntroBody =>
+      'OndaCerta values your privacy. This policy explains what data we collect, how we use it, and what rights you have under the General Data Protection Regulation (GDPR).';
+
+  @override
+  String get privacySection1Heading => '1. Data Controller';
+
+  @override
+  String get privacySection1Body =>
+      'OndaCerta is an app for the beaches of Arrábida Natural Park, Portugal.\nContact: ondacerta.app@gmail.com';
+
+  @override
+  String get privacySection2Heading => '2. Data We Collect';
+
+  @override
+  String get privacySection2Body =>
+      '• Account data: email, display name and a chosen avatar (a preset icon, not a photo), when you register with email/password or Google. Guest accounts don\'t collect an email or name, only an anonymous device identifier.\n\n• Location: while the app is open and you\'ve granted location permission, we periodically send your GPS position to work out your proximity to a beach and how many people are present (\"occupancy\"). Your exact coordinates are never shown to other users — only the total headcount per beach is public, and if you enable \"Show on map\" in your privacy settings, your name may appear associated with that beach (never coordinates).\n\n• Community content: reports you submit (type, severity, note), votes, and flag proposals or confirmations.\n\n• Push notifications: a device token (Firebase Cloud Messaging), used only to send you the notifications you enable.\n\n• Device identifier: for guest accounts, an anonymous device identifier. We don\'t collect IMEI, phone number or other hardware data.\n\n• Session data: authentication tokens stored securely on your device (Keychain on iOS, Keystore on Android). We don\'t use cookies.';
+
+  @override
+  String get privacySection3Heading => '3. How We Use Your Data';
+
+  @override
+  String get privacySection3Body =>
+      '• Show beach conditions and real-time user presence.\n\n• Calculate each beach\'s occupancy level.\n\n• Send the notifications you configure (proximity, community alerts, tides, flag changes, and others).\n\n• Calculate your reputation based on reports confirmed by the community.\n\n• Keep the service secure and prevent abuse (for example, detecting suspicious accounts).';
+
+  @override
+  String get privacySection4Heading => '4. Data Sharing';
+
+  @override
+  String get privacySection4Body =>
+      'We don\'t sell your personal data or share it with third parties for advertising purposes.\n\nYour name and the beach you\'re at may be visible to other users on the map if you enable \"Show on map\" in your privacy settings; you can turn this off at any time.\n\nWe use the following third-party services, strictly necessary for the app to work:\n\n• Google (Firebase Cloud Messaging), to send push notifications.\n\n• Google Sign-In, if you choose to sign in with your Google account.\n\nThese services may process data outside the European Economic Area, under Google\'s international data transfer mechanisms (European Commission standard contractual clauses or equivalent).';
+
+  @override
+  String get privacySection5Heading => '5. Data Retention';
+
+  @override
+  String get privacySection5Body =>
+      'We keep your data for as long as your account is active.\n\nReports you submit stop being shown in the app once they expire (usually after a few hours), but the content may be kept for statistical purposes.\n\nIf you delete your account, your identifying data (email, name, session and notification tokens) is permanently erased at the end of the 30-day grace period. Reports, votes and proposals you submitted stop being linked to your identity at that point: reports with informational content (for example, a jellyfish alert you submitted) may be kept detached from your account, while votes, flag proposals and confirmations are deleted.';
+
+  @override
+  String get privacySection6Heading => '6. Your Rights (GDPR)';
+
+  @override
+  String get privacySection6Body =>
+      'Under the GDPR you have the right to:\n\n• Access and portability: export your data as JSON in Profile → Privacy → Export data.\n\n• Rectification: change your name or email in your account settings.\n\n• Erasure: delete all your reports in Privacy → Delete my reports, or delete your whole account in Privacy → Delete account (30-day grace period, cancellable at any time).\n\n• Objection: turn off presence and location sharing in your privacy settings.\n\nTo exercise any of these rights, or if you have questions about how we handle your data, contact us at ondacerta.app@gmail.com. You also have the right to lodge a complaint with Portugal\'s data protection authority, the Comissão Nacional de Proteção de Dados (CNPD) — www.cnpd.pt.';
+
+  @override
+  String get privacySection7Heading => '7. Security';
+
+  @override
+  String get privacySection7Body =>
+      'Passwords are stored using bcrypt hashing, never in plain text. Authentication tokens are kept in your device\'s secure storage, and all communication with the server happens over HTTPS.';
+
+  @override
+  String get privacySection8Heading => '8. Changes to This Policy';
+
+  @override
+  String get privacySection8Body =>
+      'We may update this policy from time to time. When we do, we update the date at the top of this page; for significant changes, we\'ll notify you in the app or by email.';
+
+  @override
+  String get authConsentJoiner => ' and\n';
+
+  @override
+  String get legalLinksSeparator => ' · ';
 }

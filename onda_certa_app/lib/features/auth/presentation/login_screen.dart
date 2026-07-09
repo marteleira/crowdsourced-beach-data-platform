@@ -1,6 +1,5 @@
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +8,7 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/auth_consent_footer.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -103,7 +103,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               const Spacer(flex: 1),
-              _Footer(),
+              const AuthConsentFooter(),
               const SizedBox(height: AppSpacing.lg),
             ],
           ),
@@ -263,43 +263,6 @@ class _EmailButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Footer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: AppColors.textSecondary,
-        );
-    final linkStyle = style?.copyWith(
-      fontWeight: FontWeight.w600,
-      color: AppColors.textPrimary,
-    );
-
-    final l10n = context.l10n;
-    return Text.rich(
-      TextSpan(
-        text: l10n.authConsentPrefix,
-        style: style,
-        children: [
-          TextSpan(
-            text: l10n.termsOfService,
-            style: linkStyle,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => context.push(AppRoutes.terms),
-          ),
-          const TextSpan(text: ' e\n'),
-          TextSpan(
-            text: l10n.privacyPolicy,
-            style: linkStyle,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => context.push(AppRoutes.privacy),
-          ),
-        ],
-      ),
-      textAlign: TextAlign.center,
     );
   }
 }

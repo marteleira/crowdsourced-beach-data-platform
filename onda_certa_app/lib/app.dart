@@ -65,8 +65,12 @@ final _routerProvider = Provider<GoRouter>((ref) {
         return loc == AppRoutes.accountSuspended ? null : AppRoutes.accountSuspended;
       }
 
-      // Splash, onboarding and auth routes manage their own navigation
-      if (loc == '/' || loc == AppRoutes.onboarding || loc.startsWith(AppRoutes.login)) {
+      // Splash, onboarding, auth, and public legal routes manage their own navigation
+      if (loc == '/' ||
+          loc == AppRoutes.onboarding ||
+          loc.startsWith(AppRoutes.login) ||
+          loc == AppRoutes.terms ||
+          loc == AppRoutes.privacy) {
         return null;
       }
 
