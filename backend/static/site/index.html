@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OndaCerta — Sua Comunidade do Mar</title>
+<meta name="description" content="OndaCerta reúne meteorologia, marés, qualidade da água, transportes e alertas da comunidade para as 18 praias da Arrábida, numa só app.">
+
+<link rel="icon" type="image/png" sizes="32x32" href="/static/site/img/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/site/img/apple-touch-icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="OndaCerta — Sua Comunidade do Mar">
+<meta property="og:description" content="Meteorologia, marés, qualidade da água, transportes e alertas da comunidade para as praias da Arrábida.">
+<meta property="og:image" content="/static/site/img/favicon-512.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/site/css/styles.css">
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="container">
+    <a href="#top" class="brand">
+      <img src="/static/site/img/mark.png" alt="OndaCerta">
+      OndaCerta
+    </a>
+
+    <nav class="nav__links" id="navLinks">
+      <a href="#sobre">Sobre</a>
+      <a href="#funcionalidades">Funcionalidades</a>
+      <a href="#app">A app</a>
+      <a href="#dados">Dados</a>
+      <a href="#api">API</a>
+    </nav>
+
+    <div class="nav__actions">
+      <a class="btn btn--primary btn--sm" href="/static/downloads/onda-certa.apk" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+        <span>Download</span>
+      </a>
+      <button class="nav__toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero__copy">
+        <p class="eyebrow hero__eyebrow">Parque Natural da Arrábida</p>
+        <h1>Descubra sempre <span>a onda certa</span></h1>
+        <div class="hero__stripe"><i></i><i></i><i></i></div>
+        <p class="lead">
+          OndaCerta junta meteorologia, marés, qualidade da água e transportes das 18 praias da
+          Arrábida numa só app, e deixa a comunidade tratar do resto: alertas em tempo real e o
+          estado real da água, reportado por quem lá está.
+        </p>
+
+        <div class="hero__actions">
+          <a class="btn btn--primary" href="/static/downloads/onda-certa.apk" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+            Descarregar para Android
+          </a>
+          <a class="btn btn--outline-light" href="/docs">
+            Ver documentação da API
+          </a>
+        </div>
+
+        <div class="hero__meta">
+          <div><strong>18</strong>Praias monitorizadas</div>
+          <div><strong>4</strong>Fontes de dados oficiais</div>
+          <div><strong>100%</strong>Gratuita, sem anúncios</div>
+        </div>
+      </div>
+
+      <div class="hero__visual reveal">
+        <div class="hero__photo">
+          <img src="/static/site/img/hero-galapinhos.jpg" alt="Praia dos Galapinhos, Arrábida" loading="eager">
+        </div>
+        <div class="hero__badge"><i></i> Dados em tempo real</div>
+        <div class="hero__phone">
+          <div class="phone">
+            <div class="phone__screen">
+              <div class="phone__notch"></div>
+              <img src="/static/site/img/screens/home.jpg" alt="Ecrã inicial da app OndaCerta">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="about" id="sobre">
+    <div class="container">
+      <div class="about__photo reveal">
+        <img src="/static/site/img/about-ribeira-cavalo.jpg" alt="Praia da Ribeira do Cavalo, Arrábida" loading="lazy">
+      </div>
+
+      <div class="about__text reveal">
+        <p class="eyebrow">Porque existe</p>
+        <h2>A informação da sua praia anda espalhada, e a OndaCerta junta tudo</h2>
+        <p class="lede">
+          Meteorologia num site, marés noutro, qualidade da água numa tabela do governo que ninguém
+          encontra. A OndaCerta agrega essas fontes oficiais e acrescenta o que só quem está na
+          praia consegue dar: o estado real da água, agora.
+        </p>
+
+        <ul class="about__list">
+          <li>
+            <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+            <div>
+              <h4>Dados oficiais, sempre atualizados</h4>
+              <p>IPMA, Instituto Hidrográfico e EEA num único ecrã, sem saltar entre sites.</p>
+            </div>
+          </li>
+          <li>
+            <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+            <div>
+              <h4>Sabe se está segura antes de sair de casa</h4>
+              <p>Estado da água, ondulação e alertas ativos antes de fazer o percurso até à praia.</p>
+            </div>
+          </li>
+          <li>
+            <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+            <div>
+              <h4>A comunidade avisa em tempo real</h4>
+              <p>Medusas, correntes ou água suja: reportado por quem está lá, confirmado por quem chega a seguir.</p>
+            </div>
+          </li>
+          <li>
+            <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></span>
+            <div>
+              <h4>Sabe se vai estar cheia</h4>
+              <p>Ocupação estimada a partir de presenças reais de outros utilizadores, nos últimos 20 minutos.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="features" id="funcionalidades">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <p class="eyebrow eyebrow--center">Funcionalidades</p>
+        <h2>Tudo o que precisa de saber sobre a sua praia</h2>
+      </div>
+
+      <div class="features__grid">
+        <div class="feature-card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.4"/><path d="M2.5 16.2c1.4-1.4 2.9-1.4 4.3 0s2.9 1.4 4.3 0 2.9-1.4 4.3 0 2.9 1.4 4.3 0"/><path d="M2.5 20.2c1.4-1.4 2.9-1.4 4.3 0s2.9 1.4 4.3 0 2.9-1.4 4.3 0 2.9 1.4 4.3 0"/></svg></div>
+          <h3>Meteorologia &amp; mar</h3>
+          <p>Temperatura do ar e da água, vento, ondulação e período, direto do IPMA e do Instituto Hidrográfico.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M8.7 8.3L12 5l3.3 3.3"/><path d="M3 18.3c1.5-1.5 3-1.5 4.5 0s3 1.5 4.5 0 3-1.5 4.5 0 3 1.5 4.5 0"/></svg></div>
+          <h3>Marés</h3>
+          <p>Previsão com modelo de harmónicos ajustado a observações reais, com gráfico e hora da próxima maré.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3.5c3 4 6 7.7 6 11.2a6 6 0 1 1-12 0c0-3.5 3-7.2 6-11.2z"/><path d="M9.3 13.8l1.9 1.9L15 11.6"/></svg></div>
+          <h3>Qualidade da água</h3>
+          <p>Classificação oficial da água balnear da EEA / APA InfoÁgua, com histórico da época.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="11.5" rx="2.6"/><path d="M3.5 11.5h17"/><circle cx="7.8" cy="19.3" r="1.3"/><circle cx="16.2" cy="19.3" r="1.3"/><path d="M7 5V3.6M17 5V3.6"/></svg></div>
+          <h3>Transportes</h3>
+          <p>Paragens e horários em tempo real da Carris Metropolitana, para chegar à praia sem carro.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M6 3v18"/><path d="M6 4.2h11l-2.6 3.6L17 11.4H6"/></svg></div>
+          <h3>Comunidade &amp; alertas</h3>
+          <p>Reports de medusas, correntes ou poluição, confirmados pela comunidade antes de virarem alerta.</p>
+        </div>
+
+        <div class="feature-card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3a5.2 5.2 0 0 1 5.2 5.2c0 4.2-5.2 10.3-5.2 10.3S6.8 12.4 6.8 8.2A5.2 5.2 0 0 1 12 3z"/><circle cx="12" cy="8.2" r="1.8"/></svg></div>
+          <h3>Ocupação em tempo real</h3>
+          <p>Estimativa de lotação baseada em presenças reais dos últimos 20 minutos, sem câmaras nem sensores.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SHOWCASE ============ -->
+  <section class="showcase" id="app">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <p class="eyebrow eyebrow--center">A app</p>
+        <h2>Feita para abrir na praia, ao sol, com uma mão</h2>
+        <p>Sem menus escondidos. A informação mais importante fica sempre a um toque de distância.</p>
+      </div>
+
+      <div class="showcase__phones">
+        <figure class="phone-block reveal">
+          <div class="phone">
+            <div class="phone__screen">
+              <div class="phone__notch"></div>
+              <img src="/static/site/img/screens/home.jpg" alt="Ecrã inicial" loading="lazy">
+            </div>
+          </div>
+          <figcaption>Início</figcaption>
+        </figure>
+
+        <figure class="phone-block reveal">
+          <div class="phone">
+            <div class="phone__screen">
+              <div class="phone__notch"></div>
+              <img src="/static/site/img/screens/beach-detail.jpg" alt="Detalhe da praia" loading="lazy">
+            </div>
+          </div>
+          <figcaption>Detalhe da praia</figcaption>
+        </figure>
+
+        <figure class="phone-block reveal">
+          <div class="phone">
+            <div class="phone__screen">
+              <div class="phone__notch"></div>
+              <img src="/static/site/img/screens/tides.jpg" alt="Ecrã de marés" loading="lazy">
+            </div>
+          </div>
+          <figcaption>Marés</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DATA SOURCES ============ -->
+  <section class="sources" id="dados">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow eyebrow--light">Fontes de dados</p>
+        <h2>Dados oficiais, nada inventado</h2>
+      </div>
+
+      <div class="sources__grid">
+        <div class="source-card reveal">
+          <h4>IPMA</h4>
+          <p>Previsão meteorológica e estado do mar para toda a costa da Arrábida.</p>
+        </div>
+        <div class="source-card reveal">
+          <h4>Instituto Hidrográfico</h4>
+          <p>Estações de marés, com dados harmónicos e observações reais.</p>
+        </div>
+        <div class="source-card reveal">
+          <h4>EEA / APA InfoÁgua</h4>
+          <p>Classificação oficial da qualidade da água balnear de cada praia.</p>
+        </div>
+        <div class="source-card reveal">
+          <h4>Carris Metropolitana</h4>
+          <p>Paragens e horários de autocarro em tempo real até cada praia.</p>
+        </div>
+      </div>
+
+      <div class="reliability reveal">
+        <div>
+          <h3>E quando uma fonte cai?</h3>
+          <p>
+            Cada resposta bem-sucedida de uma API oficial fica guardada como snapshot. Se a fonte
+            estiver indisponível, a OndaCerta mostra o último snapshot válido em vez de um ecrã vazio.
+          </p>
+        </div>
+        <div class="reliability__diagram">
+          <div class="reliability__node">Fonte oficial<span>IPMA, IH, EEA...</span></div>
+          <div class="reliability__arrow"></div>
+          <div class="reliability__node">Snapshot guardado<span>fallback automático</span></div>
+          <div class="reliability__arrow"></div>
+          <div class="reliability__node">A sua app<span>sempre com dados</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DEVELOPER / API ============ -->
+  <section class="developer" id="api">
+    <div class="container">
+      <div class="developer__text reveal">
+        <p class="eyebrow">Para programadores</p>
+        <h2>API aberta, documentação completa</h2>
+        <p class="lede">
+          O backend é construído em FastAPI, com PostgreSQL e PostGIS. Explore os endpoints,
+          teste pedidos e veja os modelos de dados diretamente no browser.
+        </p>
+
+        <div class="developer__cards">
+          <a class="dev-card" href="/docs">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h9l4 4v12H6z"/><path d="M15 4v4h4"/><path d="M9 13h6M9 16.5h6"/></svg></span>
+            <div>
+              <h4>Swagger UI</h4>
+              <p>Documentação interativa, teste pedidos direto no browser.</p>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a class="dev-card" href="/redoc">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h9.5L19 9v10.5H5z"/><path d="M9 12h6M9 15.5h6M9 8.5h3"/></svg></span>
+            <div>
+              <h4>ReDoc</h4>
+              <p>Referência da API em formato de leitura, organizada por recurso.</p>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+
+          <a class="dev-card" href="https://github.com/marteleira/crowdsourced-beach-data-platform" target="_blank" rel="noopener">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 8L4.5 12l4 4"/><path d="M15.5 8l4 4-4 4"/><path d="M13.5 6l-3 12"/></svg></span>
+            <div>
+              <h4>Código fonte</h4>
+              <p>Backend e app Flutter, ambos disponíveis no GitHub.</p>
+            </div>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="code-window">
+          <div class="code-window__bar">
+            <i></i><i></i><i></i>
+            <span>GET /api/v1/beaches/praia-da-california</span>
+          </div>
+          <pre><code><span class="tok-method">GET</span> <span class="tok-path">/api/v1/beaches/praia-da-california</span>
+
+{
+  <span class="tok-field">"name"</span>: <span class="tok-string">"Praia da Califórnia"</span>,
+  <span class="tok-field">"flag"</span>: <span class="tok-string">"green"</span>,
+  <span class="tok-field">"confidence"</span>: 0.99,
+  <span class="tok-field">"sea_temp_c"</span>: 18.0,
+  <span class="tok-field">"wave_height_m"</span>: 1.4,
+  <span class="tok-field">"occupancy"</span>: <span class="tok-string">"low"</span>,
+  <span class="tok-field">"water_quality"</span>: <span class="tok-string">"excellent"</span>
+}
+<span class="tok-comment">// dados agregados de 4 fontes oficiais + comunidade</span></code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DOWNLOAD CTA ============ -->
+  <section class="cta" id="download">
+    <div class="container">
+      <div class="cta__panel reveal">
+        <h2>Leve a Arrábida no bolso</h2>
+        <p>Gratuita, sem anúncios, feita a pensar em quem vive e visita a Arrábida.</p>
+
+        <div class="cta__actions">
+          <a class="btn btn--primary" href="/static/downloads/onda-certa.apk" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+            Descarregar APK
+          </a>
+          <a class="btn btn--outline-light" href="https://github.com/marteleira/crowdsourced-beach-data-platform" target="_blank" rel="noopener">
+            Ver no GitHub
+          </a>
+        </div>
+
+        <p class="cta__fine">Android 8.0 ou superior · APK direto · v1.0.0 · ~58 MB</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__brand">
+      <a href="#top" class="brand">
+        <img src="/static/site/img/mark.png" alt="OndaCerta">
+        OndaCerta
+      </a>
+      <p>Meteorologia, marés, qualidade da água, transportes e alertas da comunidade para as praias da Arrábida, todos num só sítio.</p>
+    </div>
+
+    <div class="footer__links">
+      <div class="footer__col">
+        <h5>Produto</h5>
+        <ul>
+          <li><a href="#funcionalidades">Funcionalidades</a></li>
+          <li><a href="#app">A app</a></li>
+          <li><a href="#dados">Fontes de dados</a></li>
+          <li><a href="/static/downloads/onda-certa.apk" download>Download</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h5>Programadores</h5>
+        <ul>
+          <li><a href="/docs">Swagger UI</a></li>
+          <li><a href="/redoc">ReDoc</a></li>
+          <li><a href="/health">Estado do serviço</a></li>
+          <li><a href="https://github.com/marteleira/crowdsourced-beach-data-platform" target="_blank" rel="noopener">Código fonte</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <span>© 2026 OndaCerta. Projeto Final de Curso, Engenharia Informática, EST Setúbal.</span>
+    <span>Construído com FastAPI, PostgreSQL/PostGIS e Flutter.</span>
+  </div>
+</footer>
+
+<script src="/static/site/js/main.js"></script>
+</body>
+</html>

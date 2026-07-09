@@ -331,7 +331,6 @@ Detailed docs for each part live in their respective directories:
 
 ### 🔜 Planned
 
-
 - [ ] Pagina web de apresentação e etc
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
 - [ ] Hosting for the backend (azure)
@@ -342,6 +341,8 @@ Detailed docs for each part live in their respective directories:
 
 ### After the first launch
 - [ ] Expand to other Portuguese beaches 
+- [ ] IOs
+- [ ] Consider the share feature
 
 ---
 

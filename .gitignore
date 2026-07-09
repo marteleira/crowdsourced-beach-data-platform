@@ -9,6 +9,7 @@ build/
 .pytest_cache/
 .coverage
 secrets/
+backend/static/downloads/
 
 # Flutter/Dart
 *.class
