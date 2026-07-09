@@ -98,7 +98,7 @@ class TestPrivacySettings:
         r = await client.get("/api/v1/users/me/privacy-settings", headers=auth_headers)
         assert r.status_code == 200
         body = r.json()
-        assert body["share_presence"] is True
+        assert body["share_presence"] is False
         assert body["name_public"] is True
 
     async def test_patch_updates_fields(self, client: AsyncClient, auth_headers: dict):
@@ -291,7 +291,7 @@ class TestPrivacySettingsEnforcement:
         await self._heartbeat(db, user, beach)
         await client.patch(
             "/api/v1/users/me/privacy-settings",
-            json={"name_public": False},
+            json={"name_public": False, "share_presence": True},
             headers=auth_headers,
         )
 
@@ -306,7 +306,13 @@ class TestPrivacySettingsEnforcement:
         db: AsyncSession, user: User, beach: Beach,
     ):
         await self._heartbeat(db, user, beach)
-        #Default: share_presence=True, name_public=True
+        #name_public defaults to True, but share_presence defaults to False (opt-in) —
+        #must opt in explicitly to appear in the visible list at all.
+        await client.patch(
+            "/api/v1/users/me/privacy-settings",
+            json={"share_presence": True},
+            headers=auth_headers,
+        )
 
         r = await client.get("/api/v1/map/users")
         entry = next((b for b in r.json() if b["beach_id"] == beach.id), None)
@@ -314,11 +320,28 @@ class TestPrivacySettingsEnforcement:
         assert len(entry["users"]) == 1
         assert entry["users"][0]["display_name"] == user.display_name
 
-    async def test_share_presence_true_user_visible_by_default(
+    async def test_share_presence_false_by_default_user_not_visible(
         self, client: AsyncClient, auth_headers: dict,
         db: AsyncSession, user: User, beach: Beach,
     ):
         await self._heartbeat(db, user, beach)
+
+        r = await client.get("/api/v1/map/users")
+        entry = next((b for b in r.json() if b["beach_id"] == beach.id), None)
+        assert entry is not None
+        assert entry["user_count"] == 1   #still counted
+        assert entry["users"] == []       #but not listed — opt-in required
+
+    async def test_share_presence_true_user_visible_when_opted_in(
+        self, client: AsyncClient, auth_headers: dict,
+        db: AsyncSession, user: User, beach: Beach,
+    ):
+        await self._heartbeat(db, user, beach)
+        await client.patch(
+            "/api/v1/users/me/privacy-settings",
+            json={"share_presence": True},
+            headers=auth_headers,
+        )
 
         r = await client.get("/api/v1/map/users")
         entry = next((b for b in r.json() if b["beach_id"] == beach.id), None)
@@ -521,7 +544,7 @@ class TestNotificationSettingsEnforcement:
             "global_enabled", "checkin_alerts", "proximity_alerts",
             "proximity_radius_meters", "favourite_alerts_enabled",
             "favourite_alerts_per_beach", "alert_types", "min_severity",
-            "flag_change_alerts", "red_flag_favourite_alerts", "tide_alerts",
+            "flag_change_alerts", "tide_alerts",
             "report_confirmed", "report_rejected", "quiet_hours_enabled",
             "quiet_hours_start", "quiet_hours_end",
         }
@@ -572,20 +595,26 @@ class TestSettingsIsolation:
 
         await client.patch(
             "/api/v1/users/me/privacy-settings",
-            json={"share_presence": False},
+            json={"share_presence": True},
             headers=auth_headers,
         )
 
         r = await client.get("/api/v1/users/me/privacy-settings", headers=other_headers)
         body = r.json()
-        assert body["share_presence"] is True
+        assert body["share_presence"] is False
 
     async def test_map_shows_only_users_with_presence_enabled(
         self, client: AsyncClient, auth_headers: dict,
         db: AsyncSession, user: User, beach: Beach,
     ):
         from app.core.security import hash_password, create_access_token
-        #Second user opts out of presence
+        #First user opts in to presence (default is now False / opt-in)
+        await client.patch(
+            "/api/v1/users/me/privacy-settings",
+            json={"share_presence": True},
+            headers=auth_headers,
+        )
+        #Second user leaves presence at its default (opted out)
         other = User(
             email="no-presence@example.com",
             display_name="Hidden User",
@@ -612,111 +641,50 @@ class TestSettingsIsolation:
         assert entry["users"][0]["display_name"] == user.display_name
 
 
-# Red flag favourite notification
+# Favourite / presence parity for flag notifications
+#
+# There used to be a dedicated dispatch_red_flag_favourite_notification() that special-cased
+# favourite-only users on a red flag (its own setting, bypassed quiet hours). That's gone —
+# favouriting a beach is now treated exactly like being checked in there: everything flows
+# through dispatch_flag_notification() and the standard settings gates (favourite_alerts_enabled,
+# flag_change_alerts, quiet hours, per-beach mute).
 
 
-class TestRedFlagFavouriteNotification:
-    """Testes para a notificação de bandeira vermelha em praias favoritas."""
+class TestFavouritePresenceParityOnRedFlag:
+    """dispatch_flag_notification trata utilizadores fav-only da mesma forma que utilizadores
+    com checkin, incluindo para bandeira vermelha — sem função especial dedicada."""
 
-    async def test_setting_default_is_true(self, client: AsyncClient, auth_headers: dict):
-        r = await client.get("/api/v1/users/me/notification-settings", headers=auth_headers)
-        assert r.json()["red_flag_favourite_alerts"] is True
-
-    async def test_setting_can_be_disabled_and_persists(
+    async def test_setting_red_flag_favourite_alerts_no_longer_exists(
         self, client: AsyncClient, auth_headers: dict,
     ):
-        r = await client.patch(
-            "/api/v1/users/me/notification-settings",
-            json={"red_flag_favourite_alerts": False},
-            headers=auth_headers,
-        )
-        assert r.status_code == 200
-        assert r.json()["red_flag_favourite_alerts"] is False
-
-        r2 = await client.get("/api/v1/users/me/notification-settings", headers=auth_headers)
-        assert r2.json()["red_flag_favourite_alerts"] is False
-
-    async def test_setting_does_not_clobber_other_fields(
-        self, client: AsyncClient, auth_headers: dict,
-    ):
-        await client.patch(
-            "/api/v1/users/me/notification-settings",
-            json={"flag_change_alerts": False},
-            headers=auth_headers,
-        )
-        await client.patch(
-            "/api/v1/users/me/notification-settings",
-            json={"red_flag_favourite_alerts": False},
-            headers=auth_headers,
-        )
         r = await client.get("/api/v1/users/me/notification-settings", headers=auth_headers)
-        body = r.json()
-        assert body["flag_change_alerts"] is False
-        assert body["red_flag_favourite_alerts"] is False
+        assert "red_flag_favourite_alerts" not in r.json()
 
-    async def test_dispatch_notifies_fav_user_with_token(
+    async def test_dispatch_notifies_fav_only_user_on_red_flag(
         self, db: AsyncSession, beach: Beach, user: User,
     ):
         from unittest.mock import AsyncMock, patch
         from app.models.user_extended import PushToken, UserFavourite
-        from app.services.push_notifications import dispatch_red_flag_favourite_notification
+        from app.services.push_notifications import dispatch_flag_notification
 
         db.add(UserFavourite(user_id=user.id, beach_id=beach.id))
         db.add(PushToken(user_id=user.id, token="fav-token-red", platform="android"))
         await db.commit()
 
         with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
-            count = await dispatch_red_flag_favourite_notification(db, beach.id, beach.name)
+            count = await dispatch_flag_notification(db, beach.id, "green", "red", beach.name)
 
         assert count == 1
         mock_send.assert_called_once()
         title_arg = mock_send.call_args.args[1]
-        assert "vermelha" in title_arg.lower()
+        assert beach.name in title_arg
 
-    async def test_dispatch_skips_user_with_setting_disabled(
+    async def test_dispatch_skips_fav_only_user_with_favourite_alerts_disabled(
         self, db: AsyncSession, beach: Beach, user: User,
     ):
         from unittest.mock import AsyncMock, patch
         from app.models.user_extended import PushToken, UserFavourite
-        from app.services.push_notifications import dispatch_red_flag_favourite_notification
-
-        user.notification_settings = {"red_flag_favourite_alerts": False}
-        db.add(user)
-        db.add(UserFavourite(user_id=user.id, beach_id=beach.id))
-        db.add(PushToken(user_id=user.id, token="fav-token-rf-disabled", platform="android"))
-        await db.commit()
-
-        with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
-            count = await dispatch_red_flag_favourite_notification(db, beach.id, beach.name)
-
-        assert count == 0
-        mock_send.assert_not_called()
-
-    async def test_dispatch_skips_user_with_global_disabled(
-        self, db: AsyncSession, beach: Beach, user: User,
-    ):
-        from unittest.mock import AsyncMock, patch
-        from app.models.user_extended import PushToken, UserFavourite
-        from app.services.push_notifications import dispatch_red_flag_favourite_notification
-
-        user.notification_settings = {"global_enabled": False}
-        db.add(user)
-        db.add(UserFavourite(user_id=user.id, beach_id=beach.id))
-        db.add(PushToken(user_id=user.id, token="fav-token-global-off", platform="android"))
-        await db.commit()
-
-        with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
-            count = await dispatch_red_flag_favourite_notification(db, beach.id, beach.name)
-
-        assert count == 0
-        mock_send.assert_not_called()
-
-    async def test_dispatch_skips_user_with_favourite_alerts_disabled(
-        self, db: AsyncSession, beach: Beach, user: User,
-    ):
-        from unittest.mock import AsyncMock, patch
-        from app.models.user_extended import PushToken, UserFavourite
-        from app.services.push_notifications import dispatch_red_flag_favourite_notification
+        from app.services.push_notifications import dispatch_flag_notification
 
         user.notification_settings = {"favourite_alerts_enabled": False}
         db.add(user)
@@ -725,34 +693,54 @@ class TestRedFlagFavouriteNotification:
         await db.commit()
 
         with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
-            count = await dispatch_red_flag_favourite_notification(db, beach.id, beach.name)
+            count = await dispatch_flag_notification(db, beach.id, "green", "red", beach.name)
 
         assert count == 0
         mock_send.assert_not_called()
 
-    async def test_dispatch_skips_user_without_favourite(
+    async def test_dispatch_skips_fav_only_user_with_global_disabled(
+        self, db: AsyncSession, beach: Beach, user: User,
+    ):
+        from unittest.mock import AsyncMock, patch
+        from app.models.user_extended import PushToken, UserFavourite
+        from app.services.push_notifications import dispatch_flag_notification
+
+        user.notification_settings = {"global_enabled": False}
+        db.add(user)
+        db.add(UserFavourite(user_id=user.id, beach_id=beach.id))
+        db.add(PushToken(user_id=user.id, token="fav-token-global-off", platform="android"))
+        await db.commit()
+
+        with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
+            count = await dispatch_flag_notification(db, beach.id, "green", "red", beach.name)
+
+        assert count == 0
+        mock_send.assert_not_called()
+
+    async def test_dispatch_skips_user_without_favourite_or_checkin(
         self, db: AsyncSession, beach: Beach, user: User,
     ):
         from unittest.mock import AsyncMock, patch
         from app.models.user_extended import PushToken
-        from app.services.push_notifications import dispatch_red_flag_favourite_notification
+        from app.services.push_notifications import dispatch_flag_notification
 
         db.add(PushToken(user_id=user.id, token="no-fav-token", platform="android"))
         await db.commit()
 
         with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
-            count = await dispatch_red_flag_favourite_notification(db, beach.id, beach.name)
+            count = await dispatch_flag_notification(db, beach.id, "green", "red", beach.name)
 
         assert count == 0
         mock_send.assert_not_called()
 
-    async def test_dispatch_bypasses_quiet_hours(
+    async def test_dispatch_red_flag_now_respects_quiet_hours_for_fav_only(
         self, db: AsyncSession, beach: Beach, user: User,
     ):
-        """Bandeira vermelha passa mesmo durante quiet hours."""
+        """Ao contrário da antiga função dedicada, bandeira vermelha para fav-only já não
+        ignora quiet hours — mesma regra aplicada a utilizadores com checkin."""
         from unittest.mock import AsyncMock, patch
         from app.models.user_extended import PushToken, UserFavourite
-        from app.services.push_notifications import dispatch_red_flag_favourite_notification
+        from app.services.push_notifications import dispatch_flag_notification
 
         user.notification_settings = {
             "quiet_hours_enabled": True,
@@ -765,30 +753,12 @@ class TestRedFlagFavouriteNotification:
         await db.commit()
 
         with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
-            count = await dispatch_red_flag_favourite_notification(db, beach.id, beach.name)
-
-        assert count == 1
-        mock_send.assert_called_once()
-
-    async def test_dispatch_flag_skips_fav_only_on_red(
-        self, db: AsyncSession, beach: Beach, user: User,
-    ):
-        """dispatch_flag_notification não duplica a notificação para fav-only quando flag vai a vermelho."""
-        from unittest.mock import AsyncMock, patch
-        from app.models.user_extended import PushToken, UserFavourite
-        from app.services.push_notifications import dispatch_flag_notification
-
-        db.add(UserFavourite(user_id=user.id, beach_id=beach.id))
-        db.add(PushToken(user_id=user.id, token="fav-only-red-token", platform="android"))
-        await db.commit()
-
-        with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
             count = await dispatch_flag_notification(db, beach.id, "green", "red", beach.name)
 
         assert count == 0
         mock_send.assert_not_called()
 
-    async def test_dispatch_flag_still_notifies_fav_only_for_non_red(
+    async def test_dispatch_flag_notifies_fav_only_for_non_red_too(
         self, db: AsyncSession, beach: Beach, user: User,
     ):
         """dispatch_flag_notification continua a notificar fav-only para mudanças não-vermelhas."""
@@ -805,3 +775,43 @@ class TestRedFlagFavouriteNotification:
 
         assert count == 1
         mock_send.assert_called_once()
+
+    async def test_checkin_and_fav_only_users_get_identical_outcome_on_red_flag(
+        self, db: AsyncSession, beach: Beach,
+    ):
+        """Mesmo settings shape, mesmo resultado — quer o utilizador esteja lá (checkin) quer
+        tenha apenas a praia como favorita."""
+        from unittest.mock import AsyncMock, patch
+        from app.core.security import hash_password
+        from app.models.beach_status import OccupancyHeartbeat
+        from app.models.user_extended import PushToken, UserFavourite
+        from app.services.push_notifications import dispatch_flag_notification
+
+        checkin_user = User(
+            email="checkin-parity@x.com", display_name="checkin-parity",
+            password_hash=hash_password("pw"), is_anonymous=False, reputation=0,
+        )
+        fav_user = User(
+            email="fav-parity@x.com", display_name="fav-parity",
+            password_hash=hash_password("pw"), is_anonymous=False, reputation=0,
+        )
+        db.add_all([checkin_user, fav_user])
+        await db.commit()
+        await db.refresh(checkin_user)
+        await db.refresh(fav_user)
+
+        db.add(OccupancyHeartbeat(
+            beach_id=beach.id, user_id=checkin_user.id,
+            geom="SRID=4326;POINT(-8.9821 38.4839)",
+        ))
+        db.add(UserFavourite(user_id=fav_user.id, beach_id=beach.id))
+        db.add(PushToken(user_id=checkin_user.id, token="checkin-parity-tok", platform="android"))
+        db.add(PushToken(user_id=fav_user.id, token="fav-parity-tok", platform="android"))
+        await db.commit()
+
+        with patch("app.services.push_notifications._send_push", new_callable=AsyncMock) as mock_send:
+            count = await dispatch_flag_notification(db, beach.id, "yellow", "red", beach.name)
+
+        assert count == 2
+        called_tokens = {c.args[0] for c in mock_send.call_args_list}
+        assert called_tokens == {"checkin-parity-tok", "fav-parity-tok"}

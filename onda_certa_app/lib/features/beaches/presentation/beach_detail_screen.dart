@@ -261,18 +261,11 @@ class _HeroAppBar extends StatelessWidget {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.only(top: 8, bottom: 8, right: 12),
           child: OverlayIconButton(
             onTap: onFavourite,
             icon: isFavourite ? Icons.favorite : Icons.favorite_border,
             iconColor: isFavourite ? AppColors.coral : Colors.white,
-            iconSize: 18,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8, bottom: 8, right: 12),
-          child: OverlayIconButton(
-            icon: Icons.ios_share,
             iconSize: 18,
           ),
         ),
@@ -285,7 +278,7 @@ class _HeroAppBar extends StatelessWidget {
               : (1.0 - ((settings.currentExtent - settings.minExtent) / (settings.maxExtent - settings.minExtent)))
                   .clamp(0.0, 1.0);
           final leftPadding = 16.0 + 56.0 * t;  // interpolates 16 → 72
-          final rightPadding = 100.0 * t;         // interpolates 0 → 100 (clears 2 action buttons)
+          final rightPadding = 56.0 * t;         // interpolates 0 → 56 (clears 1 action button)
 
           return FlexibleSpaceBar(
             titlePadding: EdgeInsetsDirectional.only(start: leftPadding, end: rightPadding),
