@@ -672,6 +672,6 @@
      y="422"
      text-anchor="middle"
      dominant-baseline="central"
-     style="fill:#3d3f49;stroke:none;color:rgb(251, 251, 254);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:12px;font-weight:400;text-anchor:middle;dominant-baseline:central;fill-rule:nonzero"
-     id="text68">IPMA · EEA · IH · Carris Metro</text>
+     style="fill:#3d3f49;stroke:none;color:rgb(251, 251, 254);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;font-size:11px;font-weight:400;text-anchor:middle;dominant-baseline:central;fill-rule:nonzero"
+     id="text68">IPMA · Open-Meteo · EEA · IH · Carris Metro</text>
 </svg>

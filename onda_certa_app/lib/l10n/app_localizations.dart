@@ -3467,7 +3467,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacySection1Body.
   ///
   /// In pt, this message translates to:
-  /// **'OndaCerta — projeto académico (Projeto Final de Curso, Engenharia Informática) associado ao Parque Natural da Arrábida, Portugal.\nContacto: ondacerta.app@gmail.com'**
+  /// **'A OndaCerta é uma aplicação dedicada às praias do Parque Natural da Arrábida, Portugal.\nContacto: ondacerta.app@gmail.com'**
   String get privacySection1Body;
 
   /// No description provided for @privacySection2Heading.

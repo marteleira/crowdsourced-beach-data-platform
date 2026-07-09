@@ -33,27 +33,30 @@
 
 ## About the project
 
-Planning a beach day at Arrábida usually means having at least 3 or 4 tabs open at the same time — one for the weather, another for tides, a third for water quality, and then separately having to figure out the buses, since none of those sources were built to work together or with the average beachgoer in mind.
+Planning a beach day at Arrábida usually means having at least 3 or 4 tabs open at the same time, one for the weather, another for tides, a third for water quality, and then separately having to figure out the buses, since none of those sources were built to work together or with the average beachgoer in mind.
 
-OndaCerta was built to address that. It aggregates all those data sources into a single app and on top of that adds a community layer, similar in concept to what Waze does for traffic — people physically present at the beach can report conditions, confirm what flag is currently flying and vote on other users' reports. Any write action requires physical presence, verified via GPS heartbeat, so the data stays reasonably accurate.
+OndaCerta was built to address that. It aggregates all those data sources into a single app and on top of that adds a community layer, similar in concept to what Waze does for traffic. People physically present at the beach can report conditions, confirm what flag is currently flying and vote on other users' reports. Any write action requires physical presence, verified via GPS heartbeat, so the data stays reasonably accurate.
 
-For now the app only covers Arrábida and Sesimbra. The architecture was designed from the start to scale to other beaches later on, which is part of why some parts of it ended up more complex than strictly necessary for two locations.
+For now the app covers 21 beaches across Arrábida Natural Park, Sesimbra and Tróia. The architecture was designed from the start to scale to other Portuguese beaches later on, which is part of why some parts of it ended up more complex than strictly necessary for a single region.
 
 ---
 
 ## Features
 
 ### Real-time data
-- weather: temperature, wind, precipitation and humidity
-- sea conditions (wave height, period, direction)
-- tide chart with cosine interpolation, window always centred on the current time
-- water quality from EEA (Excelente / Boa / Suficiente / Má)
+- weather: IPMA 5-day forecast blended with Open-Meteo real-time current conditions (temperature, wind, humidity, precipitation)
+- sea conditions (wave height, period, direction, sea temperature)
+- tide chart with cosine interpolation, window always centred on the current time, driven by a self-improving harmonic model fitted to real tide-gauge data
+- water quality from the EEA bathing water directive (Excellent / Good / Sufficient / Poor)
 - next public transport departures grouped by destination, times updated via GPS
+- occupancy: live headcount from GPS heartbeats plus a crowdsourced busyness rating (1 to 5)
 
 ### Community layer
 - submit alerts with type, severity and a short description
 - vote on other user reports (up/down, toggleable)
 - confirm or contest the current flag colour (green, yellow, red, purple)
+- rate how busy a beach feels, rate-limited to one report per user per beach per window
+- translate another user's report note into your language on demand (MyMemory API)
 - any write action requires physical presence, verified via GPS heartbeat
 - alerts expire automatically once they accumulate enough downvotes
 
@@ -64,10 +67,18 @@ For now the app only covers Arrábida and Sesimbra. The architecture was designe
 - activity log
 
 ### Personal settings
-- favourite beaches synced across devices
-- push notification settings: alert types, radius, minimum severity and quiet hours
-- privacy controls: location accuracy, profile visibility, anonymous sharing
-- account deletion, confirmation required and a 30-day data retention period after that
+- favourite beaches synced across devices, with a quick-access carousel on the dashboard
+- push notifications delivered via Firebase Cloud Messaging, plus an in-app notification centre with read/unread state
+- notification preferences: alert types, radius, minimum severity and quiet hours
+- privacy controls: location accuracy, profile visibility, anonymous sharing, full data export
+- account deletion, confirmation required, cancellable during a 30-day retention window
+
+### Onboarding and account
+- guided first-run tour before login
+- email/password, Google or guest sign-in, with email verification and a forgot-password flow (code-based)
+- change username, email, password and pick a predefined avatar from the profile
+- handles banned/suspended account states with a dedicated screen
+- Terms of Service and Privacy Policy rendered natively in-app, reachable without logging in
 
 ---
 
@@ -235,9 +246,12 @@ configure which alerts to receive, proximity radius, minimum severity and quiet 
 | State management | Riverpod 3.x | AsyncNotifier, optimistic updates |
 | Navigation | GoRouter 17.x | Declarative routes, deep linking |
 | HTTP | Dio + AuthInterceptor | Silent token renewal |
-| Maps | flutter_map + OSM | No paid dependencies |
-| Backend | FastAPI (Python) | REST API, background jobs, PostGIS |
+| Maps | flutter_map + OpenStreetMap tiles | No paid dependencies, no API key |
+| Push notifications | Firebase Cloud Messaging | Delivery to device, in-app notification centre |
+| Backend | FastAPI (Python) | REST API, background jobs via APScheduler, PostGIS |
 | Database | PostgreSQL + PostGIS | Geospatial presence, favourites, achievements |
+| External data (backend) | IPMA, Open-Meteo, Instituto Hidrográfico, EEA, Carris Metropolitana | Weather, sea state, tides, water quality, transport |
+| External data (client) | OpenStreetMap, MyMemory Translation API | Map tiles, on-demand translation of report notes |
 
 ---
 
@@ -257,92 +271,83 @@ Detailed docs for each part live in their respective directories:
 ### ✅ Completed
 
 **Infrastructure and authentication**
-- [x] Feature-first architecture with Riverpod 3.x
-- [x] Google auth, email/password and guest mode
-- [x] Secure token storage (Keychain / Keystore)
-- [x] Silent token renewal with Dio interceptor
-- [x] Native splash screen with wave animation
+- [x] Feature-first architecture with Riverpod 3.x, no code generation
+- [x] Google, email/password and guest sign-in, guest accounts can be promoted to full accounts later
+- [x] Email verification and a code-based forgot-password flow, plus a live password-strength indicator on registration (length, case, digit/special)
+- [x] Clear feedback for duplicate accounts (409 Conflict) and wrong credentials
+- [x] Secure token storage (Keychain / Keystore) with silent refresh via a Dio interceptor
+- [x] Native splash screen with wave animation, guided first-run onboarding tour
+- [x] Transactional email delivery (SMTP) for verification and password reset
+- [x] Automated backend test suite (270+ pytest cases)
 
 **Screens**
-- [x] HomeScreen: dashboard with nearest beach, conditions, tides and alerts
-- [x] BeachListScreen: list + interactive OpenStreetMap with sliding panel
-- [x] BeachDetailScreen: full detail, pull-to-refresh and auto-refresh via RouteAware
-- [x] TideScreen: immersive full-screen view with adaptive oceanic animation
-- [x] CommunityAlertsScreen: alerts with optimistic voting and report submission
-- [x] ProfileScreen: reputation, streak, achievements and history
-- [x] FavouritesScreen: saved beaches with multi-device sync
-- [x] PrivacySettingsScreen: location and visibility controls
-- [x] NotificationSettingsScreen: 14 push notification parameters
+- [x] HomeScreen -> dashboard with nearest beach, conditions, tides, alerts and a favourites carousel
+- [x] BeachListScreen -> list + interactive OpenStreetMap with sliding panel, live user count per beach
+- [x] BeachDetailScreen -> full detail, pull-to-refresh and auto-refresh on return (RouteAware)
+- [x] TideScreen -> immersive full-screen view with adaptive oceanic animation
+- [x] CommunityAlertsScreen -> alerts with optimistic voting and report submission
+- [x] TransportScreen -> nearby stops and next departures
+- [x] ProfileScreen -> reputation, streak, achievements and history
+- [x] FavouritesScreen -> saved beaches with multi-device sync
+- [x] NotificationsScreen -> in-app notification centre
+- [x] NotificationSettingsScreen, PrivacySettingsScreen, AccountSettingsScreen
+- [x] TermsScreen / PrivacyScreen -> legal content rendered natively, reachable without logging in
+- [x] Full auth flow: Login, EmailLogin, EmailVerification, ForgotPassword, ResetPassword, AccountStatus (banned/suspended), PendingDeletion
 
 **Community layer**
-- [x] Alert submission with presence verification via heartbeat
-- [x] Optimistic voting with rollback on server error
+- [x] Alert submission and voting, both gated by a recent presence heartbeat
+- [x] Optimistic updates with rollback on server error
 - [x] Flag confirmation with sonar animation and animated confidence bar
-- [x] Flag proposal (requires reputation >= 5)
-- [x] Alerts expire automatically by downvotes
+- [x] Flag proposal (requires reputation ≥ 5)
+- [x] Alerts expire automatically once they accumulate enough downvotes
+- [x] Crowdsourced busyness reports (1 to 5), rate-limited per user per beach
+- [x] A user can only have an active heartbeat at one beach at a time
+- [x] Community write actions disabled for guest accounts
+- [x] Opt-in list of other users currently at the beach, respecting each user's privacy settings
 
-**Gamification and profile**
+**Gamification and reputation**
 - [x] Achievement system evaluated in real time
 - [x] Presence streak via heartbeat, idempotent per day
 - [x] Confirmation rate-limiting: 1 per hour per beach, enforced server-side
+- [x] Reputation history log, automatic ban below a reputation threshold, with a suspension state
+
+**Account and privacy**
+- [x] Change password, email and username, plus a predefined avatar picker
+- [x] Full personal data export (GDPR-style JSON via `/users/me/data-export`)
+- [x] Account deletion: confirmation required, deletion date shown on next login, cancellable during the 30-day retention window
+
+**Push notifications**
+- [x] Backend: FCM dispatch targeted by alert type, radius, severity and quiet hours, plus red-flag alerts for favourite beaches
+- [x] Client: token registration, delivery via Firebase Cloud Messaging, in-app notification history
 
 **Design system**
 - [x] Centralised AppColors, AppSpacing, AppTextStyles
 - [x] Flag gradients and colour mappings all in AppColors
 - [x] Shared widgets: AlertItem, TideChartPainter, MetricCell, EmptyState
-- [x] **TransportPlannerScreen**: a screen to plan how to get to the beach, nearby stop lookup and trip planning
-- [x] Display the account deletion time if applicable (login failiture)
-- [x] Revert/Cancel account deletion
-- [x] Personal data export (the `/users/me/data-export` endpoint already exists in the backend)
-- [x] Display auth/register HTTP/1.1" 409 Conflict (on account creation, if happens)
-- [x] Improve feedback when doing login with the wrong credentials (or failiture)
-- [x] Require a safer password on the regular account creation (currently requires only 8 chars)
-- [x] Push notifications (backend)
-- [x] Receive notifications (client)
-- [x] A user cant have hearthbeats on 2 or more beaches (this gives the effect of being at multiple different places at the same time)
-- [x] Require email validation (if not using google account)
-- [x] Modify the "im there" button to behave like an "update" hearthbeat
-- [x] Update/Reload for the Map page
-- [x] Update/Reload for the Tides/Marés page
-- [x] Review privacy settings and related features
-- [x] Usercount and section on beach detail
-- [x] Review the point win/loss features
-- [x] Autoban and suspension features completelty working
-- [x] Forgot password with code verification
-- [x] Change password on current session
-- [x] Change email ""
-- [x] Change username
-- [x] Water quality EEA update year
-- [x] Option to choose a profile avatar (pre-defined)
-- [x] Images on beaches
-- [x] Red flag notification for favorite beaches
-- [x] List the users on the beach (respecting the privacy settings) (Now by default this is disabled, but can be enabled by the user)
-- [x] Widget/Shortcut for the favorite beaches
-- [x] Display current temps (prob requires another api), and remove the "Parque nacional..." for every one
-- [x] Disable the interaction with the social/community layer for guests
-- [x] Support more than one language (pt and eng)
-- [x] Think on a occupation measurement aproach..
-- [x] Real emails working
-- [x] First use -> app tour
-- [x] Remove share button on beach_detail
-- [x] Deal with favorites as i'm there (receive all nofications)
-- [x] Pagina web de apresentação e etc
-- [x] Final legal pages (Terms of Service, Privacy Policy)
+
+**Localisation**
+- [x] Full Portuguese and English translations via Flutter `gen-l10n`
+
+**Public website**
+- [x] Landing page, Terms of Service and Privacy Policy served directly by the backend, with a direct APK download link
 
 ---
 
 ### 🔜 Planned
 
-- [ ] Update repo docs/reame's
-- [ ] Hosting for the backend (azure or the other one)
-
-- [ ] Testes de usabilidade com pessoas reais.
-- [ ] Publish
----
+- [ ] Deploy the backend to a public host (currently only runs locally)
+- [ ] Usability testing with real users
+- [ ] Submit to app stores (direct APK download is already live on the website)
 
 ### After the first launch
-- [ ] Expand to other Portuguese beaches 
-- [ ] IOS binary
+- [ ] Expand to other Portuguese beaches
+- [ ] iOS build
+
+---
+
+## Terms of use
+
+This project is licensed under the [MIT License](LICENSE). The external data it aggregates or calls out to IPMA, Open-Meteo, Instituto Hidrográfico, EEA, Carris Metropolitana, OpenStreetMap and the MyMemory Translation API, remains subject to each provider's own terms.
 
 ---
 
