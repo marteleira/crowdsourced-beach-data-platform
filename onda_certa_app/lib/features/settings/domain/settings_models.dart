@@ -3,7 +3,7 @@ class PrivacySettings {
     this.namePublic = true,
     this.avatarPublic = true,
     this.shareUsageData = true,
-    this.sharePresence = true,
+    this.sharePresence = false,
   });
   final bool namePublic;
   final bool avatarPublic;
@@ -14,7 +14,7 @@ class PrivacySettings {
     namePublic: j['name_public'] as bool? ?? true,
     avatarPublic: j['avatar_public'] as bool? ?? true,
     shareUsageData: j['share_usage_data'] as bool? ?? true,
-    sharePresence: j['share_presence'] as bool? ?? true,
+    sharePresence: j['share_presence'] as bool? ?? false,
   );
 
   PrivacySettings copyWith({

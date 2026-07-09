@@ -3,9 +3,9 @@ Map endpoint — returns active user counts per beach, plus the names/avatars
 of those who opted in to being listed.
 
 Privacy rules (per user's privacy_settings):
-  share_presence = False  → user not included in the visible list at all
-                             (still counted in user_count)
-  name_public = False     → display_name replaced with "Anonymous"
+  share_presence = False (default) → user not included in the visible list at all
+                                       (still counted in user_count)
+  name_public = False              → display_name replaced with "Anonymous"
 
 No per-user coordinates are returned — the app only shows aggregate counts
 and a "who's here" name list, never individual positions on a map.

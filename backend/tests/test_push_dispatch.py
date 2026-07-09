@@ -366,9 +366,27 @@ class TestFlagDispatch:
         assert n == 1
         assert tok in _tokens_called(mock)
 
-    async def test_fav_user_skipped_in_flag_dispatch_when_going_red(self, db: AsyncSession, beach: Beach):
-        # Red-flag fav-only users are handled by dispatch_red_flag_favourite_notification
+    async def test_fav_only_user_receives_red_flag_same_as_checkin(self, db: AsyncSession, beach: Beach):
+        # Favourite-only users are treated exactly like checked-in users for red flags too —
+        # no more special-cased bypass function.
         u = await _make_user(db, "fav-flag-red@x.com")
+        await _favourite(db, u, beach)
+        tok = await _token(db, u)
+
+        with patch(MOCK_SEND, new_callable=AsyncMock) as mock:
+            n = await dispatch_flag_notification(db, beach.id, "yellow", "red", beach.name)
+
+        assert n == 1
+        assert tok in _tokens_called(mock)
+
+    async def test_fav_only_red_flag_respects_quiet_hours(self, db: AsyncSession, beach: Beach):
+        # Unlike the old dispatch_red_flag_favourite_notification, red flags no longer bypass
+        # quiet hours for favourite-only users — same rule as checked-in users.
+        u = await _make_user(db, "fav-flag-red-quiet@x.com", notification_settings={
+            "quiet_hours_enabled": True,
+            "quiet_hours_start": "00:00",
+            "quiet_hours_end": "23:59",
+        })
         await _favourite(db, u, beach)
         await _token(db, u)
 
@@ -377,6 +395,37 @@ class TestFlagDispatch:
 
         assert n == 0
         mock.assert_not_called()
+
+    async def test_fav_only_red_flag_respects_favourite_alerts_disabled(self, db: AsyncSession, beach: Beach):
+        u = await _make_user(db, "fav-flag-red-off@x.com",
+                             notification_settings={"favourite_alerts_enabled": False})
+        await _favourite(db, u, beach)
+        await _token(db, u)
+
+        with patch(MOCK_SEND, new_callable=AsyncMock) as mock:
+            n = await dispatch_flag_notification(db, beach.id, "yellow", "red", beach.name)
+
+        assert n == 0
+        mock.assert_not_called()
+
+    async def test_checkin_and_fav_only_treated_identically_for_red_flag(self, db: AsyncSession, beach: Beach):
+        """Same notification_settings shape must yield the same outcome whether the user
+        is a favourite or checked in — that symmetry is the whole point of the unification."""
+        checkin_user = await _make_user(db, "checkin-parity@x.com")
+        await _heartbeat(db, checkin_user, beach)
+        checkin_tok = await _token(db, checkin_user)
+
+        fav_user = await _make_user(db, "fav-parity@x.com")
+        await _favourite(db, fav_user, beach)
+        fav_tok = await _token(db, fav_user)
+
+        with patch(MOCK_SEND, new_callable=AsyncMock) as mock:
+            n = await dispatch_flag_notification(db, beach.id, "yellow", "red", beach.name)
+
+        assert n == 2
+        called = _tokens_called(mock)
+        assert checkin_tok in called
+        assert fav_tok in called
 
     async def test_flag_change_alerts_disabled_skips(self, db: AsyncSession, beach: Beach):
         u = await _make_user(db, "noflag@x.com",

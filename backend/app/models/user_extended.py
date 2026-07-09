@@ -29,7 +29,6 @@ DEFAULT_NOTIFICATION_SETTINGS = {
     },
     "min_severity": 1,
     "flag_change_alerts": True,
-    "red_flag_favourite_alerts": True,
     "tide_alerts": True,
     "report_confirmed": True,
     "report_rejected": True,
@@ -42,7 +41,7 @@ DEFAULT_PRIVACY_SETTINGS = {
     "name_public": True,
     "avatar_public": True,
     "share_usage_data": True, #This settings does nothing yet
-    "share_presence": True,               # show on map (opt-out, not opt-in)
+    "share_presence": False,              # show on map (opt-in, not opt-out)
 }
 
 

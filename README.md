@@ -324,13 +324,13 @@ Detailed docs for each part live in their respective directories:
 - [x] Think on a occupation measurement aproach..
 - [x] Real emails working
 - [x] First use -> app tour
+- [x] Remove share button on beach_detail
+- [x] Deal with favorites as i'm there (receive all nofications)
 
 ---
 
 ### 🔜 Planned
 
-- [ ] Deal with favorites as i'm there (receive all nofications)
-- [ ] Remove share button on beach_detail
 
 - [ ] Pagina web de apresentação e etc
 - [ ] Final legal pages (Terms of Service, Privacy Policy)
