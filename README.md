@@ -326,14 +326,15 @@ Detailed docs for each part live in their respective directories:
 - [x] First use -> app tour
 - [x] Remove share button on beach_detail
 - [x] Deal with favorites as i'm there (receive all nofications)
+- [x] Pagina web de apresentação e etc
+- [x] Final legal pages (Terms of Service, Privacy Policy)
 
 ---
 
 ### 🔜 Planned
 
-- [ ] Pagina web de apresentação e etc
-- [ ] Final legal pages (Terms of Service, Privacy Policy)
-- [ ] Hosting for the backend (azure)
+- [ ] Update repo docs/reame's
+- [ ] Hosting for the backend (azure or the other one)
 
 - [ ] Testes de usabilidade com pessoas reais.
 - [ ] Publish
@@ -341,8 +342,7 @@ Detailed docs for each part live in their respective directories:
 
 ### After the first launch
 - [ ] Expand to other Portuguese beaches 
-- [ ] IOs
-- [ ] Consider the share feature
+- [ ] IOS binary
 
 ---
 

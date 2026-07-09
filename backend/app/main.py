@@ -65,6 +65,16 @@ async def landing_page():
     return FileResponse(os.path.join(_static_dir, "site", "index.html"))
 
 
+@app.get("/terms", include_in_schema=False)
+async def terms_page():
+    return FileResponse(os.path.join(_static_dir, "site", "terms.html"))
+
+
+@app.get("/privacy", include_in_schema=False)
+async def privacy_page():
+    return FileResponse(os.path.join(_static_dir, "site", "privacy.html"))
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}

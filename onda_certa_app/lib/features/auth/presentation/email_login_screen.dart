@@ -6,6 +6,7 @@ import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
+import '../../../shared/widgets/auth_consent_footer.dart';
 import '../../../shared/widgets/auth_input_decoration.dart';
 import '../../../shared/widgets/password_strength_field.dart';
 
@@ -141,6 +142,10 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
                 if (_errorMessage != null) ...[
                   const SizedBox(height: AppSpacing.lg),
                   _ErrorBanner(message: _errorMessage!),
+                ],
+                if (_isRegister) ...[
+                  const SizedBox(height: AppSpacing.lg),
+                  const AuthConsentFooter(),
                 ],
                 const SizedBox(height: 28),
                 SizedBox(
