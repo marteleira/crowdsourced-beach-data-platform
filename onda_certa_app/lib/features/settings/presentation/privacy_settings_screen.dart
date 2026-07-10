@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
@@ -66,6 +67,8 @@ class PrivacySettingsScreen extends ConsumerWidget {
 class _PrivacyForm extends ConsumerWidget {
   const _PrivacyForm({required this.settings});
   final PrivacySettings settings;
+
+  static const _downloadsChannel = MethodChannel('com.marteleira.ondacerta/downloads');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -168,12 +171,31 @@ class _PrivacyForm extends ConsumerWidget {
     );
     try {
       final data = await ref.read(settingsRepositoryProvider).exportData();
-      final dir = (await getExternalStorageDirectory()) ?? await getApplicationDocumentsDirectory();
       final now = DateTime.now();
       final filename =
           'ondacerta_dados_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.json';
-      final file = File('${dir.path}/$filename');
-      await file.writeAsString(const JsonEncoder.withIndent('  ').convert(data));
+      final bytes = utf8.encode(const JsonEncoder.withIndent('  ').convert(data));
+
+      var savedToDownloads = false;
+      if (Platform.isAndroid) {
+        try {
+          savedToDownloads = await _downloadsChannel.invokeMethod<bool>('saveToDownloads', {
+                'fileName': filename,
+                'mimeType': 'application/json',
+                'bytes': bytes,
+              }) ??
+              false;
+        } on PlatformException catch (e) {
+          debugPrint('saveToDownloads error: $e');
+        }
+      }
+
+      if (!savedToDownloads) {
+        final dir = (await getExternalStorageDirectory()) ?? await getApplicationDocumentsDirectory();
+        final file = File('${dir.path}/$filename');
+        await file.writeAsBytes(bytes);
+      }
+
       if (context.mounted) {
         messenger.showSnackBar(
           SnackBar(
