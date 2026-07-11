@@ -277,24 +277,18 @@ class _Header extends ConsumerWidget {
     final minTemp = weather?.minTemp ?? 0;
 
     final String emoji;
-    if(precip >= 40 && minTemp < 0) {
+    if (precip >= 40 && minTemp < 0) {
       emoji = '🌨️';
-    }else if (precip >= 70 && wind >= 40) {
+    } else if (precip >= 70 && wind >= 40) {
       emoji = '⛈️';
     } else if (precip >= 70) {
       emoji = '🌧️';
     } else if (precip >= 40) {
       emoji = '🌦️';
-    } else if (hour < 5) {
+    } else if (hour < 5 || hour >= 19) {
       emoji = '🌙';
-    } else if (hour < 7) {
-      emoji = '🌅';
-    } else if (hour < 19) {
-      emoji = '☀️';
-    } else if (hour < 21) {
-      emoji = '🌇';
     } else {
-      emoji = '🌙';
+      emoji = '☀️';
     }
     final name = profile?.displayName ?? l10n.explorerName;
     final locale = Localizations.localeOf(context).languageCode;

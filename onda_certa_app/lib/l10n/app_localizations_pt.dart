@@ -734,23 +734,25 @@ class AppLocalizationsPt extends AppLocalizations {
   String get privacyAvatarVisible => 'Avatar visível';
 
   @override
-  String get privacyAvatarVisibleSub => 'As tuas iniciais aparecem nos avisos';
+  String get privacyAvatarVisibleSub =>
+      'Outros utilizadores podem ver o teu avatar';
 
   @override
   String get privacyPresence => 'Presença & Atividade';
 
   @override
-  String get privacyShowOnMap => 'Mostrar no mapa';
+  String get privacyShowOnMap => 'Aparecer na lista de pessoas';
 
   @override
   String get privacyShowOnMapSub =>
-      'A tua presença conta para a lotação da praia';
+      'O teu nome fica visível para quem está na praia, a tua presença conta sempre para a lotação';
 
   @override
-  String get privacyShareUsage => 'Partilhar dados de utilização';
+  String get privacyDiagnosticData => 'Dados de diagnóstico';
 
   @override
-  String get privacyShareUsageSub => 'Ajuda a melhorar a app de forma anónima';
+  String get privacyDiagnosticDataSub =>
+      'De momento não recolhemos quaisquer dados de diagnóstico. Se isso vier a mudar, serás notificado.';
 
   @override
   String get privacyMyData => 'Os meus dados';
