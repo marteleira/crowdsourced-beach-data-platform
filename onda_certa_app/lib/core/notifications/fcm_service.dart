@@ -104,7 +104,7 @@ class FcmService {
   }
 
   Future<void> _setupLocalNotifications() async {
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('@mipmap/launcher_icon');
     const iOS = DarwinInitializationSettings();
     await _localNotifications.initialize(
       const InitializationSettings(android: android, iOS: iOS),

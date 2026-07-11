@@ -8,11 +8,13 @@ import 'auth_interceptor.dart';
 // Default 10.0.2.2 works on Android emulator (alias for the host machine)
 // When changing the ip, don't forget to update android/app/src/main/res/xml/network_security_config.xml
 // Note: when using real devices run the server with: --host 0.0.0.0 to allow incoming connections from the local network
+
+const _kApiScheme = String.fromEnvironment('API_SCHEME', defaultValue: 'http');
 const _kApiHost = String.fromEnvironment('API_HOST', defaultValue: '10.0.2.2');
-const _kBaseUrl = 'http://$_kApiHost:8000/api/v1';
+const _kBaseUrl = '$_kApiScheme://$_kApiHost/api/v1';
 
 /// Root of the server — use this to resolve root-relative paths like /static/...
-const kServerBaseUrl = 'http://$_kApiHost:8000';
+const kServerBaseUrl = '$_kApiScheme://$_kApiHost';
 
 /// Injects Accept-Language on every request so the backend can respond
 /// (and send push notifications) in the user's current locale.

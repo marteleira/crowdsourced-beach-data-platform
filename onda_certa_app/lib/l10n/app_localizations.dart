@@ -1427,7 +1427,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyAvatarVisibleSub.
   ///
   /// In pt, this message translates to:
-  /// **'As tuas iniciais aparecem nos avisos'**
+  /// **'Outros utilizadores podem ver o teu avatar'**
   String get privacyAvatarVisibleSub;
 
   /// No description provided for @privacyPresence.
@@ -1439,26 +1439,26 @@ abstract class AppLocalizations {
   /// No description provided for @privacyShowOnMap.
   ///
   /// In pt, this message translates to:
-  /// **'Mostrar no mapa'**
+  /// **'Aparecer na lista de pessoas'**
   String get privacyShowOnMap;
 
   /// No description provided for @privacyShowOnMapSub.
   ///
   /// In pt, this message translates to:
-  /// **'A tua presença conta para a lotação da praia'**
+  /// **'O teu nome fica visível para quem está na praia, a tua presença conta sempre para a lotação'**
   String get privacyShowOnMapSub;
 
-  /// No description provided for @privacyShareUsage.
+  /// No description provided for @privacyDiagnosticData.
   ///
   /// In pt, this message translates to:
-  /// **'Partilhar dados de utilização'**
-  String get privacyShareUsage;
+  /// **'Dados de diagnóstico'**
+  String get privacyDiagnosticData;
 
-  /// No description provided for @privacyShareUsageSub.
+  /// No description provided for @privacyDiagnosticDataSub.
   ///
   /// In pt, this message translates to:
-  /// **'Ajuda a melhorar a app de forma anónima'**
-  String get privacyShareUsageSub;
+  /// **'De momento não recolhemos quaisquer dados de diagnóstico. Se isso vier a mudar, serás notificado.'**
+  String get privacyDiagnosticDataSub;
 
   /// No description provided for @privacyMyData.
   ///
