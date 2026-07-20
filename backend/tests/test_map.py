@@ -38,7 +38,7 @@ class TestMapUsers:
         self, client: AsyncClient, beach: Beach, db: AsyncSession, user: User
     ):
         user.privacy_settings = {"share_presence": False,
-                                  "name_public": True, "avatar_public": True, "share_usage_data": True}
+                                  "name_public": True, "avatar_public": True}
         db.add(user)
         await db.commit()
         await _add_heartbeat(db, beach, user)
@@ -55,7 +55,7 @@ class TestMapUsers:
         self, client: AsyncClient, beach: Beach, db: AsyncSession, user: User
     ):
         user.privacy_settings = {"share_presence": True,
-                                  "name_public": False, "avatar_public": True, "share_usage_data": True}
+                                  "name_public": False, "avatar_public": True}
         db.add(user)
         await db.commit()
         await _add_heartbeat(db, beach, user)

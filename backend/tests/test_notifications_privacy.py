@@ -355,8 +355,7 @@ class TestPrivacySettingsEnforcement:
         r = await client.get("/api/v1/users/me/privacy-settings", headers=auth_headers)
         body = r.json()
         assert set(body.keys()) == {
-            "name_public", "avatar_public",
-            "share_usage_data", "share_presence",
+            "name_public", "avatar_public", "share_presence",
         }
 
     async def test_avatar_public_persisted(
@@ -373,26 +372,12 @@ class TestPrivacySettingsEnforcement:
         r2 = await client.get("/api/v1/users/me/privacy-settings", headers=auth_headers)
         assert r2.json()["avatar_public"] is False
 
-    async def test_share_usage_data_persisted(
-        self, client: AsyncClient, auth_headers: dict,
-    ):
-        r = await client.patch(
-            "/api/v1/users/me/privacy-settings",
-            json={"share_usage_data": False},
-            headers=auth_headers,
-        )
-        assert r.status_code == 200
-        assert r.json()["share_usage_data"] is False
-
-        r2 = await client.get("/api/v1/users/me/privacy-settings", headers=auth_headers)
-        assert r2.json()["share_usage_data"] is False
-
     async def test_partial_patch_does_not_clobber_other_fields(
         self, client: AsyncClient, auth_headers: dict,
     ):
         await client.patch(
             "/api/v1/users/me/privacy-settings",
-            json={"share_usage_data": False, "avatar_public": False},
+            json={"avatar_public": False},
             headers=auth_headers,
         )
         await client.patch(
@@ -402,7 +387,6 @@ class TestPrivacySettingsEnforcement:
         )
         r = await client.get("/api/v1/users/me/privacy-settings", headers=auth_headers)
         body = r.json()
-        assert body["share_usage_data"] is False   #not clobbered
         assert body["avatar_public"] is False       #not clobbered
         assert body["name_public"] is False         #new value
 
@@ -419,12 +403,9 @@ class TestNotificationSettingsEnforcement:
         payload = {
             "global_enabled": False,
             "checkin_alerts": False,
-            "proximity_alerts": False,
             "favourite_alerts_enabled": False,
             "flag_change_alerts": False,
             "tide_alerts": False,
-            "report_confirmed": False,
-            "report_rejected": False,
             "quiet_hours_enabled": True,
         }
         r = await client.patch(
@@ -458,17 +439,6 @@ class TestNotificationSettingsEnforcement:
             headers=auth_headers,
         )
         assert r.status_code == 422
-
-    async def test_proximity_radius_persisted(
-        self, client: AsyncClient, auth_headers: dict,
-    ):
-        r = await client.patch(
-            "/api/v1/users/me/notification-settings",
-            json={"proximity_radius_meters": 2000},
-            headers=auth_headers,
-        )
-        assert r.status_code == 200
-        assert r.json()["proximity_radius_meters"] == 2000
 
     async def test_quiet_hours_times_persisted(
         self, client: AsyncClient, auth_headers: dict,
@@ -520,7 +490,7 @@ class TestNotificationSettingsEnforcement:
     ):
         await client.patch(
             "/api/v1/users/me/notification-settings",
-            json={"tide_alerts": False, "report_confirmed": False, "min_severity": 2},
+            json={"tide_alerts": False,  "min_severity": 2},
             headers=auth_headers,
         )
         await client.patch(
@@ -531,7 +501,6 @@ class TestNotificationSettingsEnforcement:
         r = await client.get("/api/v1/users/me/notification-settings", headers=auth_headers)
         body = r.json()
         assert body["tide_alerts"] is False       #not clobbered
-        assert body["report_confirmed"] is False  #not clobbered
         assert body["min_severity"] == 2          #not clobbered
         assert body["global_enabled"] is False    #new value
 
@@ -541,11 +510,9 @@ class TestNotificationSettingsEnforcement:
         r = await client.get("/api/v1/users/me/notification-settings", headers=auth_headers)
         body = r.json()
         expected_keys = {
-            "global_enabled", "checkin_alerts", "proximity_alerts",
-            "proximity_radius_meters", "favourite_alerts_enabled",
+            "global_enabled", "checkin_alerts", "favourite_alerts_enabled",
             "favourite_alerts_per_beach", "alert_types", "min_severity",
-            "flag_change_alerts", "tide_alerts",
-            "report_confirmed", "report_rejected", "quiet_hours_enabled",
+            "flag_change_alerts", "tide_alerts", "quiet_hours_enabled", 
             "quiet_hours_start", "quiet_hours_end",
         }
         assert expected_keys.issubset(body.keys())

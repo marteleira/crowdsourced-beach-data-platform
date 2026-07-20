@@ -39,7 +39,6 @@ class PrivacySettingsNotifier extends AsyncNotifier<PrivacySettings> {
       p.copyWith(
         namePublic: c['name_public'] as bool?,
         avatarPublic: c['avatar_public'] as bool?,
-        shareUsageData: c['share_usage_data'] as bool?,
         sharePresence: c['share_presence'] as bool?,
       );
 }
@@ -77,8 +76,6 @@ class NotificationSettingsNotifier extends AsyncNotifier<NotificationSettings> {
     return s.copyWith(
       globalEnabled: c['global_enabled'] as bool?,
       checkinAlerts: c['checkin_alerts'] as bool?,
-      proximityAlerts: c['proximity_alerts'] as bool?,
-      proximityRadiusMeters: c['proximity_radius_meters'] as int?,
       favouriteAlertsEnabled: c['favourite_alerts_enabled'] as bool?,
       alertTypes: types != null
           ? NotificationAlertTypes.fromJson(types)
@@ -86,8 +83,6 @@ class NotificationSettingsNotifier extends AsyncNotifier<NotificationSettings> {
       minSeverity: c['min_severity'] as int?,
       flagChangeAlerts: c['flag_change_alerts'] as bool?,
       tideAlerts: c['tide_alerts'] as bool?,
-      reportConfirmed: c['report_confirmed'] as bool?,
-      reportRejected: c['report_rejected'] as bool?,
       quietHoursEnabled: c['quiet_hours_enabled'] as bool?,
       quietHoursStart: c['quiet_hours_start'] as String?,
       quietHoursEnd: c['quiet_hours_end'] as String?,

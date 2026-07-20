@@ -1208,24 +1208,6 @@ abstract class AppLocalizations {
   /// **'Notifica quando chegares a uma praia com alertas'**
   String get settingsCheckinAlertsSub;
 
-  /// No description provided for @settingsProximityAlerts.
-  ///
-  /// In pt, this message translates to:
-  /// **'Alertas de proximidade'**
-  String get settingsProximityAlerts;
-
-  /// No description provided for @settingsProximityAlertsSub.
-  ///
-  /// In pt, this message translates to:
-  /// **'Alertas quando estás perto de uma praia'**
-  String get settingsProximityAlertsSub;
-
-  /// No description provided for @settingsProximityRadius.
-  ///
-  /// In pt, this message translates to:
-  /// **'Raio de proximidade'**
-  String get settingsProximityRadius;
-
   /// No description provided for @settingsAlertTypes.
   ///
   /// In pt, this message translates to:
@@ -1267,12 +1249,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Não foi possível carregar as notificações'**
   String get errorLoadSettings;
-
-  /// No description provided for @proximityRadiusValue.
-  ///
-  /// In pt, this message translates to:
-  /// **'{meters} m'**
-  String proximityRadiusValue(int meters);
 
   /// No description provided for @settingsFavBeaches.
   ///
@@ -1321,36 +1297,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Aviso antes de preia-mar e baixa-mar'**
   String get settingsTideAlertsSub;
-
-  /// No description provided for @settingsMyReports.
-  ///
-  /// In pt, this message translates to:
-  /// **'Os meus avisos'**
-  String get settingsMyReports;
-
-  /// No description provided for @settingsReportConfirmed.
-  ///
-  /// In pt, this message translates to:
-  /// **'Aviso confirmado'**
-  String get settingsReportConfirmed;
-
-  /// No description provided for @settingsReportConfirmedSub.
-  ///
-  /// In pt, this message translates to:
-  /// **'Quando a comunidade confirma um aviso teu'**
-  String get settingsReportConfirmedSub;
-
-  /// No description provided for @settingsReportRejected.
-  ///
-  /// In pt, this message translates to:
-  /// **'Aviso rejeitado'**
-  String get settingsReportRejected;
-
-  /// No description provided for @settingsReportRejectedSub.
-  ///
-  /// In pt, this message translates to:
-  /// **'Quando a comunidade rejeita um aviso teu'**
-  String get settingsReportRejectedSub;
 
   /// No description provided for @settingsQuietHours.
   ///
@@ -1447,18 +1393,6 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'O teu nome fica visível para quem está na praia, a tua presença conta sempre para a lotação'**
   String get privacyShowOnMapSub;
-
-  /// No description provided for @privacyDiagnosticData.
-  ///
-  /// In pt, this message translates to:
-  /// **'Dados de diagnóstico'**
-  String get privacyDiagnosticData;
-
-  /// No description provided for @privacyDiagnosticDataSub.
-  ///
-  /// In pt, this message translates to:
-  /// **'De momento não recolhemos quaisquer dados de diagnóstico. Se isso vier a mudar, serás notificado.'**
-  String get privacyDiagnosticDataSub;
 
   /// No description provided for @privacyMyData.
   ///

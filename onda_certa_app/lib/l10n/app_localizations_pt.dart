@@ -617,16 +617,6 @@ class AppLocalizationsPt extends AppLocalizations {
       'Notifica quando chegares a uma praia com alertas';
 
   @override
-  String get settingsProximityAlerts => 'Alertas de proximidade';
-
-  @override
-  String get settingsProximityAlertsSub =>
-      'Alertas quando estás perto de uma praia';
-
-  @override
-  String get settingsProximityRadius => 'Raio de proximidade';
-
-  @override
   String get settingsAlertTypes => 'Tipos de alerta';
 
   @override
@@ -646,11 +636,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get errorLoadSettings => 'Não foi possível carregar as notificações';
-
-  @override
-  String proximityRadiusValue(int meters) {
-    return '$meters m';
-  }
 
   @override
   String get settingsFavBeaches => 'Praias favoritas';
@@ -677,23 +662,6 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get settingsTideAlertsSub => 'Aviso antes de preia-mar e baixa-mar';
-
-  @override
-  String get settingsMyReports => 'Os meus avisos';
-
-  @override
-  String get settingsReportConfirmed => 'Aviso confirmado';
-
-  @override
-  String get settingsReportConfirmedSub =>
-      'Quando a comunidade confirma um aviso teu';
-
-  @override
-  String get settingsReportRejected => 'Aviso rejeitado';
-
-  @override
-  String get settingsReportRejectedSub =>
-      'Quando a comunidade rejeita um aviso teu';
 
   @override
   String get settingsQuietHours => 'Horas de silêncio';
@@ -746,13 +714,6 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get privacyShowOnMapSub =>
       'O teu nome fica visível para quem está na praia, a tua presença conta sempre para a lotação';
-
-  @override
-  String get privacyDiagnosticData => 'Dados de diagnóstico';
-
-  @override
-  String get privacyDiagnosticDataSub =>
-      'De momento não recolhemos quaisquer dados de diagnóstico. Se isso vier a mudar, serás notificado.';
 
   @override
   String get privacyMyData => 'Os meus dados';

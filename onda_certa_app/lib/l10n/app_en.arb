@@ -312,9 +312,6 @@
   "settingsCommunityAlerts": "Community alerts",
   "settingsCheckinAlerts": "Check-in alerts",
   "settingsCheckinAlertsSub": "Notify when you arrive at a beach with alerts",
-  "settingsProximityAlerts": "Proximity alerts",
-  "settingsProximityAlertsSub": "Alerts when you are near a beach",
-  "settingsProximityRadius": "Proximity radius",
   "settingsAlertTypes": "Alert types",
   "settingsJellyfish": "Jellyfish",
   "settingsStrongCurrent": "Strong current",
@@ -322,12 +319,6 @@
   "settingsRoughSea": "Rough sea",
   "settingsMinSeverity": "Minimum severity",
   "errorLoadSettings": "Could not load notifications",
-  "proximityRadiusValue": "{meters} m",
-  "@proximityRadiusValue": {
-    "placeholders": {
-      "meters": { "type": "int" }
-    }
-  },
   "settingsFavBeaches": "Favourite beaches",
   "settingsFavAlertsEnabled": "My beach alerts",
   "settingsFavAlertsEnabledSub": "Receive alerts for beaches you have saved",
@@ -336,11 +327,6 @@
   "settingsFlagChangeSub": "Notify when the safety status changes",
   "settingsTideAlerts": "Tide alerts",
   "settingsTideAlertsSub": "Alert before high tide and low tide",
-  "settingsMyReports": "My reports",
-  "settingsReportConfirmed": "Report confirmed",
-  "settingsReportConfirmedSub": "When the community confirms one of your reports",
-  "settingsReportRejected": "Report rejected",
-  "settingsReportRejectedSub": "When the community rejects one of your reports",
   "settingsQuietHours": "Quiet hours",
   "settingsQuietHoursEnabled": "Enable quiet hours",
   "settingsQuietHoursEnabledSub": "No notifications during the defined period",
@@ -358,8 +344,6 @@
   "privacyPresence": "Presence & Activity",
   "privacyShowOnMap": "Show in people list",
   "privacyShowOnMapSub": "Your name becomes visible to others at the beach, your presence always counts towards occupancy",
-  "privacyDiagnosticData": "Diagnostic data",
-  "privacyDiagnosticDataSub": "We don't currently collect any diagnostic data. You'll be notified if that ever changes.",
   "privacyMyData": "My data",
   "privacyExportData": "Export my data",
   "privacyExportDataSub": "Receive a copy of everything we store",
