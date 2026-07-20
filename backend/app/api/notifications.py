@@ -15,16 +15,13 @@ router = APIRouter(tags=["notifications"])
 class NotificationSettingsPatch(BaseModel):
     global_enabled: Optional[bool] = None
     checkin_alerts: Optional[bool] = None
-    proximity_alerts: Optional[bool] = None
-    proximity_radius_meters: Optional[int] = None
+
     favourite_alerts_enabled: Optional[bool] = None
     favourite_alerts_per_beach: Optional[dict] = None
     alert_types: Optional[dict] = None
     min_severity: Optional[Literal[1, 2, 3]] = None
     flag_change_alerts: Optional[bool] = None
     tide_alerts: Optional[bool] = None
-    report_confirmed: Optional[bool] = None
-    report_rejected: Optional[bool] = None
     quiet_hours_enabled: Optional[bool] = None
     quiet_hours_start: Optional[str] = None
     quiet_hours_end: Optional[str] = None

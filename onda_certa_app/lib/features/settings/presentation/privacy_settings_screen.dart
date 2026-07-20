@@ -115,13 +115,6 @@ class _PrivacyForm extends ConsumerWidget {
               value: settings.sharePresence,
               onChanged: (v) => patch({'share_presence': v}),
             ),
-            _Divider(),
-            _InfoTile(
-              icon: Icons.bar_chart_outlined,
-              iconColor: AppColors.textSecondary,
-              label: l10n.privacyDiagnosticData,
-              subtitle: l10n.privacyDiagnosticDataSub,
-            ),
           ],
         ),
 
@@ -520,50 +513,6 @@ class _SwitchTile extends StatelessWidget {
             value: value,
             onChanged: onChanged,
             activeTrackColor: AppColors.teal,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoTile extends StatelessWidget {
-  const _InfoTile({
-    required this.label,
-    this.subtitle,
-    required this.icon,
-    required this.iconColor,
-  });
-  final String label;
-  final String? subtitle;
-  final IconData icon;
-  final Color iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: iconColor),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    color: AppColors.primary,
-                  ),
-                ),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 2),
-                  Text(subtitle!, style: AppTextStyles.hint),
-                ],
-              ],
-            ),
           ),
         ],
       ),

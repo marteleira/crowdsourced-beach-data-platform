@@ -614,15 +614,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Notify when you arrive at a beach with alerts';
 
   @override
-  String get settingsProximityAlerts => 'Proximity alerts';
-
-  @override
-  String get settingsProximityAlertsSub => 'Alerts when you are near a beach';
-
-  @override
-  String get settingsProximityRadius => 'Proximity radius';
-
-  @override
   String get settingsAlertTypes => 'Alert types';
 
   @override
@@ -642,11 +633,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorLoadSettings => 'Could not load notifications';
-
-  @override
-  String proximityRadiusValue(int meters) {
-    return '$meters m';
-  }
 
   @override
   String get settingsFavBeaches => 'Favourite beaches';
@@ -672,23 +658,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsTideAlertsSub => 'Alert before high tide and low tide';
-
-  @override
-  String get settingsMyReports => 'My reports';
-
-  @override
-  String get settingsReportConfirmed => 'Report confirmed';
-
-  @override
-  String get settingsReportConfirmedSub =>
-      'When the community confirms one of your reports';
-
-  @override
-  String get settingsReportRejected => 'Report rejected';
-
-  @override
-  String get settingsReportRejectedSub =>
-      'When the community rejects one of your reports';
 
   @override
   String get settingsQuietHours => 'Quiet hours';
@@ -739,13 +708,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyShowOnMapSub =>
       'Your name becomes visible to others at the beach, your presence always counts towards occupancy';
-
-  @override
-  String get privacyDiagnosticData => 'Diagnostic data';
-
-  @override
-  String get privacyDiagnosticDataSub =>
-      'We don\'t currently collect any diagnostic data. You\'ll be notified if that ever changes.';
 
   @override
   String get privacyMyData => 'My data';

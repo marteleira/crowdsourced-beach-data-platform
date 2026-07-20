@@ -22,7 +22,6 @@ DELETION_GRACE_DAYS = 30
 class PrivacySettingsPatch(BaseModel):
     name_public: Optional[bool] = None
     avatar_public: Optional[bool] = None
-    share_usage_data: Optional[bool] = None
     share_presence: Optional[bool] = None
 
 

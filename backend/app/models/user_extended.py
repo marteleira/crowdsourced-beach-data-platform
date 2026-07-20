@@ -17,8 +17,6 @@ from app.core.database import Base
 DEFAULT_NOTIFICATION_SETTINGS = {
     "global_enabled": True,
     "checkin_alerts": True,
-    "proximity_alerts": True,
-    "proximity_radius_meters": 500,
     "favourite_alerts_enabled": True,
     "favourite_alerts_per_beach": {},
     "alert_types": {
@@ -30,8 +28,6 @@ DEFAULT_NOTIFICATION_SETTINGS = {
     "min_severity": 1,
     "flag_change_alerts": True,
     "tide_alerts": True,
-    "report_confirmed": True,
-    "report_rejected": True,
     "quiet_hours_enabled": False,
     "quiet_hours_start": "22:00",
     "quiet_hours_end": "07:00",
@@ -40,7 +36,6 @@ DEFAULT_NOTIFICATION_SETTINGS = {
 DEFAULT_PRIVACY_SETTINGS = {
     "name_public": True,
     "avatar_public": True,
-    "share_usage_data": True, #This settings does nothing yet
     "share_presence": False,              # show on map (opt-in, not opt-out)
 }
 

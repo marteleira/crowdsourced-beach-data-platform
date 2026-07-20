@@ -312,9 +312,6 @@
   "settingsCommunityAlerts": "Alertas de comunidade",
   "settingsCheckinAlerts": "Alertas ao fazer check-in",
   "settingsCheckinAlertsSub": "Notifica quando chegares a uma praia com alertas",
-  "settingsProximityAlerts": "Alertas de proximidade",
-  "settingsProximityAlertsSub": "Alertas quando estás perto de uma praia",
-  "settingsProximityRadius": "Raio de proximidade",
   "settingsAlertTypes": "Tipos de alerta",
   "settingsJellyfish": "Medusas",
   "settingsStrongCurrent": "Corrente forte",
@@ -322,12 +319,6 @@
   "settingsRoughSea": "Mar agitado",
   "settingsMinSeverity": "Severidade mínima",
   "errorLoadSettings": "Não foi possível carregar as notificações",
-  "proximityRadiusValue": "{meters} m",
-  "@proximityRadiusValue": {
-    "placeholders": {
-      "meters": { "type": "int" }
-    }
-  },
   "settingsFavBeaches": "Praias favoritas",
   "settingsFavAlertsEnabled": "Alertas das minhas praias",
   "settingsFavAlertsEnabledSub": "Recebe alertas das praias que tens guardadas",
@@ -336,11 +327,6 @@
   "settingsFlagChangeSub": "Notifica quando o estado de segurança muda",
   "settingsTideAlerts": "Alertas de maré",
   "settingsTideAlertsSub": "Aviso antes de preia-mar e baixa-mar",
-  "settingsMyReports": "Os meus avisos",
-  "settingsReportConfirmed": "Aviso confirmado",
-  "settingsReportConfirmedSub": "Quando a comunidade confirma um aviso teu",
-  "settingsReportRejected": "Aviso rejeitado",
-  "settingsReportRejectedSub": "Quando a comunidade rejeita um aviso teu",
   "settingsQuietHours": "Horas de silêncio",
   "settingsQuietHoursEnabled": "Ativar horas de silêncio",
   "settingsQuietHoursEnabledSub": "Sem notificações durante o período definido",
@@ -358,8 +344,6 @@
   "privacyPresence": "Presença & Atividade",
   "privacyShowOnMap": "Aparecer na lista de pessoas",
   "privacyShowOnMapSub": "O teu nome fica visível para quem está na praia, a tua presença conta sempre para a lotação",
-  "privacyDiagnosticData": "Dados de diagnóstico",
-  "privacyDiagnosticDataSub": "De momento não recolhemos quaisquer dados de diagnóstico. Se isso vier a mudar, serás notificado.",
   "privacyMyData": "Os meus dados",
   "privacyExportData": "Exportar os meus dados",
   "privacyExportDataSub": "Recebe uma cópia de tudo o que guardamos",

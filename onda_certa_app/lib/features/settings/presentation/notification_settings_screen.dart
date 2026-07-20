@@ -97,30 +97,6 @@ class _NotificationForm extends ConsumerWidget {
               enabled: on,
               onChanged: (v) => patch({'checkin_alerts': v}),
             ),
-            _Divider(),
-            _SwitchTile(
-              icon: Icons.radar,
-              iconColor: AppColors.primary,
-              label: l10n.settingsProximityAlerts,
-              subtitle: l10n.settingsProximityAlertsSub,
-              value: settings.proximityAlerts,
-              enabled: on,
-              onChanged: (v) => patch({'proximity_alerts': v}),
-            ),
-            if (settings.proximityAlerts && on) ...[
-              _Divider(),
-              _SliderTile(
-                icon: Icons.social_distance_outlined,
-                iconColor: AppColors.textSecondary,
-                label: l10n.settingsProximityRadius,
-                value: settings.proximityRadiusMeters.toDouble(),
-                min: 100,
-                max: 2000,
-                divisions: 19,
-                format: (v) => '${v.round()} m',
-                onChanged: (v) => patch({'proximity_radius_meters': v.round()}),
-              ),
-            ],
           ],
         ),
 
@@ -217,33 +193,6 @@ class _NotificationForm extends ConsumerWidget {
               value: settings.tideAlerts,
               enabled: on,
               onChanged: (v) => patch({'tide_alerts': v}),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: AppSpacing.md),
-
-        _Section(
-          title: l10n.settingsMyReports,
-          children: [
-            _SwitchTile(
-              icon: Icons.thumb_up_outlined,
-              iconColor: const Color(0xFF059669),
-              label: l10n.settingsReportConfirmed,
-              subtitle: l10n.settingsReportConfirmedSub,
-              value: settings.reportConfirmed,
-              enabled: on,
-              onChanged: (v) => patch({'report_confirmed': v}),
-            ),
-            _Divider(),
-            _SwitchTile(
-              icon: Icons.thumb_down_outlined,
-              iconColor: AppColors.coral,
-              label: l10n.settingsReportRejected,
-              subtitle: l10n.settingsReportRejectedSub,
-              value: settings.reportRejected,
-              enabled: on,
-              onChanged: (v) => patch({'report_rejected': v}),
             ),
           ],
         ),
@@ -380,79 +329,6 @@ class _SwitchTile extends StatelessWidget {
             value: value,
             onChanged: enabled ? onChanged : null,
             activeTrackColor: AppColors.teal,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SliderTile extends StatelessWidget {
-  const _SliderTile({
-    required this.label,
-    required this.value,
-    required this.min,
-    required this.max,
-    required this.divisions,
-    required this.format,
-    required this.onChanged,
-    this.icon,
-    this.iconColor,
-  });
-  final String label;
-  final double value;
-  final double min;
-  final double max;
-  final int divisions;
-  final String Function(double) format;
-  final ValueChanged<double> onChanged;
-  final IconData? icon;
-  final Color? iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-      child: Row(
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 20, color: iconColor ?? AppColors.textSecondary),
-            const SizedBox(width: AppSpacing.md),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(label,
-                        style: AppTextStyles.primaryMd),
-                    Text(format(value),
-                        style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.tealDark)),
-                  ],
-                ),
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: AppColors.teal,
-                    inactiveTrackColor: AppColors.borderLight,
-                    thumbColor: AppColors.teal,
-                    overlayColor: AppColors.teal.withValues(alpha: 0.12),
-                    trackHeight: 4,
-                  ),
-                  child: Slider(
-                    value: value,
-                    min: min,
-                    max: max,
-                    divisions: divisions,
-                    onChanged: onChanged,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
