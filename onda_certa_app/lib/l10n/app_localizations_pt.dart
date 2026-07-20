@@ -228,7 +228,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String communityFooter(int beaches, int users) {
-    return 'em $beaches praias · $users utilizadores online';
+    return '$users utilizadores presentes em $beaches praias';
   }
 
   @override
@@ -610,11 +610,11 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsCommunityAlerts => 'Alertas de comunidade';
 
   @override
-  String get settingsCheckinAlerts => 'Alertas ao fazer check-in';
+  String get settingsCheckinAlerts => 'Alertas de presença';
 
   @override
   String get settingsCheckinAlertsSub =>
-      'Notifica quando chegares a uma praia com alertas';
+      'Alertas das praias onde estiveste presente, mesmo que não sejam favoritas';
 
   @override
   String get settingsAlertTypes => 'Tipos de alerta';

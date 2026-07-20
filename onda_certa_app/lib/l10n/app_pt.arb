@@ -102,7 +102,7 @@
       "count": { "type": "int" }
     }
   },
-  "communityFooter": "em {beaches} praias · {users} utilizadores online",
+  "communityFooter": "{users} utilizadores presentes em {beaches} praias",
   "@communityFooter": {
     "placeholders": {
       "beaches": { "type": "int" },
@@ -310,8 +310,8 @@
   "settingsNotifsEnabled": "Notificações ativadas",
   "settingsNotifsEnabledSub": "Liga ou desliga todas as notificações",
   "settingsCommunityAlerts": "Alertas de comunidade",
-  "settingsCheckinAlerts": "Alertas ao fazer check-in",
-  "settingsCheckinAlertsSub": "Notifica quando chegares a uma praia com alertas",
+  "settingsCheckinAlerts": "Alertas de presença",
+  "settingsCheckinAlertsSub": "Alertas das praias onde estiveste presente, mesmo que não sejam favoritas",
   "settingsAlertTypes": "Tipos de alerta",
   "settingsJellyfish": "Medusas",
   "settingsStrongCurrent": "Corrente forte",

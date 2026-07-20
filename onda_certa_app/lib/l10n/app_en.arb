@@ -102,7 +102,7 @@
       "count": { "type": "int" }
     }
   },
-  "communityFooter": "at {beaches} beaches · {users} users online",
+  "communityFooter": "{users} users currently at {beaches} beaches",
   "@communityFooter": {
     "placeholders": {
       "beaches": { "type": "int" },
@@ -310,8 +310,8 @@
   "settingsNotifsEnabled": "Notifications enabled",
   "settingsNotifsEnabledSub": "Turn all notifications on or off",
   "settingsCommunityAlerts": "Community alerts",
-  "settingsCheckinAlerts": "Check-in alerts",
-  "settingsCheckinAlertsSub": "Notify when you arrive at a beach with alerts",
+  "settingsCheckinAlerts": "Presence alerts",
+  "settingsCheckinAlertsSub": "Alerts for beaches where you've been present, even if not favourited",
   "settingsAlertTypes": "Alert types",
   "settingsJellyfish": "Jellyfish",
   "settingsStrongCurrent": "Strong current",

@@ -515,7 +515,7 @@ abstract class AppLocalizations {
   /// No description provided for @communityFooter.
   ///
   /// In pt, this message translates to:
-  /// **'em {beaches} praias · {users} utilizadores online'**
+  /// **'{users} utilizadores presentes em {beaches} praias'**
   String communityFooter(int beaches, int users);
 
   /// No description provided for @beachListTitle.
@@ -1199,13 +1199,13 @@ abstract class AppLocalizations {
   /// No description provided for @settingsCheckinAlerts.
   ///
   /// In pt, this message translates to:
-  /// **'Alertas ao fazer check-in'**
+  /// **'Alertas de presença'**
   String get settingsCheckinAlerts;
 
   /// No description provided for @settingsCheckinAlertsSub.
   ///
   /// In pt, this message translates to:
-  /// **'Notifica quando chegares a uma praia com alertas'**
+  /// **'Alertas das praias onde estiveste presente, mesmo que não sejam favoritas'**
   String get settingsCheckinAlertsSub;
 
   /// No description provided for @settingsAlertTypes.
