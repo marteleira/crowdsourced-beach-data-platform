@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/api/api_error.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/l10n/l10n.dart';
@@ -259,7 +260,7 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
         }
       }
 
-      final msg = detail is String ? detail : null;
+      final msg = parseApiError(e)?.message;
 
       if (status == 409) {
         showDialog<void>(

@@ -77,7 +77,7 @@ async def create_guest(body: GuestRequest, db: AsyncSession = Depends(get_db)):
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
-        raise HTTPException(409, Msg.EMAIL_TAKEN)
+        raise HTTPException(409, {"code": "email_taken", "message": Msg.EMAIL_TAKEN})
 
     user = User(
         email=body.email,
@@ -198,7 +198,7 @@ async def promote_guest(
 
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
-        raise HTTPException(409, Msg.EMAIL_TAKEN)
+        raise HTTPException(409, {"code": "email_taken", "message": Msg.EMAIL_TAKEN})
 
     user.email = body.email
     user.display_name = body.display_name

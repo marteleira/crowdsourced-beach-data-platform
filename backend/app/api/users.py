@@ -105,7 +105,7 @@ async def update_profile(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_anonymous:
-        raise HTTPException(403, Msg.GUESTS_CANNOT_EDIT_PROFILE)
+        raise HTTPException(403, {"code": "guest_cannot_edit_profile", "message": Msg.GUESTS_CANNOT_EDIT_PROFILE})
 
     if body.display_name is None and body.email is None and body.avatar_id is None:
         raise HTTPException(400, Msg.NO_CHANGES_PROVIDED)
@@ -131,7 +131,7 @@ async def update_profile(
             select(User).where(User.email == body.email, User.id != user.id)
         )
         if conflict.scalar_one_or_none():
-            raise HTTPException(409, Msg.EMAIL_IN_USE)
+            raise HTTPException(409, {"code": "email_in_use", "message": Msg.EMAIL_IN_USE})
 
         user.email = body.email
         user.is_email_verified = False
@@ -149,7 +149,7 @@ async def change_password(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_anonymous:
-        raise HTTPException(403, Msg.GUESTS_CANNOT_CHANGE_PASSWORD)
+        raise HTTPException(403, {"code": "guest_cannot_change_password", "message": Msg.GUESTS_CANNOT_CHANGE_PASSWORD})
 
     if not user.password_hash:
         raise HTTPException(400, Msg.GOOGLE_NO_PASSWORD)

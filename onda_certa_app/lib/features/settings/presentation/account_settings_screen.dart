@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/api/api_error.dart';
 import '../../../core/auth/auth_provider.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/data/beach_repository.dart';
@@ -126,11 +127,7 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
   }
 
   String? _extractDioError(Object e) {
-    if (e is DioException) {
-      final detail = e.response?.data;
-      if (detail is Map) return detail['detail'] as String?;
-      if (detail is String) return detail;
-    }
+    if (e is DioException) return parseApiError(e)?.message;
     return null;
   }
 

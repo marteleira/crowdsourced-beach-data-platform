@@ -236,7 +236,7 @@ async def delete_report(
     if not report:
         raise HTTPException(404, Msg.REPORT_NOT_FOUND)
     if report.user_id != user.id:
-        raise HTTPException(403, Msg.REPORT_NOT_YOURS)
+        raise HTTPException(403, {"code": "report_not_yours", "message": Msg.REPORT_NOT_YOURS})
 
     report.is_expired = True
     await db.commit()

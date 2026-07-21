@@ -61,7 +61,7 @@ async def add_favourite(
         )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(409, Msg.BEACH_ALREADY_FAVOURITE)
+        raise HTTPException(409, {"code": "beach_already_favourite", "message": Msg.BEACH_ALREADY_FAVOURITE})
 
     count_r = await db.execute(
         select(func.count(UserFavourite.id)).where(UserFavourite.user_id == user.id)
