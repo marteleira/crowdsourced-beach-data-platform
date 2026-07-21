@@ -5,14 +5,16 @@ These patterns appear in multiple routers and are extracted here to avoid duplic
 from datetime import datetime, timedelta
 from typing import Optional, TYPE_CHECKING
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from geoalchemy2.functions import ST_DWithin, ST_Distance, ST_GeogFromText
 
 from app.core.constants import (
     OCCUPANCY_WINDOW_MINUTES,
     OCCUPANCY_LOW_RATIO, OCCUPANCY_MEDIUM_RATIO,
     OCCUPANCY_LOW_THRESHOLD, OCCUPANCY_MEDIUM_THRESHOLD,
     OCCUPANCY_REPORT_EXPIRE_MINUTES, OCCUPANCY_REPORT_CONFIDENCE_THRESHOLD,
+    PRESENCE_RADIUS_METERS,
 )
 from app.core.utils import now_utc
 from app.models.beach import Beach
@@ -20,6 +22,7 @@ from app.models.beach_status import BeachStatus, OccupancyHeartbeat, OccupancyRe
 from app.models.report import Report
 from app.models.user import User
 from app.schemas.beach import BeachSummary, OccupancyData
+from app.services.achievements import update_streak
 from app.services.activity import get_activity_level, get_params
 
 
@@ -183,3 +186,61 @@ async def build_beach_summary(
         cover_photo_url=beach.cover_photo_url,
         municipality=beach.municipality,
     )
+
+
+#  Presence / spatial helpers
+# These are the only place a heartbeat's beach association is decided or
+# verified — never trust a client-asserted slug without running one of these.
+
+def _geog_point(lat: float, lon: float):
+    return ST_GeogFromText(f"SRID=4326;POINT({lon} {lat})")
+
+
+async def point_within_beach_radius(
+    db: AsyncSession, beach: Beach, lat: float, lon: float,
+    radius_m: float = PRESENCE_RADIUS_METERS,
+) -> bool:
+    """True if (lat, lon) is within radius_m of beach.geom, per PostGIS ST_DWithin."""
+    result = await db.scalar(
+        select(ST_DWithin(Beach.geom, _geog_point(lat, lon), radius_m))
+        .where(Beach.id == beach.id)
+    )
+    return bool(result)
+
+
+async def find_nearest_beach(
+    db: AsyncSession, lat: float, lon: float,
+    radius_m: float = PRESENCE_RADIUS_METERS,
+) -> Optional[tuple[Beach, float]]:
+    """Nearest beach to (lat, lon) within radius_m, or None if none is close enough.
+    Distance and radius are both computed by PostGIS, never asserted by the client."""
+    point = _geog_point(lat, lon)
+    dist_col = ST_Distance(Beach.geom, point).label("distance_m")
+    stmt = (
+        select(Beach, dist_col)
+        .where(ST_DWithin(Beach.geom, point, radius_m))
+        .order_by(dist_col)
+        .limit(1)
+    )
+    row = (await db.execute(stmt)).first()
+    return (row[0], row[1]) if row else None
+
+
+async def record_heartbeat_and_get_occupancy(
+    db: AsyncSession, beach: Beach, user: User, lat: float, lon: float,
+) -> OccupancyData:
+    """Insert the heartbeat, invalidate the user's stale cross-beach heartbeats,
+    bump their streak, and return freshly computed occupancy for `beach`."""
+    cutoff = now_utc() - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
+    await db.execute(
+        delete(OccupancyHeartbeat).where(
+            OccupancyHeartbeat.user_id == user.id,
+            OccupancyHeartbeat.beach_id != beach.id,
+            OccupancyHeartbeat.created_at > cutoff,
+        )
+    )
+    geom = f"SRID=4326;POINT({lon} {lat})"
+    db.add(OccupancyHeartbeat(beach_id=beach.id, user_id=user.id, geom=geom))
+    await db.commit()
+    await update_streak(db, user)
+    return await compute_occupancy(db, beach)

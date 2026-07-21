@@ -142,3 +142,81 @@ class TestHeartbeat:
             headers={"Authorization": f"Bearer {tokens[0]}"},
         )
         assert r.json()["user_count"] >= 5
+
+    async def test_heartbeat_rejects_point_far_from_target_beach(
+        self, client: AsyncClient, beach: Beach, auth_headers: dict
+    ):
+        r = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/occupancy/heartbeat",
+            json={"lat": 38.7, "lon": -9.4},   # ~40km away
+            headers=auth_headers,
+        )
+        assert r.status_code == 403
+        assert r.json()["detail"]["code"] == "too_far_from_beach"
+
+    async def test_heartbeat_accepts_point_within_slack_radius(
+        self, client: AsyncClient, beach: Beach, auth_headers: dict
+    ):
+        r = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/occupancy/heartbeat",
+            json={"lat": 38.4871, "lon": -8.9821},   # ~350m offset, within slack
+            headers=auth_headers,
+        )
+        assert r.status_code == 200
+
+
+class TestHeartbeatByLocation:
+    async def test_requires_auth(self, client: AsyncClient, beach: Beach):
+        r = await client.post(
+            "/api/v1/occupancy/heartbeat", json={"lat": 38.4839, "lon": -8.9821},
+        )
+        assert r.status_code == 401
+
+    async def test_matches_nearest_beach_among_multiple_candidates(
+        self, client: AsyncClient, beach: Beach, db: AsyncSession, auth_headers: dict
+    ):
+        beach2 = Beach(
+            slug="praia-galapinhos", name="Praia dos Galapinhos",
+            lat=38.47, lon=-8.99, geom="SRID=4326;POINT(-8.99 38.47)",
+            has_capacity_data=False, max_capacity=500,
+            nearby_stop_ids=[], flags_available=True,
+        )
+        db.add(beach2)
+        await db.commit()
+
+        r = await client.post(
+            "/api/v1/occupancy/heartbeat",
+            json={"lat": 38.47, "lon": -8.99},   # exactly at beach2
+            headers=auth_headers,
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["status"] == "ok"
+        assert body["beach_slug"] == "praia-galapinhos"
+
+    async def test_creates_heartbeat_record_for_matched_beach(
+        self, client: AsyncClient, beach: Beach, db: AsyncSession, auth_headers: dict
+    ):
+        r = await client.post(
+            "/api/v1/occupancy/heartbeat",
+            json={"lat": 38.4839, "lon": -8.9821},
+            headers=auth_headers,
+        )
+        assert r.json()["beach_id"] == beach.id
+        count = await db.execute(
+            select(func.count(OccupancyHeartbeat.id)).where(OccupancyHeartbeat.beach_id == beach.id)
+        )
+        assert count.scalar_one() == 1
+
+    async def test_no_beach_nearby_returns_200_discriminated_payload(
+        self, client: AsyncClient, beach: Beach, auth_headers: dict
+    ):
+        r = await client.post(
+            "/api/v1/occupancy/heartbeat",
+            json={"lat": 39.5, "lon": -9.5},   # far from every seeded beach
+            headers=auth_headers,
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["status"] == "no_beach_nearby"
+        assert body["beach_id"] is None

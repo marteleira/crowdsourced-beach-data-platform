@@ -206,8 +206,8 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
     final messenger = ScaffoldMessenger.of(context);
     final l10n = context.l10n;
     try {
-      final nearest = await sendHeartbeatForCurrentPosition(ref);
-      if (nearest == null) {
+      final slug = await sendHeartbeatForCurrentPosition(ref);
+      if (slug == null) {
         if (mounted) {
           messenger.showSnackBar(SnackBar(
             content: Text(l10n.tooFarToCheckin),
@@ -223,7 +223,7 @@ class _BeachDetailScreenState extends ConsumerState<BeachDetailScreen>
           duration: const Duration(seconds: 2),
           backgroundColor: AppColors.teal,
         ));
-        ref.invalidate(beachFullDetailProvider(nearest.slug));
+        ref.invalidate(beachFullDetailProvider(slug));
       }
     } catch (_) {
       if (mounted) {

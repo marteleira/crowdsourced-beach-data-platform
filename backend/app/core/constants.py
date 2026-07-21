@@ -9,6 +9,7 @@ Import from this module instead of hard-coding values across routers/services
 OCCUPANCY_WINDOW_MINUTES = 20        # heartbeat window for occupancy count
 MAP_PRESENCE_WINDOW_MINUTES = 20     # heartbeat window shown on map overlay
 CHECKIN_WINDOW_MINUTES = 180         # "you are at the beach" window for notifications
+PRESENCE_RADIUS_METERS = 4500        # max distance from a beach's geom to count as a present
 
 # Occupancy reports
 OCCUPANCY_REPORT_EXPIRE_MINUTES = 120    # reports expire after 2h (conditions change)
