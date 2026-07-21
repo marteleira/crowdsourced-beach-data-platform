@@ -85,49 +85,54 @@ class AuthInterceptor extends Interceptor {
       return handler.next(err);
     }
 
-    try {
-      final String newToken;
+    final String newToken;
 
-      if (_refreshCompleter != null) {
-        // Another refresh is already in flight — wait for its result.
+    if (_refreshCompleter != null) {
+      // Another refresh is already in flight — wait for its result.
+      try {
         newToken = await _refreshCompleter!.future;
-      } else {
-        _refreshCompleter = Completer<String>();
-        try {
-          final response = await _dio.post(
-            '/auth/refresh',
-            data: {'refresh_token': refreshToken},
-            options: Options(extra: {'skipAuthInterceptor': true}),
-          );
-
-          final newAccess = response.data['access_token'] as String;
-          final newRefresh = response.data['refresh_token'] as String;
-          final isAnon = response.data['is_anonymous'] as bool? ?? false;
-          final isEmailVerified = response.data['is_email_verified'] as bool? ?? false;
-
-          await _storage.saveTokens(
-            accessToken: newAccess,
-            refreshToken: newRefresh,
-            isAnonymous: isAnon,
-            isEmailVerified: isEmailVerified,
-          );
-
-          _refreshCompleter!.complete(newAccess);
-          newToken = newAccess;
-        } catch (e) {
-          _refreshCompleter!.completeError(e);
-          rethrow;
-        } finally {
-          _refreshCompleter = null;
-        }
+      } on DioException {
+        return handler.next(err);
       }
+    } else {
+      _refreshCompleter = Completer<String>();
+      try {
+        final response = await _dio.post(
+          '/auth/refresh',
+          data: {'refresh_token': refreshToken},
+          options: Options(extra: {'skipAuthInterceptor': true}),
+        );
 
+        final newAccess = response.data['access_token'] as String;
+        final newRefresh = response.data['refresh_token'] as String;
+        final isAnon = response.data['is_anonymous'] as bool? ?? false;
+        final isEmailVerified = response.data['is_email_verified'] as bool? ?? false;
+
+        await _storage.saveTokens(
+          accessToken: newAccess,
+          refreshToken: newRefresh,
+          isAnonymous: isAnon,
+          isEmailVerified: isEmailVerified,
+        );
+
+        _refreshCompleter!.complete(newAccess);
+        newToken = newAccess;
+      } on DioException catch (e) {
+        _refreshCompleter!.completeError(e);
+        await _storage.clearTokens();
+        return handler.next(err);
+      } finally {
+        _refreshCompleter = null;
+      }
+    }
+
+    try {
       final retried = await _dio.fetch(
         err.requestOptions..headers['Authorization'] = 'Bearer $newToken',
       );
       return handler.resolve(retried);
     } on DioException {
-      await _storage.clearTokens();
+      // Refresh succeeded — tokens are valid, only this retry failed.
       return handler.next(err);
     }
   }

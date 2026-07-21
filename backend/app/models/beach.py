@@ -15,7 +15,7 @@ class Beach(Base):
     name: Mapped[str] = mapped_column(Text, nullable=False)
     lat: Mapped[float] = mapped_column(Float, nullable=False)
     lon: Mapped[float] = mapped_column(Float, nullable=False)
-    geom: Mapped[Any] = mapped_column(Geography("Point", srid=4326), nullable=True)
+    geom: Mapped[Any] = mapped_column(Geography("Point", srid=4326), nullable=False)
 
     # External API identifiers (nullable – not all APIs cover every beach)
     ipma_global_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
