@@ -7,6 +7,11 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import exists, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.constants import (
+    AUTO_BAN_REPUTATION_THRESHOLD as AUTO_BAN_THRESHOLD,
+    SUSPENSION_DURATION_HOURS,
+    SUSPENSION_REPUTATION_THRESHOLD as SUSPENSION_THRESHOLD,
+)
 from app.models.report import Report
 from app.models.user import ReputationEvent, User
 
@@ -18,10 +23,6 @@ DELTA_CONFIRMATION_ACCURATE = 2
 DELTA_FLAG_CONFIRMED = 15
 DELTA_FLAG_CONTRADICTED = -20
 DELTA_SPAM_PENALTY = -5
-
-SUSPENSION_THRESHOLD = -30
-SUSPENSION_DURATION_HOURS = 48
-AUTO_BAN_THRESHOLD = -50
 
 
 def reputation_level(rep: int) -> str:
@@ -62,7 +63,7 @@ async def apply_delta(
         await db.execute(
             update(User)
             .where(User.id == user_id)
-            .values(is_banned=True, ban_reason="Reputação abaixo de −50")
+            .values(is_banned=True, ban_reason=f"Reputação abaixo de {AUTO_BAN_THRESHOLD}")
         )
     elif rep <= SUSPENSION_THRESHOLD:
         suspended_until = datetime.now(timezone.utc) + timedelta(hours=SUSPENSION_DURATION_HOURS)
@@ -271,7 +272,7 @@ async def sync_account_status(db: AsyncSession) -> None:
             User.reputation <= AUTO_BAN_THRESHOLD,
             User.is_banned.is_(False),
         )
-        .values(is_banned=True, ban_reason="Reputação abaixo de −50")
+        .values(is_banned=True, ban_reason=f"Reputação abaixo de {AUTO_BAN_THRESHOLD}")
     )
 
     # Users between suspension and ban threshold who aren't suspended yet

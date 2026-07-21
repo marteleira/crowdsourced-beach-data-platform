@@ -32,8 +32,8 @@ MIN_REPUTATION_TO_PROPOSE = 0       # minimum rep to propose a flag, zero for no
 REPORT_VERIFIED_NET_VOTES = 3        # upvotes - downvotes >= this -> verified
 
 # Reputation thresholds (all in one place)
-AUTO_BAN_REPUTATION_THRESHOLD = -30
-SUSPENSION_REPUTATION_THRESHOLD = -10
+AUTO_BAN_REPUTATION_THRESHOLD = -50
+SUSPENSION_REPUTATION_THRESHOLD = -30
 SUSPENSION_DURATION_HOURS = 48
 
 # Flag confirmation cooldown

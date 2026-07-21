@@ -1391,7 +1391,7 @@ abstract class AppLocalizations {
   /// No description provided for @privacyShowOnMapSub.
   ///
   /// In pt, this message translates to:
-  /// **'O teu nome fica visível para quem está na praia, a tua presença conta sempre para a lotação'**
+  /// **'Apareces na lista de pessoas presentes na praia, combinado com as opções acima, a tua presença conta sempre para a lotação'**
   String get privacyShowOnMapSub;
 
   /// No description provided for @privacyMyData.
