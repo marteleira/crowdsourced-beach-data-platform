@@ -151,13 +151,16 @@ def require_reputation(min_rep: int):
         if user.reputation < min_rep:
             raise HTTPException(
                 status_code=403,
-                detail=Msg.min_reputation(min_rep),
+                detail={
+                    "code": "insufficient_reputation",
+                    "message": Msg.min_reputation(min_rep),
+                },
             )
         return user
     return check
 
 
-def require_presence(window: timedelta, detail):
+def require_presence(window: timedelta, message: str):
     """Returns the Beach so callers don't need to fetch it again."""
     async def check(
         slug: str,
@@ -167,6 +170,9 @@ def require_presence(window: timedelta, detail):
         beach = await get_beach_or_404(slug, db)
         present = await was_recently_present(db, user.id, beach.id, window=window)
         if not present:
-            raise HTTPException(status_code=403, detail=detail)
+            raise HTTPException(
+                status_code=403,
+                detail={"code": "not_present", "message": message},
+            )
         return beach
     return check

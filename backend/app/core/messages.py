@@ -52,6 +52,8 @@ class Msg:
     MUST_BE_AT_BEACH_VOTE = "Tens de estar na praia para votar neste aviso"
     MUST_BE_AT_BEACH_FLAG = "Tens de estar na praia para propor uma bandeira"
     TOO_FAR_FROM_BEACH = "Estás demasiado longe desta praia para registar presença"
+    OCCUPANCY_MUST_BE_AT_BEACH = "Deves estar (ou ter estado) na praia para reportar a ocupação."
+    OCCUPANCY_ALREADY_REPORTED = "Já reportaste a ocupação desta praia recentemente."
 
     # Reports
     REPORT_NOT_FOUND_OR_EXPIRED = "Aviso não encontrado ou expirado"

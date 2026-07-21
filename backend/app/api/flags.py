@@ -157,7 +157,7 @@ async def confirm_flag(
         ).limit(1)
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(429, Msg.FLAG_ALREADY_CONFIRMED)
+        raise HTTPException(429, {"code": "flag_already_confirmed", "message": Msg.FLAG_ALREADY_CONFIRMED})
 
     confirmation = FlagConfirmation(
         beach_id=beach.id,

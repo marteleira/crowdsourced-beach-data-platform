@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/api/api_error.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
@@ -339,12 +340,11 @@ class _FlagProposalSheetState extends ConsumerState<FlagProposalSheet> {
       if (e.type == DioExceptionType.cancel) return;
       if (!mounted) return;
       final code = e.response?.statusCode;
-      final rawDetail = e.response?.data?['detail'];
-      final detail = rawDetail is String ? rawDetail : '';
+      final apiError = parseApiError(e);
       setState(() {
         if (code == 400) {
           _state = _ProposeState.unavailable;
-        } else if (code == 403 && detail.contains('reputação')) {
+        } else if (code == 403 && apiError?.code == 'insufficient_reputation') {
           _state = _ProposeState.noRep;
         } else if (code == 403) {
           _state = _ProposeState.notPresent;

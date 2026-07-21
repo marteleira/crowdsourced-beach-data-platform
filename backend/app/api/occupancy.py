@@ -84,7 +84,7 @@ async def submit_occupancy_report(
     beach: Beach = Depends(
         require_presence(
             timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS),
-            {"code": "not_present", "message": "Deves estar (ou ter estado) na praia para reportar a ocupação."},
+            Msg.OCCUPANCY_MUST_BE_AT_BEACH,
         )
     ),
 ):
@@ -100,7 +100,7 @@ async def submit_occupancy_report(
     if existing:
         raise HTTPException(
             status_code=429,
-            detail={"code": "already_reported", "message": "Já reportaste a ocupação desta praia recentemente."},
+            detail={"code": "already_reported", "message": Msg.OCCUPANCY_ALREADY_REPORTED},
         )
 
     db.add(OccupancyReport(beach_id=beach.id, user_id=user.id, level=body.level))
