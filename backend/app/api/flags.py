@@ -11,9 +11,15 @@ from app.core.constants import (
     VOTE_PRESENCE_WINDOW_HOURS,
 )
 from app.core.database import get_db
-from app.core.deps import get_beach_or_404, require_registered_user, was_recently_present
+from app.core.deps import (
+    get_beach_or_404,
+    require_presence,
+    require_registered_user,
+    require_reputation,
+)
 from app.core.messages import Msg
 from app.core.utils import now_utc
+from app.models.beach import Beach
 from app.models.beach_status import BeachStatus, FlagConfirmation, FlagProposal
 from app.models.user import User
 from app.schemas.flag import (
@@ -59,18 +65,13 @@ async def propose_flag(
     slug: str,
     body: FlagProposalRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_registered_user),
+    user: User = Depends(require_reputation(MIN_REPUTATION_TO_PROPOSE)),
+    beach: Beach = Depends(
+        require_presence(timedelta(minutes=FLAG_PROPOSAL_WINDOW_MINUTES), Msg.MUST_BE_AT_BEACH_FLAG)
+    ),
 ):
-    if user.reputation < MIN_REPUTATION_TO_PROPOSE:
-        raise HTTPException(403, Msg.min_reputation(MIN_REPUTATION_TO_PROPOSE))
-
-    beach = await get_beach_or_404(slug, db)
     if not beach.flags_available:
         raise HTTPException(400, Msg.BEACH_NO_FLAG_SYSTEM)
-
-    present = await was_recently_present(db, user.id, beach.id, window=timedelta(minutes=FLAG_PROPOSAL_WINDOW_MINUTES))
-    if not present:
-        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_FLAG)
 
     weight = proposal_weight(user.reputation)
     proposal = FlagProposal(
@@ -137,16 +138,14 @@ async def confirm_flag(
     body: FlagConfirmRequest,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_registered_user),
+    beach: Beach = Depends(
+        require_presence(timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS), Msg.MUST_BE_AT_BEACH_VOTE)
+    ),
 ):
-    beach = await get_beach_or_404(slug, db)
     status = await _ensure_beach_status(db, beach.id)
 
     if status.flag_color == "unknown":
         raise HTTPException(400, Msg.NO_FLAG_TO_CONFIRM)
-
-    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS))
-    if not present:
-        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_VOTE)
 
     # One confirmation vote per user per beach per FLAG_CONFIRM_WINDOW_HOURS
     one_hour_ago = now_utc() - timedelta(hours=FLAG_CONFIRM_WINDOW_HOURS)
