@@ -15,9 +15,10 @@ from app.core.db_helpers import (
     find_nearest_beach,
     record_heartbeat_and_get_occupancy,
 )
-from app.core.deps import require_user, get_beach_or_404, was_recently_present
+from app.core.deps import require_user, get_beach_or_404, require_presence
 from app.core.messages import Msg
 from app.core.utils import now_utc
+from app.models.beach import Beach
 from app.models.beach_status import OccupancyReport
 from app.models.user import User
 from app.schemas.user import (
@@ -80,20 +81,13 @@ async def submit_occupancy_report(
     body: OccupancyReportRequest,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
-):
-    beach = await get_beach_or_404(slug, db)
-
-    # Must have been at the beach recently (heartbeat within REPORT_PRESENCE_WINDOW_HOURS)
-    present = await was_recently_present(
-        db, user.id, beach.id,
-        window=timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS),
-    )
-    if not present:
-        raise HTTPException(
-            status_code=403,
-            detail={"code": "not_present", "message": "Deves estar (ou ter estado) na praia para reportar a ocupação."},
+    beach: Beach = Depends(
+        require_presence(
+            timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS),
+            {"code": "not_present", "message": "Deves estar (ou ter estado) na praia para reportar a ocupação."},
         )
-
+    ),
+):
     # Rate limit: one report per user per beach per window
     rate_cutoff = now_utc() - timedelta(minutes=OCCUPANCY_REPORT_RATE_LIMIT_MINUTES)
     existing = await db.scalar(

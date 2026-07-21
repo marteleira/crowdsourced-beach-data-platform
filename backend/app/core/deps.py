@@ -147,11 +147,26 @@ async def was_recently_present(
 
 
 def require_reputation(min_rep: int):
-    async def check(user: User = Depends(require_user)) -> User:
+    async def check(user: User = Depends(require_registered_user)) -> User:
         if user.reputation < min_rep:
             raise HTTPException(
                 status_code=403,
                 detail=Msg.min_reputation(min_rep),
             )
         return user
+    return check
+
+
+def require_presence(window: timedelta, detail):
+    """Returns the Beach so callers don't need to fetch it again."""
+    async def check(
+        slug: str,
+        db: AsyncSession = Depends(get_db),
+        user: User = Depends(require_user),
+    ) -> Beach:
+        beach = await get_beach_or_404(slug, db)
+        present = await was_recently_present(db, user.id, beach.id, window=window)
+        if not present:
+            raise HTTPException(status_code=403, detail=detail)
+        return beach
     return check

@@ -10,12 +10,13 @@ from app.core.database import get_db
 from app.core.deps import (
     get_beach_or_404,
     get_current_user,
+    require_presence,
     require_registered_user,
     require_user,
-    was_recently_present,
 )
 from app.core.messages import Msg
 from app.core.utils import now_utc
+from app.models.beach import Beach
 from app.models.report import Report, ReportVote
 from app.models.user import ReputationEvent, User
 from app.schemas.report import ReportCreate, ReportListResponse, ReportResponse, VoteRequest
@@ -85,14 +86,10 @@ async def create_report(
     body: ReportCreate,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_registered_user),
+    beach: Beach = Depends(
+        require_presence(timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS), Msg.MUST_BE_AT_BEACH_REPORT)
+    ),
 ):
-    beach = await get_beach_or_404(slug, db)
-
-    # Only users physically at the beach can submit reports
-    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS))
-    if not present:
-        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_REPORT)
-
     activity_params = await get_activity_params(db, beach.id)
 
     ttl = report_ttl_minutes(body.type, activity_params.level)
@@ -167,9 +164,10 @@ async def vote_report(
     body: VoteRequest,
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_registered_user),
+    beach: Beach = Depends(
+        require_presence(timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS), Msg.MUST_BE_AT_BEACH_VOTE)
+    ),
 ):
-    beach = await get_beach_or_404(slug, db)
-
     result = await db.execute(
         select(Report).where(Report.id == report_id, Report.beach_id == beach.id)
     )
@@ -177,11 +175,7 @@ async def vote_report(
     if not report or report.is_expired:
         raise HTTPException(404, Msg.REPORT_NOT_FOUND_OR_EXPIRED)
 
-    # Presence required for all votes:
     vote_value = 1 if body.vote == "up" else -1
-    present = await was_recently_present(db, user.id, beach.id, window=timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS))
-    if not present:
-        raise HTTPException(403, Msg.MUST_BE_AT_BEACH_VOTE)
 
     # Upsert vote
     existing = await db.execute(
