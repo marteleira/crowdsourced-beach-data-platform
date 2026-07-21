@@ -50,15 +50,15 @@ async def apply_delta(
     evt = ReputationEvent(user_id=user_id, event=event, delta=delta, params=params, ref_id=ref_id)
     db.add(evt)
 
-    await db.execute(
+    result = await db.execute(
         update(User)
         .where(User.id == user_id)
         .values(reputation=User.reputation + delta)
+        .returning(User.reputation)
     )
+    rep = result.scalar_one_or_none() or 0
 
     # Check for auto-ban and suspension
-    result = await db.execute(select(User.reputation).where(User.id == user_id))
-    rep = result.scalar_one_or_none() or 0
     if rep <= AUTO_BAN_THRESHOLD:
         await db.execute(
             update(User)
@@ -73,18 +73,6 @@ async def apply_delta(
             .values(suspended_until=suspended_until)
         )
 
-    await db.commit()
-
-
-def _already_scored(event_name: str, ref_id: int):
-    """Returns a correlated-subquery expression for use in WHERE clauses."""
-    return exists(
-        select(ReputationEvent.id).where(
-            ReputationEvent.event == event_name,
-            ReputationEvent.ref_id == ref_id,
-        )
-    )
-
 
 async def process_report_outcomes(db: AsyncSession) -> None:
     """
@@ -98,11 +86,22 @@ async def process_report_outcomes(db: AsyncSession) -> None:
     result = await db.execute(stmt)
     reports = result.scalars().all()
 
+    if not reports:
+        return
+
+    scored_result = await db.execute(
+        select(ReputationEvent.event, ReputationEvent.ref_id).where(
+            ReputationEvent.event.in_(("report_confirmed", "report_contradicted")),
+            ReputationEvent.ref_id.in_([report.id for report in reports]),
+        )
+    )
+    scored = set(scored_result.all())
+
     for report in reports:
         net = report.upvotes - report.downvotes
 
         if net >= 3:
-            if await db.scalar(select(_already_scored("report_confirmed", report.id))):
+            if ("report_confirmed", report.id) in scored:
                 continue
             await apply_delta(
                 db, report.user_id,
@@ -117,7 +116,7 @@ async def process_report_outcomes(db: AsyncSession) -> None:
                 .values(confirmed_reports=User.confirmed_reports + 1)
             )
         elif report.downvotes >= 3 and net <= -2:
-            if await db.scalar(select(_already_scored("report_contradicted", report.id))):
+            if ("report_contradicted", report.id) in scored:
                 continue
             await apply_delta(
                 db, report.user_id,

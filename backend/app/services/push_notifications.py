@@ -11,6 +11,7 @@ are available
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,11 +23,14 @@ from app.models.user_extended import PushToken, UserFavourite, effective_notific
 
 logger = logging.getLogger(__name__)
 
+# quiet_hours_start/end are entered by users as local (Portugal) time
+LOCAL_TZ = ZoneInfo("Europe/Lisbon")
+
 
 def _in_quiet_hours(settings: dict) -> bool:
     if not settings.get("quiet_hours_enabled"):
         return False
-    now_time = datetime.now(timezone.utc).strftime("%H:%M")
+    now_time = datetime.now(LOCAL_TZ).strftime("%H:%M")
     start = settings.get("quiet_hours_start", "22:00")
     end = settings.get("quiet_hours_end", "07:00")
     if start <= end:
