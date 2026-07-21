@@ -40,6 +40,14 @@ class HeartbeatResponse(BaseModel):
     user_count: int
 
 
+class HeartbeatByLocationResponse(BaseModel):
+    status: str          # "ok" | "no_beach_nearby"
+    beach_id: Optional[int] = None
+    beach_slug: Optional[str] = None
+    occupancy_level: Optional[str] = None
+    user_count: Optional[int] = None
+
+
 class OccupancyReportRequest(BaseModel):
     level: int   # 1=empty, 2=soft, 3=normal, 4=busy, 5=full- 
 

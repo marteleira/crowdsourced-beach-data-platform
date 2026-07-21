@@ -106,11 +106,12 @@ class BeachRepository {
     return BeachReport.fromJson(res.data as Map<String, dynamic>, beachSlug: slug);
   }
 
-  Future<void> sendHeartbeat(String slug, {required double lat, required double lon}) async {
-    await _dio.post(
-      '/beaches/$slug/occupancy/heartbeat',
-      data: {'lat': lat, 'lon': lon},
-    );
+  // Backend resolves lat/lon to the nearest beach (if any) via a PostGIS
+  // spatial query. Returns the matched beach's slug, or null if none is near.
+  Future<String?> sendHeartbeatByLocation({required double lat, required double lon}) async {
+    final res = await _dio.post('/occupancy/heartbeat', data: {'lat': lat, 'lon': lon});
+    final data = res.data as Map<String, dynamic>;
+    return data['status'] == 'ok' ? data['beach_slug'] as String? : null;
   }
 
   Future<OccupancyReportResult> submitOccupancyReport(String slug, int level) async {

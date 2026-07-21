@@ -2,26 +2,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../features/beaches/data/beach_provider.dart';
-import '../../features/beaches/domain/beach_models.dart';
 import 'heartbeat_provider.dart';
 
-const _kRadius = 4000.0; // 4km radius
 const _kInterval = Duration(minutes: 19);
-
-// Finds the closest beach to [pos], within [radius] meters. Returns null if
-// none of the known beaches is close enough.
-BeachSummary? findNearestBeach(List<BeachSummary> beaches, Position pos, {double radius = _kRadius}) {
-  BeachSummary? result;
-  double minDist = double.infinity;
-  for (final b in beaches) {
-    final d = Geolocator.distanceBetween(pos.latitude, pos.longitude, b.lat, b.lon);
-    if (d < minDist) {
-      minDist = d;
-      result = b;
-    }
-  }
-  return minDist <= radius ? result : null;
-}
 
 // gets the device current position, falling back to the last known one if
 // a fresh fix cant be obtained quickly
@@ -35,20 +18,16 @@ Future<Position?> getCurrentOrLastPosition() async {
   }
 }
 
-// Sends a heartbeat for the beach nearest to the device current position
-// Returns that beach, or null if no position or no nearby beach was found
-Future<BeachSummary?> sendHeartbeatForCurrentPosition(WidgetRef ref) async {
+// Sends a heartbeat for the device's current position. The backend decides
+// which beach (if any) it belongs to via a PostGIS spatial query.
+// Returns the matched beach's slug, or null if no position or no beach nearby.
+Future<String?> sendHeartbeatForCurrentPosition(WidgetRef ref) async {
   final pos = await getCurrentOrLastPosition();
   if (pos == null) return null;
 
-  final beaches = await ref.read(beachListProvider.future);
-  final nearest = findNearestBeach(beaches, pos);
-  if (nearest == null) return null;
-
-  await ref.read(beachRepositoryProvider).sendHeartbeat(
-    nearest.slug, lat: pos.latitude, lon: pos.longitude,
+  return ref.read(beachRepositoryProvider).sendHeartbeatByLocation(
+    lat: pos.latitude, lon: pos.longitude,
   );
-  return nearest;
 }
 
 class HeartbeatService {
@@ -95,28 +74,8 @@ class HeartbeatService {
       }
     }
 
-    List<BeachSummary> beaches;
     try {
-      beaches = await ref.read(beachListProvider.future).timeout(
-        const Duration(seconds: 15),
-        onTimeout: () => [],
-      );
-    } catch (e) {
-      return;
-    }
-
-    if (beaches.isEmpty) {
-      return;
-    }
-
-    final nearest = findNearestBeach(beaches, pos);
-    if (nearest == null) {
-      return;
-    }
-
-    try {
-      await ref.read(beachRepositoryProvider).sendHeartbeat(
-        nearest.slug,
+      await ref.read(beachRepositoryProvider).sendHeartbeatByLocation(
         lat: pos.latitude,
         lon: pos.longitude,
       );

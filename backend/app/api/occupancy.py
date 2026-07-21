@@ -1,27 +1,32 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import delete, select, func
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
-    OCCUPANCY_WINDOW_MINUTES,
     OCCUPANCY_REPORT_RATE_LIMIT_MINUTES,
     REPORT_PRESENCE_WINDOW_HOURS,
 )
 from app.core.database import get_db
-from app.core.db_helpers import compute_occupancy
+from app.core.db_helpers import (
+    compute_occupancy,
+    point_within_beach_radius,
+    find_nearest_beach,
+    record_heartbeat_and_get_occupancy,
+)
 from app.core.deps import require_user, get_beach_or_404, was_recently_present
+from app.core.messages import Msg
 from app.core.utils import now_utc
-from app.models.beach_status import OccupancyHeartbeat, OccupancyReport
+from app.models.beach_status import OccupancyReport
 from app.models.user import User
 from app.schemas.user import (
-    HeartbeatRequest, HeartbeatResponse,
+    HeartbeatRequest, HeartbeatResponse, HeartbeatByLocationResponse,
     OccupancyReportRequest, OccupancyReportResponse,
 )
-from app.services.achievements import update_streak
 
 router = APIRouter(prefix="/beaches/{slug}/occupancy", tags=["occupancy"])
+location_router = APIRouter(prefix="/occupancy", tags=["occupancy"])
 
 
 @router.post("/heartbeat", response_model=HeartbeatResponse)
@@ -33,24 +38,37 @@ async def send_heartbeat(
 ):
     beach = await get_beach_or_404(slug, db)
 
-    cutoff = now_utc() - timedelta(minutes=OCCUPANCY_WINDOW_MINUTES)
-    await db.execute(
-        delete(OccupancyHeartbeat).where(
-            OccupancyHeartbeat.user_id == user.id,
-            OccupancyHeartbeat.beach_id != beach.id,
-            OccupancyHeartbeat.created_at > cutoff,
+    if not await point_within_beach_radius(db, beach, body.lat, body.lon):
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "too_far_from_beach", "message": Msg.TOO_FAR_FROM_BEACH},
         )
-    )
 
-    geom = f"SRID=4326;POINT({body.lon} {body.lat})"
-    db.add(OccupancyHeartbeat(beach_id=beach.id, user_id=user.id, geom=geom))
-    await db.commit()
-    await update_streak(db, user)
-
-    occupancy = await compute_occupancy(db, beach)
+    occupancy = await record_heartbeat_and_get_occupancy(db, beach, user, body.lat, body.lon)
     return HeartbeatResponse(
         status="ok",
         beach_id=beach.id,
+        occupancy_level=occupancy.level,
+        user_count=occupancy.user_count,
+    )
+
+
+@location_router.post("/heartbeat", response_model=HeartbeatByLocationResponse)
+async def send_heartbeat_by_location(
+    body: HeartbeatRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(require_user),
+):
+    match = await find_nearest_beach(db, body.lat, body.lon)
+    if match is None:
+        return HeartbeatByLocationResponse(status="no_beach_nearby")
+
+    beach, _distance_m = match
+    occupancy = await record_heartbeat_and_get_occupancy(db, beach, user, body.lat, body.lon)
+    return HeartbeatByLocationResponse(
+        status="ok",
+        beach_id=beach.id,
+        beach_slug=beach.slug,
         occupancy_level=occupancy.level,
         user_count=occupancy.user_count,
     )
