@@ -713,7 +713,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get privacyShowOnMapSub =>
-      'O teu nome fica visível para quem está na praia, a tua presença conta sempre para a lotação';
+      'Apareces na lista de pessoas presentes na praia, combinado com as opções acima, a tua presença conta sempre para a lotação';
 
   @override
   String get privacyMyData => 'Os meus dados';

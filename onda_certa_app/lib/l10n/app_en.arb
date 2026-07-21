@@ -343,7 +343,7 @@
   "privacyAvatarVisibleSub": "Other users can see your avatar",
   "privacyPresence": "Presence & Activity",
   "privacyShowOnMap": "Show in people list",
-  "privacyShowOnMapSub": "Your name becomes visible to others at the beach, your presence always counts towards occupancy",
+  "privacyShowOnMapSub": "You appear in the list of people present at the beach, combined with the options above, your presence always counts towards occupancy",
   "privacyMyData": "My data",
   "privacyExportData": "Export my data",
   "privacyExportDataSub": "Receive a copy of everything we store",

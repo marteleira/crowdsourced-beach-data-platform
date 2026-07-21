@@ -707,7 +707,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyShowOnMapSub =>
-      'Your name becomes visible to others at the beach, your presence always counts towards occupancy';
+      'You appear in the list of people present at the beach, combined with the options above, your presence always counts towards occupancy';
 
   @override
   String get privacyMyData => 'My data';
