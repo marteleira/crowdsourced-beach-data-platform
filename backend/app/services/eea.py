@@ -17,8 +17,11 @@ Finding the correct identifier for a beach:
   2. Search for the beach by name and note the identifier in the popup
 """
 import re
+import logging
 import httpx
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 DISCODATA_URL = "https://discodata.eea.europa.eu/sql"
 
@@ -62,7 +65,9 @@ async def fetch_water_quality(station_id: str) -> Optional[dict]:
             if not results:
                 return None
             return _normalise(station_id, results[0])
-        except Exception:
+        except Exception as e:
+            logger.warning("Could not fetch water quality for %s: %s",
+                           station_id, e)
             return None
 
 

@@ -4,8 +4,11 @@ https://github.com/carrismetropolitana/api
 
 Provides stop info, routes, and real-time departures.
 """
+import logging
 import httpx
 from typing import Optional, List
+
+logger = logging.getLogger(__name__)
 
 CARRIS_BASE = "https://api.carrismetropolitana.pt"
 
@@ -26,7 +29,8 @@ async def fetch_stop(stop_id: str) -> Optional[dict]:
                 "lat": float(lat) if lat is not None else None,
                 "lon": float(lon) if lon is not None else None,
             }
-        except Exception:
+        except Exception as e:
+            logger.warning("Could not fetch Carris stop %s: %s", stop_id, e)
             return None
 
 
@@ -48,7 +52,9 @@ async def fetch_stops_nearby(lat: float, lon: float, radius_m: int = 1000) -> Op
                 }
                 for s in (stops if isinstance(stops, list) else [])
             ]
-        except Exception:
+        except Exception as e:
+            logger.warning("Could not fetch Carris stops near (%s, %s): %s",
+                           lat, lon, e)
             return None
 
 
@@ -94,7 +100,9 @@ async def fetch_stop_departures(stop_id: str) -> Optional[List[dict]]:
                     "is_realtime": item.get("estimated_arrival_unix") is not None,
                 })
             return trips
-        except Exception:
+        except Exception as e:
+            logger.warning("Could not fetch Carris departures for stop %s: %s",
+                           stop_id, e)
             return None
 
 
@@ -130,5 +138,6 @@ async def fetch_routes() -> Optional[List[dict]]:
             resp = await client.get(url)
             resp.raise_for_status()
             return resp.json()
-        except Exception:
+        except Exception as e:
+            logger.warning("Could not fetch Carris routes: %s", e)
             return None
