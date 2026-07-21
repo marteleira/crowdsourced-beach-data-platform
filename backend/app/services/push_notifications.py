@@ -139,7 +139,7 @@ async def dispatch_report_notification(
         if not _severity_allowed(settings, severity):
             continue
 
-        # Quiet hours — severity 3 (grave) always goes through
+        # Quiet hours — severity 3 (alto) always goes through
         if severity < 3 and _in_quiet_hours(settings):
             continue
 

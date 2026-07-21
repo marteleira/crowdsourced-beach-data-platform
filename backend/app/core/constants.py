@@ -75,7 +75,7 @@ FLAG_COLOR_EMOJIS: dict[str, str] = {
 }
 
 SEVERITY_LABELS: dict[int, str] = {
-    1: "Ligeiro",
-    2: "Moderado",
-    3: "Grave",
+    1: "Baixo",
+    2: "Médio",
+    3: "Alto",
 }

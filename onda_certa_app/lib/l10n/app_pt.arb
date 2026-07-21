@@ -227,8 +227,8 @@
   "alertTypeOther": "Outro",
   "alertTypeDefault": "Alerta",
   "severityLow": "Baixo",
-  "severityModerate": "Moderado",
-  "severityHigh": "Grave",
+  "severityModerate": "Médio",
+  "severityHigh": "Alto",
 
   "reportSheetTitle": "Reportar Condição",
   "reportTypeSection": "Tipo de condição",
@@ -332,9 +332,9 @@
   "settingsQuietHoursEnabledSub": "Sem notificações durante o período definido",
   "settingsQuietStart": "Início",
   "settingsQuietEnd": "Fim",
-  "settingsSeverityLow": "Baixa",
-  "settingsSeverityMedium": "Média",
-  "settingsSeverityHigh": "Alta",
+  "settingsSeverityLow": "Baixo",
+  "settingsSeverityMedium": "Médio",
+  "settingsSeverityHigh": "Alto",
 
   "privacyPublicProfile": "Perfil público",
   "privacyNameVisible": "Nome visível",

@@ -460,10 +460,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get severityLow => 'Low';
 
   @override
-  String get severityModerate => 'Moderate';
+  String get severityModerate => 'Medium';
 
   @override
-  String get severityHigh => 'Severe';
+  String get severityHigh => 'High';
 
   @override
   String get reportSheetTitle => 'Report Condition';
