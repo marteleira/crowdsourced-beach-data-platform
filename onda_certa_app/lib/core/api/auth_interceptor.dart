@@ -56,7 +56,10 @@ class AuthInterceptor extends Interceptor {
           }
         } else if (code == 'account_banned') {
           await _storage.clearTokens();
-          onBanned?.call(detail['ban_reason'] as String?);
+          // ban_reason is a stable code (e.g. "reputation_below_threshold"), not
+          // display text - ban_reason_message is the backend's already-localized
+          // rendering of it (see app.core.deps.raise_if_account_locked).
+          onBanned?.call(detail['ban_reason_message'] as String?);
           // Swallow the error — router will redirect to ban screen
           return handler.reject(DioException(
             requestOptions: err.requestOptions,

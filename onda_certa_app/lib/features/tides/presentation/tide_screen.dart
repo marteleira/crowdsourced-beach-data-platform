@@ -6,6 +6,7 @@ import '../../beaches/data/beach_provider.dart';
 import '../../beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../shared/utils/weather_helpers.dart';
 import '../../../core/l10n/l10n.dart';
 
 // Scene configuration
@@ -15,14 +16,16 @@ class _Scene {
   _Scene({
     required this.hour,
     required this.minute,
-    required this.weatherDesc,
+    required this.cloudCoverValue,
+    required this.isRainingValue,
     required this.precipProb,
     this.waveHeightMax,
   });
 
   final int hour;
   final int minute;
-  final String weatherDesc;
+  final double cloudCoverValue;
+  final bool isRainingValue;
   final double precipProb; // 0–100
   final double? waveHeightMax;
 
@@ -35,25 +38,9 @@ class _Scene {
   double get dayProgress =>
       ((hour * 60 + minute - 360) / 720.0).clamp(0.0, 1.0);
 
-  double get cloudCover {
-    final d = weatherDesc.toLowerCase();
-    if (d.contains('limpo')         || d.contains('clear'))     return 0.00;
-    if (d.contains('pouco nublado') || d.contains('few'))       return 0.20;
-    if (d.contains('parcialmente')  || d.contains('partly'))    return 0.50;
-    if (d.contains('muito nublado') || d.contains('broken'))    return 0.80;
-    if (d.contains('encoberto')     || d.contains('overcast'))  return 1.00;
-    if (d.contains('chuv')          || d.contains('rain'))      return 0.90;
-    if (d.contains('aguac')         || d.contains('shower'))    return 0.75;
-    if (d.contains('trovoada')      || d.contains('thunder'))   return 1.00;
-    if (d.contains('nevoeiro')      || d.contains('fog'))       return 0.85;
-    return precipProb > 50 ? 0.80 : 0.35;
-  }
+  double get cloudCover => cloudCoverValue;
 
-  bool get isRaining =>
-      precipProb > 40 ||
-      weatherDesc.toLowerCase().contains('chuv') ||
-      weatherDesc.toLowerCase().contains('aguac') ||
-      weatherDesc.toLowerCase().contains('rain');
+  bool get isRaining => isRainingValue || precipProb > 40;
 
   double get rainIntensity =>
       isRaining ? ((precipProb / 100.0) * 0.8 + 0.2).clamp(0.2, 1.0) : 0.0;
@@ -167,9 +154,14 @@ class _TideScreenState extends ConsumerState<TideScreen>
     }
 
     final now   = DateTime.now();
+    final sceneMeta = weatherSceneMeta(
+      wmoCode: weather?.weatherCodeWmo,
+      ipmaTypeId: weather?.weatherTypeId,
+    );
     final scene = _Scene(
       hour: now.hour, minute: now.minute,
-      weatherDesc:  weather?.weatherDesc ?? '',
+      cloudCoverValue: sceneMeta.cloudCover,
+      isRainingValue: sceneMeta.isRaining,
       precipProb:   weather?.precipitationProb ?? 0,
       waveHeightMax: sea?.waveHeightMax,
     );

@@ -49,11 +49,11 @@ class WeatherForecast(BaseModel):
     uv_index: Optional[float] = None
     precipitation_prob: Optional[float] = None
     wind_speed: Optional[float] = None
-    wind_direction: Optional[str] = None
+    wind_direction_code: Optional[str] = None   # N | NE | E | SE | S | SW | W | NW
     wind_direction_deg: Optional[float] = None
     wind_gusts: Optional[float] = None
-    weather_type_id: Optional[int] = None
-    weather_type_desc: Optional[str] = None
+    weather_type_id: Optional[int] = None       # IPMA code (1-29), 5-day baseline
+    weather_code_wmo: Optional[int] = None      # WMO code (0-99), Open-Meteo "today" override
     data_source: str = "live"
     snapshot_at: Optional[datetime] = None
 
@@ -88,7 +88,7 @@ class TidesResponse(BaseModel):
 
 class WaterQualityResponse(BaseModel):
     station_id: Optional[str] = None
-    classification: Optional[str] = None   # Excelente | Boa | Suficiente | Má
+    quality_code: Optional[int] = None   # EEA code: 1=excellent 2=good 3=sufficient 4=poor
     sampled_at: Optional[str] = None
     parameters: Optional[dict] = None
     data_source: str = "live"

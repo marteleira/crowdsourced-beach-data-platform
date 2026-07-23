@@ -127,8 +127,9 @@ class _AccountFormState extends ConsumerState<_AccountForm> {
   }
 
   String? _extractDioError(Object e) {
-    if (e is DioException) return parseApiError(e)?.message;
-    return null;
+    if (e is! DioException) return null;
+    final apiError = parseApiError(e);
+    return displayMessage(context.l10n, apiError) ?? apiError?.message;
   }
 
   Future<void> _saveAvatar(String? id) async {

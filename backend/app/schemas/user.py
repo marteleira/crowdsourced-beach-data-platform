@@ -3,6 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, EmailStr, field_validator
 
+from app.schemas.errors import CodedValueError
+
 
 class ReputationEventOut(BaseModel):
     event: str
@@ -11,17 +13,23 @@ class ReputationEventOut(BaseModel):
     created_at: datetime
 
 
+class AchievementOut(BaseModel):
+    id: str          # stable key - client resolves display text via its own l10n
+    emoji: str
+    earned: bool
+
+
 class UserProfile(BaseModel):
     id: str
     display_name: Optional[str] = None
     email: Optional[str] = None
     has_password: bool = False
     reputation: int
-    level: str         # novo | regular | contribuidor | veterano
+    level: str         # new | regular | contributor | veteran
     is_anonymous: bool
     streak: int = 0
     avatar_id: Optional[str] = None
-    achievements: List[dict] = []
+    achievements: List[AchievementOut] = []
     stats: dict        # total_reports, confirmed_reports, false_reports, accuracy_rate
     recent_events: List[ReputationEventOut] = []
 
@@ -55,7 +63,7 @@ class OccupancyReportRequest(BaseModel):
     @classmethod
     def level_in_range(cls, v: int) -> int:
         if not (1 <= v <= 5):
-            raise ValueError("O nível deve estar entre 1 e 5")
+            raise CodedValueError("level_out_of_range")
         return v
 
 
@@ -84,14 +92,14 @@ class UpdateProfileRequest(BaseModel):
         if v is not None:
             v = v.strip()
             if not (1 <= len(v) <= 50):
-                raise ValueError("Nome deve ter entre 1 e 50 caracteres")
+                raise CodedValueError("name_length_invalid")
         return v
 
     @field_validator("avatar_id")
     @classmethod
     def avatar_valid(cls, v: Optional[str]) -> Optional[str]:
         if v is not None and v != "default" and v not in _VALID_AVATAR_IDS:
-            raise ValueError(f"Avatar inválido: {v}")
+            raise CodedValueError("invalid_avatar_id", avatar_id=v)
         return v
 
 
@@ -103,5 +111,5 @@ class ChangePasswordRequest(BaseModel):
     @classmethod
     def password_min_length(cls, v: str) -> str:
         if len(v) < 8:
-            raise ValueError("A password deve ter pelo menos 8 caracteres")
+            raise CodedValueError("password_too_short")
         return v

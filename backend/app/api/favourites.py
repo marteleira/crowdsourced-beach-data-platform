@@ -1,13 +1,13 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import select, update, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.db_helpers import build_beach_summary
-from app.core.messages import Msg
+from app.core.errors import api_error
 from app.core.deps import require_user
 from app.core.utils import now_utc
 from app.models.beach import Beach
@@ -52,7 +52,7 @@ async def add_favourite(
     beach_r = await db.execute(select(Beach).where(Beach.slug == beach_slug))
     beach = beach_r.scalar_one_or_none()
     if not beach:
-        raise HTTPException(404, Msg.BEACH_NOT_FOUND)
+        raise api_error(404, "beach_not_found", user.language)
 
     existing = await db.execute(
         select(UserFavourite).where(
@@ -61,7 +61,7 @@ async def add_favourite(
         )
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(409, {"code": "beach_already_favourite", "message": Msg.BEACH_ALREADY_FAVOURITE})
+        raise api_error(409, "beach_already_favourite", user.language)
 
     count_r = await db.execute(
         select(func.count(UserFavourite.id)).where(UserFavourite.user_id == user.id)
@@ -82,7 +82,7 @@ async def remove_favourite(
     beach_r = await db.execute(select(Beach).where(Beach.slug == beach_slug))
     beach = beach_r.scalar_one_or_none()
     if not beach:
-        raise HTTPException(404, Msg.BEACH_NOT_FOUND)
+        raise api_error(404, "beach_not_found", user.language)
 
     result = await db.execute(
         delete(UserFavourite).where(
@@ -91,7 +91,7 @@ async def remove_favourite(
         )
     )
     if result.rowcount == 0:  # type: ignore[attr-defined]
-        raise HTTPException(404, Msg.BEACH_NOT_FAVOURITE)
+        raise api_error(404, "beach_not_favourite", user.language)
     await db.commit()
 
 

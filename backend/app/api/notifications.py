@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
@@ -6,7 +6,7 @@ from typing import Optional, Literal
 from app.core.database import get_db
 from app.core.deps import require_user
 from app.models.user import User
-from app.core.messages import Msg
+from app.core.errors import api_error
 from app.models.user_extended import PushToken, effective_notification_settings
 
 router = APIRouter(tags=["notifications"])
@@ -86,5 +86,5 @@ async def remove_push_token(
         delete(PushToken).where(PushToken.token == token, PushToken.user_id == user.id)
     )
     if result.rowcount == 0:  # type: ignore[attr-defined]
-        raise HTTPException(404, Msg.TOKEN_NOT_FOUND)
+        raise api_error(404, "token_not_found", user.language)
     await db.commit()

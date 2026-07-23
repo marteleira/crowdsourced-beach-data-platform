@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,11 +13,13 @@ from app.core.constants import (
 from app.core.database import get_db
 from app.core.deps import (
     get_beach_or_404,
+    get_language,
     require_presence,
     require_registered_user,
     require_reputation,
 )
-from app.core.messages import Msg
+from app.core.errors import api_error
+from app.core.i18n import t
 from app.core.utils import now_utc
 from app.models.beach import Beach
 from app.models.beach_status import BeachStatus, FlagConfirmation, FlagProposal
@@ -47,8 +49,12 @@ async def _ensure_beach_status(db: AsyncSession, beach_id: int) -> BeachStatus:
 
 
 @router.get("", response_model=BeachFlagStatus)
-async def get_flag_status(slug: str, db: AsyncSession = Depends(get_db)):
-    beach = await get_beach_or_404(slug, db)
+async def get_flag_status(
+    slug: str,
+    db: AsyncSession = Depends(get_db),
+    lang: str = Depends(get_language),
+):
+    beach = await get_beach_or_404(slug, db, lang)
     status = await _ensure_beach_status(db, beach.id)
     params = await get_activity_params(db, beach.id)
     return BeachFlagStatus(
@@ -67,11 +73,11 @@ async def propose_flag(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_reputation(MIN_REPUTATION_TO_PROPOSE)),
     beach: Beach = Depends(
-        require_presence(timedelta(minutes=FLAG_PROPOSAL_WINDOW_MINUTES), Msg.MUST_BE_AT_BEACH_FLAG)
+        require_presence(timedelta(minutes=FLAG_PROPOSAL_WINDOW_MINUTES), "must_be_at_beach_flag")
     ),
 ):
     if not beach.flags_available:
-        raise HTTPException(400, Msg.BEACH_NO_FLAG_SYSTEM)
+        raise api_error(400, "beach_no_flag_system", user.language)
 
     weight = proposal_weight(user.reputation)
     proposal = FlagProposal(
@@ -101,14 +107,16 @@ async def propose_flag(
         return FlagProposalResponse(
             proposal_id=proposal.id,
             status="applied",
-            message="Bandeira atualizada automaticamente com base na tua reputação",
+            code="flag_applied",
+            message=t("flag_applied", user.language),
         )
 
     await db.commit()
     return FlagProposalResponse(
         proposal_id=proposal.id,
         status="pending",
-        message="Proposta submetida. Aguarda confirmação da comunidade.",
+        code="flag_pending",
+        message=t("flag_pending", user.language),
     )
 
 
@@ -139,13 +147,13 @@ async def confirm_flag(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_registered_user),
     beach: Beach = Depends(
-        require_presence(timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS), Msg.MUST_BE_AT_BEACH_VOTE)
+        require_presence(timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS), "must_be_at_beach_vote")
     ),
 ):
     status = await _ensure_beach_status(db, beach.id)
 
     if status.flag_color == "unknown":
-        raise HTTPException(400, Msg.NO_FLAG_TO_CONFIRM)
+        raise api_error(400, "no_flag_to_confirm", user.language)
 
     # One confirmation vote per user per beach per FLAG_CONFIRM_WINDOW_HOURS
     one_hour_ago = now_utc() - timedelta(hours=FLAG_CONFIRM_WINDOW_HOURS)
@@ -157,7 +165,7 @@ async def confirm_flag(
         ).limit(1)
     )
     if existing.scalar_one_or_none():
-        raise HTTPException(429, {"code": "flag_already_confirmed", "message": Msg.FLAG_ALREADY_CONFIRMED})
+        raise api_error(429, "flag_already_confirmed", user.language)
 
     confirmation = FlagConfirmation(
         beach_id=beach.id,

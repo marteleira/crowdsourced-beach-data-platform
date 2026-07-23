@@ -51,8 +51,9 @@ class BeachSummary {
 class WeatherPoint {
   const WeatherPoint({
     this.minTemp, this.maxTemp, this.currentTemp, this.apparentTemp,
-    this.humidity, this.uvIndex, this.windSpeed, this.windDir,
-    this.windDirDeg, this.windGusts, this.precipitationProb, this.weatherDesc,
+    this.humidity, this.uvIndex, this.windSpeed, this.windDirCode,
+    this.windDirDeg, this.windGusts, this.precipitationProb,
+    this.weatherTypeId, this.weatherCodeWmo,
   });
   final double? minTemp;
   final double? maxTemp;
@@ -61,11 +62,12 @@ class WeatherPoint {
   final double? humidity;
   final double? uvIndex;
   final double? windSpeed;
-  final String? windDir;
+  final String? windDirCode;   // N | NE | E | SE | S | SW | W | NW
   final double? windDirDeg;
   final double? windGusts;
   final double? precipitationProb;
-  final String? weatherDesc;
+  final int? weatherTypeId;    // IPMA code (1-29), 5-day baseline
+  final int? weatherCodeWmo;   // WMO code (0-99), "today" override
 
   factory WeatherPoint.fromJson(Map<String, dynamic> j) => WeatherPoint(
     minTemp: (j['min_temp'] as num?)?.toDouble(),
@@ -75,11 +77,12 @@ class WeatherPoint {
     humidity: (j['humidity'] as num?)?.toDouble(),
     uvIndex: (j['uv_index'] as num?)?.toDouble(),
     windSpeed: (j['wind_speed'] as num?)?.toDouble(),
-    windDir: j['wind_direction'] as String?,
+    windDirCode: j['wind_direction_code'] as String?,
     windDirDeg: (j['wind_direction_deg'] as num?)?.toDouble(),
     windGusts: (j['wind_gusts'] as num?)?.toDouble(),
     precipitationProb: (j['precipitation_prob'] as num?)?.toDouble(),
-    weatherDesc: j['weather_type_desc'] as String?,
+    weatherTypeId: j['weather_type_id'] as int?,
+    weatherCodeWmo: j['weather_code_wmo'] as int?,
   );
 }
 
@@ -362,16 +365,16 @@ class BeachFullDetail {
   }
 }
 
-// Backend: WaterQualityResponse { classification, sampled_at, data_source, snapshot_at }
+// Backend: WaterQualityResponse { quality_code, sampled_at, data_source, snapshot_at }
 class WaterQuality {
-  const WaterQuality({this.classification, this.sampledAt, this.snapshotAt, this.dataSource = 'live'});
-  final String? classification; // "Excelente" | "Boa" | "Suficiente" | "Má"
+  const WaterQuality({this.qualityCode, this.sampledAt, this.snapshotAt, this.dataSource = 'live'});
+  final int? qualityCode; // EEA code: 1=excellent 2=good 3=sufficient 4=poor
   final String? sampledAt;
   final String? snapshotAt;
   final String dataSource;
 
   factory WaterQuality.fromJson(Map<String, dynamic> j) => WaterQuality(
-    classification: j['classification'] as String?,
+    qualityCode: j['quality_code'] as int?,
     sampledAt: j['sampled_at'] as String?,
     snapshotAt: j['snapshot_at'] as String?,
     dataSource: j['data_source'] as String? ?? 'live',
@@ -462,18 +465,15 @@ class BeachTransportInfo {
 
 class UserAchievement {
   const UserAchievement({
-    required this.id, required this.emoji,
-    required this.label, required this.earned,
+    required this.id, required this.emoji, required this.earned,
   });
-  final String id;
+  final String id;    // stable key - resolve display text via achievementLabel()
   final String emoji;
-  final String label;
   final bool earned;
 
   factory UserAchievement.fromJson(Map<String, dynamic> j) => UserAchievement(
     id: j['id'] as String,
     emoji: j['emoji'] as String,
-    label: j['label'] as String,
     earned: j['earned'] as bool? ?? false,
   );
 }

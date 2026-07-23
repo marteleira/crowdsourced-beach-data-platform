@@ -16,6 +16,7 @@ import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
 import '../../../shared/utils/format_helpers.dart';
 import '../../../shared/utils/ui_helpers.dart';
+import '../../../shared/utils/weather_helpers.dart';
 import '../../../shared/widgets/beach_cover_image.dart';
 import '../../../shared/widgets/overlay_icon_button.dart';
 import '../../../shared/widgets/metric_cell.dart';
@@ -811,7 +812,7 @@ class _WeatherCard extends StatelessWidget {
             _WindCell(
               speedKmh: weather?.windSpeed,
               dirDeg: weather?.windDirDeg,
-              dirCardinal: weather?.windDir,
+              dirCardinal: weather?.windDirCode != null ? windDirectionLabel(l10n, weather!.windDirCode) : null,
               gusts: weather?.windGusts,
             ),
             MetricCell(
@@ -1005,7 +1006,7 @@ class _WaterQualityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final (color, label) = waterQualityInfo(l10n, quality?.classification);
+    final (color, label) = waterQualityInfo(l10n, quality?.qualityCode);
     final cacheStr = _cacheStr(l10n, quality);
     final eeaStr = _eeaStr(l10n, quality);
 

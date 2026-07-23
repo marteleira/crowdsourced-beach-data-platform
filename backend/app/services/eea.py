@@ -25,14 +25,6 @@ logger = logging.getLogger(__name__)
 
 DISCODATA_URL = "https://discodata.eea.europa.eu/sql"
 
-# EEA numeric quality code → Portuguese label
-EEA_QUALITY: dict[str, str] = {
-    "1": "Excelente",
-    "2": "Boa",
-    "3": "Suficiente",
-    "4": "Má",
-}
-
 # Valid EEA bathingWaterIdentifier: 2-letter country code + 4 alphanumeric chars
 _VALID_ID = re.compile(r'^[A-Z]{2}[A-Z0-9]{4,10}$')
 
@@ -75,11 +67,11 @@ def _normalise(station_id: str, row: dict) -> dict:
     raw_quality = (row.get("quality") or "").strip()
     # EEA quality string format: "1 - Excellent", "2 - Good", etc.
     code = raw_quality.split(" - ")[0]
-    classification = EEA_QUALITY.get(code) or (raw_quality if raw_quality else None)
+    quality_code = int(code) if code.isdigit() else None
     season = row.get("season")
     return {
         "station_id": station_id,
-        "classification": classification,
+        "quality_code": quality_code,
         "sampled_at": str(season) if season else None,
         "parameters": {"eea_quality_raw": raw_quality, "season": season},
     }

@@ -74,8 +74,6 @@ FLAG_COLOR_EMOJIS: dict[str, str] = {
     "unknown": "⚪",
 }
 
-SEVERITY_LABELS: dict[int, str] = {
-    1: "Baixa",
-    2: "Média",
-    3: "Alta",
-}
+# Localized severity/alert-type/flag-color labels live in app.core.i18n.TRANSLATIONS
+# (keys severity_N, alert_type_*, flag_color_*) since push notification text must be
+# rendered per-recipient language, not baked in as a single string here.

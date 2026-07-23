@@ -1,14 +1,15 @@
 from datetime import timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import require_user, require_user_or_pending
-from app.core.messages import Msg
+from app.core.errors import api_error
+from app.core.i18n import t
 from app.core.utils import now_utc
 from app.models.report import Report
 from app.models.user import RefreshToken, ReputationEvent, User
@@ -125,12 +126,13 @@ async def delete_account(
     db: AsyncSession = Depends(get_db),
 ):
     if body.confirmation != "APAGAR":
-        raise HTTPException(400, Msg.DELETE_CONFIRMATION_INVALID)
+        raise api_error(400, "delete_confirmation_invalid", user.language)
 
     if user.scheduled_deletion_at:
         return {
             "scheduled_deletion_at": user.scheduled_deletion_at.isoformat(),
-            "message": "A conta já está agendada para eliminação.",
+            "code": "account_deletion_already_scheduled",
+            "message": t("account_deletion_already_scheduled", user.language),
         }
 
     deletion_at = now_utc() + timedelta(days=DELETION_GRACE_DAYS)
@@ -147,7 +149,8 @@ async def delete_account(
 
     return {
         "scheduled_deletion_at": deletion_at.isoformat(),
-        "message": f"Conta agendada para eliminação em {DELETION_GRACE_DAYS} dias. Podes cancelar antes dessa data.",
+        "code": "account_deletion_scheduled",
+        "message": t("account_deletion_scheduled", user.language, days=DELETION_GRACE_DAYS),
     }
 
 
@@ -157,9 +160,9 @@ async def cancel_deletion(
     db: AsyncSession = Depends(get_db),
 ):
     if not user.scheduled_deletion_at:
-        raise HTTPException(400, Msg.ACCOUNT_NOT_PENDING_DELETION)
+        raise api_error(400, "account_not_pending_deletion", user.language)
 
     user.scheduled_deletion_at = None
     db.add(user)
     await db.commit()
-    return {"message": "Eliminação cancelada. A conta foi restaurada."}
+    return {"code": "account_deletion_cancelled", "message": t("account_deletion_cancelled", user.language)}

@@ -209,6 +209,158 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get windDirN => 'N';
+
+  @override
+  String get windDirNE => 'NE';
+
+  @override
+  String get windDirE => 'E';
+
+  @override
+  String get windDirSE => 'SE';
+
+  @override
+  String get windDirS => 'S';
+
+  @override
+  String get windDirSW => 'SW';
+
+  @override
+  String get windDirW => 'W';
+
+  @override
+  String get windDirNW => 'NW';
+
+  @override
+  String get weatherDescClearSky => 'Clear sky';
+
+  @override
+  String get weatherDescFewClouds => 'Few clouds';
+
+  @override
+  String get weatherDescPartlyCloudy => 'Partly cloudy';
+
+  @override
+  String get weatherDescVeryCloudy => 'Very cloudy';
+
+  @override
+  String get weatherDescCloudy => 'Cloudy';
+
+  @override
+  String get weatherDescOvercast => 'Overcast';
+
+  @override
+  String get weatherDescLightShowers => 'Light showers';
+
+  @override
+  String get weatherDescShowers => 'Showers';
+
+  @override
+  String get weatherDescHeavyShowers => 'Heavy showers';
+
+  @override
+  String get weatherDescLightRain => 'Light rain';
+
+  @override
+  String get weatherDescModerateRain => 'Moderate rain';
+
+  @override
+  String get weatherDescHeavyRain => 'Heavy rain';
+
+  @override
+  String get weatherDescLightRainOrShowers => 'Light rain or light showers';
+
+  @override
+  String get weatherDescRainOrShowers => 'Rain or showers';
+
+  @override
+  String get weatherDescHeavyRainOrShowers => 'Heavy rain or heavy showers';
+
+  @override
+  String get weatherDescThunderLightRain => 'Thunderstorm with light rain';
+
+  @override
+  String get weatherDescThunderModerateRain =>
+      'Thunderstorm with moderate or heavy rain';
+
+  @override
+  String get weatherDescHail => 'Hail';
+
+  @override
+  String get weatherDescLightSnow => 'Light snow';
+
+  @override
+  String get weatherDescModerateToHeavySnow => 'Moderate to heavy snow';
+
+  @override
+  String get weatherDescFogLowClouds => 'Fog or low clouds';
+
+  @override
+  String get weatherDescMist => 'Mist';
+
+  @override
+  String get weatherDescShowersAndLightSnow => 'Showers and light snow';
+
+  @override
+  String get weatherDescLightRainAndSnow => 'Light rain and snow';
+
+  @override
+  String get weatherDescRainAndSnow => 'Rain and snow';
+
+  @override
+  String get weatherDescSnowAndLightRain => 'Snow and light rain';
+
+  @override
+  String get weatherDescLightRainOrShowersChance =>
+      'Light rain or light showers (chance)';
+
+  @override
+  String get weatherDescHailShowers => 'Hail showers';
+
+  @override
+  String get weatherDescStrongWindLightShowers => 'Strong wind, light showers';
+
+  @override
+  String get weatherDescThunderShowers => 'Thunderstorm with showers';
+
+  @override
+  String get weatherDescLightDrizzle => 'Light drizzle';
+
+  @override
+  String get weatherDescModerateDrizzle => 'Moderate drizzle';
+
+  @override
+  String get weatherDescHeavyDrizzle => 'Heavy drizzle';
+
+  @override
+  String get weatherDescModerateSnow => 'Moderate snow';
+
+  @override
+  String get weatherDescHeavySnow => 'Heavy snow';
+
+  @override
+  String get weatherDescSnowGrains => 'Snow grains';
+
+  @override
+  String get weatherDescLightSnowShowers => 'Light snow showers';
+
+  @override
+  String get weatherDescHeavySnowShowers => 'Heavy snow showers';
+
+  @override
+  String get weatherDescThunderstorm => 'Thunderstorm';
+
+  @override
+  String get weatherDescThunderstormHail => 'Thunderstorm with hail';
+
+  @override
+  String get weatherDescHeavyThunderstormHail => 'Heavy thunderstorm with hail';
+
+  @override
+  String get weatherDescFreezingFog => 'Freezing fog';
+
+  @override
   String get flagStatusSafe => 'Safe';
 
   @override

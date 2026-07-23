@@ -7,7 +7,9 @@ import '../../../features/beaches/data/beach_provider.dart';
 import '../../../features/beaches/domain/beach_models.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../shared/utils/achievement_helpers.dart';
 import '../../../shared/utils/format_helpers.dart';
+import '../../../shared/utils/reputation_helpers.dart';
 import '../../../shared/widgets/user_avatar.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -95,7 +97,7 @@ class _ProfileHeader extends StatelessWidget {
     final l10n = context.l10n;
     final name = profile.displayName ?? (profile.isAnonymous ? l10n.guestUser : l10n.registeredUser);
     final initials = getInitials(name);
-    final lvlColor = _levelColor(profile.level);
+    final lvlColor = reputationLevelMeta(l10n, profile.level).color;
 
     return Stack(
       children: [
@@ -149,10 +151,10 @@ class _ProfileHeader extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(_levelIcon(profile.level), color: lvlColor, size: 15),
+                    Icon(reputationLevelMeta(l10n, profile.level).icon, color: lvlColor, size: 15),
                     const SizedBox(width: 6),
                     Text(
-                      _levelLabel(l10n, profile.level),
+                      reputationLevelMeta(l10n, profile.level).label,
                       style: TextStyle(
                         color: lvlColor,
                         fontWeight: FontWeight.w700,
@@ -182,28 +184,6 @@ class _ProfileHeader extends StatelessWidget {
     );
   }
 
-  String _levelLabel(AppLocalizations l10n, String level) => switch (level) {
-    'novo'         => l10n.levelNew,
-    'regular'      => l10n.levelRegular,
-    'contribuidor' => l10n.levelContributor,
-    'veterano'     => l10n.levelVeteran,
-    _              => level,
-  };
-
-  IconData _levelIcon(String level) => switch (level) {
-    'veterano'     => Icons.surfing,
-    'contribuidor' => Icons.waves,
-    'regular'      => Icons.beach_access,
-    _              => Icons.water_outlined,
-  };
-
-  Color _levelColor(String level) => switch (level) {
-    'novo'         => AppColors.textHint,
-    'regular'      => AppColors.teal,
-    'contribuidor' => AppColors.sand,
-    'veterano'     => AppColors.amber,
-    _              => AppColors.textSecondary,
-  };
 }
 
 class _ReputationCard extends StatelessWidget {
@@ -213,7 +193,7 @@ class _ReputationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final info = _levelInfo(l10n, profile.level);
+    final info = reputationLevelMeta(l10n, profile.level);
     final progress = info.range == 0
         ? 1.0
         : ((profile.reputation - info.min) / info.range).clamp(0.0, 1.0);
@@ -326,13 +306,6 @@ class _ReputationCard extends StatelessWidget {
     );
   }
 
-  ({String label, String? next, int min, int max, int range}) _levelInfo(AppLocalizations l10n, String level) =>
-      switch (level) {
-        'novo'         => (label: l10n.levelNew,         next: l10n.levelRegular,      min: 0,   max: 10,  range: 10),
-        'regular'      => (label: l10n.levelRegular,     next: l10n.levelContributor,  min: 10,  max: 50,  range: 40),
-        'contribuidor' => (label: l10n.levelContributor, next: l10n.levelVeteran,      min: 50,  max: 150, range: 100),
-        _              => (label: l10n.levelVeteran,     next: null,                    min: 150, max: 150, range: 0),
-      };
 }
 
 class _StatsRow extends StatelessWidget {
@@ -490,16 +463,6 @@ class _AchievementsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final labels = {
-      'first_report': l10n.achievementFirstReport,
-      'tide_watcher': l10n.achievementTideWatcher,
-      '10_reports':   l10n.achievement10Reports,
-      'accurate':     l10n.achievementAccurate,
-      'streak_10':    l10n.achievementStreak10,
-      'regular':      l10n.achievementRegular,
-      'contributor':  l10n.achievementContributor,
-      'veteran':      l10n.achievementVeteran,
-    };
     final earned = profile.achievements.where((a) => a.earned).length;
     return _Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -541,8 +504,7 @@ class _AchievementsSection extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: profile.achievements.map((a) {
-              final label = labels[a.id] ?? a.label;
-              return _AchievementChip(achievement: a, label: label);
+              return _AchievementChip(achievement: a, label: achievementLabel(l10n, a.id));
             }).toList(),
           ),
         ],

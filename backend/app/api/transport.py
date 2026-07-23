@@ -1,10 +1,11 @@
 from collections import defaultdict
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.deps import get_beach_or_404
+from app.core.deps import get_beach_or_404, get_language
+from app.core.errors import api_error
 from app.schemas.beach import TransportResponse, TransportDirection, TransportTrip
 from app.services.snapshot import fetch_with_fallback
 from app.services import carris
@@ -32,10 +33,10 @@ def _group_by_direction(trips: list) -> list[TransportDirection]:
 
 
 @router.get("/transport", response_model=TransportResponse)
-async def get_transport(slug: str, db: AsyncSession = Depends(get_db)):
-    beach = await get_beach_or_404(slug, db)
+async def get_transport(slug: str, db: AsyncSession = Depends(get_db), lang: str = Depends(get_language)):
+    beach = await get_beach_or_404(slug, db, lang)
     if not beach.nearby_stop_ids:
-        raise HTTPException(404, "Sem paragens de autocarro para esta praia")
+        raise api_error(404, "no_bus_stops", lang)
 
     departures_raw, source, snap_at = await fetch_with_fallback(
         db, "carris_stops",

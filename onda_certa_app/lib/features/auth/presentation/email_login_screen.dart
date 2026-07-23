@@ -248,7 +248,9 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
       if (status == 403 && detail is Map) {
         final code = detail['code'] as String?;
         if (code == 'account_banned') {
-          ref.read(accountBannedProvider.notifier).set(detail['ban_reason'] as String?);
+          // ban_reason is a stable code, not display text - ban_reason_message
+          // is the backend's already-localized rendering of it.
+          ref.read(accountBannedProvider.notifier).set(detail['ban_reason_message'] as String?);
           return;
         }
         if (code == 'account_suspended') {
@@ -260,7 +262,8 @@ class _EmailLoginScreenState extends ConsumerState<EmailLoginScreen> {
         }
       }
 
-      final msg = parseApiError(e)?.message;
+      final apiError = parseApiError(e);
+      final msg = displayMessage(l10n, apiError) ?? apiError?.message;
 
       if (status == 409) {
         showDialog<void>(

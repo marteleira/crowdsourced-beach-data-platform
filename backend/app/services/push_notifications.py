@@ -16,7 +16,8 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import CHECKIN_WINDOW_MINUTES, REPORT_TYPE_EMOJIS, FLAG_COLOR_EMOJIS, SEVERITY_LABELS
+from app.core.constants import CHECKIN_WINDOW_MINUTES, REPORT_TYPE_EMOJIS, FLAG_COLOR_EMOJIS
+from app.core.i18n import t
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
 from app.models.user_extended import PushToken, UserFavourite, effective_notification_settings
@@ -117,8 +118,6 @@ async def dispatch_report_notification(
     notified = 0
 
     emoji = REPORT_TYPE_EMOJIS.get(alert_type, "⚠️")
-    title = f"{emoji} {alert_type.replace('_', ' ').title()} · {beach_name}"
-    body = note or f"Aviso reportado. Severidade: {SEVERITY_LABELS.get(severity, str(severity))}."
 
     for user_id in candidate_ids:
         user, settings = await _fetch_eligible_user(db, user_id)
@@ -143,13 +142,20 @@ async def dispatch_report_notification(
         if not _severity_allowed(settings, severity):
             continue
 
-        # Quiet hours — severity 3 (alta) always goes through
+        # Quiet hours — severity 3 (high) always goes through
         if severity < 3 and _in_quiet_hours(settings):
             continue
 
         tokens = await _get_tokens(db, user_id)
         if not tokens:
             continue
+
+        # Rendered per-recipient: each user may have a different language.
+        title = f"{emoji} {t(f'alert_type_{alert_type}', user.language)} · {beach_name}"
+        body = note or t(
+            "push_report_body", user.language,
+            severity=t(f"severity_{severity}", user.language),
+        )
 
         for token in tokens:
             await _send_push(token, title, body, beach_id=beach_id)
@@ -174,8 +180,6 @@ async def dispatch_flag_notification(
     notified = 0
 
     emoji = FLAG_COLOR_EMOJIS.get(new_color, "🏖️")
-    title = f"{emoji} Bandeira alterada · {beach_name}"
-    body = f"A bandeira mudou de {old_color} para {new_color}."
 
     for user_id in candidate_ids:
         user, settings = await _fetch_eligible_user(db, user_id)
@@ -203,6 +207,14 @@ async def dispatch_flag_notification(
         tokens = await _get_tokens(db, user_id)
         if not tokens:
             continue
+
+        # Rendered per-recipient: each user may have a different language.
+        title = f"{emoji} {t('push_flag_title', user.language, beach_name=beach_name)}"
+        body = t(
+            "push_flag_body", user.language,
+            old_color=t(f"flag_color_{old_color}", user.language),
+            new_color=t(f"flag_color_{new_color}", user.language),
+        )
 
         for token in tokens:
             await _send_push(token, title, body, beach_id=beach_id)

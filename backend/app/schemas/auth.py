@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
 
+from app.schemas.errors import CodedValueError
+
 
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -11,7 +13,7 @@ class RegisterRequest(BaseModel):
     @classmethod
     def password_min_length(cls, v: str) -> str:
         if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
+            raise CodedValueError("password_too_short")
         return v
 
 
@@ -46,7 +48,7 @@ class PromoteRequest(BaseModel):
     @classmethod
     def password_min_length(cls, v: str) -> str:
         if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
+            raise CodedValueError("password_too_short")
         return v
 
 
@@ -71,7 +73,7 @@ class ResetPasswordRequest(BaseModel):
     @classmethod
     def password_min_length(cls, v: str) -> str:
         if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
+            raise CodedValueError("password_too_short")
         return v
 
 

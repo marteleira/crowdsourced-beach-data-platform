@@ -2,7 +2,9 @@
 Achievement definitions and unlock logic.
 
 Achievements are checked when reputation events are processed.
-Each definition has: id, emoji, label, and a predicate that receives the User.
+Each definition has: id, emoji, and a predicate that receives the User.
+`id` is the only source of truth for display text — the client resolves it
+to a localized label via its own l10n (see achievement_helpers.dart).
 """
 from datetime import date, timedelta
 from typing import List
@@ -19,15 +21,14 @@ from app.models.user_extended import UserAchievement
 class AchievementDef:
     id: str
     emoji: str
-    label: str
 
     def earned(self, user: User) -> bool:
         raise NotImplementedError
 
 
 class _ThresholdAchievement(AchievementDef):
-    def __init__(self, id, emoji, label, field: str, threshold: int):
-        super().__init__(id, emoji, label)
+    def __init__(self, id, emoji, field: str, threshold: int):
+        super().__init__(id, emoji)
         self._field = field
         self._threshold = threshold
 
@@ -35,15 +36,16 @@ class _ThresholdAchievement(AchievementDef):
         return (getattr(user, self._field, 0) or 0) >= self._threshold
 
 
+# id must match a case in onda_certa_app/lib/shared/utils/achievement_helpers.dart::achievementLabel()
 ALL_ACHIEVEMENTS: List[AchievementDef] = [
-    _ThresholdAchievement("first_report",  "🌊", "First Wave",    "total_reports",     1),
-    _ThresholdAchievement("tide_watcher",  "🔭", "Tide Watcher",  "total_reports",     3),
-    _ThresholdAchievement("10_reports",    "📋", "10 Reports",    "total_reports",     10),
-    _ThresholdAchievement("accurate",      "🎯", "Accurate",      "confirmed_reports", 5),
-    _ThresholdAchievement("streak_10",     "🔥", "10-day Streak", "streak",            10),
-    _ThresholdAchievement("regular",       "🐚", "Regular",       "reputation",        10),
-    _ThresholdAchievement("contributor",   "🤝", "Contributor",   "reputation",        50),
-    _ThresholdAchievement("veteran",       "🏄", "Veteran",       "reputation",        150),
+    _ThresholdAchievement("first_report",  "🌊", "total_reports",     1),
+    _ThresholdAchievement("tide_watcher",  "🔭", "total_reports",     3),
+    _ThresholdAchievement("10_reports",    "📋", "total_reports",     10),
+    _ThresholdAchievement("accurate",      "🎯", "confirmed_reports", 5),
+    _ThresholdAchievement("streak_10",     "🔥", "streak",            10),
+    _ThresholdAchievement("regular",       "🐚", "reputation",        10),
+    _ThresholdAchievement("contributor",   "🤝", "reputation",        50),
+    _ThresholdAchievement("veteran",       "🏄", "reputation",        150),
 ]
 
 
@@ -73,7 +75,6 @@ def get_all_achievements_status(user: User, earned_ids: set) -> List[dict]:
         {
             "id": a.id,
             "emoji": a.emoji,
-            "label": a.label,
             "earned": a.earned(user) or a.id in earned_ids,
         }
         for a in ALL_ACHIEVEMENTS
