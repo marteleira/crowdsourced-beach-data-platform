@@ -458,13 +458,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get alertTypeDefault => 'Alerta';
 
   @override
-  String get severityLow => 'Baixo';
+  String get severityLow => 'Baixa';
 
   @override
-  String get severityModerate => 'Médio';
+  String get severityModerate => 'Média';
 
   @override
-  String get severityHigh => 'Alto';
+  String get severityHigh => 'Alta';
 
   @override
   String get reportSheetTitle => 'Reportar Condição';
@@ -680,13 +680,13 @@ class AppLocalizationsPt extends AppLocalizations {
   String get settingsQuietEnd => 'Fim';
 
   @override
-  String get settingsSeverityLow => 'Baixo';
+  String get settingsSeverityLow => 'Baixa';
 
   @override
-  String get settingsSeverityMedium => 'Médio';
+  String get settingsSeverityMedium => 'Média';
 
   @override
-  String get settingsSeverityHigh => 'Alto';
+  String get settingsSeverityHigh => 'Alta';
 
   @override
   String get privacyPublicProfile => 'Perfil público';

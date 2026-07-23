@@ -6,8 +6,11 @@ No authentication required. Updates ~2x/day.
 The API serves global forecast files per day index (0=today, 1=tomorrow…).
 Each file contains all locations; we filter by globalIdLocal.
 """
+import logging
 import httpx
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 IPMA_BASE = "https://api.ipma.pt/open-data"
 
@@ -62,7 +65,9 @@ async def fetch_weather_forecast(global_id_local: int) -> Optional[dict]:
                             ),
                         })
                         break
-            except Exception:
+            except Exception as e:
+                logger.warning("IPMA weather fetch failed for day %d (global_id_local=%d): %s",
+                               day_idx, global_id_local, e)
                 continue
 
     if not days:
@@ -92,7 +97,9 @@ async def fetch_sea_forecast(global_id_local: int) -> Optional[dict]:
                             "sea_surface_temp": _num(item.get("sstMax")),
                         })
                         break
-            except Exception:
+            except Exception as e:
+                logger.warning("IPMA sea fetch failed for day %d (global_id_local=%d): %s",
+                               day_idx, global_id_local, e)
                 continue
 
     if not days:

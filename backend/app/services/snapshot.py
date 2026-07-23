@@ -3,6 +3,7 @@ Snapshot helpers — fetch from external API with automatic fallback to DB cache
 Every successful fetch is saved to api_snapshots. On failure, the latest
 snapshot is returned along with its age so the response can be flagged.
 """
+import logging
 from datetime import datetime
 from typing import Optional, Callable, Awaitable, Any
 
@@ -10,6 +11,8 @@ from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.snapshot import ApiSnapshot
+
+logger = logging.getLogger(__name__)
 
 
 async def save_snapshot(
@@ -60,8 +63,8 @@ async def fetch_with_fallback(
         if data is not None:
             await save_snapshot(db, source, data, beach_id)
             return data, "live", None
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Live fetch failed for %s (beach_id=%s), falling back to cache: %s", source, beach_id, e)
 
     snap = await get_latest_snapshot(db, source, beach_id)
     if snap is None:
