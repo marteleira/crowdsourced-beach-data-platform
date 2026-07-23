@@ -499,11 +499,11 @@ class _OccupancyCardState extends ConsumerState<_OccupancyCard> {
       setState(() => _submitting = false);
       final code = (e.response?.data as Map?)?.cast<String, dynamic>()['detail']?['code'] as String?;
       final msg = switch (code) {
-        'already_reported' => l10n.occupancyAlreadyVoted,
-        'not_present'      => l10n.occupancyMustBePresent,
-        _                  => l10n.connectionError,
+        'occupancy_already_reported' => l10n.occupancyAlreadyVoted,
+        'occupancy_must_be_at_beach' => l10n.occupancyMustBePresent,
+        _                            => l10n.connectionError,
       };
-      if (code == 'already_reported') setState(() => _votedLevel = -1);
+      if (code == 'occupancy_already_reported') setState(() => _votedLevel = -1);
       messenger.showSnackBar(SnackBar(
         content: Text(msg),
         backgroundColor: AppColors.coral,

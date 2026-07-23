@@ -11,7 +11,7 @@ def calculate_confidence(
     abstentions: int,
     age_minutes: float,
     flag_color: str,
-    activity_level: str = "normal",
+    activity_level: str = "medium",
 ) -> float:
     from app.services.activity import get_params
 

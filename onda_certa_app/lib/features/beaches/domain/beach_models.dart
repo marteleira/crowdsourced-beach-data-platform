@@ -38,7 +38,7 @@ class BeachSummary {
     flagConfidence: (j['flag_confidence'] as num?)?.toDouble(),
     occupancyLevel: j['occupancy_level'] as String? ?? 'unknown',
     activeAlertsCount: j['active_alerts_count'] as int? ?? 0,
-    activityLevel: j['activity_level'] as String? ?? 'normal',
+    activityLevel: j['activity_level'] as String? ?? 'medium',
     activityLabel: j['activity_label'] as String?,
     distanceKm: (j['distance_km'] as num?)?.toDouble(),
     recommendationScore: (j['recommendation_score'] as num?)?.toDouble(),
@@ -280,7 +280,7 @@ class BeachStatus {
   factory BeachStatus.fromJson(Map<String, dynamic> j) => BeachStatus(
     flagColor: j['flag_color'] as String? ?? 'unknown',
     flagConfidence: (j['flag_confidence'] as num?)?.toDouble() ?? 0.0,
-    activityLevel: j['activity_level'] as String? ?? 'normal',
+    activityLevel: j['activity_level'] as String? ?? 'medium',
     activityLabel: j['activity_label'] as String?,
     occupancy: OccupancyData.fromJson(j['occupancy'] as Map<String, dynamic>),
   );

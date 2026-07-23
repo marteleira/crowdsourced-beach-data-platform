@@ -21,31 +21,13 @@ String flagLabel(AppLocalizations l10n, String flag) => switch (flag) {
   _        => (AppColors.textSecondary, l10n.flagDescUnknown),
 };
 
-// Short occupancy label, handles both 'medium' and 'normal' which different
-// API endpoints use for the same mid-level state
+// Short occupancy label - used in pills, list items,...
 String occupancyLabel(AppLocalizations l10n, String level) => switch (level) {
-  'low'                  => l10n.occupancyLow,
-  'medium' || 'normal'   => l10n.occupancyMedium,
-  'high'                 => l10n.occupancyHigh,
-  _                      => '',
+  'low'    => l10n.occupancyLow,
+  'medium' => l10n.occupancyMedium,
+  'high'   => l10n.occupancyHigh,
+  _        => '',
 };
-
-// Occupancy percentage + label + color for progress indicators.
-// When maxCapacity is provided, uses real ratio, otherwise falls back to level enum
-(double, String, Color) occupancyInfo(AppLocalizations l10n, String level, int userCount, {int? maxCapacity}) {
-  if (maxCapacity != null && maxCapacity > 0) {
-    final pct = (userCount / maxCapacity).clamp(0.0, 1.0);
-    final label = pct < 0.35 ? l10n.occupancyLow : pct < 0.70 ? l10n.occupancyAnimated : l10n.occupancyFull;
-    final color = pct < 0.35 ? AppColors.flagGreen : pct < 0.70 ? AppColors.sand : AppColors.coral;
-    return (pct, label, color);
-  }
-  return switch (level) {
-    'low'                => (0.22, l10n.occupancyLow,      AppColors.flagGreen),
-    'medium' || 'normal' => (0.55, l10n.occupancyAnimated, AppColors.sand),
-    'high'               => (0.85, l10n.occupancyFull,     AppColors.coral),
-    _                    => (0.0,  l10n.occupancyUnknown,  AppColors.textHint),
-  };
-}
 
 // EEA water quality code (1=excellent .. 4=poor) - color + localized label
 (Color, String) waterQualityInfo(AppLocalizations l10n, int? code) => switch (code) {

@@ -1,6 +1,6 @@
 """
 Beach activity level helpers.
-Determines whether a beach is in low/normal/high activity mode,
+Determines whether a beach is in low/medium/high activity mode,
 which adjusts TTLs, confirmation thresholds, and confidence decay.
 """
 from dataclasses import dataclass
@@ -31,7 +31,7 @@ ACTIVITY_PARAMS = {
         "confidence_decay_per_minute": 0.008,
         "label": None,
     },
-    "normal": {
+    "medium": {
         "ttl_multiplier": 1.5,
         "contradiction_threshold": {"jellyfish": 3, "strong_current": 3, "other_alert": 4, "pollution": 3, "rough_sea": 3},
         "flag_confirmation_min": 3,
@@ -71,7 +71,7 @@ async def get_activity_level(db: AsyncSession, beach_id: int) -> str:
     if count >= 10:
         return "high"
     if count >= 3:
-        return "normal"
+        return "medium"
     return "low"
 
 

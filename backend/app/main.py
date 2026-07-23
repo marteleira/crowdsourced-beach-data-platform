@@ -16,7 +16,7 @@ from app.core.i18n import t
 from app.core.language import resolve_language
 from app.schemas.errors import CodedValueError
 from app.scheduler.setup import create_scheduler
-from app.api import auth, beaches, reports, flags, occupancy, weather, tides, water_quality, transport, users, favourites, notifications, privacy, map
+from app.api import auth, beaches, reports, flags, occupancy, weather, tides, water_quality, transport, users, favourites, notifications, privacy, map as map_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -59,7 +59,7 @@ app.include_router(users.router,              prefix="/api/v1")
 app.include_router(favourites.router,         prefix="/api/v1")
 app.include_router(notifications.router,      prefix="/api/v1")
 app.include_router(privacy.router,            prefix="/api/v1")
-app.include_router(map.router,                prefix="/api/v1")
+app.include_router(map_router.router,         prefix="/api/v1")
 
 
 @app.exception_handler(RequestValidationError)
