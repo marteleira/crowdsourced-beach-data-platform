@@ -33,12 +33,12 @@ def _reputation_weight(reputation: int) -> float:
     if reputation < 0:
         return 0.1
     if reputation < 10:
-        return 0.5   #novo
+        return 0.5   # new
     if reputation < 50:
         return 1.0   # regular
     if reputation < 150:
-        return 1.5   # contribuidor
-    return 2.0       # veterano
+        return 1.5   # contributor
+    return 2.0       # veteran
 
 
 def _level_from_report_score(score: float) -> str:

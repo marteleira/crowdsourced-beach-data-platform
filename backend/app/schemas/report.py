@@ -2,6 +2,8 @@ from pydantic import BaseModel, field_validator
 from typing import Optional, List, Literal
 from datetime import datetime
 
+from app.schemas.errors import CodedValueError
+
 VALID_REPORT_TYPES = ("jellyfish", "strong_current", "pollution", "rough_sea", "other_alert")
 
 
@@ -16,14 +18,14 @@ class ReportCreate(BaseModel):
     @classmethod
     def type_must_be_valid(cls, v: str) -> str:
         if v not in VALID_REPORT_TYPES:
-            raise ValueError(f"Invalid report type. Must be one of: {VALID_REPORT_TYPES}")
+            raise CodedValueError("invalid_report_type", valid_types=", ".join(VALID_REPORT_TYPES))
         return v
 
     @field_validator("severity")
     @classmethod
     def severity_range(cls, v: int) -> int:
         if not 1 <= v <= 3:
-            raise ValueError("severity must be between 1 and 3")
+            raise CodedValueError("invalid_severity")
         return v
 
 

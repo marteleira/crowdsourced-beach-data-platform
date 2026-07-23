@@ -166,6 +166,14 @@ class OndaCertaApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      // English by default; Portuguese only for a pt/pt-PT/pt-BR/... primary
+      // device locale. Mirrors app.core.language.resolve_language() on the
+      // backend and the Accept-Language sent by _LanguageInterceptor, so the
+      // UI language and the language persisted for push/email never disagree.
+      localeListResolutionCallback: (locales, supported) {
+        final primary = (locales != null && locales.isNotEmpty) ? locales.first : null;
+        return primary?.languageCode.toLowerCase() == 'pt' ? const Locale('pt') : const Locale('en');
+      },
     );
   }
 }

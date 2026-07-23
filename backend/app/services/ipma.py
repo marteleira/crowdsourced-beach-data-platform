@@ -14,26 +14,10 @@ logger = logging.getLogger(__name__)
 
 IPMA_BASE = "https://api.ipma.pt/open-data"
 
-WEATHER_TYPES = {
-    1: "Céu limpo", 2: "Poucas nuvens", 3: "Céu parcialmente nublado",
-    4: "Céu muito nublado", 5: "Céu nublado", 6: "Aguaceiros fracos",
-    7: "Aguaceiros", 8: "Aguaceiros fortes", 9: "Chuva fraca",
-    10: "Chuva moderada", 11: "Chuva forte", 12: "Chuva fraca ou aguaceiros fracos",
-    13: "Chuva ou aguaceiros", 14: "Chuva forte ou aguaceiros fortes",
-    15: "Trovoada com chuva fraca", 16: "Trovoada com chuva moderada ou forte",
-    17: "Granizo", 18: "Neve fraca", 19: "Neve moderada a forte",
-    20: "Nevoeiro ou nuvens baixas", 21: "Neblina",
-    22: "Aguaceiros e neve fraca", 23: "Chuva fraca e neve",
-    24: "Chuva e neve", 25: "Neve e chuva fraca",
-    26: "Chuva fraca ou aguaceiros fracos (probabilidade)",
-    27: "Aguaceiros de granizo", 28: "Vento forte, aguaceiros fracos",
-    29: "Trovoada com aguaceiros",
-}
-
-WIND_DIRECTIONS = {
-    "N": "Norte", "NE": "Nordeste", "E": "Este", "SE": "Sudeste",
-    "S": "Sul", "SW": "Sudoeste", "W": "Oeste", "NW": "Noroeste",
-}
+# IPMA already reports wind direction as the canonical 8-point English code
+# (N/NE/E/SE/S/SW/W/NW), so it passes through unchanged as wind_direction_code.
+# weather_type_id (IPMA's own 1-29 code) is returned as-is; the client resolves
+# display text from it via its own l10n, same as weather_code_wmo (Open-Meteo).
 
 
 async def fetch_weather_forecast(global_id_local: int) -> Optional[dict]:
@@ -56,13 +40,8 @@ async def fetch_weather_forecast(global_id_local: int) -> Optional[dict]:
                             "max_temp": _num(item.get("tMax")),
                             "precipitation_prob": _num(item.get("precipitaProb")),
                             "wind_speed": _num(item.get("classWindSpeed")),
-                            "wind_direction": WIND_DIRECTIONS.get(
-                                item.get("predWindDir", ""), item.get("predWindDir")
-                            ),
+                            "wind_direction_code": item.get("predWindDir") or None,
                             "weather_type_id": item.get("idWeatherType"),
-                            "weather_type_desc": WEATHER_TYPES.get(
-                                item.get("idWeatherType", 0), ""
-                            ),
                         })
                         break
             except Exception as e:

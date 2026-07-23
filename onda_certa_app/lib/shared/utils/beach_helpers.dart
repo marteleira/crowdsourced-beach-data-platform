@@ -47,13 +47,13 @@ String occupancyLabel(AppLocalizations l10n, String level) => switch (level) {
   };
 }
 
-// Water quality classification string (EN or PT from EEA) - color + PT label
-(Color, String) waterQualityInfo(AppLocalizations l10n, String? raw) => switch ((raw ?? '').toLowerCase()) {
-  'excelente' || 'excellent'    => (AppColors.flagGreen,     l10n.qualityExcellent),
-  'boa'       || 'good'         => (AppColors.teal,          l10n.qualityGood),
-  'suficiente' || 'sufficient'  => (AppColors.flagYellow,    l10n.qualitySufficient),
-  'má'        || 'poor'         => (AppColors.flagRed,       l10n.qualityPoor),
-  _                              => (AppColors.textSecondary, l10n.qualityUnknown),
+// EEA water quality code (1=excellent .. 4=poor) - color + localized label
+(Color, String) waterQualityInfo(AppLocalizations l10n, int? code) => switch (code) {
+  1 => (AppColors.flagGreen,     l10n.qualityExcellent),
+  2 => (AppColors.teal,          l10n.qualityGood),
+  3 => (AppColors.flagYellow,    l10n.qualitySufficient),
+  4 => (AppColors.flagRed,       l10n.qualityPoor),
+  _ => (AppColors.textSecondary, l10n.qualityUnknown),
 };
 
 // Find the next upcoming tide extremum (first entry with time > now).

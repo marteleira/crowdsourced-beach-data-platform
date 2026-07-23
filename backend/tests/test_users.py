@@ -25,7 +25,7 @@ class TestUserProfile:
         assert body["email"] == "test@example.com"
         assert body["has_password"] is True
         assert body["reputation"] == 0
-        assert body["level"] == "novo"
+        assert body["level"] == "new"
         assert body["is_anonymous"] is False
 
     async def test_profile_stats_present(self, client: AsyncClient, auth_headers: dict):
@@ -36,10 +36,10 @@ class TestUserProfile:
 
     async def test_profile_level_thresholds(self, client: AsyncClient, db: AsyncSession):
         levels = [
-            (0, "novo"),
+            (0, "new"),
             (10, "regular"),
-            (50, "contribuidor"),
-            (150, "veterano"),
+            (50, "contributor"),
+            (150, "veteran"),
         ]
         for rep, expected_level in levels:
             u = User(email=f"level{rep}@test.com", is_anonymous=False, reputation=rep)
@@ -163,7 +163,7 @@ class TestUpdateProfile:
             headers={"Authorization": f"Bearer {token}"},
         )
         assert r.status_code == 400
-        assert "Google" in r.json()["detail"]
+        assert r.json()["detail"]["code"] == "google_cannot_change_email"
 
     async def test_update_guest_forbidden(self, client: AsyncClient, db: AsyncSession):
         guest = User(device_id="dev-abc", is_anonymous=True)
@@ -278,7 +278,7 @@ class TestChangePassword:
             headers={"Authorization": f"Bearer {token}"},
         )
         assert r.status_code == 400
-        assert "Google" in r.json()["detail"]
+        assert r.json()["detail"]["code"] == "google_no_password"
 
     async def test_change_password_guest_forbidden(
         self, client: AsyncClient, db: AsyncSession

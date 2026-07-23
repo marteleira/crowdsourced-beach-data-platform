@@ -482,6 +482,306 @@ abstract class AppLocalizations {
   /// **'raj. {gusts} km/h'**
   String windGusts(int gusts);
 
+  /// No description provided for @windDirN.
+  ///
+  /// In pt, this message translates to:
+  /// **'N'**
+  String get windDirN;
+
+  /// No description provided for @windDirNE.
+  ///
+  /// In pt, this message translates to:
+  /// **'NE'**
+  String get windDirNE;
+
+  /// No description provided for @windDirE.
+  ///
+  /// In pt, this message translates to:
+  /// **'E'**
+  String get windDirE;
+
+  /// No description provided for @windDirSE.
+  ///
+  /// In pt, this message translates to:
+  /// **'SE'**
+  String get windDirSE;
+
+  /// No description provided for @windDirS.
+  ///
+  /// In pt, this message translates to:
+  /// **'S'**
+  String get windDirS;
+
+  /// No description provided for @windDirSW.
+  ///
+  /// In pt, this message translates to:
+  /// **'SO'**
+  String get windDirSW;
+
+  /// No description provided for @windDirW.
+  ///
+  /// In pt, this message translates to:
+  /// **'O'**
+  String get windDirW;
+
+  /// No description provided for @windDirNW.
+  ///
+  /// In pt, this message translates to:
+  /// **'NO'**
+  String get windDirNW;
+
+  /// No description provided for @weatherDescClearSky.
+  ///
+  /// In pt, this message translates to:
+  /// **'Céu limpo'**
+  String get weatherDescClearSky;
+
+  /// No description provided for @weatherDescFewClouds.
+  ///
+  /// In pt, this message translates to:
+  /// **'Poucas nuvens'**
+  String get weatherDescFewClouds;
+
+  /// No description provided for @weatherDescPartlyCloudy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Céu parcialmente nublado'**
+  String get weatherDescPartlyCloudy;
+
+  /// No description provided for @weatherDescVeryCloudy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Céu muito nublado'**
+  String get weatherDescVeryCloudy;
+
+  /// No description provided for @weatherDescCloudy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Céu nublado'**
+  String get weatherDescCloudy;
+
+  /// No description provided for @weatherDescOvercast.
+  ///
+  /// In pt, this message translates to:
+  /// **'Céu encoberto'**
+  String get weatherDescOvercast;
+
+  /// No description provided for @weatherDescLightShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aguaceiros fracos'**
+  String get weatherDescLightShowers;
+
+  /// No description provided for @weatherDescShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aguaceiros'**
+  String get weatherDescShowers;
+
+  /// No description provided for @weatherDescHeavyShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aguaceiros fortes'**
+  String get weatherDescHeavyShowers;
+
+  /// No description provided for @weatherDescLightRain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva fraca'**
+  String get weatherDescLightRain;
+
+  /// No description provided for @weatherDescModerateRain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva moderada'**
+  String get weatherDescModerateRain;
+
+  /// No description provided for @weatherDescHeavyRain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva forte'**
+  String get weatherDescHeavyRain;
+
+  /// No description provided for @weatherDescLightRainOrShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva fraca ou aguaceiros fracos'**
+  String get weatherDescLightRainOrShowers;
+
+  /// No description provided for @weatherDescRainOrShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva ou aguaceiros'**
+  String get weatherDescRainOrShowers;
+
+  /// No description provided for @weatherDescHeavyRainOrShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva forte ou aguaceiros fortes'**
+  String get weatherDescHeavyRainOrShowers;
+
+  /// No description provided for @weatherDescThunderLightRain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trovoada com chuva fraca'**
+  String get weatherDescThunderLightRain;
+
+  /// No description provided for @weatherDescThunderModerateRain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trovoada com chuva moderada ou forte'**
+  String get weatherDescThunderModerateRain;
+
+  /// No description provided for @weatherDescHail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Granizo'**
+  String get weatherDescHail;
+
+  /// No description provided for @weatherDescLightSnow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Neve fraca'**
+  String get weatherDescLightSnow;
+
+  /// No description provided for @weatherDescModerateToHeavySnow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Neve moderada a forte'**
+  String get weatherDescModerateToHeavySnow;
+
+  /// No description provided for @weatherDescFogLowClouds.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nevoeiro ou nuvens baixas'**
+  String get weatherDescFogLowClouds;
+
+  /// No description provided for @weatherDescMist.
+  ///
+  /// In pt, this message translates to:
+  /// **'Neblina'**
+  String get weatherDescMist;
+
+  /// No description provided for @weatherDescShowersAndLightSnow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aguaceiros e neve fraca'**
+  String get weatherDescShowersAndLightSnow;
+
+  /// No description provided for @weatherDescLightRainAndSnow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva fraca e neve'**
+  String get weatherDescLightRainAndSnow;
+
+  /// No description provided for @weatherDescRainAndSnow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva e neve'**
+  String get weatherDescRainAndSnow;
+
+  /// No description provided for @weatherDescSnowAndLightRain.
+  ///
+  /// In pt, this message translates to:
+  /// **'Neve e chuva fraca'**
+  String get weatherDescSnowAndLightRain;
+
+  /// No description provided for @weatherDescLightRainOrShowersChance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuva fraca ou aguaceiros fracos (probabilidade)'**
+  String get weatherDescLightRainOrShowersChance;
+
+  /// No description provided for @weatherDescHailShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aguaceiros de granizo'**
+  String get weatherDescHailShowers;
+
+  /// No description provided for @weatherDescStrongWindLightShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vento forte, aguaceiros fracos'**
+  String get weatherDescStrongWindLightShowers;
+
+  /// No description provided for @weatherDescThunderShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trovoada com aguaceiros'**
+  String get weatherDescThunderShowers;
+
+  /// No description provided for @weatherDescLightDrizzle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuviscos fracos'**
+  String get weatherDescLightDrizzle;
+
+  /// No description provided for @weatherDescModerateDrizzle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuviscos moderados'**
+  String get weatherDescModerateDrizzle;
+
+  /// No description provided for @weatherDescHeavyDrizzle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Chuviscos fortes'**
+  String get weatherDescHeavyDrizzle;
+
+  /// No description provided for @weatherDescModerateSnow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Neve moderada'**
+  String get weatherDescModerateSnow;
+
+  /// No description provided for @weatherDescHeavySnow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Neve forte'**
+  String get weatherDescHeavySnow;
+
+  /// No description provided for @weatherDescSnowGrains.
+  ///
+  /// In pt, this message translates to:
+  /// **'Grãos de neve'**
+  String get weatherDescSnowGrains;
+
+  /// No description provided for @weatherDescLightSnowShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aguaceiros de neve fracos'**
+  String get weatherDescLightSnowShowers;
+
+  /// No description provided for @weatherDescHeavySnowShowers.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aguaceiros de neve fortes'**
+  String get weatherDescHeavySnowShowers;
+
+  /// No description provided for @weatherDescThunderstorm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trovoada'**
+  String get weatherDescThunderstorm;
+
+  /// No description provided for @weatherDescThunderstormHail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trovoada com granizo'**
+  String get weatherDescThunderstormHail;
+
+  /// No description provided for @weatherDescHeavyThunderstormHail.
+  ///
+  /// In pt, this message translates to:
+  /// **'Trovoada com granizo forte'**
+  String get weatherDescHeavyThunderstormHail;
+
+  /// No description provided for @weatherDescFreezingFog.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nevoeiro gelado'**
+  String get weatherDescFreezingFog;
+
   /// No description provided for @flagStatusSafe.
   ///
   /// In pt, this message translates to:

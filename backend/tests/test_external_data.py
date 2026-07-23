@@ -15,8 +15,8 @@ from app.models.snapshot import ApiSnapshot
 FAKE_WEATHER = {
     "forecasts": [
         {"date": "2026-04-27", "min_temp": 14.0, "max_temp": 24.0,
-         "precipitation_prob": 5.0, "wind_speed": 2.0, "wind_direction": "Norte",
-         "weather_type_id": 2, "weather_type_desc": "Poucas nuvens"},
+         "precipitation_prob": 5.0, "wind_speed": 2.0, "wind_direction_code": "N",
+         "weather_type_id": 2},
     ],
     "global_id_local": 1151200,
 }
@@ -41,7 +41,7 @@ FAKE_TIDES = {
 
 FAKE_WATER = {
     "station_id": "PTCQ8P",
-    "classification": "Excelente",
+    "quality_code": 1,
     "sampled_at": "2024",
     "parameters": {"eea_quality_raw": "1 - Excellent", "season": 2024},
 }
@@ -143,7 +143,7 @@ class TestWaterQualityEndpoint:
             r = await client.get("/api/v1/beaches/portinho-da-arrabida/water-quality")
         assert r.status_code == 200
         body = r.json()
-        assert body["classification"] == "Excelente"
+        assert body["quality_code"] == 1
         assert body["data_source"] == "live"
 
     async def test_falls_back_to_snapshot(self, client: AsyncClient, beach: Beach, db: AsyncSession):
@@ -163,7 +163,7 @@ class TestWaterQualityEndpoint:
         assert r.status_code == 200
         body = r.json()
         assert body["data_source"] == "unavailable"
-        assert body["classification"] is None
+        assert body["quality_code"] is None
 
     async def test_404_when_no_eea_station(self, client: AsyncClient, db: AsyncSession):
         b = Beach(slug="praia-sem-eea", name="Praia sem APA", lat=38.0, lon=-9.0,

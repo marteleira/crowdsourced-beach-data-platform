@@ -210,6 +210,161 @@ class AppLocalizationsPt extends AppLocalizations {
   }
 
   @override
+  String get windDirN => 'N';
+
+  @override
+  String get windDirNE => 'NE';
+
+  @override
+  String get windDirE => 'E';
+
+  @override
+  String get windDirSE => 'SE';
+
+  @override
+  String get windDirS => 'S';
+
+  @override
+  String get windDirSW => 'SO';
+
+  @override
+  String get windDirW => 'O';
+
+  @override
+  String get windDirNW => 'NO';
+
+  @override
+  String get weatherDescClearSky => 'Céu limpo';
+
+  @override
+  String get weatherDescFewClouds => 'Poucas nuvens';
+
+  @override
+  String get weatherDescPartlyCloudy => 'Céu parcialmente nublado';
+
+  @override
+  String get weatherDescVeryCloudy => 'Céu muito nublado';
+
+  @override
+  String get weatherDescCloudy => 'Céu nublado';
+
+  @override
+  String get weatherDescOvercast => 'Céu encoberto';
+
+  @override
+  String get weatherDescLightShowers => 'Aguaceiros fracos';
+
+  @override
+  String get weatherDescShowers => 'Aguaceiros';
+
+  @override
+  String get weatherDescHeavyShowers => 'Aguaceiros fortes';
+
+  @override
+  String get weatherDescLightRain => 'Chuva fraca';
+
+  @override
+  String get weatherDescModerateRain => 'Chuva moderada';
+
+  @override
+  String get weatherDescHeavyRain => 'Chuva forte';
+
+  @override
+  String get weatherDescLightRainOrShowers =>
+      'Chuva fraca ou aguaceiros fracos';
+
+  @override
+  String get weatherDescRainOrShowers => 'Chuva ou aguaceiros';
+
+  @override
+  String get weatherDescHeavyRainOrShowers =>
+      'Chuva forte ou aguaceiros fortes';
+
+  @override
+  String get weatherDescThunderLightRain => 'Trovoada com chuva fraca';
+
+  @override
+  String get weatherDescThunderModerateRain =>
+      'Trovoada com chuva moderada ou forte';
+
+  @override
+  String get weatherDescHail => 'Granizo';
+
+  @override
+  String get weatherDescLightSnow => 'Neve fraca';
+
+  @override
+  String get weatherDescModerateToHeavySnow => 'Neve moderada a forte';
+
+  @override
+  String get weatherDescFogLowClouds => 'Nevoeiro ou nuvens baixas';
+
+  @override
+  String get weatherDescMist => 'Neblina';
+
+  @override
+  String get weatherDescShowersAndLightSnow => 'Aguaceiros e neve fraca';
+
+  @override
+  String get weatherDescLightRainAndSnow => 'Chuva fraca e neve';
+
+  @override
+  String get weatherDescRainAndSnow => 'Chuva e neve';
+
+  @override
+  String get weatherDescSnowAndLightRain => 'Neve e chuva fraca';
+
+  @override
+  String get weatherDescLightRainOrShowersChance =>
+      'Chuva fraca ou aguaceiros fracos (probabilidade)';
+
+  @override
+  String get weatherDescHailShowers => 'Aguaceiros de granizo';
+
+  @override
+  String get weatherDescStrongWindLightShowers =>
+      'Vento forte, aguaceiros fracos';
+
+  @override
+  String get weatherDescThunderShowers => 'Trovoada com aguaceiros';
+
+  @override
+  String get weatherDescLightDrizzle => 'Chuviscos fracos';
+
+  @override
+  String get weatherDescModerateDrizzle => 'Chuviscos moderados';
+
+  @override
+  String get weatherDescHeavyDrizzle => 'Chuviscos fortes';
+
+  @override
+  String get weatherDescModerateSnow => 'Neve moderada';
+
+  @override
+  String get weatherDescHeavySnow => 'Neve forte';
+
+  @override
+  String get weatherDescSnowGrains => 'Grãos de neve';
+
+  @override
+  String get weatherDescLightSnowShowers => 'Aguaceiros de neve fracos';
+
+  @override
+  String get weatherDescHeavySnowShowers => 'Aguaceiros de neve fortes';
+
+  @override
+  String get weatherDescThunderstorm => 'Trovoada';
+
+  @override
+  String get weatherDescThunderstormHail => 'Trovoada com granizo';
+
+  @override
+  String get weatherDescHeavyThunderstormHail => 'Trovoada com granizo forte';
+
+  @override
+  String get weatherDescFreezingFog => 'Nevoeiro gelado';
+
+  @override
   String get flagStatusSafe => 'Seguras';
 
   @override

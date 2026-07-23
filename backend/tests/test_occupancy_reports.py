@@ -184,7 +184,7 @@ class TestOccupancyReportEndpoint:
             headers=auth_headers,
         )
         assert r.status_code == 403
-        assert r.json()["detail"]["code"] == "not_present"
+        assert r.json()["detail"]["code"] == "occupancy_must_be_at_beach"
 
     async def test_rejects_invalid_level(
         self, client: AsyncClient, beach: Beach, auth_headers: dict, db: AsyncSession, user: User
@@ -237,7 +237,7 @@ class TestOccupancyReportEndpoint:
             headers=auth_headers,
         )
         assert r2.status_code == 429
-        assert r2.json()["detail"]["code"] == "already_reported"
+        assert r2.json()["detail"]["code"] == "occupancy_already_reported"
 
     async def test_different_users_can_report_same_beach(
         self, client: AsyncClient, beach: Beach,

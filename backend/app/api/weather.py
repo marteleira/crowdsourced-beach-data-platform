@@ -1,10 +1,11 @@
 import asyncio
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 
 from app.core.database import get_db
-from app.core.deps import get_beach_or_404
+from app.core.deps import get_beach_or_404, get_language
+from app.core.errors import api_error
 from app.schemas.beach import WeatherForecast, SeaForecast
 from app.services.snapshot import fetch_with_fallback
 from app.services import ipma
@@ -34,13 +35,13 @@ def _open_meteo_overrides(om: Optional[dict]) -> dict:
     if (v := current.get("wind_speed_10m")) is not None:
         overrides["wind_speed"] = v
     if (v := current.get("wind_direction_cardinal")) is not None:
-        overrides["wind_direction"] = v
+        overrides["wind_direction_code"] = v
     if (v := current.get("wind_direction_10m")) is not None:
         overrides["wind_direction_deg"] = float(v)
     if (v := current.get("wind_gusts_10m")) is not None:
         overrides["wind_gusts"] = v
-    if (v := current.get("weather_desc")) is not None:
-        overrides["weather_type_desc"] = v
+    if (v := current.get("weather_code_wmo")) is not None:
+        overrides["weather_code_wmo"] = v
     if (v := daily.get("temperature_2m_max")) is not None:
         overrides["max_temp"] = v
     if (v := daily.get("temperature_2m_min")) is not None:
@@ -51,10 +52,10 @@ def _open_meteo_overrides(om: Optional[dict]) -> dict:
 
 
 @router.get("/weather", response_model=List[WeatherForecast])
-async def get_weather(slug: str, db: AsyncSession = Depends(get_db)):
-    beach = await get_beach_or_404(slug, db)
+async def get_weather(slug: str, db: AsyncSession = Depends(get_db), lang: str = Depends(get_language)):
+    beach = await get_beach_or_404(slug, db, lang)
     if not beach.ipma_global_id:
-        raise HTTPException(404, "Sem dados meteorológicos para esta praia")
+        raise api_error(404, "no_weather_data", lang)
 
     ipma_result, om_result = await asyncio.gather(
         fetch_with_fallback(
@@ -81,10 +82,10 @@ async def get_weather(slug: str, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/sea", response_model=List[SeaForecast])
-async def get_sea(slug: str, db: AsyncSession = Depends(get_db)):
-    beach = await get_beach_or_404(slug, db)
+async def get_sea(slug: str, db: AsyncSession = Depends(get_db), lang: str = Depends(get_language)):
+    beach = await get_beach_or_404(slug, db, lang)
     if not beach.ipma_sea_global_id:
-        raise HTTPException(404, "Sem dados do estado do mar para esta praia")
+        raise api_error(404, "no_sea_data", lang)
 
     raw, source, snap_at = await fetch_with_fallback(
         db, "ipma_sea",

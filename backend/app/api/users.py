@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import require_user
-from app.core.messages import Msg
+from app.core.errors import api_error
 from app.core.security import (
     generate_verification_code,
     hash_password,
@@ -85,7 +85,7 @@ async def _send_new_verification(user: User, db: AsyncSession) -> None:
         + timedelta(minutes=settings.EMAIL_VERIFICATION_EXPIRE_MINUTES)
     )
     await db.flush()
-    await send_verification_email(user.email, code)
+    await send_verification_email(user.email, code, user.language)
 
 
 #  Endpoints
@@ -105,10 +105,10 @@ async def update_profile(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_anonymous:
-        raise HTTPException(403, {"code": "guest_cannot_edit_profile", "message": Msg.GUESTS_CANNOT_EDIT_PROFILE})
+        raise api_error(403, "guest_cannot_edit_profile", user.language)
 
     if body.display_name is None and body.email is None and body.avatar_id is None:
-        raise HTTPException(400, Msg.NO_CHANGES_PROVIDED)
+        raise api_error(400, "no_changes_provided", user.language)
 
     if body.display_name is not None:
         user.display_name = body.display_name
@@ -119,19 +119,19 @@ async def update_profile(
     if body.email is not None and body.email != user.email:
         # Google-only accounts cannot change email
         if not user.password_hash:
-            raise HTTPException(400, Msg.GOOGLE_CANNOT_CHANGE_EMAIL)
+            raise api_error(400, "google_cannot_change_email", user.language)
 
         if not body.current_password:
-            raise HTTPException(400, Msg.PASSWORD_REQUIRED_FOR_EMAIL_CHANGE)
+            raise api_error(400, "password_required_for_email_change", user.language)
 
         if not verify_password(body.current_password, user.password_hash):
-            raise HTTPException(401, Msg.PASSWORD_INCORRECT)
+            raise api_error(401, "password_incorrect", user.language)
 
         conflict = await db.execute(
             select(User).where(User.email == body.email, User.id != user.id)
         )
         if conflict.scalar_one_or_none():
-            raise HTTPException(409, {"code": "email_in_use", "message": Msg.EMAIL_IN_USE})
+            raise api_error(409, "email_in_use", user.language)
 
         user.email = body.email
         user.is_email_verified = False
@@ -149,16 +149,16 @@ async def change_password(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_anonymous:
-        raise HTTPException(403, {"code": "guest_cannot_change_password", "message": Msg.GUESTS_CANNOT_CHANGE_PASSWORD})
+        raise api_error(403, "guest_cannot_change_password", user.language)
 
     if not user.password_hash:
-        raise HTTPException(400, Msg.GOOGLE_NO_PASSWORD)
+        raise api_error(400, "google_no_password", user.language)
 
     if not verify_password(body.current_password, user.password_hash):
-        raise HTTPException(401, Msg.PASSWORD_INCORRECT)
+        raise api_error(401, "password_incorrect", user.language)
 
     if body.new_password == body.current_password:
-        raise HTTPException(400, Msg.PASSWORD_SAME_AS_CURRENT)
+        raise api_error(400, "password_same_as_current", user.language)
 
     user.password_hash = hash_password(body.new_password)
 

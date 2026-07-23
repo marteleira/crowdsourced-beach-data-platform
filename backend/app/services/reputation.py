@@ -27,12 +27,12 @@ DELTA_SPAM_PENALTY = -5
 
 def reputation_level(rep: int) -> str:
     if rep < 10:
-        return "novo"
+        return "new"
     if rep < 50:
         return "regular"
     if rep < 150:
-        return "contribuidor"
-    return "veterano"
+        return "contributor"
+    return "veteran"
 
 
 def proposal_weight(rep: int) -> float:
@@ -63,7 +63,7 @@ async def apply_delta(
         await db.execute(
             update(User)
             .where(User.id == user_id)
-            .values(is_banned=True, ban_reason=f"Reputação abaixo de {AUTO_BAN_THRESHOLD}")
+            .values(is_banned=True, ban_reason="reputation_below_threshold")
         )
     elif rep <= SUSPENSION_THRESHOLD:
         suspended_until = datetime.now(timezone.utc) + timedelta(hours=SUSPENSION_DURATION_HOURS)
@@ -271,7 +271,7 @@ async def sync_account_status(db: AsyncSession) -> None:
             User.reputation <= AUTO_BAN_THRESHOLD,
             User.is_banned.is_(False),
         )
-        .values(is_banned=True, ban_reason=f"Reputação abaixo de {AUTO_BAN_THRESHOLD}")
+        .values(is_banned=True, ban_reason="reputation_below_threshold")
     )
 
     # Users between suspension and ban threshold who aren't suspended yet

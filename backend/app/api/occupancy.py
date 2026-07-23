@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,7 +16,7 @@ from app.core.db_helpers import (
     record_heartbeat_and_get_occupancy,
 )
 from app.core.deps import require_registered_user, get_beach_or_404, require_presence
-from app.core.messages import Msg
+from app.core.errors import api_error
 from app.core.utils import now_utc
 from app.models.beach import Beach
 from app.models.beach_status import OccupancyReport
@@ -37,13 +37,10 @@ async def send_heartbeat(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_registered_user),
 ):
-    beach = await get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db, user.language)
 
     if not await point_within_beach_radius(db, beach, body.lat, body.lon):
-        raise HTTPException(
-            status_code=403,
-            detail={"code": "too_far_from_beach", "message": Msg.TOO_FAR_FROM_BEACH},
-        )
+        raise api_error(403, "too_far_from_beach", user.language)
 
     occupancy = await record_heartbeat_and_get_occupancy(db, beach, user, body.lat, body.lon)
     return HeartbeatResponse(
@@ -84,7 +81,7 @@ async def submit_occupancy_report(
     beach: Beach = Depends(
         require_presence(
             timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS),
-            Msg.OCCUPANCY_MUST_BE_AT_BEACH,
+            "occupancy_must_be_at_beach",
         )
     ),
 ):
@@ -98,10 +95,7 @@ async def submit_occupancy_report(
         )
     )
     if existing:
-        raise HTTPException(
-            status_code=429,
-            detail={"code": "already_reported", "message": Msg.OCCUPANCY_ALREADY_REPORTED},
-        )
+        raise api_error(429, "occupancy_already_reported", user.language)
 
     db.add(OccupancyReport(beach_id=beach.id, user_id=user.id, level=body.level))
     await db.commit()

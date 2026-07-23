@@ -1,12 +1,15 @@
 import logging
 from datetime import timedelta
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.deps import require_user, raise_if_account_locked
+from app.core.errors import api_error
+from app.core.language import resolve_language
 from app.core.utils import ensure_utc, now_utc
 from app.core.security import (
     hash_password, verify_password, create_access_token,
@@ -20,7 +23,6 @@ from app.schemas.auth import (
     RefreshRequest, LogoutRequest, PromoteRequest, TokenResponse,
     VerifyEmailRequest, ForgotPasswordRequest, ResetPasswordRequest,
 )
-from app.core.messages import Msg
 from app.services.email import send_verification_email, send_password_reset_email
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -55,29 +57,41 @@ async def _send_verification(user: User, db: AsyncSession) -> None:
         + timedelta(minutes=settings.EMAIL_VERIFICATION_EXPIRE_MINUTES)
     )
     await db.commit()
-    await send_verification_email(user.email, code)
+    await send_verification_email(user.email, code, user.language)
 
 
 @router.post("/guest", response_model=TokenResponse)
-async def create_guest(body: GuestRequest, db: AsyncSession = Depends(get_db)):
+async def create_guest(
+    body: GuestRequest,
+    db: AsyncSession = Depends(get_db),
+    accept_language: Optional[str] = Header(None),
+):
+    lang = resolve_language(accept_language)
     result = await db.execute(
         select(User).where(User.device_id == body.device_id, User.is_anonymous.is_(True))
     )
     user = result.scalar_one_or_none()
 
     if not user:
-        user = User(device_id=body.device_id, is_anonymous=True, is_email_verified=False)
+        user = User(device_id=body.device_id, is_anonymous=True, is_email_verified=False, language=lang)
         db.add(user)
         await db.flush()
+    elif user.language != lang:
+        user.language = lang
 
     return await _issue_tokens(user, db)
 
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
-async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
+async def register(
+    body: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+    accept_language: Optional[str] = Header(None),
+):
+    lang = resolve_language(accept_language)
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
-        raise HTTPException(409, {"code": "email_taken", "message": Msg.EMAIL_TAKEN})
+        raise api_error(409, "email_taken", lang)
 
     user = User(
         email=body.email,
@@ -85,6 +99,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         password_hash=hash_password(body.password),
         is_anonymous=False,
         is_email_verified=False,
+        language=lang,
     )
     db.add(user)
     await db.flush()
@@ -95,24 +110,37 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(
+    body: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+    accept_language: Optional[str] = Header(None),
+):
+    lang = resolve_language(accept_language)
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
 
     if not user or not user.password_hash or not verify_password(body.password, user.password_hash):
-        raise HTTPException(401, Msg.INVALID_CREDENTIALS)
+        raise api_error(401, "invalid_credentials", lang)
 
-    raise_if_account_locked(user)
+    if user.language != lang:
+        user.language = lang
+
+    raise_if_account_locked(user, lang)
     return await _issue_tokens(user, db)
 
 
 @router.post("/google", response_model=TokenResponse)
-async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
+async def google_login(
+    body: GoogleRequest,
+    db: AsyncSession = Depends(get_db),
+    accept_language: Optional[str] = Header(None),
+):
+    lang = resolve_language(accept_language)
     try:
         payload = await verify_google_id_token(body.id_token)
     except Exception as e:
         logger.error("Google token error: %s: %s", type(e).__name__, e)
-        raise HTTPException(401, Msg.INVALID_GOOGLE_TOKEN)
+        raise api_error(401, "invalid_google_token", lang)
 
     google_sub = payload["sub"]
     email = payload.get("email", "")
@@ -134,6 +162,7 @@ async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
                 display_name=name,
                 google_sub=google_sub,
                 is_anonymous=False,
+                language=lang,
             )
             db.add(user)
             await db.flush()
@@ -141,14 +170,22 @@ async def google_login(body: GoogleRequest, db: AsyncSession = Depends(get_db)):
     if not user.is_email_verified:
         user.is_email_verified = True
 
+    if user.language != lang:
+        user.language = lang
+
     await db.commit()
 
-    raise_if_account_locked(user)
+    raise_if_account_locked(user, lang)
     return await _issue_tokens(user, db)
 
 
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
+async def refresh_token(
+    body: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+    accept_language: Optional[str] = Header(None),
+):
+    lang = resolve_language(accept_language)
     token_hash = hash_refresh_token(body.refresh_token)
 
     result = await db.execute(
@@ -158,7 +195,7 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
 
     now = now_utc()
     if not record or record.revoked_at or ensure_utc(record.expires_at) < now:
-        raise HTTPException(401, Msg.INVALID_REFRESH_TOKEN)
+        raise api_error(401, "invalid_refresh_token", lang)
 
     await db.execute(
         update(RefreshToken)
@@ -169,9 +206,12 @@ async def refresh_token(body: RefreshRequest, db: AsyncSession = Depends(get_db)
     user_result = await db.execute(select(User).where(User.id == record.user_id))
     user = user_result.scalar_one_or_none()
     if not user:
-        raise HTTPException(401, Msg.USER_NOT_FOUND)
+        raise api_error(401, "user_not_found", lang)
 
-    raise_if_account_locked(user)
+    if user.language != lang:
+        user.language = lang
+
+    raise_if_account_locked(user, lang)
     return await _issue_tokens(user, db)
 
 
@@ -194,11 +234,11 @@ async def promote_guest(
     db: AsyncSession = Depends(get_db),
 ):
     if not user.is_anonymous:
-        raise HTTPException(400, Msg.USER_ALREADY_REGISTERED)
+        raise api_error(400, "user_already_registered", user.language)
 
     existing = await db.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
-        raise HTTPException(409, {"code": "email_taken", "message": Msg.EMAIL_TAKEN})
+        raise api_error(409, "email_taken", user.language)
 
     user.email = body.email
     user.display_name = body.display_name
@@ -223,14 +263,14 @@ async def verify_email(
         return {"status": "already_verified"}
 
     if not user.email_verification_code_hash or not user.email_verification_expires_at:
-        raise HTTPException(400, Msg.NO_PENDING_VERIFICATION)
+        raise api_error(400, "no_pending_verification", user.language)
 
     now = now_utc()
     if ensure_utc(user.email_verification_expires_at) < now:
-        raise HTTPException(400, Msg.CODE_EXPIRED)
+        raise api_error(400, "code_expired", user.language)
 
     if hash_verification_code(body.code) != user.email_verification_code_hash:
-        raise HTTPException(400, Msg.CODE_INVALID)
+        raise api_error(400, "code_invalid", user.language)
 
     user.is_email_verified = True
     user.email_verification_code_hash = None
@@ -246,22 +286,29 @@ async def resend_verification(
     db: AsyncSession = Depends(get_db),
 ):
     if user.is_email_verified:
-        raise HTTPException(400, Msg.EMAIL_ALREADY_VERIFIED)
+        raise api_error(400, "email_already_verified", user.language)
 
     if not user.email:
-        raise HTTPException(400, Msg.USER_NO_EMAIL)
+        raise api_error(400, "user_no_email", user.language)
 
     await _send_verification(user, db)
     return {"status": "sent"}
 
 
 @router.post("/forgot-password")
-async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depends(get_db)):
+async def forgot_password(
+    body: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+    accept_language: Optional[str] = Header(None),
+):
+    lang = resolve_language(accept_language)
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
 
     # Only send for email/password accounts; always return same response to avoid enumeration
     if user and user.password_hash:
+        if user.language != lang:
+            user.language = lang
         code, code_hash = generate_verification_code()
         user.password_reset_code_hash = code_hash
         user.password_reset_expires_at = (
@@ -269,25 +316,30 @@ async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depend
             + timedelta(minutes=settings.EMAIL_VERIFICATION_EXPIRE_MINUTES)
         )
         await db.commit()
-        await send_password_reset_email(user.email, code)
+        await send_password_reset_email(user.email, code, user.language)
 
     return {"status": "sent"}
 
 
 @router.post("/reset-password")
-async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
+async def reset_password(
+    body: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+    accept_language: Optional[str] = Header(None),
+):
+    lang = resolve_language(accept_language)
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
 
     if not user or not user.password_reset_code_hash or not user.password_reset_expires_at:
-        raise HTTPException(400, Msg.INVALID_RESET_REQUEST)
+        raise api_error(400, "invalid_reset_request", lang)
 
     now = now_utc()
     if ensure_utc(user.password_reset_expires_at) < now:
-        raise HTTPException(400, Msg.CODE_EXPIRED)
+        raise api_error(400, "code_expired", lang)
 
     if hash_verification_code(body.code) != user.password_reset_code_hash:
-        raise HTTPException(400, Msg.CODE_INVALID)
+        raise api_error(400, "code_invalid", lang)
 
     user.password_hash = hash_password(body.new_password)
     user.password_reset_code_hash = None

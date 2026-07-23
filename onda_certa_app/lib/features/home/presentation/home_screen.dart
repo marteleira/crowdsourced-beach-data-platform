@@ -11,6 +11,7 @@ import '../../../features/beaches/domain/beach_models.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../shared/theme/app_theme.dart';
 import '../../../shared/utils/beach_helpers.dart';
+import '../../../shared/utils/weather_helpers.dart';
 import 'package:intl/intl.dart';
 import '../../../shared/widgets/alert_item.dart';
 import '../../../shared/widgets/animated_waves.dart';
@@ -356,7 +357,7 @@ class _Header extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _WeatherCell(icon: Icons.thermostat_outlined, value: weather?.currentTemp != null ? '${weather!.currentTemp!.round()}°C' : weather?.maxTemp != null ? '${weather!.minTemp!.round()}°-${weather!.maxTemp!.round()}°' : '--', label: l10n.weatherAir),
-                  _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDir ?? l10n.weatherWind),
+                  _WeatherCell(icon: Icons.air, value: weather?.windSpeed != null ? '${weather!.windSpeed!.round()}km/h' : '--', label: weather?.windDirCode != null ? windDirectionLabel(l10n, weather!.windDirCode) : l10n.weatherWind),
                   _WeatherCell(icon: Icons.waves, value: sea?.waveHeightMax != null ? '${sea!.waveHeightMax!.toStringAsFixed(1)}m' : '--', label: l10n.weatherWaves),
                   _WeatherCell(icon: Icons.umbrella_outlined, value: weather?.precipitationProb != null ? '${weather!.precipitationProb!.round()}%' : '--', label: l10n.weatherRain),
                 ],

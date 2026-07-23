@@ -48,6 +48,8 @@ class User(Base):
 
     avatar_id: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    language: Mapped[str] = mapped_column(Text, nullable=False, server_default="en")
+
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
     scheduled_deletion_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
 

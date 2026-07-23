@@ -12,6 +12,7 @@ class FlagProposalRequest(BaseModel):
 class FlagProposalResponse(BaseModel):
     proposal_id: int
     status: str
+    code: str
     message: str
 
 

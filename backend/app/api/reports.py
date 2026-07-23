@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,11 +10,12 @@ from app.core.database import get_db
 from app.core.deps import (
     get_beach_or_404,
     get_current_user,
+    get_language,
     require_presence,
     require_registered_user,
     require_user,
 )
-from app.core.messages import Msg
+from app.core.errors import api_error
 from app.core.utils import now_utc
 from app.models.beach import Beach
 from app.models.report import Report, ReportVote
@@ -51,8 +52,9 @@ async def list_reports(
     include_expired: bool = False,
     db: AsyncSession = Depends(get_db),
     user: Optional[User] = Depends(get_current_user),
+    lang: str = Depends(get_language),
 ):
-    beach = await get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db, user.language if user else lang)
     activity_params = await get_activity_params(db, beach.id)
     now = now_utc()
 
@@ -87,7 +89,7 @@ async def create_report(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_registered_user),
     beach: Beach = Depends(
-        require_presence(timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS), Msg.MUST_BE_AT_BEACH_REPORT)
+        require_presence(timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS), "must_be_at_beach_report")
     ),
 ):
     activity_params = await get_activity_params(db, beach.id)
@@ -165,7 +167,7 @@ async def vote_report(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_registered_user),
     beach: Beach = Depends(
-        require_presence(timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS), Msg.MUST_BE_AT_BEACH_VOTE)
+        require_presence(timedelta(hours=VOTE_PRESENCE_WINDOW_HOURS), "must_be_at_beach_vote")
     ),
 ):
     result = await db.execute(
@@ -173,7 +175,7 @@ async def vote_report(
     )
     report = result.scalar_one_or_none()
     if not report or report.is_expired:
-        raise HTTPException(404, Msg.REPORT_NOT_FOUND_OR_EXPIRED)
+        raise api_error(404, "report_not_found_or_expired", user.language)
 
     vote_value = 1 if body.vote == "up" else -1
 
@@ -228,15 +230,15 @@ async def delete_report(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_user),
 ):
-    beach = await get_beach_or_404(slug, db)
+    beach = await get_beach_or_404(slug, db, user.language)
     result = await db.execute(
         select(Report).where(Report.id == report_id, Report.beach_id == beach.id)
     )
     report = result.scalar_one_or_none()
     if not report:
-        raise HTTPException(404, Msg.REPORT_NOT_FOUND)
+        raise api_error(404, "report_not_found", user.language)
     if report.user_id != user.id:
-        raise HTTPException(403, {"code": "report_not_yours", "message": Msg.REPORT_NOT_YOURS})
+        raise api_error(403, "report_not_yours", user.language)
 
     report.is_expired = True
     await db.commit()
