@@ -74,68 +74,73 @@ async def apply_delta(
         )
 
 
+def _unscored_filter(event: str, ref_id_col):
+    """WHERE clause excluding rows that already have a ReputationEvent of `event` for this ref id."""
+    return ~exists(
+        select(ReputationEvent.id).where(
+            ReputationEvent.event == event,
+            ReputationEvent.ref_id == ref_id_col,
+        )
+    )
+
+
 async def process_report_outcomes(db: AsyncSession) -> None:
     """
     Check all active reports that haven't yet been scored and apply reputation
     deltas when net votes cross thresholds.
     """
-    stmt = select(Report).where(
-        Report.is_expired.is_(False),
-        Report.user_id.isnot(None),
-    )
-    result = await db.execute(stmt)
-    reports = result.scalars().all()
+    net_votes = Report.upvotes - Report.downvotes
 
-    if not reports:
-        return
-
-    scored_result = await db.execute(
-        select(ReputationEvent.event, ReputationEvent.ref_id).where(
-            ReputationEvent.event.in_(("report_confirmed", "report_contradicted")),
-            ReputationEvent.ref_id.in_([report.id for report in reports]),
+    confirmed_result = await db.execute(
+        select(Report).where(
+            Report.is_expired.is_(False),
+            Report.user_id.isnot(None),
+            net_votes >= 3,
+            _unscored_filter("report_confirmed", Report.id),
         )
     )
-    scored = set(scored_result.all())
+    for report in confirmed_result.scalars().all():
+        await apply_delta(
+            db, report.user_id,
+            DELTA_REPORT_CONFIRMED,
+            "report_confirmed",
+            params={"alert_type": report.type},
+            ref_id=report.id,
+        )
+        await db.execute(
+            update(User)
+            .where(User.id == report.user_id)
+            .values(confirmed_reports=User.confirmed_reports + 1)
+        )
 
-    for report in reports:
-        net = report.upvotes - report.downvotes
-
-        if net >= 3:
-            if ("report_confirmed", report.id) in scored:
-                continue
-            await apply_delta(
-                db, report.user_id,
-                DELTA_REPORT_CONFIRMED,
-                "report_confirmed",
-                params={"alert_type": report.type},
-                ref_id=report.id,
-            )
-            await db.execute(
-                update(User)
-                .where(User.id == report.user_id)
-                .values(confirmed_reports=User.confirmed_reports + 1)
-            )
-        elif report.downvotes >= 3 and net <= -2:
-            if ("report_contradicted", report.id) in scored:
-                continue
-            await apply_delta(
-                db, report.user_id,
-                DELTA_REPORT_CONTRADICTED,
-                "report_contradicted",
-                params={"alert_type": report.type},
-                ref_id=report.id,
-            )
-            await db.execute(
-                update(User)
-                .where(User.id == report.user_id)
-                .values(false_reports=User.false_reports + 1)
-            )
-            # Expire the report early
-            await db.execute(
-                update(Report)
-                .where(Report.id == report.id)
-                .values(is_expired=True)
-            )
+    contradicted_result = await db.execute(
+        select(Report).where(
+            Report.is_expired.is_(False),
+            Report.user_id.isnot(None),
+            Report.downvotes >= 3,
+            net_votes <= -2,
+            _unscored_filter("report_contradicted", Report.id),
+        )
+    )
+    for report in contradicted_result.scalars().all():
+        await apply_delta(
+            db, report.user_id,
+            DELTA_REPORT_CONTRADICTED,
+            "report_contradicted",
+            params={"alert_type": report.type},
+            ref_id=report.id,
+        )
+        await db.execute(
+            update(User)
+            .where(User.id == report.user_id)
+            .values(false_reports=User.false_reports + 1)
+        )
+        # Expire the report early
+        await db.execute(
+            update(Report)
+            .where(Report.id == report.id)
+            .values(is_expired=True)
+        )
 
     await db.commit()
 
@@ -149,12 +154,7 @@ async def process_flag_outcomes(db: AsyncSession) -> None:
 
     stmt = select(FlagProposal).where(
         FlagProposal.status == "rejected",
-        ~exists(
-            select(ReputationEvent.id).where(
-                ReputationEvent.event == "flag_contradicted",
-                ReputationEvent.ref_id == FlagProposal.id,
-            )
-        ),
+        _unscored_filter("flag_contradicted", FlagProposal.id),
     )
     result = await db.execute(stmt)
     proposals = result.scalars().all()
@@ -192,12 +192,7 @@ async def process_confirmation_accuracy(db: AsyncSession) -> None:
                 FlagConfirmation.flag_color == proposal.proposed_color,
                 FlagConfirmation.response == "no",
                 FlagConfirmation.created_at >= proposal.created_at,
-                ~exists(
-                    select(ReputationEvent.id).where(
-                        ReputationEvent.event == "confirmation_accurate",
-                        ReputationEvent.ref_id == FlagConfirmation.id,
-                    )
-                ),
+                _unscored_filter("confirmation_accurate", FlagConfirmation.id),
             )
         )
         for conf in confs_result.scalars().all():
@@ -224,12 +219,7 @@ async def process_confirmation_accuracy(db: AsyncSession) -> None:
                 FlagConfirmation.flag_color == proposal.proposed_color,
                 FlagConfirmation.response == "yes",
                 FlagConfirmation.created_at >= proposal.created_at,
-                ~exists(
-                    select(ReputationEvent.id).where(
-                        ReputationEvent.event == "confirmation_accurate",
-                        ReputationEvent.ref_id == FlagConfirmation.id,
-                    )
-                ),
+                _unscored_filter("confirmation_accurate", FlagConfirmation.id),
             )
         )
         for conf in confs_result.scalars().all():
