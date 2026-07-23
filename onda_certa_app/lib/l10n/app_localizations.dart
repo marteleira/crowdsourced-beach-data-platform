@@ -935,19 +935,19 @@ abstract class AppLocalizations {
   /// No description provided for @severityLow.
   ///
   /// In pt, this message translates to:
-  /// **'Baixo'**
+  /// **'Baixa'**
   String get severityLow;
 
   /// No description provided for @severityModerate.
   ///
   /// In pt, this message translates to:
-  /// **'Médio'**
+  /// **'Média'**
   String get severityModerate;
 
   /// No description provided for @severityHigh.
   ///
   /// In pt, this message translates to:
-  /// **'Alto'**
+  /// **'Alta'**
   String get severityHigh;
 
   /// No description provided for @reportSheetTitle.
@@ -1331,19 +1331,19 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSeverityLow.
   ///
   /// In pt, this message translates to:
-  /// **'Baixo'**
+  /// **'Baixa'**
   String get settingsSeverityLow;
 
   /// No description provided for @settingsSeverityMedium.
   ///
   /// In pt, this message translates to:
-  /// **'Médio'**
+  /// **'Média'**
   String get settingsSeverityMedium;
 
   /// No description provided for @settingsSeverityHigh.
   ///
   /// In pt, this message translates to:
-  /// **'Alto'**
+  /// **'Alta'**
   String get settingsSeverityHigh;
 
   /// No description provided for @privacyPublicProfile.

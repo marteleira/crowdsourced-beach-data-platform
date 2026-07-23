@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -25,6 +26,8 @@ from app.services.activity import get_params, get_activity_params
 from app.services.snapshot import fetch_with_fallback
 from app.services import ipma, hidrografico, eea, carris, open_meteo
 from app.api.weather import _open_meteo_overrides
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/beaches", tags=["beaches"])
 
@@ -144,7 +147,8 @@ async def _fetch_weather_safe(db: AsyncSession, beach: Beach):
             {**f, **(today_overrides if i == 0 else {}), "data_source": source, "snapshot_at": snap_at}
             for i, f in enumerate(raw.get("forecasts", []))
         ]
-    except Exception:
+    except Exception as e:
+        logger.warning("Weather fetch failed for beach %s: %s", beach.slug, e)
         return None
 
 
@@ -158,7 +162,8 @@ async def _fetch_sea_safe(db: AsyncSession, beach: Beach):
             beach_id=beach.id,
         )
         return [{**f, "data_source": source, "snapshot_at": snap_at} for f in raw.get("forecasts", [])]
-    except Exception:
+    except Exception as e:
+        logger.warning("Sea forecast fetch failed for beach %s: %s", beach.slug, e)
         return None
 
 
@@ -175,7 +180,8 @@ async def _fetch_simple_safe(
     try:
         raw, source, snap_at = await fetch_with_fallback(db, source_key, fetcher, beach_id=beach.id)
         return {**raw, "data_source": source, "snapshot_at": snap_at}
-    except Exception:
+    except Exception as e:
+        logger.warning("%s fetch failed for beach %s: %s", source_key, beach.slug, e)
         return None
 
 
@@ -214,7 +220,8 @@ async def _fetch_transport_safe(db: AsyncSession, beach: Beach):
             "data_source": source,
             "snapshot_at": snap_at,
         }
-    except Exception:
+    except Exception as e:
+        logger.warning("Transport fetch failed for beach %s: %s", beach.slug, e)
         return None
 
 
