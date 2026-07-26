@@ -121,6 +121,54 @@ BEACHES = [
         "municipality": "Setúbal",
     },
     {
+        "slug": "praia-da-rasca",
+        "name": "Praia da Rasca",
+        "lat": 38.503995,
+        "lon": -8.927430,
+        "ipma_global_id": 1151200,
+        "ipma_sea_global_id": 1111026,
+        "eea_station_id": None,  # not among the 5 officially APA-monitored Setúbal beaches
+        "tide_station_id": "PT_150505_2",
+        "has_capacity_data": False,
+        "max_capacity": None,
+        "nearby_stop_ids": ['160334', '160333'],  # RASCA (Ecoparque), ~92m
+        "flags_available": True,
+        "cover_photo_url": "/static/beaches/rasca.jpg",
+        "municipality": "Setúbal",
+    },
+    {
+        "slug": "praia-da-comenda",
+        "name": "Praia da Comenda",
+        "lat": 38.509237,
+        "lon": -8.922167,
+        "ipma_global_id": 1151200,
+        "ipma_sea_global_id": 1111026,
+        "eea_station_id": None,  # not among the 5 officially APA-monitored Setúbal beaches
+        "tide_station_id": "PT_150505_2",
+        "has_capacity_data": False,
+        "max_capacity": None,
+        "nearby_stop_ids": ['160336', '160335'],  # COMENDA (Parque Merendas), ~600m
+        "flags_available": True,
+        "cover_photo_url": "/static/beaches/comenda.jpg",
+        "municipality": "Setúbal",
+    },
+    {
+        "slug": "praia-de-albarquel",
+        "name": "Praia de Albarquel",
+        "lat": 38.510891,
+        "lon": -8.915556,
+        "ipma_global_id": 1151200,
+        "ipma_sea_global_id": 1111026,
+        "eea_station_id": "PTCH2C",  # official APA/EEA bathing water identifier
+        "tide_station_id": "PT_150505_2",
+        "has_capacity_data": False,
+        "max_capacity": None,
+        "nearby_stop_ids": ['160809', '160341'],  # PRAIA ALBARQUEL ~118m, ALBARQUEL (N10-4) ~491m
+        "flags_available": True,
+        "cover_photo_url": "/static/beaches/albarquel.jpg",
+        "municipality": "Setúbal",
+    },
+    {
         "slug": "praia-de-sesimbra",
         "name": "Praia de Sesimbra",
         "lat": 38.442783,
