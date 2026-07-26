@@ -17,6 +17,7 @@ REST API for the OndaCerta platform. Pulls official data from IPMA, Open-Meteo, 
 - [API reference](#api-reference)
 - [External APIs](#external-apis)
 - [Public website](#public-website)
+- [Production deployment](#production-deployment)
 - [Key design decisions](#key-design-decisions)
 
 ---
@@ -126,7 +127,7 @@ alembic downgrade -1
 alembic revision --autogenerate -m "description"
 ```
 
-There are 14 migrations, applied in this order:
+There are 16 migrations, applied in this order:
 - `0001`: core schema (beaches, users, reports, flags, snapshots, etc.)
 - `0002`: favourites, push tokens, achievements, notification/privacy settings
 - `0003`: tide observations and fitted harmonic model coefficients
@@ -141,6 +142,8 @@ There are 14 migrations, applied in this order:
 - `0011`: `params` JSONB column on reputation_events, drops the old `reason` column
 - `0012`: `occupancy_reports` table, for the crowdsourced busyness rating
 - `0013`: adds `ON DELETE` behaviour to the foreign keys that reference `users.id`
+- `0014`: makes `beaches.geom` NOT NULL
+- `0015`: `language` preference on users, drives localised API errors and push notifications
 
 ### Seed data
 
@@ -195,7 +198,7 @@ uvicorn app.main:app --reload
 
 Interactive API docs: **http://localhost:8000/docs**
 
-On startup the server initializes Firebase (if configured) and launches an APScheduler instance that handles all periodic work. Fetching external APIs, collecting tide observations, expiring reports, recalculating flag confidence, and re-fitting the tide model weekly all happen there, so no separate worker process is needed.
+On startup the server initializes Firebase (if configured) and launches an APScheduler instance that handles all periodic work. Fetching external APIs, collecting tide observations, expiring reports and stale flag proposals, recalculating flag confidence, processing reputation, and re-fitting the tide model weekly all happen there — 15 periodic jobs in total, so no separate worker process is needed.
 
 ---
 
@@ -216,7 +219,7 @@ source .venv/bin/activate
 pytest tests/ -q
 ```
 
-The suite creates and tears down the schema automatically. All external API calls are mocked, so no internet connection is needed. It currently covers auth, beaches, external data, favourites, flags, map, notifications/privacy, occupancy (both heartbeats and the crowdsourced reports), reports, reputation, push dispatch and users, around 270 test cases across 15 files.
+The suite creates and tears down the schema automatically. All external API calls are mocked, so no internet connection is needed. It currently covers auth, beaches, external data, favourites, flags, map, notifications/privacy, occupancy (both heartbeats and the crowdsourced reports), reports, reputation, push dispatch and users, 285 test cases across 13 files.
 
 ```bash
 # Run a specific file
@@ -278,7 +281,7 @@ backend/
 │       ├── jobs.py                 # All periodic job functions
 │       └── setup.py                # APScheduler configuration
 ├── alembic/
-│   └── versions/                   # 14 migrations, see Database section above
+│   └── versions/                   # 16 migrations, see Database section above
 ├── tests/
 │   ├── conftest.py
 │   ├── test_auth.py
@@ -353,8 +356,8 @@ All endpoints are prefixed with `/api/v1`.
 | `POST` | `/beaches/{slug}/reports/{id}/vote` | Bearer + **presence** | Vote on a report (presence required for all votes) |
 | `DELETE` | `/beaches/{slug}/reports/{id}` | Bearer (owner) | Soft-delete own report |
 | `GET` | `/beaches/{slug}/flag` | none | Current flag colour + confidence |
-| `POST` | `/beaches/{slug}/flag/propose` | Bearer + **presence** + rep ≥ 5 | Propose a flag colour change |
-| `POST` | `/beaches/{slug}/flag/confirm` | Bearer | Confirm or contradict current flag (once per hour per beach) |
+| `POST` | `/beaches/{slug}/flag/propose` | Bearer + **presence** (10 min) + configurable rep (currently 0) | Propose a flag colour. Returns 409 if a flag is already set. Pending proposals for the same colour aggregate their weights within a 60-minute window until the beach's activity-based quorum (1 / 3 / 5) is met; concurrent proposals are serialised with a row lock |
+| `POST` | `/beaches/{slug}/flag/confirm` | Bearer + **presence** (2 h) | Confirm or contradict the current flag (once per hour per beach) |
 | `POST` | `/beaches/{slug}/occupancy/heartbeat` | Bearer | Send presence ping, enables voting, reporting and occupancy counting |
 | `POST` | `/beaches/{slug}/occupancy/report` | Bearer + **presence** | Rate how busy the beach feels (1 to 5), rate limited per user per beach |
 
@@ -450,7 +453,17 @@ Note that this section only covers what the backend itself calls out to. The Flu
 
 ## Public website
 
-`static/site/` holds a small marketing landing page plus the Terms of Service and Privacy Policy, all served directly by FastAPI at `/`, `/terms` and `/privacy`. There's also a direct APK download at `/static/downloads/onda-certa.apk`, which is the current distribution channel while app store submission is still pending. The site content is in Portuguese since that's the target audience, unlike this README.
+`static/site/` holds a small marketing landing page plus the Terms of Service and Privacy Policy, all served directly by FastAPI at `/`, `/terms` and `/privacy` — publicly reachable in production at [ondacerta.bitaxiom.net](https://ondacerta.bitaxiom.net). There's also a direct APK download at `/static/downloads/onda-certa.apk`, which is the current distribution channel while app store submission is still pending. The site content is in Portuguese since that's the target audience, unlike this README.
+
+---
+
+## Production deployment
+
+The platform is self-hosted on repurposed hardware behind a residential connection with CGNAT (no public IPv4). Exposure is handled by **Cloudflare Tunnel**: the server opens persistent egress connections to Cloudflare's edge via `cloudflared`, so no inbound connection ever reaches the home network and no port is exposed to the internet. HTTPS on the public leg is automatic.
+
+Two separate **systemd** units run the stack — one for the API (Uvicorn bound to loopback on a dynamic-range port) and one for the tunnel — with independent restart lifecycles and an ordering directive so the tunnel only starts after the API is up. Uvicorn runs with forwarded-headers trust enabled; without it, generated URLs use the wrong scheme and Google's OAuth redirect validation fails.
+
+Backups are logical dumps (`pg_dump`) written periodically to a removable drive, physically separate from the main disk.
 
 ---
 
@@ -462,15 +475,15 @@ Note that this section only covers what the backend itself calls out to. The Flu
 
 **Recommendation scoring.** `GET /beaches?lat=&lon=` ranks beaches using a composite score, 40% proximity, 30% flag safety, 20% occupancy level, 10% absence of active alerts. Falls back to alphabetical when no coordinates are provided.
 
-**Activity-aware parameters.** Each beach has an activity level (low / normal / high) based on how many users have sent heartbeats in the last hour. This controls report TTLs, contradiction thresholds and flag confirmation minimums, so the system doesn't expire alerts too aggressively on a quiet Tuesday in February.
+**Activity-aware parameters.** Each beach has an activity level (low / medium / high) based on how many users have sent heartbeats in the last hour. This controls report TTLs, contradiction thresholds and flag confirmation minimums, so the system doesn't expire alerts too aggressively on a quiet Tuesday in February.
 
-**Flag as state, not alert.** The beach flag (green / yellow / red / purple) is a persistent state with a decaying confidence score. Confidence drops over time without confirmations and is recalculated every 10 minutes. This is different from community reports, which are ephemeral events.
+**Flag as state, not alert.** The beach flag (green / yellow / red / purple) is a persistent state with a decaying confidence score, recalculated on every confirmation and every 10 minutes by the scheduler. With no votes, confidence decays linearly at a per-colour rate (green empties in 30 min, yellow in 60, red/purple in 120, so risk states don't vanish out of mere inactivity). Once the community votes, confidence becomes a weighted yes/no ratio ("unsure" counts 10%) minus an age penalty capped at 30%, whose rate adapts to beach activity — so a confirmed flag stabilises and can only be brought down by contradictions. Votes are scoped to the current flag instance (`beach_status.updated_at` marks when it was set), and below 0.05 the flag resets to unknown, reopening proposals. This is different from community reports, which are ephemeral events with a TTL.
 
 **Two ways to measure occupancy.** The objective headcount comes from heartbeats in the last 20 minutes. Alongside that, users can rate how busy a beach feels on a 1 to 5 scale, gated by presence and rate limited to one rating per user per beach per window. The two signals are shown together rather than merged, since "how many people" and "how busy it feels" aren't quite the same thing.
 
 **Self-improving tide model.** The IH API only provides real-time observations, there's no predictions endpoint. We solve this by accumulating observations hourly and fitting a harmonic model with `utide` once enough data exists. The model improves as more data is collected and is re-fitted weekly. New installs can bootstrap quickly using `scripts/populate_tide_observations.py`, which downloads ~8 days of historical observations in about 13 minutes.
 
-**Reputation system.** Users start at 0 and earn or lose points when the community confirms or contradicts their contributions. The threshold to propose a flag change is deliberately low (rep ≥ 5) so active users can participate quickly, but dropping below −50 triggers an automatic ban. All reputation changes are logged immutably in `reputation_events` for auditability.
+**Reputation system.** Users start at 0 and earn or lose points when the community confirms or contradicts their contributions. The threshold to propose a flag change is configurable and currently 0 for launch, so active users can participate immediately; a proposal's weight scales with reputation instead (`min(3, 1 + rep/50)`). Dropping to −30 triggers a 48-hour suspension and −50 an automatic ban. All reputation changes are logged immutably in `reputation_events`, which doubles as the idempotency guard against double-scoring.
 
 **Account deletion is a grace period, not a switch.** `DELETE /users/me` doesn't wipe the account there and then. It schedules deletion 30 days out, revokes every active session, and can be cancelled any time before that date through `/users/me/cancel-deletion`. This gives people a way back if they change their mind, and gives support a window to catch mistakes.
 

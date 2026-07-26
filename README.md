@@ -10,10 +10,10 @@
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart)](https://dart.dev)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql)](https://postgresql.org)
+[![Tests](https://img.shields.io/badge/Tests-285%20passing-brightgreen)](#technical-documentation)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](#terms-of-use)
 
-*Final Year Project · BSc in Computer Engineering*
-*Escola Superior de Tecnologia de Setúbal, IPS · 2026*
+**Live at [ondacerta.bitaxiom.net](https://ondacerta.bitaxiom.net)** — landing page, Terms, Privacy Policy and direct APK download.
 
 </div>
 
@@ -37,7 +37,7 @@ Planning a beach day at Arrábida usually means having at least 3 or 4 tabs open
 
 OndaCerta was built to address that. It aggregates all those data sources into a single app and on top of that adds a community layer, similar in concept to what Waze does for traffic. People physically present at the beach can report conditions, confirm what flag is currently flying and vote on other users' reports. Any write action requires physical presence, verified via GPS heartbeat, so the data stays reasonably accurate.
 
-For now the app covers 21 beaches across Arrábida Natural Park, Sesimbra and Tróia. The architecture was designed from the start to scale to other Portuguese beaches later on, which is part of why some parts of it ended up more complex than strictly necessary for a single region.
+The platform has been running in production since July 2026, publicly reachable at [ondacerta.bitaxiom.net](https://ondacerta.bitaxiom.net). It currently covers 21 beaches across Arrábida Natural Park, Sesimbra and Tróia. The architecture was designed from the start to scale to other Portuguese beaches later on, which is part of why some parts of it ended up more complex than strictly necessary for a single region.
 
 ---
 
@@ -50,11 +50,14 @@ For now the app covers 21 beaches across Arrábida Natural Park, Sesimbra and Tr
 - water quality from the EEA bathing water directive (Excellent / Good / Sufficient / Poor)
 - next public transport departures grouped by destination, times updated via GPS
 - occupancy: live headcount from GPS heartbeats plus a crowdsourced busyness rating (1 to 5)
+- graceful degradation: when an external source is down, the last cached snapshot is served with a `data_source` / `snapshot_at` label instead of failing
 
 ### Community layer
 - submit alerts with type, severity and a short description
 - vote on other user reports (up/down, toggleable)
 - confirm or contest the current flag colour (green, yellow, red, purple)
+- propose a new flag while the state is unknown — proposals from several users aggregate their reputation-based weights within a 60-minute window until the beach's activity-based quorum is met, so no single low-reputation account can set a flag on a busy beach
+- flag confidence decays over time (faster for green, slower for red/purple) and is rebuilt by community confirmations; below a minimum threshold the flag resets to unknown
 - rate how busy a beach feels, rate-limited to one report per user per beach per window
 - translate another user's report note into your language on demand (MyMemory API)
 - any write action requires physical presence, verified via GPS heartbeat
@@ -173,7 +176,7 @@ sheet with sonar animation, confidence score, confirm or contest
 <img src="docs/assets/screens/flag_proposal.png" width="220" alt="Flag Proposal">
 
 **Propose Flag**
-2x2 grid to pick a colour, only unlocks once reputation is high enough
+2x2 grid to pick a colour, shown while the flag state is unknown
 </td>
 
 </tr></table>
@@ -250,6 +253,7 @@ configure which alerts to receive, proximity radius, minimum severity and quiet 
 | Push notifications | Firebase Cloud Messaging | Delivery to device, in-app notification centre |
 | Backend | FastAPI (Python) | REST API, background jobs via APScheduler, PostGIS |
 | Database | PostgreSQL + PostGIS | Geospatial presence, favourites, achievements |
+| Deployment | Self-hosted · Cloudflare Tunnel · systemd | No exposed ports, automatic HTTPS, works behind CGNAT |
 | External data (backend) | IPMA, Open-Meteo, Instituto Hidrográfico, EEA, Carris Metropolitana | Weather, sea state, tides, water quality, transport |
 | External data (client) | OpenStreetMap, MyMemory Translation API | Map tiles, on-demand translation of report notes |
 
@@ -278,7 +282,8 @@ Detailed docs for each part live in their respective directories:
 - [x] Secure token storage (Keychain / Keystore) with silent refresh via a Dio interceptor
 - [x] Native splash screen with wave animation, guided first-run onboarding tour
 - [x] Transactional email delivery (SMTP) for verification and password reset
-- [x] Automated backend test suite (270+ pytest cases)
+- [x] Automated backend test suite (285 pytest cases)
+- [x] Production deployment: self-hosted behind CGNAT via Cloudflare Tunnel, two systemd units (API + tunnel), no ports exposed to the internet
 
 **Screens**
 - [x] HomeScreen -> dashboard with nearest beach, conditions, tides, alerts and a favourites carousel
@@ -298,7 +303,9 @@ Detailed docs for each part live in their respective directories:
 - [x] Alert submission and voting, both gated by a recent presence heartbeat
 - [x] Optimistic updates with rollback on server error
 - [x] Flag confirmation with sonar animation and animated confidence bar
-- [x] Flag proposal (requires reputation ≥ 5)
+- [x] Flag proposal with multi-user quorum: pending proposals for the same colour aggregate their weights within a 60-minute window; quorum scales with beach activity (1 / 3 / 5). Reputation threshold is configurable (currently 0 for launch)
+- [x] Flag lifecycle hardening: proposing over an already-set flag returns 409, confidence votes are scoped to the current flag instance, concurrent proposals are serialised with a row lock, and stale pending proposals expire automatically
+- [x] Per-colour confidence decay (green 30 min · yellow 60 · red/purple 120 without votes; capped age penalty once the community has voted)
 - [x] Alerts expire automatically once they accumulate enough downvotes
 - [x] Crowdsourced busyness reports (1 to 5), rate-limited per user per beach
 - [x] A user can only have an active heartbeat at one beach at a time
@@ -309,7 +316,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Achievement system evaluated in real time
 - [x] Presence streak via heartbeat, idempotent per day
 - [x] Confirmation rate-limiting: 1 per hour per beach, enforced server-side
-- [x] Reputation history log, automatic ban below a reputation threshold, with a suspension state
+- [x] Reputation history log, automatic suspension and ban thresholds, all deltas recorded in an immutable event log
 
 **Account and privacy**
 - [x] Change password, email and username, plus a predefined avatar picker
@@ -328,29 +335,25 @@ Detailed docs for each part live in their respective directories:
 **Localisation**
 - [x] Full Portuguese and English translations via Flutter `gen-l10n`
 
-**Public website**
+**Public website and distribution**
 - [x] Landing page, Terms of Service and Privacy Policy served directly by the backend, with a direct APK download link
+- [x] Usability evaluation with real users: System Usability Scale score of 90.4 (n = 12), "Excellent" band
 
 ---
 
-### 🔜 Planned
+### 🔜 Future work
 
-- [ ] Deploy the backend to a public host (currently only runs locally)
-- [ ] Usability testing with real users
 - [ ] Submit to app stores (direct APK download is already live on the website)
+- [ ] Mock-location detection and device integrity checks (Play Integrity) to further harden presence verification
+- [ ] Wire the guest-account promotion flow into the client (the `/auth/promote` endpoint is already live)
+- [ ] Activate capacity-based occupancy normalisation (fields already in the schema)
 
-### After the first launch
+### After that
 - [ ] Expand to other Portuguese beaches
-- [ ] iOS build
+- [ ] iOS build and App Store submission
 
 ---
 
 ## Terms of use
 
 This project is licensed under the [MIT License](LICENSE). The external data it aggregates or calls out to IPMA, Open-Meteo, Instituto Hidrográfico, EEA, Carris Metropolitana, OpenStreetMap and the MyMemory Translation API, remains subject to each provider's own terms.
-
----
-
-<div align="center">
-Escola Superior de Tecnologia de Setúbal, IPS · 2026
-</div>
