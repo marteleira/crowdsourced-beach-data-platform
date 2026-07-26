@@ -544,7 +544,7 @@ class UserProfile {
     email: j['email'] as String?,
     hasPassword: j['has_password'] as bool? ?? false,
     reputation: j['reputation'] as int? ?? 0,
-    level: j['level'] as String? ?? 'novo',
+    level: j['level'] as String? ?? 'new',
     isAnonymous: j['is_anonymous'] as bool? ?? false,
     streak: j['streak'] as int? ?? 0,
     avatarId: j['avatar_id'] as String?,

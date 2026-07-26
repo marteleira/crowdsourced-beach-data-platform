@@ -15,7 +15,7 @@ from app.core.db_helpers import (
     find_nearest_beach,
     record_heartbeat_and_get_occupancy,
 )
-from app.core.deps import require_registered_user, get_beach_or_404, require_presence
+from app.core.deps import require_user, require_registered_user, get_beach_or_404, require_presence
 from app.core.errors import api_error
 from app.core.utils import now_utc
 from app.models.beach import Beach
@@ -35,7 +35,7 @@ async def send_heartbeat(
     slug: str,
     body: HeartbeatRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_registered_user),
+    user: User = Depends(require_user),
 ):
     beach = await get_beach_or_404(slug, db, user.language)
 
@@ -55,7 +55,7 @@ async def send_heartbeat(
 async def send_heartbeat_by_location(
     body: HeartbeatRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(require_registered_user),
+    user: User = Depends(require_user),
 ):
     match = await find_nearest_beach(db, body.lat, body.lon)
     if match is None:
