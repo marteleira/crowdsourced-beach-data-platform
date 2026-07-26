@@ -96,6 +96,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
 
     # Flags
     "no_flag_to_confirm": {"en": "There is no flag to confirm at this beach", "pt": "Não há bandeira para confirmar nesta praia"},
+    "flag_already_set": {
+        "en": "This beach already has a flag set. Confirm or contest it instead of proposing a new one.",
+        "pt": "Esta praia já tem uma bandeira definida. Confirma ou contesta-a em vez de propor uma nova.",
+    },
     "flag_already_confirmed": {
         "en": "You already confirmed this beach's flag in the last hour",
         "pt": "Já confirmaste a bandeira desta praia na última hora",

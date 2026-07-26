@@ -16,10 +16,11 @@ OCCUPANCY_REPORT_EXPIRE_MINUTES = 120    # reports expire after 2h (conditions c
 OCCUPANCY_REPORT_RATE_LIMIT_MINUTES = 120  # one report per user per beach per 2h
 OCCUPANCY_REPORT_CONFIDENCE_THRESHOLD = 3.0  # total weight needed for full confidence
 
-#  Gating windows 
+#  Gating windows
 REPORT_PRESENCE_WINDOW_HOURS = 1     # must have heartbeat within 1h to submit report
 VOTE_PRESENCE_WINDOW_HOURS = 2       # must have heartbeat within 2h to vote
 FLAG_PROPOSAL_WINDOW_MINUTES = 10    # must have heartbeat within 10min to propose flag
+FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES = 60  # pending proposals for the same color combine within this window
 
 # Occupancy thresholds 
 OCCUPANCY_LOW_RATIO = 0.40           # < this -> "low" (capacity-aware path)

@@ -19,7 +19,10 @@ class BeachStatus(Base):
     flag_color: Mapped[str] = mapped_column(Text, default="unknown")
     flag_source: Mapped[str] = mapped_column(Text, default="community")  # "community" | "official"
     flag_confidence: Mapped[float] = mapped_column(Float, default=0.0)
-    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
+    # No onupdate: this marks when the CURRENT flag instance was (re)set, not
+    # last-write time — every write must set it explicitly and only on
+    # instance changes (see app/api/flags.py, app/scheduler/jobs.py).
+    updated_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
 
     __table_args__ = (
         CheckConstraint(f"flag_color IN {tuple(FLAG_COLORS)}", name="ck_flag_color"),

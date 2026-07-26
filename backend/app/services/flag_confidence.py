@@ -40,12 +40,14 @@ async def recalculate_beach_confidence(db, beach_id: int, flag_color: str, updat
     now = datetime.now(timezone.utc)
     age_minutes = (now - updated_at.replace(tzinfo=timezone.utc)).total_seconds() / 60
 
-    # Count votes for the CURRENT flag color in last 6h
+    # Count votes for the CURRENT flag instance only — votes cast before this
+    # color was (re)applied belong to a previous instance and must not leak in.
     result = await db.execute(
         select(FlagConfirmation.response, func.count().label("cnt"))
         .where(
             FlagConfirmation.beach_id == beach_id,
             FlagConfirmation.flag_color == flag_color,
+            FlagConfirmation.created_at >= updated_at,
         )
         .group_by(FlagConfirmation.response)
     )

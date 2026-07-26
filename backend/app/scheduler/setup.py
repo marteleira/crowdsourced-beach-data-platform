@@ -20,6 +20,7 @@ def create_scheduler() -> AsyncIOScheduler:
 
     # Lifecycle
     scheduler.add_job(jobs.expire_stale_reports,          IntervalTrigger(minutes=5),  id="expire_reports",       replace_existing=True)
+    scheduler.add_job(jobs.expire_stale_flag_proposals,   IntervalTrigger(minutes=5),  id="expire_flag_proposals", replace_existing=True)
     scheduler.add_job(jobs.process_reputation,            IntervalTrigger(minutes=2),  id="reputation",           replace_existing=True)
     scheduler.add_job(jobs.recalculate_flag_confidences,  IntervalTrigger(minutes=10), id="flag_confidence",      replace_existing=True)
     scheduler.add_job(jobs.lift_expired_suspensions,      IntervalTrigger(minutes=15), id="lift_suspensions",     replace_existing=True)
