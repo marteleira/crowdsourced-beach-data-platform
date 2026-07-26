@@ -1,11 +1,12 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
     FLAG_CONFIRM_WINDOW_HOURS,
+    FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES,
     FLAG_PROPOSAL_WINDOW_MINUTES,
     MIN_REPUTATION_TO_PROPOSE,
     VOTE_PRESENCE_WINDOW_HOURS,
@@ -38,8 +39,11 @@ from app.services.reputation import DELTA_FLAG_CONFIRMED, apply_delta, proposal_
 
 router = APIRouter(prefix="/beaches/{slug}/flag", tags=["flags"])
 
-async def _ensure_beach_status(db: AsyncSession, beach_id: int) -> BeachStatus:
-    result = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach_id))
+async def _ensure_beach_status(db: AsyncSession, beach_id: int, for_update: bool = False) -> BeachStatus:
+    stmt = select(BeachStatus).where(BeachStatus.beach_id == beach_id)
+    if for_update:
+        stmt = stmt.with_for_update()
+    result = await db.execute(stmt)
     status = result.scalar_one_or_none()
     if not status:
         status = BeachStatus(beach_id=beach_id, flag_color="unknown", flag_confidence=0.0)
@@ -79,6 +83,26 @@ async def propose_flag(
     if not beach.flags_available:
         raise api_error(400, "beach_no_flag_system", user.language)
 
+    # Locks the row for the rest of this transaction: concurrent proposes for the
+    # same beach serialize here, so the aggregation check below always reads the
+    # latest committed pending-proposal set instead of racing on a stale total
+    # (which could otherwise double-apply and double-credit a shared proposal).
+    status = await _ensure_beach_status(db, beach.id, for_update=True)
+    if status.flag_color != "unknown":
+        raise api_error(409, "flag_already_set", user.language)
+
+    # A user can only have one active pending proposal per beach — otherwise
+    # they could inflate the aggregated weight by re-proposing repeatedly.
+    await db.execute(
+        update(FlagProposal)
+        .where(
+            FlagProposal.beach_id == beach.id,
+            FlagProposal.user_id == user.id,
+            FlagProposal.status == "pending",
+        )
+        .values(status="superseded")
+    )
+
     weight = proposal_weight(user.reputation)
     proposal = FlagProposal(
         beach_id=beach.id,
@@ -90,19 +114,38 @@ async def propose_flag(
     db.add(proposal)
     await db.flush()
 
-    # Auto-apply if weight is high enough (reputation ≥ 100) or if it's the only proposal
+    # Aggregate this proposal's weight with other recent pending proposals for
+    # the same color, so several lower-reputation users can reach quorum together.
     flag_params = await get_activity_params(db, beach.id)
     min_confirmations = flag_params.flag_confirmation_min
 
-    if weight >= min_confirmations:
-        old_status = await db.execute(select(BeachStatus).where(BeachStatus.beach_id == beach.id))
-        old_color = (old_status.scalar_one_or_none() or BeachStatus(flag_color="unknown")).flag_color
+    window_start = now_utc() - timedelta(minutes=FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES)
+    pending_result = await db.execute(
+        select(FlagProposal).where(
+            FlagProposal.beach_id == beach.id,
+            FlagProposal.proposed_color == body.color,
+            FlagProposal.status == "pending",
+            FlagProposal.created_at >= window_start,
+        )
+    )
+    pending_proposals = pending_result.scalars().all()
+    total_weight = sum(p.initial_weight for p in pending_proposals)
 
-        await _apply_proposal(db, proposal, beach.id, body.color, user.id)
+    if total_weight >= min_confirmations:
+        await _apply_proposal(db, status, proposal, body.color, user.id)
+        for other in pending_proposals:
+            if other.id == proposal.id:
+                continue
+            other.status = "applied"
+            await apply_delta(
+                db, other.user_id, DELTA_FLAG_CONFIRMED,
+                "flag_confirmed",
+                params={"color": body.color},
+                ref_id=other.id,
+            )
+
         await db.commit()
-
-        if old_color != body.color:
-            await dispatch_flag_notification(db, beach.id, old_color, body.color, beach.name)
+        await dispatch_flag_notification(db, beach.id, "unknown", body.color, beach.name)
 
         return FlagProposalResponse(
             proposal_id=proposal.id,
@@ -120,10 +163,7 @@ async def propose_flag(
     )
 
 
-async def _apply_proposal(db: AsyncSession, proposal: FlagProposal, beach_id: int, color: str, user_id) -> None:
-    status = await _ensure_beach_status(db, beach_id)
-    old_color = status.flag_color
-
+async def _apply_proposal(db: AsyncSession, status: BeachStatus, proposal: FlagProposal, color: str, user_id) -> None:
     status.flag_color = color
     status.flag_source = "community"
     status.flag_confidence = 1.0
@@ -131,13 +171,12 @@ async def _apply_proposal(db: AsyncSession, proposal: FlagProposal, beach_id: in
 
     proposal.status = "applied"
 
-    if old_color != color:
-        await apply_delta(
-            db, user_id, DELTA_FLAG_CONFIRMED,
-            "flag_confirmed",
-            params={"color": color},
-            ref_id=proposal.id,
-        )
+    await apply_delta(
+        db, user_id, DELTA_FLAG_CONFIRMED,
+        "flag_confirmed",
+        params={"color": color},
+        ref_id=proposal.id,
+    )
 
 
 @router.post("/confirm", response_model=FlagConfirmResponse, status_code=201)
@@ -187,6 +226,7 @@ async def confirm_flag(
     if new_confidence <= 0.05:
         status.flag_color = "unknown"
         status.flag_confidence = 0.0
+        status.updated_at = now_utc()
 
     await db.commit()
     return FlagConfirmResponse(status="confirmed", beach_id=beach.id, new_confidence=new_confidence)
