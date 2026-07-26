@@ -322,7 +322,8 @@ There's still no `.env` file on the Flutter client. Configuration is a mix of co
 
 | Parameter | Where | Description |
 |---|---|---|
-| Backend host | `--dart-define=API_HOST=...` | Overrides the default `10.0.2.2` (Android emulator alias for the host machine). Use your machine's LAN IP for a physical device |
+| Backend host | `--dart-define=API_HOST=...` | Overrides the default `10.0.2.2` (Android emulator alias for the host machine). Use your machine's LAN IP for a physical device, or the production host for release builds |
+| Backend scheme | `--dart-define=API_SCHEME=...` | `http` by default; set to `https` when pointing at the production host |
 | Google `serverClientId` | `lib/core/constants/app_config.dart` | Google Cloud Console OAuth Client ID (type "Web application"), must match the backend's `GOOGLE_CLIENT_ID` |
 | Map defaults | `lib/core/constants/app_config.dart` | Default map centre and zoom (Arrábida peninsula) |
 | Android `google-services` | Not required | The Google Sign-In integration doesn't use the Firebase plugin for auth, Firebase itself is still needed for push notifications |
@@ -360,8 +361,10 @@ flutter run -d <device-id>
 # Point at a backend on your LAN instead of the Android emulator default
 flutter run --dart-define=API_HOST=192.168.1.221
 
-# Android release build
-flutter build apk --release
+# Android release build against the production backend
+flutter build apk --release \
+  --dart-define=API_SCHEME=https \
+  --dart-define=API_HOST=ondacerta.bitaxiom.net
 
 # iOS release build
 flutter build ios --release
@@ -390,4 +393,4 @@ Screenshots and mockups are documented in the [main README](../README.md).
 
 ---
 
-*Part of the [OndaCerta](../README.md) project, Escola Superior de Tecnologia de Setúbal, IPS · 2026*
+*Part of the [OndaCerta](../README.md) project.*
