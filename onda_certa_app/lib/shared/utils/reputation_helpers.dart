@@ -21,8 +21,12 @@ import '../../core/l10n/l10n.dart';
     label: l10n.levelContributor, icon: Icons.waves, color: AppColors.sand,
     next: l10n.levelVeteran, min: 50, max: 150, range: 100,
   ),
-  _ => (
+  'veteran' => (
     label: l10n.levelVeteran, icon: Icons.surfing, color: AppColors.amber,
     next: null, min: 150, max: 150, range: 0,
+  ),
+  _ => (
+    label: l10n.levelNew, icon: Icons.water_outlined, color: AppColors.textHint,
+    next: l10n.levelRegular, min: 0, max: 10, range: 10,
   ),
 };
