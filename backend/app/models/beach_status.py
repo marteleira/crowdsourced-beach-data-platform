@@ -39,6 +39,7 @@ class FlagProposal(Base):
     initial_weight: Mapped[float] = mapped_column(Float, default=1.0)
     status: Mapped[str] = mapped_column(Text, default="pending")  # pending | applied | rejected
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), server_default=func.now())
+    applied_at: Mapped[datetime | None] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
 
 
 class FlagConfirmation(Base):

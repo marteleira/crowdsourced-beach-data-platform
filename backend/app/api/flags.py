@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
@@ -47,9 +48,18 @@ async def _ensure_beach_status(db: AsyncSession, beach_id: int, for_update: bool
     result = await db.execute(stmt)
     status = result.scalar_one_or_none()
     if not status:
-        status = BeachStatus(beach_id=beach_id, flag_color="unknown", flag_confidence=0.0)
-        db.add(status)
-        await db.flush()
+        # FOR UPDATE can't lock a row that doesn't exist yet, so two concurrent
+        # first-proposers can both miss above and both try to create the row.
+        # ON CONFLICT DO NOTHING makes the loser wait on the unique index instead
+        # of raising IntegrityError; either way we re-select to get the winner's row.
+        insert_stmt = (
+            pg_insert(BeachStatus)
+            .values(beach_id=beach_id, flag_color="unknown", flag_confidence=0.0)
+            .on_conflict_do_nothing(index_elements=["beach_id"])
+        )
+        await db.execute(insert_stmt)
+        result = await db.execute(stmt)
+        status = result.scalar_one()
     return status
 
 
@@ -133,11 +143,12 @@ async def propose_flag(
     total_weight = sum(p.initial_weight for p in pending_proposals)
 
     if total_weight >= min_confirmations:
-        await _apply_proposal(db, status, proposal, body.color, user.id)
+        applied_at = await _apply_proposal(db, status, proposal, body.color, user.id)
         for other in pending_proposals:
             if other.id == proposal.id:
                 continue
             other.status = "applied"
+            other.applied_at = applied_at
             await apply_delta(
                 db, other.user_id, DELTA_FLAG_CONFIRMED,
                 "flag_confirmed",
@@ -164,13 +175,15 @@ async def propose_flag(
     )
 
 
-async def _apply_proposal(db: AsyncSession, status: BeachStatus, proposal: FlagProposal, color: str, user_id) -> None:
+async def _apply_proposal(db: AsyncSession, status: BeachStatus, proposal: FlagProposal, color: str, user_id):
+    applied_at = now_utc()
     status.flag_color = color
     status.flag_source = "community"
     status.flag_confidence = 1.0
-    status.updated_at = now_utc()
+    status.updated_at = applied_at
 
     proposal.status = "applied"
+    proposal.applied_at = applied_at
 
     await apply_delta(
         db, user_id, DELTA_FLAG_CONFIRMED,
@@ -178,6 +191,7 @@ async def _apply_proposal(db: AsyncSession, status: BeachStatus, proposal: FlagP
         params={"color": color},
         ref_id=proposal.id,
     )
+    return applied_at
 
 
 @router.post("/confirm", response_model=FlagConfirmResponse, status_code=201)

@@ -10,7 +10,7 @@
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart)](https://dart.dev)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com)
 [![PostgreSQL](https://img.shields.io/badge/DB-PostgreSQL-4169E1?logo=postgresql)](https://postgresql.org)
-[![Tests](https://img.shields.io/badge/Tests-285%20passing-brightgreen)](#technical-documentation)
+[![Tests](https://img.shields.io/badge/Tests-292%20passing-brightgreen)](#technical-documentation)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](#terms-of-use)
 
 **Live at [ondacerta.bitaxiom.net](https://ondacerta.bitaxiom.net)** — landing page, Terms, Privacy Policy and direct APK download.
@@ -37,7 +37,7 @@ Planning a beach day at Arrábida usually means having at least 3 or 4 tabs open
 
 OndaCerta was built to address that. It aggregates all those data sources into a single app and on top of that adds a community layer, similar in concept to what Waze does for traffic. People physically present at the beach can report conditions, confirm what flag is currently flying and vote on other users' reports. Any write action requires physical presence, verified via GPS heartbeat, so the data stays reasonably accurate.
 
-The platform has been running in production since July 2026, publicly reachable at [ondacerta.bitaxiom.net](https://ondacerta.bitaxiom.net). It currently covers 21 beaches across Arrábida Natural Park, Sesimbra and Tróia. The architecture was designed from the start to scale to other Portuguese beaches later on, which is part of why some parts of it ended up more complex than strictly necessary for a single region.
+The platform has been running in production since July 2026, publicly reachable at [ondacerta.bitaxiom.net](https://ondacerta.bitaxiom.net). It currently covers 24 beaches across Arrábida Natural Park, Sesimbra and Tróia. The architecture was designed from the start to scale to other Portuguese beaches later on, which is part of why some parts of it ended up more complex than strictly necessary for a single region.
 
 ---
 
@@ -282,7 +282,7 @@ Detailed docs for each part live in their respective directories:
 - [x] Secure token storage (Keychain / Keystore) with silent refresh via a Dio interceptor
 - [x] Native splash screen with wave animation, guided first-run onboarding tour
 - [x] Transactional email delivery (SMTP) for verification and password reset
-- [x] Automated backend test suite (285 pytest cases)
+- [x] Automated backend test suite (292 pytest cases)
 - [x] Production deployment: self-hosted behind CGNAT via Cloudflare Tunnel, two systemd units (API + tunnel), no ports exposed to the internet
 
 **Screens**

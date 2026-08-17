@@ -473,6 +473,7 @@ class TestConfirmFlag:
         proposal = FlagProposal(
             beach_id=beach.id, user_id=proposer.id, proposed_color="green",
             initial_weight=1.5, status="applied", created_at=beach_status.updated_at,
+            applied_at=beach_status.updated_at,
         )
         db.add(proposal)
         await db.commit()
@@ -545,11 +546,11 @@ class TestFlagConfidenceJob:
         status = BeachStatus(beach_id=beach.id, flag_color="red", flag_confidence=1.0, updated_at=now)
         p1 = FlagProposal(
             beach_id=beach.id, user_id=u1.id, proposed_color="red",
-            initial_weight=1.5, status="applied", created_at=now,
+            initial_weight=1.5, status="applied", created_at=now, applied_at=now,
         )
         p2 = FlagProposal(
             beach_id=beach.id, user_id=u2.id, proposed_color="red",
-            initial_weight=1.5, status="applied", created_at=now,
+            initial_weight=1.5, status="applied", created_at=now, applied_at=now,
         )
         db.add_all([status, p1, p2])
         await db.commit()

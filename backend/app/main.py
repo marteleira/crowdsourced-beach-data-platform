@@ -116,6 +116,6 @@ async def privacy_page():
     return FileResponse(os.path.join(_static_dir, "site", "privacy.html"))
 
 
-@app.get("/health")
+@app.get("/health", include_in_schema=False)
 async def health():
     return {"status": "ok"}

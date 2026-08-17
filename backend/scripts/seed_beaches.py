@@ -89,8 +89,8 @@ BEACHES = [
         "municipality": "Setúbal",
     },
     {
-        "slug": "praia-da-figuerinha",
-        "name": "Praia da Figuerinha",
+        "slug": "praia-da-figueirinha",
+        "name": "Praia da Figueirinha",
         "lat": 38.484119,
         "lon": -8.944748,
         "ipma_global_id": 1151200,

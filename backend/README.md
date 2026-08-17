@@ -127,7 +127,7 @@ alembic downgrade -1
 alembic revision --autogenerate -m "description"
 ```
 
-There are 16 migrations, applied in this order:
+There are 17 migrations, applied in this order:
 - `0001`: core schema (beaches, users, reports, flags, snapshots, etc.)
 - `0002`: favourites, push tokens, achievements, notification/privacy settings
 - `0003`: tide observations and fitted harmonic model coefficients
@@ -144,10 +144,11 @@ There are 16 migrations, applied in this order:
 - `0013`: adds `ON DELETE` behaviour to the foreign keys that reference `users.id`
 - `0014`: makes `beaches.geom` NOT NULL
 - `0015`: `language` preference on users, drives localised API errors and push notifications
+- `0016`: `applied_at` on flag_proposals, so reapplied flag instance proposals can be identified exactly instead of by a time window
 
 ### Seed data
 
-The seed script inserts the 21 Arrábida, Sesimbra and Tróia beaches with coordinates, IPMA forecast IDs, EEA bathing water identifiers, Instituto Hidrográfico station IDs and Carris Metropolitana stop IDs:
+The seed script inserts the 24 Arrábida, Sesimbra and Tróia beaches with coordinates, IPMA forecast IDs, EEA bathing water identifiers, Instituto Hidrográfico station IDs and Carris Metropolitana stop IDs:
 
 ```bash
 python scripts/seed_beaches.py
@@ -219,7 +220,7 @@ source .venv/bin/activate
 pytest tests/ -q
 ```
 
-The suite creates and tears down the schema automatically. All external API calls are mocked, so no internet connection is needed. It currently covers auth, beaches, external data, favourites, flags, map, notifications/privacy, occupancy (both heartbeats and the crowdsourced reports), reports, reputation, push dispatch and users, 285 test cases across 13 files.
+The suite creates and tears down the schema automatically. All external API calls are mocked, so no internet connection is needed. It currently covers auth, beaches, external data, favourites, flags, map, notifications/privacy, occupancy (both heartbeats and the crowdsourced reports), reports, reputation, push dispatch and users, 292 test cases across 13 files.
 
 ```bash
 # Run a specific file
@@ -281,7 +282,7 @@ backend/
 │       ├── jobs.py                 # All periodic job functions
 │       └── setup.py                # APScheduler configuration
 ├── alembic/
-│   └── versions/                   # 16 migrations, see Database section above
+│   └── versions/                   # 17 migrations, see Database section above
 ├── tests/
 │   ├── conftest.py
 │   ├── test_auth.py
@@ -298,7 +299,7 @@ backend/
 │   ├── test_reputation.py
 │   └── test_push_dispatch.py
 ├── scripts/
-│   ├── seed_beaches.py                # Insert the 21 beaches
+│   ├── seed_beaches.py                # Insert the 24 beaches
 │   ├── populate_tide_observations.py  # Bootstrap IH historical tide data
 │   ├── update_eea_station_ids.sql     # Update EEA identifiers for existing beaches
 │   ├── optimize_beach_images.py       # Resize/re-encode static/beaches/ cover photos
@@ -469,7 +470,7 @@ Backups are logical dumps (`pg_dump`) written periodically to a removable drive,
 
 ## Key design decisions
 
-**Beaches as the anchor entity.** The 21 beaches are a fixed, curated list. Each row stores the identifiers for all the external data sources, so the API always knows exactly which IPMA ID, IH station, EEA identifier and Carris stops to use for a given beach, no geocoding or discovery at request time.
+**Beaches as the anchor entity.** The 24 beaches are a fixed, curated list. Each row stores the identifiers for all the external data sources, so the API always knows exactly which IPMA ID, IH station, EEA identifier and Carris stops to use for a given beach, no geocoding or discovery at request time.
 
 **Presence as a trust signal.** Submitting reports, voting and rating busyness all require a recent heartbeat at the beach (occupancy ping within the last hour or two). This ties reputation to actual physical presence and makes remote manipulation of community data much harder.
 
