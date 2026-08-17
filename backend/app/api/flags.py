@@ -33,7 +33,7 @@ from app.schemas.flag import (
     FlagProposalResponse,
 )
 from app.services.activity import get_activity_params
-from app.services.flag_confidence import recalculate_beach_confidence
+from app.services.flag_confidence import recalculate_beach_confidence, reset_flag_on_zero_confidence
 from app.services.push_notifications import dispatch_flag_notification
 from app.services.reputation import DELTA_FLAG_CONFIRMED, apply_delta, proposal_weight
 
@@ -222,11 +222,9 @@ async def confirm_flag(
     )
     status.flag_confidence = new_confidence
 
-    # If confidence drops to zero and contradictions dominate — reset flag
+    # If confidence drops to zero and reset the flag
     if new_confidence <= 0.05:
-        status.flag_color = "unknown"
-        status.flag_confidence = 0.0
-        status.updated_at = now_utc()
+        await reset_flag_on_zero_confidence(db, status)
 
     await db.commit()
     return FlagConfirmResponse(status="confirmed", beach_id=beach.id, new_confidence=new_confidence)

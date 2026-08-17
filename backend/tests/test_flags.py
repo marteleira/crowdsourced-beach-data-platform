@@ -461,6 +461,37 @@ class TestConfirmFlag:
         # fix only this fresh "yes" vote counts, so confidence stays near 1.0.
         assert r.json()["new_confidence"] > 0.9
 
+    async def test_confirm_contradiction_rejects_contributing_proposal(
+        self, client: AsyncClient, beach: Beach, beach_status: BeachStatus,
+        db: AsyncSession, auth_headers: dict, user: User
+    ):
+        
+        proposer = User(email="proposer@test.com", is_anonymous=False, reputation=0)
+        db.add(proposer)
+        await db.commit()
+        await db.refresh(proposer)
+        proposal = FlagProposal(
+            beach_id=beach.id, user_id=proposer.id, proposed_color="green",
+            initial_weight=1.5, status="applied", created_at=beach_status.updated_at,
+        )
+        db.add(proposal)
+        await db.commit()
+
+        await _add_heartbeat(db, beach, user)
+        r = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/flag/confirm",
+            json={"response": "no"},
+            headers=auth_headers,
+        )
+        assert r.status_code == 201
+        assert r.json()["new_confidence"] <= 0.05
+
+        await db.refresh(beach_status)
+        assert beach_status.flag_color == "unknown"
+
+        await db.refresh(proposal)
+        assert proposal.status == "rejected"
+
 
 class TestFlagConfidenceJob:
     async def test_stale_flag_with_no_votes_decays_to_unknown(

@@ -7,7 +7,7 @@ from collections.abc import Callable, Coroutine
 from datetime import timedelta
 from typing import Any, Optional
 
-from sqlalchemy import select, update, delete, func
+from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES, HEARTBEAT_CLEANUP_HOURS
@@ -28,7 +28,7 @@ from app.services.reputation import (
     sync_account_status,
     lift_expired_suspensions as _lift_expired_suspensions,
 )
-from app.services.flag_confidence import recalculate_beach_confidence
+from app.services.flag_confidence import recalculate_beach_confidence, reset_flag_on_zero_confidence
 
 logger = logging.getLogger(__name__)
 
@@ -183,56 +183,17 @@ async def process_reputation() -> None:
 
 
 async def recalculate_flag_confidences() -> None:
-    from app.models.beach_status import FlagConfirmation
-
     async with AsyncSessionLocal() as db:
         result = await db.execute(select(BeachStatus).where(BeachStatus.flag_color != "unknown"))
         statuses = result.scalars().all()
         for status in statuses:
             activity_level = await get_activity_level(db, status.beach_id)
-            current_color = status.flag_color
             new_conf = await recalculate_beach_confidence(
-                db, status.beach_id, current_color, status.updated_at, activity_level
+                db, status.beach_id, status.flag_color, status.updated_at, activity_level
             )
             status.flag_confidence = new_conf
             if new_conf <= 0.05:
-                # Determine if the reset is due to active contradiction (not just time decay).
-                # Only votes cast against the current flag instance count.
-                vote_result = await db.execute(
-                    select(FlagConfirmation.response, func.count().label("cnt"))
-                    .where(
-                        FlagConfirmation.beach_id == status.beach_id,
-                        FlagConfirmation.flag_color == current_color,
-                        FlagConfirmation.created_at >= status.updated_at,
-                    )
-                    .group_by(FlagConfirmation.response)
-                )
-                counts = {row.response: row.cnt for row in vote_result.all()}
-                actively_contradicted = counts.get("no", 0) > counts.get("yes", 0)
-
-                if actively_contradicted:
-                    # Mark every proposal that contributed to THIS instance as rejected
-                    # (aggregation can apply several at once, not just one). Bounded to
-                    # the aggregation window before updated_at so an older, already
-                    # resolved instance's applied proposals for the same color — left
-                    # "applied" by a prior decay-only reset — aren't swept in too.
-                    instance_start = status.updated_at - timedelta(minutes=FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES)
-                    proposal_result = await db.execute(
-                        select(FlagProposal)
-                        .where(
-                            FlagProposal.beach_id == status.beach_id,
-                            FlagProposal.proposed_color == current_color,
-                            FlagProposal.status == "applied",
-                            FlagProposal.created_at >= instance_start,
-                            FlagProposal.created_at <= status.updated_at,
-                        )
-                    )
-                    for proposal in proposal_result.scalars().all():
-                        proposal.status = "rejected"
-
-                status.flag_color = "unknown"
-                status.flag_confidence = 0.0
-                status.updated_at = now_utc()
+                await reset_flag_on_zero_confidence(db, status)
         await db.commit()
         logger.info("Flag confidences recalculated")
 
