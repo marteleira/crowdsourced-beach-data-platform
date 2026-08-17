@@ -74,7 +74,7 @@ def _blend_levels(heartbeat_level: str, report_level: str, report_confidence: fl
 
 def _heartbeat_level(beach: Beach, count: int) -> str:
     """Derive low/medium/high from heartbeat count alone."""
-    if beach.max_capacity:
+    if beach.has_capacity_data and beach.max_capacity:
         ratio = count / beach.max_capacity
         return "low" if ratio < OCCUPANCY_LOW_RATIO else "medium" if ratio < OCCUPANCY_MEDIUM_RATIO else "high"
     return "low" if count < OCCUPANCY_LOW_THRESHOLD else "medium" if count < OCCUPANCY_MEDIUM_THRESHOLD else "high"

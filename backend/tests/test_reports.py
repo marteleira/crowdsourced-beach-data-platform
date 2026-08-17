@@ -100,6 +100,54 @@ class TestCreateReport:
             )
             assert r.status_code == 201, f"failed for type: {report_type}"
 
+    async def test_rate_limit_blocks_same_type_resubmit(
+        self, client: AsyncClient, beach: Beach, db, auth_headers: dict, user: User
+    ):
+        await _add_presence(db, beach, user)
+        r1 = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/reports",
+            json={"type": "jellyfish", "severity": 1},
+            headers=auth_headers,
+        )
+        assert r1.status_code == 201
+
+        r2 = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/reports",
+            json={"type": "jellyfish", "severity": 2},
+            headers=auth_headers,
+        )
+        assert r2.status_code == 429
+        assert r2.json()["detail"]["code"] == "report_rate_limited"
+
+    async def test_rate_limit_does_not_block_different_type(
+        self, client: AsyncClient, beach: Beach, db, auth_headers: dict, user: User
+    ):
+        await _add_presence(db, beach, user)
+        r1 = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/reports",
+            json={"type": "jellyfish", "severity": 1},
+            headers=auth_headers,
+        )
+        assert r1.status_code == 201
+
+        r2 = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/reports",
+            json={"type": "pollution", "severity": 1},
+            headers=auth_headers,
+        )
+        assert r2.status_code == 201
+
+    async def test_note_over_max_length_rejected(
+        self, client: AsyncClient, beach: Beach, db, auth_headers: dict, user: User
+    ):
+        await _add_presence(db, beach, user)
+        r = await client.post(
+            "/api/v1/beaches/portinho-da-arrabida/reports",
+            json={"type": "jellyfish", "severity": 1, "note": "x" * 201},
+            headers=auth_headers,
+        )
+        assert r.status_code == 422
+
 
 class TestListReports:
     async def test_list_active_reports(self, client: AsyncClient, beach: Beach, db, auth_headers: dict, user: User):

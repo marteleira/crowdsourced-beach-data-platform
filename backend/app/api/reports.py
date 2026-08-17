@@ -5,7 +5,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import REPORT_PRESENCE_WINDOW_HOURS, VOTE_PRESENCE_WINDOW_HOURS
+from app.core.constants import (
+    REPORT_PRESENCE_WINDOW_HOURS,
+    REPORT_RATE_LIMIT_MINUTES,
+    VOTE_PRESENCE_WINDOW_HOURS,
+)
 from app.core.database import get_db
 from app.core.deps import (
     get_beach_or_404,
@@ -92,6 +96,19 @@ async def create_report(
         require_presence(timedelta(hours=REPORT_PRESENCE_WINDOW_HOURS), "must_be_at_beach_report")
     ),
 ):
+    # limit one report per user per beach per type per window
+    rate_cutoff = now_utc() - timedelta(minutes=REPORT_RATE_LIMIT_MINUTES)
+    existing = await db.scalar(
+        select(func.count(Report.id)).where(
+            Report.user_id == user.id,
+            Report.beach_id == beach.id,
+            Report.type == body.type,
+            Report.created_at > rate_cutoff,
+        )
+    )
+    if existing:
+        raise api_error(429, "report_rate_limited", user.language)
+
     activity_params = await get_activity_params(db, beach.id)
 
     ttl = report_ttl_minutes(body.type, activity_params.level)

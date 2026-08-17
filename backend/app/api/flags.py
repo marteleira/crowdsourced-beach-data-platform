@@ -5,6 +5,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.constants import (
+    FLAG_CONFIDENCE_RESET_THRESHOLD,
     FLAG_CONFIRM_WINDOW_HOURS,
     FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES,
     FLAG_PROPOSAL_WINDOW_MINUTES,
@@ -223,7 +224,7 @@ async def confirm_flag(
     status.flag_confidence = new_confidence
 
     # If confidence drops to zero and reset the flag
-    if new_confidence <= 0.05:
+    if new_confidence <= FLAG_CONFIDENCE_RESET_THRESHOLD:
         await reset_flag_on_zero_confidence(db, status)
 
     await db.commit()

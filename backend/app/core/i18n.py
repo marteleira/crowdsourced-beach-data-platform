@@ -90,6 +90,10 @@ TRANSLATIONS: dict[str, dict[str, str]] = {
     },
 
     # Reports
+    "report_rate_limited": {
+        "en": "You already reported this event at this beach recently, please wait before submitting again.",
+        "pt": "Já reportaste este evento nesta praia recentemente, por favor espera antes de submeter de novo.",
+    },
     "report_not_found_or_expired": {"en": "Report not found or expired", "pt": "Aviso não encontrado ou expirado"},
     "report_not_found": {"en": "Report not found", "pt": "Aviso não encontrado"},
     "report_not_yours": {"en": "You cannot delete other users' reports", "pt": "Não podes apagar avisos de outros utilizadores"},

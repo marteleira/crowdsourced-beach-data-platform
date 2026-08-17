@@ -1,7 +1,8 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Literal
 from datetime import datetime
 
+from app.core.constants import REPORT_NOTE_MAX_LENGTH
 from app.schemas.errors import CodedValueError
 
 VALID_REPORT_TYPES = ("jellyfish", "strong_current", "pollution", "rough_sea", "other_alert")
@@ -10,7 +11,7 @@ VALID_REPORT_TYPES = ("jellyfish", "strong_current", "pollution", "rough_sea", "
 class ReportCreate(BaseModel):
     type: str
     severity: int = 2
-    note: Optional[str] = None
+    note: Optional[str] = Field(default=None, max_length=REPORT_NOTE_MAX_LENGTH)
     lat: Optional[float] = None
     lon: Optional[float] = None
 

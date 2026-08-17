@@ -16,6 +16,10 @@ OCCUPANCY_REPORT_EXPIRE_MINUTES = 120    # reports expire after 2h (conditions c
 OCCUPANCY_REPORT_RATE_LIMIT_MINUTES = 120  # one report per user per beach per 2h
 OCCUPANCY_REPORT_CONFIDENCE_THRESHOLD = 3.0  # total weight needed for full confidence
 
+# Community alerts (hazard reports)
+REPORT_RATE_LIMIT_MINUTES = 15       # one report per user, beach, type and window
+REPORT_NOTE_MAX_LENGTH = 200         # match client-side limit
+
 #  Gating windows
 REPORT_PRESENCE_WINDOW_HOURS = 1     # must have heartbeat within 1h to submit report
 VOTE_PRESENCE_WINDOW_HOURS = 2       # must have heartbeat within 2h to vote
@@ -39,6 +43,7 @@ SUSPENSION_DURATION_HOURS = 48
 
 # Flag confirmation cooldown
 FLAG_CONFIRM_WINDOW_HOURS = 1        # one confirmation vote per user per beach per hour
+FLAG_CONFIDENCE_RESET_THRESHOLD = 0.05  # confidence at or below this resets the flag to unknown
 
 # Heartbeat retention
 HEARTBEAT_CLEANUP_HOURS = 2          # keep only the last N hours of heartbeats

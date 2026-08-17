@@ -326,10 +326,11 @@ class TestReportSubmissionBonuses:
         self, client: AsyncClient, beach: Beach, db: AsyncSession, user: User, auth_headers: dict
     ):
         await _add_presence(db, beach, user)
-        for _ in range(4):
+        # Distinct types, reports are rate-limited per user/beach/type.
+        for report_type in ("jellyfish", "strong_current", "pollution", "rough_sea"):
             await client.post(
                 "/api/v1/beaches/portinho-da-arrabida/reports",
-                json={"type": "jellyfish", "severity": 1},
+                json={"type": report_type, "severity": 1},
                 headers=auth_headers,
             )
         events = await _rep_events(db, user.id, "report_submitted")

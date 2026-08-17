@@ -10,7 +10,11 @@ from typing import Any, Optional
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.constants import FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES, HEARTBEAT_CLEANUP_HOURS
+from app.core.constants import (
+    FLAG_CONFIDENCE_RESET_THRESHOLD,
+    FLAG_PROPOSAL_AGGREGATION_WINDOW_MINUTES,
+    HEARTBEAT_CLEANUP_HOURS,
+)
 from app.core.database import AsyncSessionLocal
 from app.core.utils import now_utc
 from app.models.beach import Beach
@@ -192,7 +196,7 @@ async def recalculate_flag_confidences() -> None:
                 db, status.beach_id, status.flag_color, status.updated_at, activity_level
             )
             status.flag_confidence = new_conf
-            if new_conf <= 0.05:
+            if new_conf <= FLAG_CONFIDENCE_RESET_THRESHOLD:
                 await reset_flag_on_zero_confidence(db, status)
         await db.commit()
         logger.info("Flag confidences recalculated")

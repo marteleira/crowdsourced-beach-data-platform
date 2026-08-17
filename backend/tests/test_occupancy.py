@@ -4,10 +4,21 @@ from httpx import AsyncClient
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.db_helpers import _heartbeat_level
 from app.models.beach import Beach
 from app.models.beach_status import OccupancyHeartbeat
 from app.models.user import User
 from app.core.security import create_access_token
+
+
+class TestHeartbeatLevelCapacityGating:
+    def test_ignores_max_capacity_without_has_capacity_data_flag(self):
+        beach = Beach(max_capacity=10, has_capacity_data=False)
+        assert _heartbeat_level(beach, 8) == "low"
+
+    def test_uses_ratio_when_has_capacity_data_is_true(self):
+        beach = Beach(max_capacity=10, has_capacity_data=True)
+        assert _heartbeat_level(beach, 8) == "high"
 
 
 class TestHeartbeat:
