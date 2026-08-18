@@ -13,8 +13,6 @@
 [![Tests](https://img.shields.io/badge/Tests-292%20passing-brightgreen)](#technical-documentation)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](#terms-of-use)
 
-**Live at [ondacerta.bitaxiom.net](https://ondacerta.bitaxiom.net)** — landing page, Terms, Privacy Policy and direct APK download.
-
 </div>
 
 ---
@@ -342,7 +340,6 @@ Detailed docs for each part live in their respective directories:
 ---
 
 ### 🔜 Future work
-
 - [ ] Submit to app stores (direct APK download is already live on the website)
 - [ ] Mock-location detection and device integrity checks (Play Integrity) to further harden presence verification
 - [ ] Wire the guest-account promotion flow into the client (the `/auth/promote` endpoint is already live)
